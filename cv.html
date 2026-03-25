@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>James Ciclitira — Résumé</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rose: #E8325A; --rose-light: #fce8ed;
+      --ink: #111010; --ink-60: rgba(17,16,16,0.6); --ink-20: rgba(17,16,16,0.12);
+      --paper: #F7F5F2; --white: #ffffff;
+      --col-gap: 52px; --max-w: 920px;
+    }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
+    .page { max-width: var(--max-w); margin: 0 auto; padding: 0 24px 80px; }
+
+    /* TOP BAR */
+    .topbar { padding: 18px 0; display: flex; justify-content: space-between; align-items: center; }
+    .back-link { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; color: var(--ink-60); display: inline-flex; align-items: center; gap: 5px; transition: color 0.15s; }
+    .back-link:hover { color: var(--rose); }
+    .back-link::before { content: "←"; }
+    .print-btn { font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 14px; border-radius: 2px; background: transparent; color: var(--ink); border: 1.5px solid var(--ink-20); cursor: pointer; transition: border-color 0.15s; }
+    .print-btn:hover { border-color: var(--ink); }
+
+    /* HEADER */
+    header { padding: 24px 0 28px; border-bottom: 1.5px solid var(--ink); display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+    .header-mid { display: flex; flex-direction: column; justify-content: flex-end; }
+    .name { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; letter-spacing: -0.02em; }
+    .title-tag { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rose); }
+    .title-tag::before { content: ''; display: block; width: 16px; height: 1.5px; background: var(--rose); }
+    .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; padding-bottom: 2px; }
+    .contact-line { font-size: 0.76rem; color: var(--ink-60); }
+    .contact-line a { color: var(--ink-60); text-decoration: none; border-bottom: 1px solid var(--ink-20); transition: color 0.15s, border-color 0.15s; }
+    .contact-line a:hover { color: var(--rose); border-color: var(--rose); }
+    .location-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--ink-60); padding: 3px 9px 3px 7px; background: var(--white); border: 1px solid var(--ink-20); border-radius: 20px; }
+    .location-badge svg { width: 8px; height: 8px; fill: var(--rose); }
+
+    /* ABOUT STRIP — single sentence, tight */
+    .about-strip { padding: 20px 0 22px; border-bottom: 1px solid var(--ink-20); }
+    .about-strip p { font-size: 0.95rem; font-weight: 300; line-height: 1.65; color: var(--ink-60); max-width: 640px; }
+    .about-strip strong { color: var(--ink); font-weight: 400; }
+
+    /* BODY GRID */
+    .body-grid { display: grid; grid-template-columns: 1fr 268px; gap: 0 var(--col-gap); padding-top: 36px; }
+    .sec-lbl { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-60); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+    .sec-lbl::after { content: ''; flex: 1; height: 1px; background: var(--ink-20); }
+    .col-left section { margin-bottom: 40px; }
+
+    /* JOBS */
+    .job { padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid var(--ink-20); }
+    .job:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+    .job-hd { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 1px; }
+    .job-co { font-family: 'DM Serif Display', serif; font-size: 1.05rem; color: var(--ink); text-decoration: none; transition: color 0.15s; }
+    .job-co:hover { color: var(--rose); }
+    .job-dates { font-size: 0.68rem; letter-spacing: 0.06em; color: var(--ink-60); white-space: nowrap; }
+    .job-role { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rose); margin-bottom: 7px; }
+    .job-desc { font-size: 0.845rem; font-weight: 300; line-height: 1.65; color: var(--ink-60); }
+    .job-desc strong { color: var(--ink); font-weight: 400; }
+    .bullets { margin-top: 8px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .bullets li { font-size: 0.82rem; font-weight: 300; line-height: 1.55; color: var(--ink-60); padding-left: 13px; position: relative; }
+    .bullets li::before { content: "–"; position: absolute; left: 0; color: var(--rose); }
+    .bullets li strong { color: var(--ink); font-weight: 400; }
+
+    /* EDUCATION */
+    .edu-hd { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 1px; }
+    .edu-name { font-family: 'DM Serif Display', serif; font-size: 1.02rem; color: var(--ink); text-decoration: none; transition: color 0.15s; }
+    .edu-name:hover { color: var(--rose); }
+    .edu-dates { font-size: 0.68rem; color: var(--ink-60); letter-spacing: 0.06em; }
+    .edu-degree { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rose); margin-top: 2px; }
+
+    /* RIGHT COL */
+    .col-right section { margin-bottom: 36px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; }
+    .tags li { font-size: 0.7rem; font-weight: 400; letter-spacing: 0.04em; padding: 3px 10px; border: 1px solid var(--ink-20); border-radius: 2px; color: var(--ink); transition: border-color 0.15s, background 0.15s; }
+    .tags li:hover { border-color: var(--rose); background: var(--rose-light); color: var(--rose); }
+
+    /* TOOLS */
+    .tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .tool { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .tool-icon { width: 38px; height: 38px; padding: 7px; background: var(--white); border: 1px solid var(--ink-20); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s, transform 0.15s; }
+    .tool:hover .tool-icon { border-color: var(--rose); transform: translateY(-2px); }
+    .tool-icon img, .tool-icon svg { width: 20px; height: 20px; object-fit: contain; }
+    .tool-lbl { font-size: 0.58rem; font-weight: 400; letter-spacing: 0.06em; text-align: center; color: var(--ink-60); }
+
+    /* FOOTER */
+    footer { margin-top: 44px; padding-top: 20px; border-top: 1.5px solid var(--ink); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    footer p { font-size: 0.68rem; color: var(--ink-60); letter-spacing: 0.04em; }
+    footer a { color: var(--rose); text-decoration: none; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .page > * { animation: fadeUp 0.4s ease both; }
+    .topbar { animation-delay: 0.02s; } header { animation-delay: 0.07s; }
+    .about-strip { animation-delay: 0.13s; } .body-grid { animation-delay: 0.2s; }
+
+    @media (max-width: 700px) {
+      .body-grid { grid-template-columns: 1fr; }
+      .col-right { border-top: 1px solid var(--ink-20); padding-top: 36px; }
+      header { grid-template-columns: auto 1fr; }
+      .header-right { grid-column: 1 / -1; align-items: flex-start; flex-direction: row; flex-wrap: wrap; gap: 10px; }
+      .tools { grid-template-columns: repeat(5, 1fr); }
+    }
+    @media print {
+      body { background: white; font-size: 14px; }
+      .topbar { display: none; }
+      .body-grid { grid-template-columns: 1fr 240px; }
+      .page { padding-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="topbar">
+      <a href="index.html" class="back-link">Portfolio</a>
+      <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+
+    <header>
+      <div class="header-mid">
+        <h1 class="name">James Ciclitira</h1>
+        <div class="title-tag">Senior Product Designer</div>
+      </div>
+      <div class="header-right">
+        <div class="contact-line">
+          <a href="/cdn-cgi/l/email-protection#abc3cec7c7c4ebc1c8c2c8c7c2dfc2d9ca85c8c4c6"><span class="__cf_email__" data-cfemail="8ee6ebe2e2e1cee4ede7ede2e7fae7fcefa0ede1e3">[email&#160;protected]</span></a>
+          &nbsp;·&nbsp;
+          <a href="https://www.jciclitira.com" target="_blank">jciclitira.com</a>
+        </div>
+        <div class="contact-line">
+          <a href="https://linkedin.com/in/jciclitira" target="_blank">linkedin.com/in/jciclitira</a>
+        </div>
+        <div class="location-badge">
+          <svg viewBox="0 0 10 13"><path d="M5 0C2.24 0 0 2.24 0 5c0 3.75 5 8 5 8s5-4.25 5-8c0-2.76-2.24-5-5-5zm0 6.5C4.17 6.5 3.5 5.83 3.5 5S4.17 3.5 5 3.5 6.5 4.17 6.5 5 5.83 6.5 5 6.5z"/></svg>
+          Berlin, Germany
+        </div>
+      </div>
+    </header>
+
+    <div class="about-strip">
+      <p>Senior Product Designer with 10+ years building digital products people actually use — across <strong>mobility, health, climate fintech, and e-commerce</strong>. I work end-to-end: research, strategy, and interface design. Currently in Berlin, open to the right role.</p>
+    </div>
+
+    <div class="body-grid">
+      <div class="col-left">
+
+        <section>
+          <div class="sec-lbl">Experience</div>
+
+          <div class="job">
+            <div class="job-hd">
+              <span class="job-co">Enter — baupal GmbH</span>
+              <span class="job-dates">Jul 2024 – Jan 2026</span>
+            </div>
+            <div class="job-role">Senior Product Designer</div>
+            <p class="job-desc">Led product design for a Berlin energy consultancy helping homeowners retrofit buildings with sustainable solutions. Owned the full customer journey — audit through booking.</p>
+            <ul class="bullets">
+              <li>Designed a complex multi-step retrofit journey from initial energy audit to contractor booking</li>
+              <li>Built and maintained the <strong>design system</strong> that aligned the whole team</li>
+              <li>Regular research with homeowners and consultants to keep design grounded in real needs</li>
+            </ul>
+          </div>
+
+          <div class="job">
+            <div class="job-hd">
+              <a class="job-co" href="https://web.archive.org/web/20220301162614if_/http://www.coolerfuture.com/" target="_blank">Cooler Future</a>
+              <span class="job-dates">Jul 2021 – Jan 2023</span>
+            </div>
+            <div class="job-role">Lead Product Designer</div>
+            <p class="job-desc">Founding designer at a climate fintech making sustainable investing accessible from €20. Led all product design from zero — research, app, and website.</p>
+            <ul class="bullets">
+              <li>Led <strong>user interviews, diary studies, and card sorting</strong> across two distinct user segments</li>
+              <li>Designed the full onboarding including <strong>German depot account setup</strong> with KYC</li>
+              <li>Solved impact visualisation — iterating until users could actually understand and trust it</li>
+            </ul>
+          </div>
+
+          <div class="job">
+            <div class="job-hd">
+              <a class="job-co" href="https://www.somethingcreative.de/" target="_blank">Something Creative</a>
+              <span class="job-dates">Jan 2021 – Jul 2021</span>
+            </div>
+            <div class="job-role">Product Designer</div>
+            <p class="job-desc">Berlin digital agency. Delivered UX research and interface design across multiple client engagements from initial problem to polished product.</p>
+          </div>
+
+          <div class="job">
+            <div class="job-hd">
+              <a class="job-co" href="https://joincoup.com/en/berlin" target="_blank">Bosch — Coup Mobility</a>
+              <span class="job-dates">Mar 2019 – Oct 2020</span>
+            </div>
+            <div class="job-role">Product Designer</div>
+            <p class="job-desc">Bosch-owned e-moped service, 5,000 scooters across Berlin, Paris, Madrid. Owned ride UX and all operational tooling for dispatchers and field workers.</p>
+            <ul class="bullets">
+              <li>Designed a cancellation popup that became a real-time <strong>fleet reporting system</strong> — reducing downtime without affecting riders</li>
+              <li>Built the <strong>dispatcher dashboard and field worker app</strong> across three markets</li>
+            </ul>
+          </div>
+
+          <div class="job">
+            <div class="job-hd">
+              <a class="job-co" href="https://www.vivy.com" target="_blank">Vivy</a>
+              <span class="job-dates">Oct 2017 – Mar 2019</span>
+            </div>
+            <div class="job-role">Product Designer</div>
+            <p class="job-desc">Allianz-backed digital health platform. Joined as a founding designer and helped build the culture, research practice, and core product from scratch.</p>
+            <ul class="bullets">
+              <li>Designed document request, file sharing, and <strong>expectation management</strong> flows</li>
+              <li>Ran a <strong>4-day design sprint in Munich with Allianz</strong> to define invoice management</li>
+            </ul>
+          </div>
+
+          <div class="job">
+            <div class="job-hd">
+              <a class="job-co" href="#">Freelance</a>
+              <span class="job-dates">2016 – 2017</span>
+            </div>
+            <div class="job-role">Product &amp; Web Designer</div>
+            <p class="job-desc">Consultant for <strong>YunoJuno, Quidco, and Suggestv</strong> — research, interface design, and front-end development across products with 10M+ combined users.</p>
+          </div>
+
+          <div class="job">
+            <div class="job-hd">
+              <a class="job-co" href="https://CrowdScores.com/" target="_blank">CrowdScores</a>
+              <span class="job-dates">Sep 2015 – Jan 2017</span>
+            </div>
+            <div class="job-role">Product Designer</div>
+            <p class="job-desc">Sole designer on a live sports app covering 1,300+ weekly matches on iOS and Android. Owned everything from UX to icons to advertising.</p>
+            <ul class="bullets">
+              <li>Rebuilt navigation around <strong>search</strong> — cut time-to-match from 5+ taps to under 2</li>
+            </ul>
+          </div>
+
+        </section>
+
+        <section>
+          <div class="sec-lbl">Education</div>
+          <div class="edu-hd">
+            <a class="edu-name" href="http://www.eca.ed.ac.uk/school-of-design/undergraduate/product-design-ba-hons" target="_blank">The University of Edinburgh</a>
+            <span class="edu-dates">2011 – 2015</span>
+          </div>
+          <div class="edu-degree">Product Design · BA (Hons) 2:1</div>
+        </section>
+
+      </div>
+
+      <div class="col-right">
+
+        <section>
+          <div class="sec-lbl">Design Skills</div>
+          <ul class="tags">
+            <li>User Research</li><li>User Interviews</li><li>Diary Studies</li>
+            <li>Card Sorting</li><li>Usability Testing</li><li>Storyboarding</li>
+            <li>Interaction Design</li><li>Wireframing</li><li>Prototyping</li>
+            <li>Design Systems</li><li>Typography</li><li>Accessibility</li>
+          </ul>
+        </section>
+
+        <section>
+          <div class="sec-lbl">Industries</div>
+          <ul class="tags">
+            <li>Climate / Green Tech</li><li>Digital Health</li>
+            <li>Mobility</li><li>Fintech</li>
+            <li>B2B SaaS</li><li>Consumer</li>
+          </ul>
+        </section>
+
+        <section>
+          <div class="sec-lbl">Languages</div>
+          <ul class="tags">
+            <li>English — Native</li>
+            <li>German — B2</li>
+          </ul>
+        </section>
+
+        <section>
+          <div class="sec-lbl">Tools</div>
+          <div class="tools">
+            <div class="tool">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 40 60"><path d="M10 40c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10-10-4.5-10-10z" fill="#1ABCFE"/><path d="M10 20c0-5.5 4.5-10 10-10h10v20H20c-5.5 0-10-4.5-10-10z" fill="#FF7262"/><path d="M20 0h10c5.5 0 10 4.5 10 10s-4.5 10-10 10H20V0z" fill="#FF7262"/><path d="M0 30c0-5.5 4.5-10 10-10h10v20H10C4.5 50 0 45.5 0 40v-10z" fill="#A259FF"/><path d="M0 10C0 4.5 4.5 0 10 0h10v20H10C4.5 20 0 15.5 0 10z" fill="#F24E1E"/></svg>
+              </div>
+              <span class="tool-lbl">Figma</span>
+            </div>
+            <div class="tool">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 100 100"><rect width="100" height="100" rx="14" fill="#F24E1E"/><rect x="20" y="20" width="25" height="60" rx="4" fill="white"/><rect x="55" y="20" width="25" height="60" rx="4" fill="white"/></svg>
+              </div>
+              <span class="tool-lbl">Sketch</span>
+            </div>
+            <div class="tool">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 100 100"><rect width="100" height="100" rx="14" fill="#1E6FEB"/><path d="M22 28h56v8H22zm0 18h56v8H22zm0 18h40v8H22z" fill="white"/></svg>
+              </div>
+              <span class="tool-lbl">Miro</span>
+            </div>
+            <div class="tool">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 100 100"><rect width="100" height="100" rx="14" fill="#24292e"/><circle cx="35" cy="40" r="8" fill="white"/><circle cx="65" cy="40" r="8" fill="white"/><path d="M20 65 Q50 82 80 65" stroke="white" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+              </div>
+              <span class="tool-lbl">Maze</span>
+            </div>
+            <div class="tool">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 100 100"><rect width="100" height="100" rx="14" fill="#FF3B30"/><path d="M25 70 L50 30 L75 70 Z" fill="white"/></svg>
+              </div>
+              <span class="tool-lbl">Illustrator</span>
+            </div>
+            <div class="tool">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 100 100"><rect width="100" height="100" rx="14" fill="#001EEE"/><text x="50" y="68" font-family="Georgia,serif" font-size="48" font-weight="900" text-anchor="middle" fill="white">Ps</text></svg>
+              </div>
+              <span class="tool-lbl">Photoshop</span>
+            </div>
+            <div class="tool">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 100 100"><rect width="100" height="100" rx="14" fill="#DC395F"/><path d="M36 63c0 3.3-2.7 6-6 6s-6-2.7-6-6 2.7-6 6-6 6 2.7 6 6zm30-26c0-3.3-2.7-6-6-6s-6 2.7-6 6 2.7 6 6 6 6-2.7 6-6zm0 26c0-3.3-2.7-6-6-6s-6 2.7-6 6 2.7 6 6 6 6-2.7 6-6zM42 37H28v6h14v-6zm14 20H42v6h14v-6z" fill="white"/></svg>
+              </div>
+              <span class="tool-lbl">InVision</span>
+            </div>
+            <div class="tool">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 100 100"><rect width="100" height="100" rx="14" fill="#7C3AED"/><text x="50" y="68" font-family="Georgia,serif" font-size="44" font-style="italic" text-anchor="middle" fill="white">P</text></svg>
+              </div>
+              <span class="tool-lbl">Principal</span>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="sec-lbl">Looking for</div>
+          <ul class="tags">
+            <li>Senior Product Designer</li>
+            <li>Lead Product Designer</li>
+            <li>Berlin · Remote-friendly</li>
+            <li>Full-time</li>
+          </ul>
+        </section>
+
+      </div>
+    </div>
+
+    <footer>
+      <p>James Ciclitira &mdash

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cooler Future — James Ciclitira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@300;400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>/* === SHARED CASE STUDY STYLES — paste into <style> of every page === */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111110;--paper:#f6f3ed;--warm:#eae6dc;
+  --accent:#b8412a;--accent-lt:#eec9be;--muted:#7a7670;
+  --border:rgba(17,17,16,0.09);
+  --serif:'Lora',Georgia,serif;
+  --mono:'DM Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden;cursor:none}
+/* cursor */
+#cur{position:fixed;width:9px;height:9px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:multiply}
+#cur.h{width:30px;height:30px;background:var(--accent-lt)}
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 2.5rem;background:rgba(246,243,237,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--ink);text-decoration:none;opacity:.55}
+.nav-links{display:flex;gap:1.8rem;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-decoration:none;opacity:.45;transition:opacity .2s}
+.nav-links a:hover{opacity:1}
+/* footer */
+footer{border-top:1px solid var(--border);padding:1.6rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(--muted)}
+.fsoc{display:flex;gap:1.5rem}
+.fsoc a{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.fsoc a:hover{color:var(--accent)}
+/* reveal */
+.r{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.r.in{opacity:1;transform:none}
+/* === CASE STUDY PAGE STYLES === */
+/* hero */
+.cs-hero{padding:7.5rem 2.5rem 4.5rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;border-bottom:1px solid var(--border)}
+.back{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;margin-bottom:1.8rem;transition:color .2s}
+.back:hover{color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.9rem}
+.cs-title{font-family:var(--serif);font-size:clamp(2.4rem,5.5vw,4.4rem);font-weight:400;line-height:1.05;letter-spacing:-.015em;margin-bottom:1.4rem}
+.cs-title em{font-style:italic}
+.cs-tagline{font-size:1rem;color:var(--muted);line-height:1.8;max-width:46ch}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.meta-item label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+.meta-item p{font-size:.9rem;line-height:1.5}
+/* hero image */
+.hero-img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;display:block}
+/* stat bar */
+.stats{background:var(--ink);display:grid;grid-template-columns:repeat(3,1fr)}
+.stats.four{grid-template-columns:repeat(4,1fr)}
+.stat{padding:2rem 2.5rem;border-right:1px solid rgba(255,255,255,.06);color:var(--paper)}
+.stat:last-child{border-right:none}
+.stat-n{font-family:var(--serif);font-size:2.2rem;font-style:italic;color:var(--accent-lt);line-height:1;margin-bottom:.3rem}
+.stat-l{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);line-height:1.65}
+/* body */
+.body{max-width:1180px;margin:0 auto;padding:5rem 2.5rem}
+.section{margin-bottom:5rem}
+.section:last-child{margin-bottom:0}
+/* labels */
+.lbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;display:flex;align-items:center;gap:1rem}
+.lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+/* headings */
+h2{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.4rem);font-weight:400;line-height:1.18;margin-bottom:1.4rem}
+h2 em{font-style:italic;color:var(--accent)}
+/* prose */
+.prose{font-size:.98rem;color:var(--muted);line-height:1.88;max-width:64ch}
+.prose strong{color:var(--ink);font-weight:400}
+.prose+.prose{margin-top:1rem}
+/* problem box */
+.pbox{background:var(--warm);border-left:3px solid var(--accent);padding:1.6rem 1.9rem;margin:1.8rem 0}
+.pbox p{font-size:.94rem;line-height:1.78}
+.pbox strong{font-weight:500;color:var(--ink)}
+/* layouts */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+/* images */
+.img{width:100%;display:block;object-fit:cover;object-position:center top;border:1px solid var(--border)}
+.img.tall{aspect-ratio:4/3}
+.img.wide{aspect-ratio:16/9}
+.img.short{aspect-ratio:16/8}
+.img.sq{aspect-ratio:1/1}
+.img.port{aspect-ratio:9/16}
+.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.5rem}
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
+.icard{padding:1.4rem;border:1px solid var(--border);background:var(--paper)}
+.icard-icon{font-size:1.2rem;margin-bottom:.65rem}
+.icard-t{font-family:var(--serif);font-size:.98rem;font-weight:400;margin-bottom:.35rem}
+.icard-d{font-size:.82rem;color:var(--muted);line-height:1.6}
+/* sprint days */
+.sprint{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:1.8rem 0}
+.day{background:var(--paper);padding:1.3rem}
+.day-n{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--accent);margin-bottom:.4rem}
+.day-t{font-family:var(--serif);font-size:.95rem;font-weight:400;margin-bottom:.3rem}
+.day-d{font-size:.8rem;color:var(--muted);line-height:1.55}
+/* user type blocks */
+.utype{padding:1.8rem;background:var(--warm);border:1px solid var(--border)}
+.utype-tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.65rem}
+.utype h3{font-family:var(--serif);font-size:1.08rem;font-weight:400;margin-bottom:.4rem}
+.utype p{font-size:.84rem;color:var(--muted);line-height:1.65}
+/* pull quote */
+.pq{padding:2.8rem 2.5rem;background:var(--ink);color:var(--paper);margin:2.5rem 0}
+.pq p{font-family:var(--serif);font-size:clamp(1.1rem,2.2vw,1.55rem);font-style:italic;line-height:1.45;color:rgba(246,243,237,.88)}
+.pq cite{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);margin-top:.9rem}
+/* next */
+.next{display:grid;grid-template-columns:1fr 1fr;min-height:260px;text-decoration:none;color:inherit}
+.next:hover .next-img{transform:scale(1.03)}
+.next-l{background:var(--ink);padding:2.8rem;display:flex;flex-direction:column;justify-content:space-between;transition:background .25s}
+.next:hover .next-l{background:#1a1917}
+.next-eyebrow{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(246,243,237,.35);margin-bottom:.9rem}
+.next-title{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.6rem);font-weight:400;color:var(--paper);line-height:1.1}
+.next-title em{font-style:italic;color:var(--accent-lt)}
+.next-sub{font-family:var(--mono);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(246,243,237,.28);margin-top:1rem}
+.next-r{overflow:hidden}
+.next-img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block}
+/* back home variant */
+.backhome{display:flex;align-items:center;justify-content:center;min-height:240px;background:var(--warm);border-top:1px solid var(--border);text-decoration:none;color:var(--ink);transition:background .25s}
+.backhome:hover{background:var(--ink)}
+.backhome:hover .bh-lbl,.backhome:hover .bh-t{color:var(--paper)}
+.bh-lbl{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;transition:color .25s;text-align:center}
+.bh-t{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:400;line-height:1.1;text-align:center;transition:color .25s}
+.bh-t em{font-style:italic;color:var(--accent)}
+/* responsive */
+@media(max-width:860px){
+  .cs-hero{grid-template-columns:1fr;padding:6.5rem 1.4rem 3rem;gap:2rem}
+  .stats{grid-template-columns:1fr 1fr}.stats.four{grid-template-columns:1fr 1fr}
+  .stat:nth-child(3):not(.stats.four .stat:nth-child(3)){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .stats.four .stat:nth-child(3),.stats.four .stat:nth-child(4){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .body{padding:3rem 1.4rem}
+  .two,.three,.four,.cards,.sprint{grid-template-columns:1fr}
+  .next{grid-template-columns:1fr}.next-r{min-height:180px}
+  nav,footer{padding-left:1.4rem;padding-right:1.4rem}
+  .pq{padding:2rem 1.4rem}
+}
+@media(max-width:480px){.stats{grid-template-columns:1fr}.stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<nav>
+  <a href="index.html" class="nav-logo">James Ciclitira</a>
+  <ul class="nav-links"><li><a href="index.html#work">Work</a></li><li><a href="index.html#contact">Contact</a></li><li><a href="cv.html">Résumé</a></li></ul>
+</nav>
+
+<header class="cs-hero">
+  <div>
+    <a href="index.html" class="back">← All work</a>
+    <p class="eyebrow">02 — Climate Fintech · 0→1 Launch</p>
+    <h1 class="cs-title">Cooler<br><em>Future</em></h1>
+    <p class="cs-tagline">The sustainable investing space was full of greenwash and impenetrable jargon. Cooler Future wanted to change that. I led design from pre-launch — research, product, and website — until the doors opened.</p>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-item"><label>Role</label><p>Lead Product Designer</p></div>
+    <div class="meta-item"><label>Stage</label><p>0 → 1 · Full launch</p></div>
+    <div class="meta-item"><label>Deliverables</label><p>Mobile app · Marketing website · Design system</p></div>
+    <div class="meta-item"><label>Methods</label><p>User interviews · Diary studies · Card sorting · Storyboarding</p></div>
+  </div>
+</header>
+
+<img class="hero-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65940ab6bcaf577124a4acb9_CoolerHero.png" alt="Cooler Future">
+
+<div class="stats">
+  <div class="stat r"><div class="stat-n">€20</div><div class="stat-l">Minimum investment —<br>the whole point</div></div>
+  <div class="stat r"><div class="stat-n">0→1</div><div class="stat-l">Concept to shipped product,<br>design led the way</div></div>
+  <div class="stat r"><div class="stat-n">2</div><div class="stat-l">Distinct user types with<br>completely different needs</div></div>
+</div>
+
+<div class="body">
+
+  <section class="section r">
+    <p class="lbl">The problem</p>
+    <h2>Every euro leaves a footprint.<br>Nobody knew what <em>theirs looked like.</em></h2>
+    <div class="two" style="margin-top:1.4rem">
+      <p class="prose">Slapping "green" on an ETF is easy. Working out whether it actually aligns with your values? Nearly impossible for most people. The sustainable finance space was — and largely still is — a tangle of vague claims, opaque methodologies, and inaccessible entry points.<br><br>Cooler Future's mission: radically transparent, genuinely sustainable investing, accessible to anyone from €20. Not just a nicer version of what already existed — a fundamentally different approach to how the impact of money is shown and understood.</p>
+      <p class="prose">As Lead Designer from day one, my job was to translate that vision into an experience that worked for someone who'd never invested before and someone who'd been investing for years and was actively skeptical of greenwash.<br><br>Those are very different people with very different questions. Before I touched a screen, I needed to <strong>understand both of them properly.</strong></p>
+    </div>
+  </section>
+
+  <section class="section r">
+    <p class="lbl">Research — who are we actually designing for?</p>
+    <h2>Two users. Two jobs to be done.<br><em>Neither one is obvious.</em></h2>
+    <p class="prose" style="margin-bottom:1.8rem">User interviews, diary studies, and card sorting sessions across both segments revealed that the product had to do two fundamentally different things at once.</p>
+    <div class="two">
+      <div class="utype">
+        <p class="utype-tag">User type 01 — First-time investors</p>
+        <h3>Curious but overwhelmed</h3>
+        <p>They're interested. They feel vaguely guilty their money is doing harm. But "invest in a green fund" is not actionable when you've never invested before and every article is either jargon or patronising. The question they arrive with: <em>"Is this actually better than just leaving it in the bank?"</em> We answered with education woven into the product itself.</p>
+      </div>
+      <div class="utype">
+        <p class="utype-tag">User type 02 — Existing investors</p>
+        <h3>Skeptical and evidence-hungry</h3>
+        <p>They're already investing. They've seen greenwash before. They need to be shown — not told — that Cooler Future is different. The question they arrive with: <em>"Prove to me this is actually greener than my current portfolio."</em> We answered with fund transparency as the centrepiece of the experience.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section r">
+    <p class="lbl">Onboarding — removing friction without removing rigour</p>
+    <h2>Opening a German depot account<br>is <em>legally complex.</em><br>It doesn't have to feel it.</h2>
+    <div class="pbox"><p>First-time users needed to open a <strong>German depot account</strong> as part of signup — a KYC-heavy legal process with identity verification, tax information, and regulatory disclosures. This is not optional. Our job was to make it feel like the <em>minimum necessary</em> friction, and no more.</p></div>
+    <p class="prose" style="margin-top:1.4rem">The approach was ruthless prioritisation: anything that could be deferred was deferred, anything legally skippable was removed, every potentially anxiety-inducing step was front-loaded with context. We told users exactly what they'd need before they needed it. No surprises mid-flow. Transparent progress at all times.</p>
+    <img class="img short" style="margin-top:1.8rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65aa88390b45841620f34365_Onboarding.png" alt="Onboarding flow">
+    <p class="cap" style="margin-top:.5rem">Onboarding: the hardest flow to simplify, and the most important to get right</p>
+  </section>
+
+  <div class="two" style="margin-bottom:5rem">
+    <img class="img" style="aspect-ratio:3/4" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659d10ee5264ae2444422d0f_1.png" alt="App screen">
+    <img class="img" style="aspect-ratio:3/4" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659d10eff855401c49227a1f_2.png" alt="App screen">
+  </div>
+
+  <section class="section r">
+    <p class="lbl">The hardest design problem — showing impact honestly</p>
+    <h2>Climate numbers get thrown around<br>constantly. <em>Most of them are useless.</em></h2>
+    <div class="pbox"><p>How do you visualise the impact of an investment honestly — showing <strong>both positive and negative effects</strong>, without making things up, without oversimplifying, and without losing people who just want to know if they're doing good?</p></div>
+    <p class="prose" style="margin-top:1.4rem">There was no industry standard to copy. I ran multiple rounds of research sessions, tested different visualisation approaches with real users, and iterated through many directions before landing on an approach that was honest about its own limitations.<br><br>The work shown here was the foundation layer — the first steps of a feature that would require significant future development. But <strong>establishing the right principles and language was the critical job</strong>: don't claim more than you can prove, make the positives as visible as the negatives, and never bury the complexity.</p>
+    <div class="three" style="margin-top:1.8rem">
+      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659d34fd45c82f1c984c3c4e_Impact-1.png" alt="Impact screen 1">
+      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659d34fc073b2a66e1835a10_Impact-2.png" alt="Impact screen 2">
+      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659d34fb6c4d0c10e7deee04_Impact-3.png" alt="Impact screen 3">
+    </div>
+  </section>
+
+  <div class="pq r">
+    <p>"When you're designing in a space with no established patterns and high stakes for honesty, research isn't a phase. It's the whole job."</p>
+    <cite>James Ciclitira — on Cooler Future</cite>
+  </div>
+
+  <section class="section r">
+    <p class="lbl">Education & explore</p>
+    <h2>Trust isn't declared.<br><em>It's demonstrated.</em></h2>
+    <p class="prose">For both user types, trust was the barrier. The Explore & Learn section was built to be genuinely educational — not marketing wrapped in content-shaped packaging. Users could inspect exactly how each fund was constructed, what it excluded, and how the green credentials were verified. Transparency was the conversion strategy.</p>
+    <img class="img short" style="margin-top:1.8rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65aa89fc0650f455a8f02e6f_Explore%26learn.png" alt="Explore and learn">
+  </section>
+
+  <section class="section r">
+    <p class="lbl">Website — the first touchpoint</p>
+    <h2>The app and website needed<br>to feel like <em>one world.</em></h2>
+    <p class="prose" style="margin-bottom:1.8rem">While building the mobile app, I was simultaneously designing the marketing site — often the first place a potential user encountered Cooler Future. The visual language, the tone, the hierarchy of trust signals all had to feel cohesive. Two surfaces, one story.</p>
+    <div class="two">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b4a3376c60d9512ab4_web.1.png" alt="Website 1">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b377c40374a3cf5191_web.4.png" alt="Website 4">
+    </div>
+    <div class="two" style="margin-top:1.1rem">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b347f145b2260583c4_web.2.png" alt="Website 2">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b443099ebeffe6fc1a_web.3.png" alt="Website 3">
+    </div>
+  </section>
+
+</div>
+
+<a href="vivy.html" class="next">
+  <div class="next-l">
+    <div><p class="next-eyebrow">Next project →</p><div class="next-title">Vivy —<br><em>Health</em></div></div>
+    <p class="next-sub">Founding Designer · Allianz-backed</p>
+  </div>
+  <div class="next-r"><img class="next-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7ac7fe0b1cbed638346_VivyHero.jpeg" alt="Vivy"></div>
+</a>
+
+<footer><p>© 2024 James Ciclitira · Product Designer · Berlin</p><div class="fsoc"><a href="index.html#contact">Contact</a><a href="#">LinkedIn</a><a href="cv.html">Résumé</a></div></footer>
+<script>
+const cur=document.getElementById('cur');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+document.querySelectorAll('a,button,input,textarea').forEach(el=>{el.addEventListener('mouseenter',()=>cur.classList.add('h'));el.addEventListener('mouseleave',()=>cur.classList.remove('h'))});
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.r').forEach(el=>io.observe(el));
+</script>
+</body></html>

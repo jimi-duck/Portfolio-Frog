@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YunoJuno — James Ciclitira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@300;400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>/* === SHARED CASE STUDY STYLES — paste into <style> of every page === */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111110;--paper:#f6f3ed;--warm:#eae6dc;
+  --accent:#b8412a;--accent-lt:#eec9be;--muted:#7a7670;
+  --border:rgba(17,17,16,0.09);
+  --serif:'Lora',Georgia,serif;
+  --mono:'DM Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden;cursor:none}
+/* cursor */
+#cur{position:fixed;width:9px;height:9px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:multiply}
+#cur.h{width:30px;height:30px;background:var(--accent-lt)}
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 2.5rem;background:rgba(246,243,237,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--ink);text-decoration:none;opacity:.55}
+.nav-links{display:flex;gap:1.8rem;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-decoration:none;opacity:.45;transition:opacity .2s}
+.nav-links a:hover{opacity:1}
+/* footer */
+footer{border-top:1px solid var(--border);padding:1.6rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(--muted)}
+.fsoc{display:flex;gap:1.5rem}
+.fsoc a{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.fsoc a:hover{color:var(--accent)}
+/* reveal */
+.r{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.r.in{opacity:1;transform:none}
+/* === CASE STUDY PAGE STYLES === */
+/* hero */
+.cs-hero{padding:7.5rem 2.5rem 4.5rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;border-bottom:1px solid var(--border)}
+.back{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;margin-bottom:1.8rem;transition:color .2s}
+.back:hover{color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.9rem}
+.cs-title{font-family:var(--serif);font-size:clamp(2.4rem,5.5vw,4.4rem);font-weight:400;line-height:1.05;letter-spacing:-.015em;margin-bottom:1.4rem}
+.cs-title em{font-style:italic}
+.cs-tagline{font-size:1rem;color:var(--muted);line-height:1.8;max-width:46ch}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.meta-item label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+.meta-item p{font-size:.9rem;line-height:1.5}
+/* hero image */
+.hero-img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;display:block}
+/* stat bar */
+.stats{background:var(--ink);display:grid;grid-template-columns:repeat(3,1fr)}
+.stats.four{grid-template-columns:repeat(4,1fr)}
+.stat{padding:2rem 2.5rem;border-right:1px solid rgba(255,255,255,.06);color:var(--paper)}
+.stat:last-child{border-right:none}
+.stat-n{font-family:var(--serif);font-size:2.2rem;font-style:italic;color:var(--accent-lt);line-height:1;margin-bottom:.3rem}
+.stat-l{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);line-height:1.65}
+/* body */
+.body{max-width:1180px;margin:0 auto;padding:5rem 2.5rem}
+.section{margin-bottom:5rem}
+.section:last-child{margin-bottom:0}
+/* labels */
+.lbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;display:flex;align-items:center;gap:1rem}
+.lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+/* headings */
+h2{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.4rem);font-weight:400;line-height:1.18;margin-bottom:1.4rem}
+h2 em{font-style:italic;color:var(--accent)}
+/* prose */
+.prose{font-size:.98rem;color:var(--muted);line-height:1.88;max-width:64ch}
+.prose strong{color:var(--ink);font-weight:400}
+.prose+.prose{margin-top:1rem}
+/* problem box */
+.pbox{background:var(--warm);border-left:3px solid var(--accent);padding:1.6rem 1.9rem;margin:1.8rem 0}
+.pbox p{font-size:.94rem;line-height:1.78}
+.pbox strong{font-weight:500;color:var(--ink)}
+/* layouts */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+/* images */
+.img{width:100%;display:block;object-fit:cover;object-position:center top;border:1px solid var(--border)}
+.img.tall{aspect-ratio:4/3}
+.img.wide{aspect-ratio:16/9}
+.img.short{aspect-ratio:16/8}
+.img.sq{aspect-ratio:1/1}
+.img.port{aspect-ratio:9/16}
+.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.5rem}
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
+.icard{padding:1.4rem;border:1px solid var(--border);background:var(--paper)}
+.icard-icon{font-size:1.2rem;margin-bottom:.65rem}
+.icard-t{font-family:var(--serif);font-size:.98rem;font-weight:400;margin-bottom:.35rem}
+.icard-d{font-size:.82rem;color:var(--muted);line-height:1.6}
+/* sprint days */
+.sprint{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:1.8rem 0}
+.day{background:var(--paper);padding:1.3rem}
+.day-n{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--accent);margin-bottom:.4rem}
+.day-t{font-family:var(--serif);font-size:.95rem;font-weight:400;margin-bottom:.3rem}
+.day-d{font-size:.8rem;color:var(--muted);line-height:1.55}
+/* user type blocks */
+.utype{padding:1.8rem;background:var(--warm);border:1px solid var(--border)}
+.utype-tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.65rem}
+.utype h3{font-family:var(--serif);font-size:1.08rem;font-weight:400;margin-bottom:.4rem}
+.utype p{font-size:.84rem;color:var(--muted);line-height:1.65}
+/* pull quote */
+.pq{padding:2.8rem 2.5rem;background:var(--ink);color:var(--paper);margin:2.5rem 0}
+.pq p{font-family:var(--serif);font-size:clamp(1.1rem,2.2vw,1.55rem);font-style:italic;line-height:1.45;color:rgba(246,243,237,.88)}
+.pq cite{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);margin-top:.9rem}
+/* next */
+.next{display:grid;grid-template-columns:1fr 1fr;min-height:260px;text-decoration:none;color:inherit}
+.next:hover .next-img{transform:scale(1.03)}
+.next-l{background:var(--ink);padding:2.8rem;display:flex;flex-direction:column;justify-content:space-between;transition:background .25s}
+.next:hover .next-l{background:#1a1917}
+.next-eyebrow{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(246,243,237,.35);margin-bottom:.9rem}
+.next-title{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.6rem);font-weight:400;color:var(--paper);line-height:1.1}
+.next-title em{font-style:italic;color:var(--accent-lt)}
+.next-sub{font-family:var(--mono);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(246,243,237,.28);margin-top:1rem}
+.next-r{overflow:hidden}
+.next-img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block}
+/* back home variant */
+.backhome{display:flex;align-items:center;justify-content:center;min-height:240px;background:var(--warm);border-top:1px solid var(--border);text-decoration:none;color:var(--ink);transition:background .25s}
+.backhome:hover{background:var(--ink)}
+.backhome:hover .bh-lbl,.backhome:hover .bh-t{color:var(--paper)}
+.bh-lbl{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;transition:color .25s;text-align:center}
+.bh-t{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:400;line-height:1.1;text-align:center;transition:color .25s}
+.bh-t em{font-style:italic;color:var(--accent)}
+/* responsive */
+@media(max-width:860px){
+  .cs-hero{grid-template-columns:1fr;padding:6.5rem 1.4rem 3rem;gap:2rem}
+  .stats{grid-template-columns:1fr 1fr}.stats.four{grid-template-columns:1fr 1fr}
+  .stat:nth-child(3):not(.stats.four .stat:nth-child(3)){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .stats.four .stat:nth-child(3),.stats.four .stat:nth-child(4){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .body{padding:3rem 1.4rem}
+  .two,.three,.four,.cards,.sprint{grid-template-columns:1fr}
+  .next{grid-template-columns:1fr}.next-r{min-height:180px}
+  nav,footer{padding-left:1.4rem;padding-right:1.4rem}
+  .pq{padding:2rem 1.4rem}
+}
+@media(max-width:480px){.stats{grid-template-columns:1fr}.stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<nav>
+  <a href="index.html" class="nav-logo">James Ciclitira</a>
+  <ul class="nav-links"><li><a href="index.html#work">Work</a></li><li><a href="index.html#contact">Contact</a></li><li><a href="cv.html">Résumé</a></li></ul>
+</nav>
+
+<header class="cs-hero">
+  <div>
+    <a href="index.html" class="back">← All work</a>
+    <p class="eyebrow">05 — B2B SaaS · HR Tech</p>
+    <h1 class="cs-title">Yuno<br><em>Juno</em></h1>
+    <p class="cs-tagline">The UK's leading freelance management platform. Hiring, contracting, and paying 100,000+ freelancers — with full IR35 compliance built in. I helped make the legally complex feel professionally simple.</p>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-item"><label>Role</label><p>Product Designer</p></div>
+    <div class="meta-item"><label>Type</label><p>B2B SaaS · Web platform</p></div>
+    <div class="meta-item"><label>Methods</label><p>UI/UX research · Wireframing · Prototyping · Design system</p></div>
+    <div class="meta-item"><label>Users</label><p>Hiring managers · Finance teams · Freelancers</p></div>
+  </div>
+</header>
+
+<img class="hero-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7adf0ff45bf84ea4cb5_YunojunoHero.jpeg" alt="YunoJuno">
+
+<div class="stats">
+  <div class="stat r"><div class="stat-n">100k+</div><div class="stat-l">Vetted freelancers<br>on the platform</div></div>
+  <div class="stat r"><div class="stat-n">2</div><div class="stat-l">User sides: employers<br>who hire, freelancers who work</div></div>
+  <div class="stat r"><div class="stat-n">IR35</div><div class="stat-l">Complex UK tax law,<br>simplified by design</div></div>
+</div>
+
+<div class="body">
+
+  <section class="section r">
+    <p class="lbl">The context</p>
+    <h2>Hiring a freelancer shouldn't<br>require a lawyer <em>on call.</em></h2>
+    <div class="two" style="margin-top:1.4rem">
+      <p class="prose">Managing contingent workers in the UK is administratively brutal. IR35 off-payroll working rules. Contract generation. Timesheets. Invoice management. Payment processing. Background and compliance checks. Companies managing more than a handful of contractors typically needed a dedicated operations person just to handle the paperwork.<br><br>YunoJuno's mission: collapse all of that into one platform. Source the freelancer, generate the compliant contract, manage the engagement, process the payment — and never let anyone end up on the wrong side of HMRC.</p>
+      <p class="prose">The design challenge was inherently dual-sided. Employers needed speed, confidence, and compliance coverage. Freelancers needed to feel like professionals, not admin subjects — fair contracts, fast payment, clear communication.<br><br>A marketplace only works when <strong>both sides trust it equally.</strong> That required designing for two completely different mental models simultaneously.</p>
+    </div>
+  </section>
+
+  <div class="cards" style="margin-bottom:5rem">
+    <div class="icard"><div class="icard-icon">🏢</div><div class="icard-t">For employers</div><p class="icard-d">Fast access to vetted talent. Auto-generated compliant contracts. IR35 status determined automatically. Payment handled without a finance team getting involved.</p></div>
+    <div class="icard"><div class="icard-icon">💼</div><div class="icard-t">For freelancers</div><p class="icard-d">Professional profile. Transparent contracts. Reliable payment. A single hub for all active and historical engagements — without chasing anyone.</p></div>
+    <div class="icard"><div class="icard-icon">⚖️</div><div class="icard-t">The balance</div><p class="icard-d">Designing a marketplace means no side gets preferential treatment in the UI. Both users needed to feel the platform was built for them.</p></div>
+  </div>
+
+  <section class="section r">
+    <p class="lbl">Core design principle</p>
+    <h2>Confidence before complexity.<br><em>Progressive disclosure at scale.</em></h2>
+    <div class="pbox"><p>IR35 legislation is genuinely complex. Contracts have legal weight. The design job was to surface exactly what each user needed to make a decision, shield everything they didn't need to see, and <strong>never leave anyone uncertain about the consequences of an action.</strong></p></div>
+    <p class="prose" style="margin-top:1.4rem">Progressive disclosure was the dominant structural pattern across the product: show the summary, reveal detail only when needed, never front-load with complexity before earning trust. For legal concepts — IR35 status, contract terms, compliance flags — I designed contextual education moments that explained the thing at the point of need, not in a help centre article nobody reads.<br><br>The measure of success: a hiring manager should be able to contract a freelancer compliantly without knowing what IR35 means. A freelancer should know exactly what they're agreeing to without a lawyer.</p>
+    <div class="two" style="margin-top:1.8rem">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65957319458635c710e0559c_3.jpeg" alt="YunoJuno screen">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595731a4a799af9cb53bdf6_2.jpeg" alt="YunoJuno screen">
+    </div>
+    <div class="two" style="margin-top:1.1rem">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659573191febe84b862fffb2_4.jpeg" alt="YunoJuno screen">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65957319b74922c8a3871ed0_5.jpeg" alt="YunoJuno screen">
+    </div>
+    <div class="two" style="margin-top:1.1rem">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65957319649bf19021e58d96_6.jpeg" alt="YunoJuno screen">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65957319458635c710e0559c_3.jpeg" alt="YunoJuno screen">
+    </div>
+  </section>
+
+  <div class="pq r">
+    <p>"B2B doesn't mean boring. When someone's livelihood depends on your product — their hiring pipeline, or their income — the design stakes are actually higher than in most consumer apps."</p>
+    <cite>James Ciclitira — on YunoJuno</cite>
+  </div>
+
+</div>
+
+<a href="quidco.html" class="next">
+  <div class="next-l">
+    <div><p class="next-eyebrow">Next project →</p><div class="next-title">Quidco —<br><em>£101M</em></div></div>
+    <p class="next-sub">Europe's #1 Cashback · Acquired by Moneysupermarket</p>
+  </div>
+  <div class="next-r"><img class="next-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7abc1726e474f87ebca_QuidcoHero.jpeg" alt="Quidco"></div>
+</a>
+
+<footer><p>© 2024 James Ciclitira · Product Designer · Berlin</p><div class="fsoc"><a href="index.html#contact">Contact</a><a href="#">LinkedIn</a><a href="cv.html">Résumé</a></div></footer>
+<script>
+const cur=document.getElementById('cur');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+document.querySelectorAll('a,button,input,textarea').forEach(el=>{el.addEventListener('mouseenter',()=>cur.classList.add('h'));el.addEventListener('mouseleave',()=>cur.classList.remove('h'))});
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.r').forEach(el=>io.observe(el));
+</script>
+</body></html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Coup Mobility — James Ciclitira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@300;400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+/* === SHARED CASE STUDY STYLES — paste into <style> of every page === */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111110;--paper:#f6f3ed;--warm:#eae6dc;
+  --accent:#b8412a;--accent-lt:#eec9be;--muted:#7a7670;
+  --border:rgba(17,17,16,0.09);
+  --serif:'Lora',Georgia,serif;
+  --mono:'DM Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden;cursor:none}
+/* cursor */
+#cur{position:fixed;width:9px;height:9px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:multiply}
+#cur.h{width:30px;height:30px;background:var(--accent-lt)}
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 2.5rem;background:rgba(246,243,237,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--ink);text-decoration:none;opacity:.55}
+.nav-links{display:flex;gap:1.8rem;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-decoration:none;opacity:.45;transition:opacity .2s}
+.nav-links a:hover{opacity:1}
+/* footer */
+footer{border-top:1px solid var(--border);padding:1.6rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(--muted)}
+.fsoc{display:flex;gap:1.5rem}
+.fsoc a{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.fsoc a:hover{color:var(--accent)}
+/* reveal */
+.r{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.r.in{opacity:1;transform:none}
+/* === CASE STUDY PAGE STYLES === */
+/* hero */
+.cs-hero{padding:7.5rem 2.5rem 4.5rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;border-bottom:1px solid var(--border)}
+.back{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;margin-bottom:1.8rem;transition:color .2s}
+.back:hover{color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.9rem}
+.cs-title{font-family:var(--serif);font-size:clamp(2.4rem,5.5vw,4.4rem);font-weight:400;line-height:1.05;letter-spacing:-.015em;margin-bottom:1.4rem}
+.cs-title em{font-style:italic}
+.cs-tagline{font-size:1rem;color:var(--muted);line-height:1.8;max-width:46ch}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.meta-item label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+.meta-item p{font-size:.9rem;line-height:1.5}
+/* hero image */
+.hero-img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;display:block}
+/* stat bar */
+.stats{background:var(--ink);display:grid;grid-template-columns:repeat(3,1fr)}
+.stats.four{grid-template-columns:repeat(4,1fr)}
+.stat{padding:2rem 2.5rem;border-right:1px solid rgba(255,255,255,.06);color:var(--paper)}
+.stat:last-child{border-right:none}
+.stat-n{font-family:var(--serif);font-size:2.2rem;font-style:italic;color:var(--accent-lt);line-height:1;margin-bottom:.3rem}
+.stat-l{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);line-height:1.65}
+/* body */
+.body{max-width:1180px;margin:0 auto;padding:5rem 2.5rem}
+.section{margin-bottom:5rem}
+.section:last-child{margin-bottom:0}
+/* labels */
+.lbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;display:flex;align-items:center;gap:1rem}
+.lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+/* headings */
+h2{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.4rem);font-weight:400;line-height:1.18;margin-bottom:1.4rem}
+h2 em{font-style:italic;color:var(--accent)}
+/* prose */
+.prose{font-size:.98rem;color:var(--muted);line-height:1.88;max-width:64ch}
+.prose strong{color:var(--ink);font-weight:400}
+.prose+.prose{margin-top:1rem}
+/* problem box */
+.pbox{background:var(--warm);border-left:3px solid var(--accent);padding:1.6rem 1.9rem;margin:1.8rem 0}
+.pbox p{font-size:.94rem;line-height:1.78}
+.pbox strong{font-weight:500;color:var(--ink)}
+/* layouts */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+/* images */
+.img{width:100%;display:block;object-fit:cover;object-position:center top;border:1px solid var(--border)}
+.img.tall{aspect-ratio:4/3}
+.img.wide{aspect-ratio:16/9}
+.img.short{aspect-ratio:16/8}
+.img.sq{aspect-ratio:1/1}
+.img.port{aspect-ratio:9/16}
+.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.5rem}
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
+.icard{padding:1.4rem;border:1px solid var(--border);background:var(--paper)}
+.icard-icon{font-size:1.2rem;margin-bottom:.65rem}
+.icard-t{font-family:var(--serif);font-size:.98rem;font-weight:400;margin-bottom:.35rem}
+.icard-d{font-size:.82rem;color:var(--muted);line-height:1.6}
+/* sprint days */
+.sprint{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:1.8rem 0}
+.day{background:var(--paper);padding:1.3rem}
+.day-n{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--accent);margin-bottom:.4rem}
+.day-t{font-family:var(--serif);font-size:.95rem;font-weight:400;margin-bottom:.3rem}
+.day-d{font-size:.8rem;color:var(--muted);line-height:1.55}
+/* user type blocks */
+.utype{padding:1.8rem;background:var(--warm);border:1px solid var(--border)}
+.utype-tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.65rem}
+.utype h3{font-family:var(--serif);font-size:1.08rem;font-weight:400;margin-bottom:.4rem}
+.utype p{font-size:.84rem;color:var(--muted);line-height:1.65}
+/* pull quote */
+.pq{padding:2.8rem 2.5rem;background:var(--ink);color:var(--paper);margin:2.5rem 0}
+.pq p{font-family:var(--serif);font-size:clamp(1.1rem,2.2vw,1.55rem);font-style:italic;line-height:1.45;color:rgba(246,243,237,.88)}
+.pq cite{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);margin-top:.9rem}
+/* next */
+.next{display:grid;grid-template-columns:1fr 1fr;min-height:260px;text-decoration:none;color:inherit}
+.next:hover .next-img{transform:scale(1.03)}
+.next-l{background:var(--ink);padding:2.8rem;display:flex;flex-direction:column;justify-content:space-between;transition:background .25s}
+.next:hover .next-l{background:#1a1917}
+.next-eyebrow{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(246,243,237,.35);margin-bottom:.9rem}
+.next-title{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.6rem);font-weight:400;color:var(--paper);line-height:1.1}
+.next-title em{font-style:italic;color:var(--accent-lt)}
+.next-sub{font-family:var(--mono);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(246,243,237,.28);margin-top:1rem}
+.next-r{overflow:hidden}
+.next-img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block}
+/* back home variant */
+.backhome{display:flex;align-items:center;justify-content:center;min-height:240px;background:var(--warm);border-top:1px solid var(--border);text-decoration:none;color:var(--ink);transition:background .25s}
+.backhome:hover{background:var(--ink)}
+.backhome:hover .bh-lbl,.backhome:hover .bh-t{color:var(--paper)}
+.bh-lbl{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;transition:color .25s;text-align:center}
+.bh-t{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:400;line-height:1.1;text-align:center;transition:color .25s}
+.bh-t em{font-style:italic;color:var(--accent)}
+/* responsive */
+@media(max-width:860px){
+  .cs-hero{grid-template-columns:1fr;padding:6.5rem 1.4rem 3rem;gap:2rem}
+  .stats{grid-template-columns:1fr 1fr}.stats.four{grid-template-columns:1fr 1fr}
+  .stat:nth-child(3):not(.stats.four .stat:nth-child(3)){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .stats.four .stat:nth-child(3),.stats.four .stat:nth-child(4){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .body{padding:3rem 1.4rem}
+  .two,.three,.four,.cards,.sprint{grid-template-columns:1fr}
+  .next{grid-template-columns:1fr}.next-r{min-height:180px}
+  nav,footer{padding-left:1.4rem;padding-right:1.4rem}
+  .pq{padding:2rem 1.4rem}
+}
+@media(max-width:480px){.stats{grid-template-columns:1fr}.stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}}
+
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<nav>
+  <a href="index.html" class="nav-logo">James Ciclitira</a>
+  <ul class="nav-links"><li><a href="index.html#work">Work</a></li><li><a href="index.html#contact">Contact</a></li><li><a href="cv.html">Résumé</a></li></ul>
+</nav>
+
+<header class="cs-hero">
+  <div>
+    <a href="index.html" class="back">← All work</a>
+    <p class="eyebrow">01 — Mobility · Operations · Ride UX</p>
+    <h1 class="cs-title">Coup<br><em>Mobility</em></h1>
+    <p class="cs-tagline">A Bosch-owned e-moped fleet across three cities. Great product, leaky operations. I designed the systems that kept 5,000 scooters earning — by fixing the problems riders never saw.</p>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-item"><label>Role</label><p>Product Designer</p></div>
+    <div class="meta-item"><label>Market</label><p>Berlin · Paris · Madrid</p></div>
+    <div class="meta-item"><label>Scope</label><p>Ride UX · Ops dashboard · Field worker app</p></div>
+    <div class="meta-item"><label>Methods</label><p>User research · Wireframing · Usability testing</p></div>
+  </div>
+</header>
+
+<img class="hero-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="Coup Mobility">
+
+<div class="stats">
+  <div class="stat r"><div class="stat-n">5,000</div><div class="stat-l">E-mopeds across 3<br>European cities</div></div>
+  <div class="stat r"><div class="stat-n">18</div><div class="stat-l">Helmets stolen per day —<br>each one a scooter offline</div></div>
+  <div class="stat r"><div class="stat-n">12%</div><div class="stat-l">Rides cancelled before<br>engine start. Nobody knew why.</div></div>
+</div>
+
+<div class="body">
+
+  <section class="section r">
+    <p class="lbl">The context</p>
+    <h2>The ride was great.<br>The operations were <em>expensive.</em></h2>
+    <div class="two" style="margin-top:1.4rem">
+      <p class="prose">Coup was genuinely ahead of its time — fully electric, free-floating mopeds in three major cities before anyone else was doing it at scale. Riders loved it. The problem was everything happening after they parked up.<br><br>Helmets disappeared. Scooters sat damaged with no one reporting them. Dispatchers coordinated across whiteboards and WhatsApp. Every minute a scooter was offline was revenue lost — and nobody had built the systems to close the gaps.</p>
+      <p class="prose">I was on the ride-phase team: responsible for the experience from finding a scooter to ending the ride. But the real design opportunity wasn't in the app screens riders saw. It was in the <strong>invisible layer of operations</strong> underneath — and in quietly turning every frustrated customer into a sensor for the fleet.</p>
+    </div>
+  </section>
+
+  <section class="section r">
+    <p class="lbl">Problem 01 — Helmet theft</p>
+    <h2>18 helmets stolen daily.<br>Each one grounded a scooter<br><em>for hours.</em></h2>
+    <div class="pbox"><p>When a helmet was stolen, the scooter was out of commission until ops sent a replacement. The trouble: <strong>operations only found out when a customer complained to support.</strong> The lag could stretch to a full working day. Multiply that by 18 stolen helmets and you have a serious, silent revenue leak.</p></div>
+    <p class="prose">The fix was counterintuitive: don't add a dedicated theft-reporting flow. Instead, repurpose the moment a customer abandons a scooter without starting the engine — a dismissible popup, three taps, gone. <strong>It collected the report without feeling like a form.</strong> The ops team got an instant flag. The rider barely noticed it.</p>
+    <div class="two" style="margin-top:2rem">
+      <div>
+        <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954358e77443ea49ac58fe_role-1.png" alt="Helmet theft workflow">
+        <p class="cap">Before: broken feedback loop keeping scooters offline</p>
+      </div>
+      <div>
+        <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543573c038e0cc311aa6e_role-3.png" alt="Damage reporting">
+        <p class="cap">After: passive reporting built into the cancellation moment</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="three" style="margin-bottom:5rem">
+    <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595435859ff8555bce6b782_1.jpeg" alt="App screen 1">
+    <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954359b326bac274b050f6_2.jpeg" alt="App screen 2">
+    <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543584cc7a545948115fb_3.jpeg" alt="App screen 3">
+  </div>
+
+  <section class="section r">
+    <p class="lbl">Problem 02 — 12% cancellation rate</p>
+    <h2>One in eight rides was<br>cancelled. Nobody knew <em>why.</em></h2>
+    <div class="pbox"><p>Damage? Low battery? Wrong scooter? Missing helmet? All plausible — but without data, the operations team was guessing. <strong>12% of rides cancelled before engine start</strong> was a significant number. You can't reduce a problem you can't measure.</p></div>
+    <p class="prose">The same cancellation popup became a data collection engine. By offering structured choices rather than a free-text field, we turned vague frustration into <strong>actionable ops intelligence</strong>. Within weeks, the team had a prioritised list of real cancellation causes. The guesswork stopped. Fixes could be targeted.</p>
+    <img class="img short" style="margin-top:1.8rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595435780a9699d3defe9b0_role-2.png" alt="Cancellation flow">
+    <p class="cap" style="margin-top:.5rem">The cancellation popup: one design, two problems solved</p>
+  </section>
+
+  <div class="pq r">
+    <p>"Good ops design is invisible to the rider but worth millions to the business. The best thing I built at Coup was something users barely remembered seeing."</p>
+    <cite>James Ciclitira — on Coup</cite>
+  </div>
+
+  <section class="section r">
+    <p class="lbl">Research project — community battery swapping</p>
+    <h2>Validating a costly idea<br><em>before building it.</em></h2>
+    <p class="prose">The idea: let engaged users earn credits by swapping depleted batteries — reducing ops costs and building community at the same time. The problem: validating it required expensive charging infrastructure that didn't exist yet.<br><br>I designed a lightweight app pilot with the internal ops team — small changes that let us collect first-hand data from real users before committing to infrastructure. <strong>This is what using design as a research instrument looks like.</strong> The answers came back quickly, cheaply, and honestly.</p>
+    <img class="img short" style="margin-top:1.8rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543559b4091a7a75e3a89_swap.png" alt="Battery swap research">
+    <p class="cap" style="margin-top:.5rem">Community battery swapping pilot — research before infrastructure</p>
+  </section>
+
+  <section class="section r">
+    <p class="lbl">Operations tooling — the other half of the job</p>
+    <h2>Two tools. One city's<br>worth of <em>moving parts.</em></h2>
+    <p class="prose" style="margin-bottom:2rem">Running a shared fleet means managing hundreds of workers, thousands of vehicles, and constant field exceptions — in real time, across three cities. I was fully responsible for designing and iterating both operational tools.</p>
+    <div class="cards">
+      <div class="icard"><div class="icard-icon">🖥</div><div class="icard-t">Dispatcher dashboard</div><p class="icard-d">Web app for ops managers: create and monitor field assignments, track per-scooter status and maintenance history, coordinate workers city-wide in real time.</p></div>
+      <div class="icard"><div class="icard-icon">📱</div><div class="icard-t">Field worker app</div><p class="icard-d">Mobile app for on-the-ground runners: receive assignments, log maintenance tasks, report scooter status. Designed for one-handed use in the rain.</p></div>
+      <div class="icard"><div class="icard-icon">📈</div><div class="icard-t">Measurable outcome</div><p class="icard-d">Enhanced fleet efficiency across all three markets. Fewer hours lost to manual coordination. A documented reduction in company costs from improved uptime.</p></div>
+    </div>
+    <div class="two" style="margin-top:1.8rem">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954354be7d7a807963a30c_runner.png" alt="Runner app">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954355119f7531490b3925_report.png" alt="Report screen">
+    </div>
+    <div class="three" style="margin-top:1.1rem">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543545af362c4b4662b56_login.png" alt="Login">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954355e9514696adfb303b_status.png" alt="Status">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954353e77443ea49ac576d_overview.png" alt="Overview">
+    </div>
+  </section>
+
+</div>
+
+<a href="cooler-future.html" class="next">
+  <div class="next-l">
+    <div><p class="next-eyebrow">Next project →</p><div class="next-title">Cooler<br><em>Future</em></div></div>
+    <p class="next-sub">Lead Designer · Climate Fintech · 0→1</p>
+  </div>
+  <div class="next-r"><img class="next-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65940ab6bcaf577124a4acb9_CoolerHero.png" alt="Cooler Future"></div>
+</a>
+
+<footer><p>© 2024 James Ciclitira · Product Designer · Berlin</p><div class="fsoc"><a href="index.html#contact">Contact</a><a href="#">LinkedIn</a><a href="cv.html">Résumé</a></div></footer>
+<script>
+const cur=document.getElementById('cur');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+document.querySelectorAll('a,button,input,textarea').forEach(el=>{el.addEventListener('mouseenter',()=>cur.classList.add('h'));el.addEventListener('mouseleave',()=>cur.classList.remove('h'))});
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.r').forEach(el=>io.observe(el));
+</script>
+</body></html>

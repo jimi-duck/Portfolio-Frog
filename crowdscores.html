@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CrowdScores — James Ciclitira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@300;400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>/* === SHARED CASE STUDY STYLES — paste into <style> of every page === */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111110;--paper:#f6f3ed;--warm:#eae6dc;
+  --accent:#b8412a;--accent-lt:#eec9be;--muted:#7a7670;
+  --border:rgba(17,17,16,0.09);
+  --serif:'Lora',Georgia,serif;
+  --mono:'DM Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden;cursor:none}
+/* cursor */
+#cur{position:fixed;width:9px;height:9px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:multiply}
+#cur.h{width:30px;height:30px;background:var(--accent-lt)}
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 2.5rem;background:rgba(246,243,237,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--ink);text-decoration:none;opacity:.55}
+.nav-links{display:flex;gap:1.8rem;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-decoration:none;opacity:.45;transition:opacity .2s}
+.nav-links a:hover{opacity:1}
+/* footer */
+footer{border-top:1px solid var(--border);padding:1.6rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(--muted)}
+.fsoc{display:flex;gap:1.5rem}
+.fsoc a{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.fsoc a:hover{color:var(--accent)}
+/* reveal */
+.r{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.r.in{opacity:1;transform:none}
+/* === CASE STUDY PAGE STYLES === */
+/* hero */
+.cs-hero{padding:7.5rem 2.5rem 4.5rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;border-bottom:1px solid var(--border)}
+.back{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;margin-bottom:1.8rem;transition:color .2s}
+.back:hover{color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.9rem}
+.cs-title{font-family:var(--serif);font-size:clamp(2.4rem,5.5vw,4.4rem);font-weight:400;line-height:1.05;letter-spacing:-.015em;margin-bottom:1.4rem}
+.cs-title em{font-style:italic}
+.cs-tagline{font-size:1rem;color:var(--muted);line-height:1.8;max-width:46ch}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.meta-item label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+.meta-item p{font-size:.9rem;line-height:1.5}
+/* hero image */
+.hero-img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;display:block}
+/* stat bar */
+.stats{background:var(--ink);display:grid;grid-template-columns:repeat(3,1fr)}
+.stats.four{grid-template-columns:repeat(4,1fr)}
+.stat{padding:2rem 2.5rem;border-right:1px solid rgba(255,255,255,.06);color:var(--paper)}
+.stat:last-child{border-right:none}
+.stat-n{font-family:var(--serif);font-size:2.2rem;font-style:italic;color:var(--accent-lt);line-height:1;margin-bottom:.3rem}
+.stat-l{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);line-height:1.65}
+/* body */
+.body{max-width:1180px;margin:0 auto;padding:5rem 2.5rem}
+.section{margin-bottom:5rem}
+.section:last-child{margin-bottom:0}
+/* labels */
+.lbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;display:flex;align-items:center;gap:1rem}
+.lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+/* headings */
+h2{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.4rem);font-weight:400;line-height:1.18;margin-bottom:1.4rem}
+h2 em{font-style:italic;color:var(--accent)}
+/* prose */
+.prose{font-size:.98rem;color:var(--muted);line-height:1.88;max-width:64ch}
+.prose strong{color:var(--ink);font-weight:400}
+.prose+.prose{margin-top:1rem}
+/* problem box */
+.pbox{background:var(--warm);border-left:3px solid var(--accent);padding:1.6rem 1.9rem;margin:1.8rem 0}
+.pbox p{font-size:.94rem;line-height:1.78}
+.pbox strong{font-weight:500;color:var(--ink)}
+/* layouts */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+/* images */
+.img{width:100%;display:block;object-fit:cover;object-position:center top;border:1px solid var(--border)}
+.img.tall{aspect-ratio:4/3}
+.img.wide{aspect-ratio:16/9}
+.img.short{aspect-ratio:16/8}
+.img.sq{aspect-ratio:1/1}
+.img.port{aspect-ratio:9/16}
+.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.5rem}
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
+.icard{padding:1.4rem;border:1px solid var(--border);background:var(--paper)}
+.icard-icon{font-size:1.2rem;margin-bottom:.65rem}
+.icard-t{font-family:var(--serif);font-size:.98rem;font-weight:400;margin-bottom:.35rem}
+.icard-d{font-size:.82rem;color:var(--muted);line-height:1.6}
+/* sprint days */
+.sprint{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:1.8rem 0}
+.day{background:var(--paper);padding:1.3rem}
+.day-n{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--accent);margin-bottom:.4rem}
+.day-t{font-family:var(--serif);font-size:.95rem;font-weight:400;margin-bottom:.3rem}
+.day-d{font-size:.8rem;color:var(--muted);line-height:1.55}
+/* user type blocks */
+.utype{padding:1.8rem;background:var(--warm);border:1px solid var(--border)}
+.utype-tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.65rem}
+.utype h3{font-family:var(--serif);font-size:1.08rem;font-weight:400;margin-bottom:.4rem}
+.utype p{font-size:.84rem;color:var(--muted);line-height:1.65}
+/* pull quote */
+.pq{padding:2.8rem 2.5rem;background:var(--ink);color:var(--paper);margin:2.5rem 0}
+.pq p{font-family:var(--serif);font-size:clamp(1.1rem,2.2vw,1.55rem);font-style:italic;line-height:1.45;color:rgba(246,243,237,.88)}
+.pq cite{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);margin-top:.9rem}
+/* next */
+.next{display:grid;grid-template-columns:1fr 1fr;min-height:260px;text-decoration:none;color:inherit}
+.next:hover .next-img{transform:scale(1.03)}
+.next-l{background:var(--ink);padding:2.8rem;display:flex;flex-direction:column;justify-content:space-between;transition:background .25s}
+.next:hover .next-l{background:#1a1917}
+.next-eyebrow{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(246,243,237,.35);margin-bottom:.9rem}
+.next-title{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.6rem);font-weight:400;color:var(--paper);line-height:1.1}
+.next-title em{font-style:italic;color:var(--accent-lt)}
+.next-sub{font-family:var(--mono);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(246,243,237,.28);margin-top:1rem}
+.next-r{overflow:hidden}
+.next-img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block}
+/* back home variant */
+.backhome{display:flex;align-items:center;justify-content:center;min-height:240px;background:var(--warm);border-top:1px solid var(--border);text-decoration:none;color:var(--ink);transition:background .25s}
+.backhome:hover{background:var(--ink)}
+.backhome:hover .bh-lbl,.backhome:hover .bh-t{color:var(--paper)}
+.bh-lbl{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;transition:color .25s;text-align:center}
+.bh-t{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:400;line-height:1.1;text-align:center;transition:color .25s}
+.bh-t em{font-style:italic;color:var(--accent)}
+/* responsive */
+@media(max-width:860px){
+  .cs-hero{grid-template-columns:1fr;padding:6.5rem 1.4rem 3rem;gap:2rem}
+  .stats{grid-template-columns:1fr 1fr}.stats.four{grid-template-columns:1fr 1fr}
+  .stat:nth-child(3):not(.stats.four .stat:nth-child(3)){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .stats.four .stat:nth-child(3),.stats.four .stat:nth-child(4){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .body{padding:3rem 1.4rem}
+  .two,.three,.four,.cards,.sprint{grid-template-columns:1fr}
+  .next{grid-template-columns:1fr}.next-r{min-height:180px}
+  nav,footer{padding-left:1.4rem;padding-right:1.4rem}
+  .pq{padding:2rem 1.4rem}
+}
+@media(max-width:480px){.stats{grid-template-columns:1fr}.stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<nav>
+  <a href="index.html" class="nav-logo">James Ciclitira</a>
+  <ul class="nav-links"><li><a href="index.html#work">Work</a></li><li><a href="index.html#contact">Contact</a></li><li><a href="cv.html">Résumé</a></li></ul>
+</nav>
+
+<header class="cs-hero">
+  <div>
+    <a href="index.html" class="back">← All work</a>
+    <p class="eyebrow">04 — Consumer Sports · iOS &amp; Android</p>
+    <h1 class="cs-title">Crowd<br><em>Scores</em></h1>
+    <p class="cs-tagline">1,300 live football matches every week. Fans checking their phones between bites, between pints, for two seconds at a time. As sole designer, my job was to make that volume of data feel effortless — not overwhelming.</p>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-item"><label>Role</label><p>Principal Designer (sole designer)</p></div>
+    <div class="meta-item"><label>Platforms</label><p>iOS · Android</p></div>
+    <div class="meta-item"><label>Methods</label><p>UI/UX research · Wireframing · Icon design · Prototyping</p></div>
+    <div class="meta-item"><label>Scope</label><p>Native apps · Visual system · Advertising</p></div>
+  </div>
+</header>
+
+<img class="hero-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7ac8583e718138071ec_CrowdscoresHero.jpeg" alt="CrowdScores">
+
+<div class="stats">
+  <div class="stat r"><div class="stat-n">1,300+</div><div class="stat-l">Live matches covered<br>every week</div></div>
+  <div class="stat r"><div class="stat-n">1</div><div class="stat-l">Designer — iOS, Android,<br>brand, and ads</div></div>
+  <div class="stat r"><div class="stat-n">&lt;2s</div><div class="stat-l">Time to find the score<br>that matters to you</div></div>
+</div>
+
+<div class="body">
+
+  <section class="section r">
+    <p class="lbl">The brief</p>
+    <h2>Fastest live scores in the market.<br>As sole designer, <em>I owned all of it.</em></h2>
+    <div class="two" style="margin-top:1.4rem">
+      <p class="prose">CrowdScores had a sharp, real product promise: live football scores faster than any competitor, with a social layer where fans could share in-match opinions in real time. The infrastructure was solid. The design challenge was translating that promise into an app experience that worked in the actual context people used it — phone in one hand, eyes darting between screen and pitch.<br><br>My design philosophy became the product's north star: <strong>data on mobile should be scannable in under two seconds.</strong> Hierarchy over decoration. Information before aesthetics. If it doesn't help someone find what they're looking for faster, it has no reason to exist.</p>
+      <p class="prose">Being the sole designer sharpened that thinking. There was no committee to defer to, no second designer to split the work with. Every decision — from the type system to the icon set to the ad campaign — was mine to make and mine to defend.<br><br>That's a different kind of creative responsibility. And I found I was good at it.</p>
+    </div>
+  </section>
+
+  <div class="two" style="margin-bottom:5rem">
+    <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708a74e7c7b462fb70f4_info.png" alt="Match info">
+    <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708a2dac22c7dfd7f18f_match.png" alt="Match screen">
+  </div>
+
+  <section class="section r">
+    <p class="lbl">The core UX problem — navigation at scale</p>
+    <h2>1,300 matches is a navigation<br>problem. <em>Search was the answer.</em></h2>
+    <div class="pbox"><p>With over 1,300 matches per week across dozens of competitions, <strong>finding the game you care about was the hardest problem in the product.</strong> The original navigation sent users through country → league → match. Fine for 20 games. Broken for 1,300.</p></div>
+    <p class="prose" style="margin-top:1.4rem">Users don't think in geographic taxonomies. They think in teams. Arsenal. Bayern. PSG. The solution was to rebuild navigation around search as the primary action — not a buried utility. By surfacing powerful, fast search upfront, we collapsed time-to-match from five-plus taps to under two. <strong>The insight was obvious in hindsight; getting there required watching real users fail in real time.</strong></p>
+    <div class="two" style="margin-top:1.8rem">
+      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708ae040424c6fd491ae_filters.png" alt="Filter system">
+      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708a3326d44ca430a999_more-options.png" alt="Options">
+    </div>
+  </section>
+
+  <section class="section r">
+    <p class="lbl">Visual design — emotion in a data-dense product</p>
+    <h2>An app fans <em>love</em>, not<br>just one they tolerate.</h2>
+    <p class="prose">A score tracker that only shows numbers is an app people use because there's no better alternative. I wanted CrowdScores to feel different — to have personality. So I designed a complete set of in-match event animations (goals, cards, substitutions, VAR reviews) that communicated events at a glance.<br><br>The test for every animation: does it communicate faster than text? If not, cut it. <strong>These weren't decorative — they were functional speed improvements.</strong></p>
+    <div class="two" style="margin-top:1.8rem">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708a4cc7a545949f4477_visual-1.png" alt="Visual design 1">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65957089b999215fee6e3929_visual-2.png" alt="Visual design 2">
+    </div>
+  </section>
+
+  <div class="pq r">
+    <p>"Being the only designer forces a clarity of thinking. You can't design by committee. You make the call, defend it, live with it — and get better faster."</p>
+    <cite>James Ciclitira — on CrowdScores</cite>
+  </div>
+
+  <section class="section r">
+    <p class="lbl">Advertising — the product had to sell itself</p>
+    <h2>The brand extended beyond<br>the app. <em>All of it was mine to design.</em></h2>
+    <p class="prose" style="margin-bottom:1.8rem">As sole designer, the brief included advertising — app store assets, campaign imagery, digital placements. Creating a visual identity that stood out in a market full of generic sports apps required the same discipline as the product itself: clear hierarchy, bold contrast, immediate legibility.</p>
+    <div class="three" style="margin-bottom:1.1rem">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65956c1b4872a6f3fb783e45_web1.jpeg" alt="Ad 1">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708efad4024ee478d0e3_web2.jpeg" alt="Ad 2">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708e854d356716e69d3c_web3.jpeg" alt="Ad 3">
+    </div>
+    <div class="three" style="margin-bottom:1.1rem">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708d1d1b0753899dbb8f_web4.jpeg" alt="Ad 4">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708d9409eb5bcfc761cb_web5.jpeg" alt="Ad 5">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708c4fcbfcea8e1779b0_web6.jpeg" alt="Ad 6">
+    </div>
+    <div class="three">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708c4a799af9cb51eb2e_web7.jpeg" alt="Ad 7">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708b7d31a4c8635c6be1_web8.jpeg" alt="Ad 8">
+      <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595708b3326d44ca430aa9a_web9.jpeg" alt="Ad 9">
+    </div>
+  </section>
+
+</div>
+
+<a href="yunojuno.html" class="next">
+  <div class="next-l">
+    <div><p class="next-eyebrow">Next project →</p><div class="next-title">Yuno<br><em>Juno</em></div></div>
+    <p class="next-sub">B2B SaaS · HR Tech · 100k+ freelancers</p>
+  </div>
+  <div class="next-r"><img class="next-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7adf0ff45bf84ea4cb5_YunojunoHero.jpeg" alt="YunoJuno"></div>
+</a>
+
+<footer><p>© 2024 James Ciclitira · Product Designer · Berlin</p><div class="fsoc"><a href="index.html#contact">Contact</a><a href="#">LinkedIn</a><a href="cv.html">Résumé</a></div></footer>
+<script>
+const cur=document.getElementById('cur');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+document.querySelectorAll('a,button,input,textarea').forEach(el=>{el.addEventListener('mouseenter',()=>cur.classList.add('h'));el.addEventListener('mouseleave',()=>cur.classList.remove('h'))});
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.r').forEach(el=>io.observe(el));
+</script>
+</body></html>

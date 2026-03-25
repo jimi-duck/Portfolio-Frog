@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vivy — James Ciclitira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@300;400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>/* === SHARED CASE STUDY STYLES — paste into <style> of every page === */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111110;--paper:#f6f3ed;--warm:#eae6dc;
+  --accent:#b8412a;--accent-lt:#eec9be;--muted:#7a7670;
+  --border:rgba(17,17,16,0.09);
+  --serif:'Lora',Georgia,serif;
+  --mono:'DM Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden;cursor:none}
+/* cursor */
+#cur{position:fixed;width:9px;height:9px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:multiply}
+#cur.h{width:30px;height:30px;background:var(--accent-lt)}
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 2.5rem;background:rgba(246,243,237,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--ink);text-decoration:none;opacity:.55}
+.nav-links{display:flex;gap:1.8rem;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-decoration:none;opacity:.45;transition:opacity .2s}
+.nav-links a:hover{opacity:1}
+/* footer */
+footer{border-top:1px solid var(--border);padding:1.6rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(--muted)}
+.fsoc{display:flex;gap:1.5rem}
+.fsoc a{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.fsoc a:hover{color:var(--accent)}
+/* reveal */
+.r{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.r.in{opacity:1;transform:none}
+/* === CASE STUDY PAGE STYLES === */
+/* hero */
+.cs-hero{padding:7.5rem 2.5rem 4.5rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;border-bottom:1px solid var(--border)}
+.back{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;margin-bottom:1.8rem;transition:color .2s}
+.back:hover{color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.9rem}
+.cs-title{font-family:var(--serif);font-size:clamp(2.4rem,5.5vw,4.4rem);font-weight:400;line-height:1.05;letter-spacing:-.015em;margin-bottom:1.4rem}
+.cs-title em{font-style:italic}
+.cs-tagline{font-size:1rem;color:var(--muted);line-height:1.8;max-width:46ch}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.meta-item label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+.meta-item p{font-size:.9rem;line-height:1.5}
+/* hero image */
+.hero-img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;display:block}
+/* stat bar */
+.stats{background:var(--ink);display:grid;grid-template-columns:repeat(3,1fr)}
+.stats.four{grid-template-columns:repeat(4,1fr)}
+.stat{padding:2rem 2.5rem;border-right:1px solid rgba(255,255,255,.06);color:var(--paper)}
+.stat:last-child{border-right:none}
+.stat-n{font-family:var(--serif);font-size:2.2rem;font-style:italic;color:var(--accent-lt);line-height:1;margin-bottom:.3rem}
+.stat-l{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);line-height:1.65}
+/* body */
+.body{max-width:1180px;margin:0 auto;padding:5rem 2.5rem}
+.section{margin-bottom:5rem}
+.section:last-child{margin-bottom:0}
+/* labels */
+.lbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;display:flex;align-items:center;gap:1rem}
+.lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+/* headings */
+h2{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.4rem);font-weight:400;line-height:1.18;margin-bottom:1.4rem}
+h2 em{font-style:italic;color:var(--accent)}
+/* prose */
+.prose{font-size:.98rem;color:var(--muted);line-height:1.88;max-width:64ch}
+.prose strong{color:var(--ink);font-weight:400}
+.prose+.prose{margin-top:1rem}
+/* problem box */
+.pbox{background:var(--warm);border-left:3px solid var(--accent);padding:1.6rem 1.9rem;margin:1.8rem 0}
+.pbox p{font-size:.94rem;line-height:1.78}
+.pbox strong{font-weight:500;color:var(--ink)}
+/* layouts */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+/* images */
+.img{width:100%;display:block;object-fit:cover;object-position:center top;border:1px solid var(--border)}
+.img.tall{aspect-ratio:4/3}
+.img.wide{aspect-ratio:16/9}
+.img.short{aspect-ratio:16/8}
+.img.sq{aspect-ratio:1/1}
+.img.port{aspect-ratio:9/16}
+.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.5rem}
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
+.icard{padding:1.4rem;border:1px solid var(--border);background:var(--paper)}
+.icard-icon{font-size:1.2rem;margin-bottom:.65rem}
+.icard-t{font-family:var(--serif);font-size:.98rem;font-weight:400;margin-bottom:.35rem}
+.icard-d{font-size:.82rem;color:var(--muted);line-height:1.6}
+/* sprint days */
+.sprint{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:1.8rem 0}
+.day{background:var(--paper);padding:1.3rem}
+.day-n{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--accent);margin-bottom:.4rem}
+.day-t{font-family:var(--serif);font-size:.95rem;font-weight:400;margin-bottom:.3rem}
+.day-d{font-size:.8rem;color:var(--muted);line-height:1.55}
+/* user type blocks */
+.utype{padding:1.8rem;background:var(--warm);border:1px solid var(--border)}
+.utype-tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.65rem}
+.utype h3{font-family:var(--serif);font-size:1.08rem;font-weight:400;margin-bottom:.4rem}
+.utype p{font-size:.84rem;color:var(--muted);line-height:1.65}
+/* pull quote */
+.pq{padding:2.8rem 2.5rem;background:var(--ink);color:var(--paper);margin:2.5rem 0}
+.pq p{font-family:var(--serif);font-size:clamp(1.1rem,2.2vw,1.55rem);font-style:italic;line-height:1.45;color:rgba(246,243,237,.88)}
+.pq cite{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);margin-top:.9rem}
+/* next */
+.next{display:grid;grid-template-columns:1fr 1fr;min-height:260px;text-decoration:none;color:inherit}
+.next:hover .next-img{transform:scale(1.03)}
+.next-l{background:var(--ink);padding:2.8rem;display:flex;flex-direction:column;justify-content:space-between;transition:background .25s}
+.next:hover .next-l{background:#1a1917}
+.next-eyebrow{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(246,243,237,.35);margin-bottom:.9rem}
+.next-title{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.6rem);font-weight:400;color:var(--paper);line-height:1.1}
+.next-title em{font-style:italic;color:var(--accent-lt)}
+.next-sub{font-family:var(--mono);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(246,243,237,.28);margin-top:1rem}
+.next-r{overflow:hidden}
+.next-img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block}
+/* back home variant */
+.backhome{display:flex;align-items:center;justify-content:center;min-height:240px;background:var(--warm);border-top:1px solid var(--border);text-decoration:none;color:var(--ink);transition:background .25s}
+.backhome:hover{background:var(--ink)}
+.backhome:hover .bh-lbl,.backhome:hover .bh-t{color:var(--paper)}
+.bh-lbl{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;transition:color .25s;text-align:center}
+.bh-t{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:400;line-height:1.1;text-align:center;transition:color .25s}
+.bh-t em{font-style:italic;color:var(--accent)}
+/* responsive */
+@media(max-width:860px){
+  .cs-hero{grid-template-columns:1fr;padding:6.5rem 1.4rem 3rem;gap:2rem}
+  .stats{grid-template-columns:1fr 1fr}.stats.four{grid-template-columns:1fr 1fr}
+  .stat:nth-child(3):not(.stats.four .stat:nth-child(3)){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .stats.four .stat:nth-child(3),.stats.four .stat:nth-child(4){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .body{padding:3rem 1.4rem}
+  .two,.three,.four,.cards,.sprint{grid-template-columns:1fr}
+  .next{grid-template-columns:1fr}.next-r{min-height:180px}
+  nav,footer{padding-left:1.4rem;padding-right:1.4rem}
+  .pq{padding:2rem 1.4rem}
+}
+@media(max-width:480px){.stats{grid-template-columns:1fr}.stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<nav>
+  <a href="index.html" class="nav-logo">James Ciclitira</a>
+  <ul class="nav-links"><li><a href="index.html#work">Work</a></li><li><a href="index.html#contact">Contact</a></li><li><a href="cv.html">Résumé</a></li></ul>
+</nav>
+
+<header class="cs-hero">
+  <div>
+    <a href="index.html" class="back">← All work</a>
+    <p class="eyebrow">03 — Digital Health · Allianz-backed</p>
+    <h1 class="cs-title">Vivy</h1>
+    <p class="cs-tagline">Your entire medical history — lab results, X-rays, prescriptions — scattered across filing cabinets and hospital servers. Vivy wanted to put it all in your pocket, encrypted and under your control. I was one of the first designers to help make that real.</p>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-item"><label>Role</label><p>Product Designer — founding team</p></div>
+    <div class="meta-item"><label>Backed by</label><p>Allianz Insurance</p></div>
+    <div class="meta-item"><label>Methods</label><p>User interviews · Diary studies · Card sorting · Usability studies · Design sprints</p></div>
+    <div class="meta-item"><label>Scope</label><p>Patient app · Practitioner interface · Invoice management</p></div>
+  </div>
+</header>
+
+<img class="hero-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7ac7fe0b1cbed638346_VivyHero.jpeg" alt="Vivy">
+
+<div class="stats">
+  <div class="stat r"><div class="stat-n">E2E</div><div class="stat-l">End-to-end encryption —<br>security users could trust</div></div>
+  <div class="stat r"><div class="stat-n">4 days</div><div class="stat-l">Design sprint in Munich<br>with Allianz to define invoicing</div></div>
+  <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Surfaces designed: patient app,<br>practitioner portal, invoice flow</div></div>
+</div>
+
+<div class="body">
+
+  <section class="section r">
+    <p class="lbl">The problem</p>
+    <h2>Your health records exist.<br>They just don't exist<br><em>anywhere useful.</em></h2>
+    <div class="two" style="margin-top:1.4rem">
+      <p class="prose">In Germany, a patient's medical records are typically fragmented: lab results at one clinic, X-rays at a radiology department, prescriptions in a physical file at home. Sharing them between providers means faxes, phone calls, and trips in person — introducing delay and risk at every step.<br><br>Vivy's ambition: let patients own their complete health data on their phone, request documents digitally from any provider, and share them securely with any practitioner — without the administrative overhead.</p>
+      <p class="prose">As one of the founding designers, my role wasn't just screen-making. It was <strong>establishing the design culture from scratch</strong>: the research practices, the product principles, the way decisions got made. We were building something genuinely new in a highly regulated space — which meant doing the research carefully and being honest about what the product could and couldn't yet do.</p>
+    </div>
+  </section>
+
+  <img class="img short" style="margin-bottom:5rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659405f82052fcd4fd187216_onboarding.png" alt="Onboarding">
+
+  <section class="section r">
+    <p class="lbl">Document request & sharing</p>
+    <h2>The core flow: request a<br>document, receive it, share it.<br><em>Encrypted throughout.</em></h2>
+    <p class="prose">A patient opens the app, sends a request to their GP for last month's blood results, and receives them directly to their phone — no phone calls, no waiting rooms, no paper. Once there, files can be shared with any other practitioner in seconds, with access controlled entirely by the patient.</p>
+    <div class="two" style="margin-top:1.8rem">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659416107fe0b1cbed80711f_request.png" alt="Document request">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659416107f9e54b4050a80a7_request_flow.png" alt="Request flow">
+    </div>
+  </section>
+
+  <section class="section r">
+    <p class="lbl">The trickiest UX challenge — expectation management</p>
+    <h2>Honest design beats<br><em>optimistic design.</em> Always.</h2>
+    <div class="pbox"><p>When we launched, many document requests went unanswered — because most doctors had never heard of Vivy. <strong>The technology worked. The ecosystem wasn't ready yet.</strong> Patients felt the app was broken. The problem wasn't the product — it was that we'd set expectations we couldn't yet meet.</p></div>
+    <p class="prose" style="margin-top:1.4rem">The solution was to design for transparency rather than optimism. Instead of hiding uncertainty behind progress spinners, I built a request status system that kept users genuinely informed — what was pending, why it might be delayed, what their options were. We added educational moments that helped patients understand the process, not just the interface.<br><br>This was one of the most important decisions I made at Vivy: <strong>trusting users with honest information</strong> rather than papering over an imperfect reality with reassuring UX patterns. Patients responded better to honesty than to false confidence.</p>
+    <div class="two" style="margin-top:1.8rem">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6594171c0766f1d5452648f9_expectation2.png" alt="Expectation states">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6594178a73954868b9e34622_expectation1.png" alt="Status communication">
+    </div>
+  </section>
+
+  <div class="pq r">
+    <p>"Building a product that's ahead of its supporting infrastructure teaches you something most UX courses don't: how to manage the gap between vision and reality with dignity."</p>
+    <cite>James Ciclitira — on Vivy</cite>
+  </div>
+
+  <section class="section r">
+    <p class="lbl">The Munich sprint — invoice management</p>
+    <h2>Four days with Allianz.<br>One major feature, <em>defined properly.</em></h2>
+    <p class="prose" style="margin-bottom:1.8rem">Private healthcare in Germany carries a specific burden: patients pay out-of-pocket and file reimbursement claims with their insurer. It is a time-consuming, paper-heavy process that causes real anxiety. I travelled to Munich to run a four-day design sprint with Allianz — the goal was to understand both patient and insurer needs before building a single screen.</p>
+    <div class="sprint">
+      <div class="day"><p class="day-n">Day 01</p><p class="day-t">Stakeholder mapping</p><p class="day-d">Unpacking Allianz's internal workflows and the legal requirements for invoice processing.</p></div>
+      <div class="day"><p class="day-n">Day 02</p><p class="day-t">Patient pain journey</p><p class="day-d">Mapping every frustration, every piece of confusion, every moment of delay in the current process.</p></div>
+      <div class="day"><p class="day-n">Day 03</p><p class="day-t">Rapid prototyping</p><p class="day-d">Multiple invoice submission flows, tested on-the-spot with real patients and Allianz staff.</p></div>
+      <div class="day"><p class="day-n">Day 04</p><p class="day-t">Validation & sign-off</p><p class="day-d">Working prototype. Feature requirements aligned. A shared language between design, tech, and insurer.</p></div>
+    </div>
+    <img class="img short" style="margin-top:1.1rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6594171e826c9de511445a4c_viewing.png" alt="Invoice management">
+  </section>
+
+  <section class="section r">
+    <p class="lbl">File sharing & the practitioner interface</p>
+    <h2>The patient experience only<br>works if doctors <em>trust it too.</em></h2>
+    <p class="prose" style="margin-bottom:1.8rem">I also designed the practitioner-facing side — a secure, direct connection that made file sharing feel professional and trustworthy for both clinician and patient. The key design challenge: building enough trust signals that a doctor would be willing to integrate it into their workflow.</p>
+    <div class="two">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65953db7535215a416bf2af0_share1.png" alt="File sharing">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6594171ddb2f3e1ef7c7923a_dr.png" alt="Doctor interface">
+    </div>
+  </section>
+
+</div>
+
+<a href="crowdscores.html" class="next">
+  <div class="next-l">
+    <div><p class="next-eyebrow">Next project →</p><div class="next-title">Crowd<br><em>Scores</em></div></div>
+    <p class="next-sub">Principal Designer · Sports App · iOS &amp; Android</p>
+  </div>
+  <div class="next-r"><img class="next-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7ac8583e718138071ec_CrowdscoresHero.jpeg" alt="CrowdScores"></div>
+</a>
+
+<footer><p>© 2024 James Ciclitira · Product Designer · Berlin</p><div class="fsoc"><a href="index.html#contact">Contact</a><a href="#">LinkedIn</a><a href="cv.html">Résumé</a></div></footer>
+<script>
+const cur=document.getElementById('cur');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+document.querySelectorAll('a,button,input,textarea').forEach(el=>{el.addEventListener('mouseenter',()=>cur.classList.add('h'));el.addEventListener('mouseleave',()=>cur.classList.remove('h'))});
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.r').forEach(el=>io.observe(el));
+</script>
+</body></html>
