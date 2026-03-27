@@ -126,6 +126,25 @@ h2 em{font-style:italic;color:var(--accent)}
 .bh-lbl{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;transition:color .25s;text-align:center}
 .bh-t{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:400;line-height:1.1;text-align:center;transition:color .25s}
 .bh-t em{font-style:italic;color:var(--accent)}
+/* dark band */
+.dark-band{background:var(--ink);padding:6rem 2.5rem}
+.dark-band-inner{max-width:1180px;margin:0 auto}
+.dark-band .lbl{color:rgba(246,243,237,.3)}
+.dark-band .lbl::after{background:rgba(255,255,255,.07)}
+.dark-band h2{color:var(--paper)}
+.dark-band h2 em{color:var(--accent-lt)}
+.dark-band .prose{color:rgba(246,243,237,.55)}
+.dark-band .prose strong{color:rgba(246,243,237,.85)}
+.dark-band .pbox{background:rgba(255,255,255,.05);border-color:rgba(238,201,190,.4)}
+.dark-band .pbox p{color:rgba(246,243,237,.6)}
+.dark-band .pbox strong{color:var(--paper)}
+.dark-band .cap{color:rgba(246,243,237,.3)}
+.dark-band .img{border-color:rgba(255,255,255,.06)}
+.dark-band .icard{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+.dark-band .icard-t{color:var(--paper)}
+.dark-band .icard-d{color:rgba(246,243,237,.45)}
+/* section number watermark */
+.section-num{font-family:var(--serif);font-size:clamp(5rem,12vw,9rem);font-weight:400;font-style:italic;line-height:1;color:var(--border);display:block;margin-bottom:-2rem}
 /* responsive */
 @media(max-width:860px){
   .cs-hero{grid-template-columns:1fr;padding:6.5rem 1.4rem 3rem;gap:2rem}
@@ -152,108 +171,154 @@ h2 em{font-style:italic;color:var(--accent)}
 <header class="cs-hero">
   <div>
     <a href="index.html" class="back">← All work</a>
-    <p class="eyebrow">01 — Mobility · Operations · Ride UX</p>
+    <p class="eyebrow">Mobility · Consumer UX · Field Operations</p>
     <h1 class="cs-title">Coup<br><em>Mobility</em></h1>
-    <p class="cs-tagline">A Bosch-owned e-moped fleet across three cities. Great product, leaky operations. I designed the systems that kept 5,000 scooters earning — by fixing the problems riders never saw.</p>
+    <p class="cs-tagline">A Bosch-owned e-moped fleet operating across three European cities. I held two distinct mandates: redesigning the consumer ride experience from the ground up, and building the field operations platform — from a blank page — that kept 5,000 scooters on the road.</p>
   </div>
   <div class="meta-grid">
     <div class="meta-item"><label>Role</label><p>Product Designer</p></div>
-    <div class="meta-item"><label>Market</label><p>Berlin · Paris · Madrid</p></div>
-    <div class="meta-item"><label>Scope</label><p>Ride UX · Ops dashboard · Field worker app</p></div>
-    <div class="meta-item"><label>Methods</label><p>User research · Wireframing · Usability testing</p></div>
+    <div class="meta-item"><label>Markets</label><p>Berlin · Paris · Madrid</p></div>
+    <div class="meta-item"><label>Scope</label><p>Consumer ride app · Dispatcher dashboard · Field worker app</p></div>
+    <div class="meta-item"><label>Methods</label><p>User research · Concept design · Greenfield product build</p></div>
   </div>
 </header>
 
 <img class="hero-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="Coup Mobility">
 
-<div class="stats">
-  <div class="stat r"><div class="stat-n">5,000</div><div class="stat-l">E-mopeds across 3<br>European cities</div></div>
-  <div class="stat r"><div class="stat-n">18</div><div class="stat-l">Helmets stolen per day —<br>each one a scooter offline</div></div>
-  <div class="stat r"><div class="stat-n">12%</div><div class="stat-l">Rides cancelled before<br>engine start. Nobody knew why.</div></div>
+<div class="stats four">
+  <div class="stat r"><div class="stat-n">5,000</div><div class="stat-l">Electric mopeds across<br>three European cities</div></div>
+  <div class="stat r"><div class="stat-n">2</div><div class="stat-l">Distinct products designed —<br>consumer app &amp; ops platform</div></div>
+  <div class="stat r"><div class="stat-n">Built</div><div class="stat-l">Field ops tool created from<br>scratch — nothing existed before</div></div>
+  <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Cities. One platform.<br>Hundreds of field workers.</div></div>
 </div>
 
+<!-- ═══ CONTEXT ════════════════════════════════════════════ -->
 <div class="body">
-
   <section class="section r">
-    <p class="lbl">The context</p>
-    <h2>The ride was great.<br>The operations were <em>expensive.</em></h2>
-    <div class="two" style="margin-top:1.4rem">
-      <p class="prose">Coup was genuinely ahead of its time — fully electric, free-floating mopeds in three major cities before anyone else was doing it at scale. Riders loved it. The problem was everything happening after they parked up.<br><br>Helmets disappeared. Scooters sat damaged with no one reporting them. Dispatchers coordinated across whiteboards and WhatsApp. Every minute a scooter was offline was revenue lost — and nobody had built the systems to close the gaps.</p>
-      <p class="prose">I was on the ride-phase team: responsible for the experience from finding a scooter to ending the ride. But the real design opportunity wasn't in the app screens riders saw. It was in the <strong>invisible layer of operations</strong> underneath — and in quietly turning every frustrated customer into a sensor for the fleet.</p>
+    <p class="lbl">The brief</p>
+    <h2>A product people loved.<br>An experience that hadn't<br><em>caught up yet.</em></h2>
+    <div class="two" style="margin-top:1.6rem">
+      <p class="prose">Coup was genuinely ahead of its time — fully electric, free-floating mopeds operating across Berlin, Paris and Madrid before the category existed in any meaningful sense. Backed by Bosch and growing fast, the product had real traction. Riders chose it not because the app was exceptional, but in spite of it.<br><br>The consumer experience had been built for speed — to get the fleet live. What remained was a functional but uninspiring ride flow that didn't reflect the quality of the product it was selling. That was the first mandate: a full redesign of the consumer application, focused on making every moment of the ride — from finding a scooter to ending the journey — feel as considered and effortless as the scooters themselves.</p>
+      <p class="prose">The second mandate was more foundational. Behind the scenes, Coup's field operations were running on improvisation — WhatsApp groups, spreadsheets, and runners with no reliable way to receive assignments, log maintenance, or report issues. Each scooter that sat offline longer than it needed to represented direct revenue loss, multiplied across thousands of vehicles and three cities.<br><br>No tool existed to manage any of this. <strong>I was brought in to design and build it.</strong> The field operations platform — dispatcher dashboard and field worker app — was a greenfield brief, and one that demanded understanding not just the UX but the operational reality of people maintaining vehicles on the street, in all weather, under time pressure.</p>
     </div>
   </section>
+</div>
 
-  <section class="section r">
-    <p class="lbl">Problem 01 — Helmet theft</p>
-    <h2>18 helmets stolen daily.<br>Each one grounded a scooter<br><em>for hours.</em></h2>
-    <div class="pbox"><p>When a helmet was stolen, the scooter was out of commission until ops sent a replacement. The trouble: <strong>operations only found out when a customer complained to support.</strong> The lag could stretch to a full working day. Multiply that by 18 stolen helmets and you have a serious, silent revenue leak.</p></div>
-    <p class="prose">The fix was counterintuitive: don't add a dedicated theft-reporting flow. Instead, repurpose the moment a customer abandons a scooter without starting the engine — a dismissible popup, three taps, gone. <strong>It collected the report without feeling like a form.</strong> The ops team got an instant flag. The rider barely noticed it.</p>
-    <div class="two" style="margin-top:2rem">
+<!-- ═══ PART 1: CONSUMER APP — DARK BAND ═══════════════════ -->
+<div class="dark-band">
+  <div class="dark-band-inner">
+    <span class="section-num r">01</span>
+    <p class="lbl r">The consumer ride app</p>
+    <h2 class="r">Redesigning for <em>quality.</em><br>Not just function.</h2>
+
+    <div class="two r" style="margin-top:1.8rem;gap:5rem;align-items:start">
       <div>
-        <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954358e77443ea49ac58fe_role-1.png" alt="Helmet theft workflow">
-        <p class="cap">Before: broken feedback loop keeping scooters offline</p>
+        <p class="prose" style="margin-bottom:1.4rem">The existing app worked. Riders could find, unlock, and end a ride. But the experience was transactional in the worst sense — it got out of the way rather than enhancing the journey. For a product as visceral and enjoyable as riding an electric moped through a city, that felt like a missed opportunity at every screen.</p>
+        <p class="prose" style="margin-bottom:1.8rem">The redesign started with a fundamental question: what should it feel like to use this? Not which features to add or which flows to simplify, but what emotional register the product should occupy. The answer — arrived at through user research across all three cities — was confidence. Riders wanted to feel in control, informed, and unencumbered. The design followed from that.</p>
+        <div class="pbox">
+          <p>The ride phase was rebuilt end-to-end: map and discovery, scooter selection, pre-ride checks, the active ride experience, and the end-of-ride flow. <strong>Each moment was treated as an opportunity to either erode trust or build it.</strong> Clarity of information, timing of prompts, and the quality of micro-interactions all carried weight.</p>
+        </div>
+        <p class="prose">The redesign also quietly turned the consumer app into a data asset for operations. Passive reporting — surfaced at moments of natural frustration rather than as explicit tasks — gave the ops team real-time intelligence on scooter condition without adding any burden to the rider. A three-tap popup at the moment of cancellation was worth more than any formal reporting flow would have been.</p>
       </div>
       <div>
-        <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543573c038e0cc311aa6e_role-3.png" alt="Damage reporting">
-        <p class="cap">After: passive reporting built into the cancellation moment</p>
+        <img class="img wide" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954358e77443ea49ac58fe_role-1.png" alt="Ride UX redesign — before state">
+        <p class="cap">Mapping the friction points in the existing ride flow before redesigning</p>
+        <img class="img wide" style="margin-top:1rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543573c038e0cc311aa6e_role-3.png" alt="Redesigned ride experience">
+        <p class="cap">After: a ride flow built around confidence, clarity and quiet delight</p>
+      </div>
+    </div>
+
+    <!-- Three app screens -->
+    <div class="three r" style="margin-top:3rem">
+      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595435859ff8555bce6b782_1.jpeg" alt="App screen — discovery">
+      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954359b326bac274b050f6_2.jpeg" alt="App screen — active ride">
+      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543584cc7a545948115fb_3.jpeg" alt="App screen — end of ride">
+    </div>
+
+    <!-- Cancellation insight -->
+    <div class="two r" style="margin-top:4rem;gap:5rem;align-items:center">
+      <div>
+        <p class="lbl">Passive intelligence</p>
+        <h2>One in eight rides was<br>cancelled. Nobody knew <em>why.</em></h2>
+        <p class="prose" style="margin-bottom:1.4rem">A 12% pre-engine cancellation rate was a significant and expensive signal — one the operations team had no way to decode. Damage? Low battery? Wrong scooter? Missing helmet? Without structured data, every intervention was a guess.</p>
+        <p class="prose">Embedded within the redesigned cancellation flow was a lightweight structured prompt: a few options, a single tap, and the rider moved on. The ops team got a categorised, timestamped report. Within weeks of launch, the real distribution of cancellation causes was clear for the first time — and fixes could be targeted accordingly rather than spread across guesses.</p>
+      </div>
+      <div>
+        <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595435780a9699d3defe9b0_role-2.png" alt="Cancellation flow — passive data collection">
+        <p class="cap">Cancellation prompt — structured reporting built into a moment riders were already experiencing</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PART 2: FIELD OPS — PAPER SECTION ══════════════════ -->
+<div class="body">
+  <span class="section-num r" style="color:var(--border)">02</span>
+  <section class="section r">
+    <p class="lbl">The field operations platform</p>
+    <h2>Nothing existed.<br>We built the <em>whole thing.</em></h2>
+    <div class="two" style="margin-top:1.6rem">
+      <p class="prose">Before the field operations platform existed, Coup's ground teams were operating on instinct and improvisation. Assignments were communicated via WhatsApp. Maintenance records lived in spreadsheets — if they were logged at all. There was no reliable way for dispatchers to see the status of the fleet in real time, no structured workflow for field runners to receive and complete tasks, and no audit trail for the work being done on thousands of scooters across three cities.<br><br>Every gap in that system had a direct cost. A scooter with an unresolved fault stayed offline. A runner without a clear assignment drove around inefficiently. A dispatcher without accurate fleet data made decisions based on intuition rather than information.</p>
+      <p class="prose">The brief was open-ended and the starting point was blank. I began with immersive research into how field teams actually operated — riding along with runners, spending time with dispatchers, mapping the informal systems they'd built to cope with the absence of proper tooling. What emerged was a clear picture of two distinct use cases that needed to work in concert: <strong>the dispatcher who needed strategic control, and the field worker who needed clarity in the moment.</strong><br><br>Those two needs drove two separate but connected products: a web-based dispatcher dashboard for ops managers, and a mobile-first field worker app designed for use on the street.</p>
+    </div>
+  </section>
+
+  <!-- Three capability cards -->
+  <div class="cards r">
+    <div class="icard">
+      <div class="icard-icon">🗺</div>
+      <div class="icard-t">Fleet status at a glance</div>
+      <p class="icard-d">Live map view of every scooter in the fleet — online, offline, flagged, or in maintenance. Dispatchers could see the entire city's health in seconds, without chasing runners for updates.</p>
+    </div>
+    <div class="icard">
+      <div class="icard-icon">🔧</div>
+      <div class="icard-t">Structured maintenance logging</div>
+      <p class="icard-d">Field workers received clear assignments, completed tasks through a guided flow, and logged maintenance outcomes in a format that fed directly into the dispatcher's view. Every action left a traceable record.</p>
+    </div>
+    <div class="icard">
+      <div class="icard-icon">📋</div>
+      <div class="icard-t">Assignment management</div>
+      <p class="icard-d">Dispatchers could create, assign, and reprioritise tasks in real time based on fleet conditions. Runners got their next job pushed to their phone — no calls, no WhatsApp chains, no ambiguity.</p>
+    </div>
+  </div>
+
+  <section class="section r" style="margin-top:4rem">
+    <div class="two" style="gap:3rem;align-items:start">
+      <div>
+        <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954354be7d7a807963a30c_runner.png" alt="Field worker app — assignment view">
+        <p class="cap">Field worker app — assignments, status updates and maintenance logging in a single flow</p>
+      </div>
+      <div>
+        <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954355119f7531490b3925_report.png" alt="Maintenance report screen">
+        <p class="cap">Maintenance report — structured outcome logging that built the ops team's data picture over time</p>
+      </div>
+    </div>
+    <div class="three r" style="margin-top:1.1rem">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543545af362c4b4662b56_login.png" alt="Login screen">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954355e9514696adfb303b_status.png" alt="Scooter status view">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954353e77443ea49ac576d_overview.png" alt="Dispatcher overview">
+    </div>
+    <p class="prose r" style="margin-top:2rem">The field worker app was designed with a specific constraint in mind: use in physically demanding conditions. Runners operated in rain, in traffic, in winter, often one-handed. Every interaction had to work with gloves on. Text had to be legible in full sun. Actions had to be confident and irreversible — the kind of clarity that removes hesitation rather than creating it.</p>
+  </section>
+
+  <!-- Battery swap research -->
+  <section class="section r">
+    <p class="lbl">Research — design before commitment</p>
+    <h2>Validating a costly hypothesis<br><em>before anyone built anything.</em></h2>
+    <div class="two" style="margin-top:1.4rem;align-items:center">
+      <p class="prose">A proposal emerged to let engaged riders earn credits by swapping depleted scooter batteries — a community-powered approach to reducing ops costs and driver dependency. The appeal was obvious. The problem: validating it properly would require physical charging infrastructure that didn't exist.<br><br>Rather than waiting for infrastructure, I designed a lightweight in-app pilot that let us collect meaningful behavioural data from real users through small, targeted changes to the existing flow. The research came back quickly and cheaply — and gave the business what it needed to make an informed decision about whether to commit to the infrastructure investment. <strong>Design used as a research instrument rather than a delivery mechanism.</strong></p>
+      <div>
+        <img class="img short" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543559b4091a7a75e3a89_swap.png" alt="Community battery swap pilot">
+        <p class="cap">Community battery swapping pilot — testing intent before infrastructure commitment</p>
       </div>
     </div>
   </section>
-
-  <div class="three" style="margin-bottom:5rem">
-    <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595435859ff8555bce6b782_1.jpeg" alt="App screen 1">
-    <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954359b326bac274b050f6_2.jpeg" alt="App screen 2">
-    <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543584cc7a545948115fb_3.jpeg" alt="App screen 3">
-  </div>
-
-  <section class="section r">
-    <p class="lbl">Problem 02 — 12% cancellation rate</p>
-    <h2>One in eight rides was<br>cancelled. Nobody knew <em>why.</em></h2>
-    <div class="pbox"><p>Damage? Low battery? Wrong scooter? Missing helmet? All plausible — but without data, the operations team was guessing. <strong>12% of rides cancelled before engine start</strong> was a significant number. You can't reduce a problem you can't measure.</p></div>
-    <p class="prose">The same cancellation popup became a data collection engine. By offering structured choices rather than a free-text field, we turned vague frustration into <strong>actionable ops intelligence</strong>. Within weeks, the team had a prioritised list of real cancellation causes. The guesswork stopped. Fixes could be targeted.</p>
-    <img class="img short" style="margin-top:1.8rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6595435780a9699d3defe9b0_role-2.png" alt="Cancellation flow">
-    <p class="cap" style="margin-top:.5rem">The cancellation popup: one design, two problems solved</p>
-  </section>
-
-  <div class="pq r">
-    <p>"Good ops design is invisible to the rider but worth millions to the business. The best thing I built at Coup was something users barely remembered seeing."</p>
-    <cite>James Ciclitira — on Coup</cite>
-  </div>
-
-  <section class="section r">
-    <p class="lbl">Research project — community battery swapping</p>
-    <h2>Validating a costly idea<br><em>before building it.</em></h2>
-    <p class="prose">The idea: let engaged users earn credits by swapping depleted batteries — reducing ops costs and building community at the same time. The problem: validating it required expensive charging infrastructure that didn't exist yet.<br><br>I designed a lightweight app pilot with the internal ops team — small changes that let us collect first-hand data from real users before committing to infrastructure. <strong>This is what using design as a research instrument looks like.</strong> The answers came back quickly, cheaply, and honestly.</p>
-    <img class="img short" style="margin-top:1.8rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543559b4091a7a75e3a89_swap.png" alt="Battery swap research">
-    <p class="cap" style="margin-top:.5rem">Community battery swapping pilot — research before infrastructure</p>
-  </section>
-
-  <section class="section r">
-    <p class="lbl">Operations tooling — the other half of the job</p>
-    <h2>Two tools. One city's<br>worth of <em>moving parts.</em></h2>
-    <p class="prose" style="margin-bottom:2rem">Running a shared fleet means managing hundreds of workers, thousands of vehicles, and constant field exceptions — in real time, across three cities. I was fully responsible for designing and iterating both operational tools.</p>
-    <div class="cards">
-      <div class="icard"><div class="icard-icon">🖥</div><div class="icard-t">Dispatcher dashboard</div><p class="icard-d">Web app for ops managers: create and monitor field assignments, track per-scooter status and maintenance history, coordinate workers city-wide in real time.</p></div>
-      <div class="icard"><div class="icard-icon">📱</div><div class="icard-t">Field worker app</div><p class="icard-d">Mobile app for on-the-ground runners: receive assignments, log maintenance tasks, report scooter status. Designed for one-handed use in the rain.</p></div>
-      <div class="icard"><div class="icard-icon">📈</div><div class="icard-t">Measurable outcome</div><p class="icard-d">Enhanced fleet efficiency across all three markets. Fewer hours lost to manual coordination. A documented reduction in company costs from improved uptime.</p></div>
-    </div>
-    <div class="two" style="margin-top:1.8rem">
-      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954354be7d7a807963a30c_runner.png" alt="Runner app">
-      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954355119f7531490b3925_report.png" alt="Report screen">
-    </div>
-    <div class="three" style="margin-top:1.1rem">
-      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659543545af362c4b4662b56_login.png" alt="Login">
-      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954355e9514696adfb303b_status.png" alt="Status">
-      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65954353e77443ea49ac576d_overview.png" alt="Overview">
-    </div>
-  </section>
-
 </div>
 
 <a href="cooler-future.html" class="next">
   <div class="next-l">
     <div><p class="next-eyebrow">Next project →</p><div class="next-title">Cooler<br><em>Future</em></div></div>
-    <p class="next-sub">Lead Designer · Climate Fintech · 0→1</p>
+    <p class="next-sub">Lead Designer · Climate Fintech · Full launch</p>
   </div>
   <div class="next-r"><img class="next-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65940ab6bcaf577124a4acb9_CoolerHero.png" alt="Cooler Future"></div>
 </a>

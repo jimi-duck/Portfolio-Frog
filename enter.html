@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Enter — James Ciclitira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@300;400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111110;--paper:#f6f3ed;--warm:#eae6dc;
+  --accent:#b8412a;--accent-lt:#eec9be;--muted:#7a7670;
+  --border:rgba(17,17,16,0.09);
+  --serif:'Lora',Georgia,serif;
+  --mono:'DM Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden;cursor:none}
+#cur{position:fixed;width:9px;height:9px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:multiply}
+#cur.h{width:30px;height:30px;background:var(--accent-lt)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 2.5rem;background:rgba(246,243,237,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--ink);text-decoration:none;opacity:.55}
+.nav-links{display:flex;gap:1.8rem;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-decoration:none;opacity:.45;transition:opacity .2s}
+.nav-links a:hover{opacity:1}
+footer{border-top:1px solid var(--border);padding:1.6rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(--muted)}
+.fsoc{display:flex;gap:1.5rem}
+.fsoc a{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.fsoc a:hover{color:var(--accent)}
+.r{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.r.in{opacity:1;transform:none}
+
+/* ─── HERO ───────────────────────────────────────── */
+.cs-hero{padding:7.5rem 2.5rem 4.5rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;border-bottom:1px solid var(--border)}
+.back{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;margin-bottom:1.8rem;transition:color .2s}
+.back:hover{color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.9rem}
+.cs-title{font-family:var(--serif);font-size:clamp(2.4rem,5.5vw,4.4rem);font-weight:400;line-height:1.05;letter-spacing:-.015em;margin-bottom:1.4rem}
+.cs-title em{font-style:italic}
+.cs-tagline{font-size:1rem;color:var(--muted);line-height:1.8;max-width:46ch}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.meta-item label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+.meta-item p{font-size:.9rem;line-height:1.5}
+
+/* ─── HERO IMAGE ─────────────────────────────────── */
+.hero-img{width:100%;height:580px;object-fit:cover;object-position:center 35%;display:block}
+
+/* ─── STATS ──────────────────────────────────────── */
+.stats{background:var(--ink);display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:2rem 2.5rem;border-right:1px solid rgba(255,255,255,.06);color:var(--paper)}
+.stat:last-child{border-right:none}
+.stat-n{font-family:var(--serif);font-size:2.2rem;font-style:italic;color:var(--accent-lt);line-height:1;margin-bottom:.3rem}
+.stat-l{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);line-height:1.65}
+
+/* ─── BODY SHARED ────────────────────────────────── */
+.body{max-width:1180px;margin:0 auto;padding:5rem 2.5rem}
+.section{margin-bottom:5rem}
+.section:last-child{margin-bottom:0}
+.lbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;display:flex;align-items:center;gap:1rem}
+.lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+h2{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.4rem);font-weight:400;line-height:1.18;margin-bottom:1.4rem}
+h2 em{font-style:italic;color:var(--accent)}
+.prose{font-size:.98rem;color:var(--muted);line-height:1.88;max-width:64ch}
+.prose strong{color:var(--ink);font-weight:400}
+.prose+.prose{margin-top:1rem}
+.pbox{background:var(--warm);border-left:3px solid var(--accent);padding:1.6rem 1.9rem;margin:1.8rem 0}
+.pbox p{font-size:.94rem;line-height:1.78}
+.pbox strong{font-weight:500;color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.55rem}
+
+/* ─── PHOTO IMAGES (lifestyle shots) ─────────────── */
+.photo{width:100%;display:block;object-fit:cover}
+.photo.wide{aspect-ratio:16/9}
+.photo.tall{aspect-ratio:3/4;object-fit:cover}
+.photo.square{aspect-ratio:1/1;object-fit:cover}
+
+/* ─── FLOW STEPS ─────────────────────────────────── */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--border);margin:1.8rem 0}
+.flow-step{padding:1.4rem 1.2rem;border-right:1px solid var(--border)}
+.flow-step:last-child{border-right:none}
+.flow-n{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;color:var(--accent);margin-bottom:.5rem}
+.flow-t{font-family:var(--serif);font-size:.92rem;font-weight:400;margin-bottom:.3rem}
+.flow-d{font-size:.78rem;color:var(--muted);line-height:1.55}
+
+/* ─── PIPELINE ───────────────────────────────────── */
+.pipeline{background:var(--warm);border:1px solid var(--border);padding:2rem;margin:1.8rem 0}
+.pipeline-row{display:flex;align-items:stretch}
+.pipe-node{flex:1;padding:1rem;background:var(--paper);border:1px solid var(--border);text-align:center}
+.pipe-node-t{font-family:var(--serif);font-size:.88rem;font-weight:400;margin-bottom:.2rem}
+.pipe-node-d{font-size:.74rem;color:var(--muted)}
+.pipe-arr{font-family:var(--mono);font-size:.7rem;color:var(--muted);padding:0 .5rem;display:flex;align-items:center;flex-shrink:0}
+
+/* ─── DARK BAND (appointment + report sections) ───── */
+.dark-band{background:var(--ink);padding:6rem 2.5rem}
+.dark-band-inner{max-width:1180px;margin:0 auto}
+.dark-band .lbl{color:rgba(246,243,237,.3)}
+.dark-band .lbl::after{background:rgba(255,255,255,.07)}
+.dark-band h2{color:var(--paper)}
+.dark-band h2 em{color:var(--accent-lt)}
+.dark-band .prose{color:rgba(246,243,237,.55)}
+.dark-band .prose strong{color:rgba(246,243,237,.85)}
+.dark-band .pbox{background:rgba(255,255,255,.05);border-color:rgba(238,201,190,.4)}
+.dark-band .pbox p{color:rgba(246,243,237,.6)}
+.dark-band .pbox strong{color:var(--paper)}
+.dark-band .cap{color:rgba(246,243,237,.3)}
+
+/* Pre-framed phone/tablet images on black background:
+   displayed against dark band — black bleeds away naturally */
+.device-img{
+  width:100%;
+  display:block;
+  /* no border — the device frame is part of the image */
+}
+
+/* Two floating phones side by side, staggered */
+.phones-pair{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:2.5rem;
+  max-width:520px;
+  margin:3rem auto 0;
+  align-items:end;
+}
+.phones-pair .phone-col:first-child{margin-top:2.5rem}
+
+/* Report grid — iPad mockups in 2-col with stagger */
+.report-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.5rem;
+  margin-top:3.5rem;
+}
+.report-grid .rg-item{position:relative}
+/* Odd items nudge down to create visual rhythm */
+.report-grid .rg-item:nth-child(even){margin-top:3rem}
+.report-grid .rg-item.rg-wide{
+  grid-column:1/-1;
+  max-width:70%;
+  margin:0 auto 1rem;
+}
+.report-grid .rg-caption{
+  font-family:var(--mono);
+  font-size:.55rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(246,243,237,.28);
+  margin-top:.6rem;
+  padding-left:.2rem;
+}
+
+/* ─── FULL-BLEED PHOTO BREAK ─────────────────────── */
+.photo-break{
+  width:100%;
+  display:block;
+  max-height:70vh;
+  object-fit:cover;
+  object-position:center 30%;
+}
+
+/* ─── WARM SECTION ───────────────────────────────── */
+.warm-band{background:var(--warm);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:5rem 2.5rem}
+.warm-band-inner{max-width:1180px;margin:0 auto}
+
+/* ─── CARDS ──────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
+.icard{padding:1.4rem;border:1px solid var(--border);background:var(--paper)}
+.icard-icon{font-size:1.1rem;margin-bottom:.6rem}
+.icard-t{font-family:var(--serif);font-size:.95rem;font-weight:400;margin-bottom:.3rem}
+.icard-d{font-size:.82rem;color:var(--muted);line-height:1.6}
+
+/* ─── NEXT ───────────────────────────────────────── */
+.next{display:grid;grid-template-columns:1fr 1fr;min-height:260px;text-decoration:none;color:inherit}
+.next:hover .next-img{transform:scale(1.03)}
+.next-l{background:var(--ink);padding:2.8rem;display:flex;flex-direction:column;justify-content:space-between;transition:background .25s}
+.next:hover .next-l{background:#1a1917}
+.next-eyebrow{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(246,243,237,.35);margin-bottom:.9rem}
+.next-title{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.6rem);font-weight:400;color:var(--paper);line-height:1.1}
+.next-title em{font-style:italic;color:var(--accent-lt)}
+.next-sub{font-family:var(--mono);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(246,243,237,.28);margin-top:1rem}
+.next-r{overflow:hidden}
+.next-img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block}
+
+/* ─── RESPONSIVE ─────────────────────────────────── */
+@media(max-width:860px){
+  .cs-hero{grid-template-columns:1fr;padding:6.5rem 1.4rem 3rem;gap:2rem}
+  .hero-img{height:50vw}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat:nth-child(3){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .body{padding:3rem 1.4rem}
+  .two,.cards,.flow{grid-template-columns:1fr}
+  .flow-step{border-right:none;border-bottom:1px solid var(--border)}
+  .flow-step:last-child{border-bottom:none}
+  .dark-band,.warm-band{padding:4rem 1.4rem}
+  .phones-pair{max-width:100%;gap:1.5rem}
+  .report-grid{grid-template-columns:1fr}
+  .report-grid .rg-item:nth-child(even){margin-top:0}
+  .report-grid .rg-item.rg-wide{max-width:100%}
+  .pipeline-row{flex-direction:column}
+  .pipe-arr{transform:rotate(90deg);justify-content:center;padding:.4rem 0}
+  .next{grid-template-columns:1fr}.next-r{min-height:180px}
+  nav,footer{padding-left:1.4rem;padding-right:1.4rem}
+}
+@media(max-width:520px){
+  .stats{grid-template-columns:1fr}.stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}
+  .phones-pair{grid-template-columns:1fr;max-width:300px}
+}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<nav>
+  <a href="index.html" class="nav-logo">James Ciclitira</a>
+  <ul class="nav-links">
+    <li><a href="index.html#work">Work</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    <li><a href="cv.html">Résumé</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ HERO ══════════════════════════════════════════════ -->
+<header class="cs-hero">
+  <div>
+    <a href="index.html" class="back">← All work</a>
+    <p class="eyebrow">Field Operations · Energy Tech · Customer Journey</p>
+    <h1 class="cs-title">Enter —<br><em>Field Intelligence</em></h1>
+    <p class="cs-tagline">A Berlin energy advisory startup helping German homeowners navigate energetic renovation. I led design across the field operations tool and the end-to-end customer journey — from first doorstep visit through to a government-grade retrofit report.</p>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-item"><label>Role</label><p>Senior Product Designer</p></div>
+    <div class="meta-item"><label>Company</label><p>Enter, Berlin</p></div>
+    <div class="meta-item"><label>Scope</label><p>Field ops app · Customer report · iSFP flow</p></div>
+    <div class="meta-item"><label>Methods</label><p>Field research · Prototyping · Service design</p></div>
+  </div>
+</header>
+
+<!-- Hero photo: advisor in garden selecting building footprint on map -->
+<img class="hero-img" src="Man_selecting_the_footprint.png" alt="Energy advisor selecting building footprint on map">
+
+<div class="stats">
+  <div class="stat r"><div class="stat-n">iSFP</div><div class="stat-l">Official govt. document<br>generated from field data</div></div>
+  <div class="stat r"><div class="stat-n">2D</div><div class="stat-l">Live floor plans with<br>window-level precision</div></div>
+  <div class="stat r"><div class="stat-n">Built</div><div class="stat-l">Field tool &amp; customer journey<br>designed from scratch</div></div>
+</div>
+
+<!-- ═══ CONTEXT ═══════════════════════════════════════════ -->
+<div class="body">
+  <section class="section r">
+    <p class="lbl">The context</p>
+    <h2>Billions in renovation funding.<br>The data to unlock it<br><em>didn't yet exist.</em></h2>
+    <div class="two" style="margin-top:1.6rem">
+      <p class="prose">Enter helps German homeowners navigate energetic renovation — insulation, heat pumps, windows, and the government funding that can cover a significant portion of it. The Bundesförderung für effiziente Gebäude offers up to 70% on certain measures, but to access it, homeowners need an iSFP: an individual renovation roadmap produced by a certified energy advisor following an on-site assessment.<br><br>That visit is the critical moment. The quality of data collected on site determines everything — the AI model that calculates energy performance, the retrofit recommendations that come out, and the legal validity of the document produced at the end.</p>
+      <p class="prose">When I joined, advisors were working from paper forms and personal notes. Data was inconsistent and difficult to feed into any automated processing pipeline. There was no proper tool for either side of the interaction — the advisor collecting data in the field, or the homeowner reviewing results and choosing their path forward.<br><br>I led design across <strong>both surfaces</strong>: the tablet-first field tool used during property visits, and the digital customer report advisors used to walk homeowners through their personalised renovation plan.</p>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ APPOINTMENT — DARK BAND ════════════════════════════ -->
+<div class="dark-band">
+  <div class="dark-band-inner">
+    <p class="lbl r">Appointment management</p>
+    <div class="two r" style="align-items:start;gap:5rem">
+      <div>
+        <h2>Everything the advisor needs<br>before they<br><em>knock on the door.</em></h2>
+        <p class="prose" style="margin-bottom:1.4rem">The appointment screen served as both briefing and starting gun. Before tapping "Termin starten", advisors saw client name and address, a map preview, a building size estimate, and quick actions to call ahead or navigate. The iSFP data section sat behind a deliberate lock — once tapped, data access was triggered, the session began, and the advisor was committed.</p>
+        <p class="prose">Post-completion, the same screen confirmed the data had been submitted — and surfaced the customer report, which had been locked throughout. The report only became available once the advisor had collected every required section of the building survey. <strong>It couldn't be generated until the data it depended on actually existed.</strong></p>
+      </div>
+      <!-- Pre-framed phone images — black backgrounds blend into dark band -->
+      <div class="phones-pair">
+        <div class="phone-col">
+          <img class="device-img" src="Pre-data_capture.png" alt="Pre-appointment briefing screen">
+          <p class="cap">Before — data locked, "Termin starten" visible</p>
+        </div>
+        <div class="phone-col">
+          <img class="device-img" src="Post_data_capture.png" alt="Post-completion appointment screen">
+          <p class="cap">After — full data unlocked, iSFP ready</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BUILDING DATA CAPTURE ══════════════════════════════ -->
+<div class="body">
+  <section class="section r">
+    <p class="lbl">Building data capture</p>
+    <h2>Every house is different.<br>Every detail <em>matters.</em></h2>
+    <div class="two" style="margin-top:1.4rem">
+      <p class="prose">The field tool was structured around the iSFP format — house data, floors and rooms, construction materials, mechanical systems, and exterior. Advisors navigated between tabs, drilling into each floor and room in turn. Nothing was free-text where it could be structured: dropdowns, toggles, and preconfigured options kept data clean and consistent for the AI model downstream.</p>
+      <p class="prose">Each section followed the same pattern: enter data, take photos if relevant, move on. The tab structure meant the advisor always knew where they were in the survey — and exactly what was left. On a 186m² detached house, that gave them a reliable mental model without needing to manage it consciously.</p>
+    </div>
+
+    <div class="flow" style="margin-top:2.5rem">
+      <div class="flow-step"><div class="flow-n">01</div><div class="flow-t">House Data</div><div class="flow-d">Year built, footprint, heating source, living area</div></div>
+      <div class="flow-step"><div class="flow-n">02</div><div class="flow-t">Floors &amp; Rooms</div><div class="flow-d">Each storey: room count, area, windows, heating status</div></div>
+      <div class="flow-step"><div class="flow-n">03</div><div class="flow-t">Construction</div><div class="flow-d">Walls, insulation, roof, basement — materials &amp; U-values</div></div>
+      <div class="flow-step"><div class="flow-n">04</div><div class="flow-t">Systems</div><div class="flow-d">Heating, hot water, ventilation, renewables</div></div>
+      <div class="flow-step"><div class="flow-n">05</div><div class="flow-t">Exterior</div><div class="flow-d">Facade photos, wall type, condition notes</div></div>
+    </div>
+  </section>
+</div>
+
+<!-- Full-bleed lifestyle photo: advisor navigating floor list -->
+<img class="photo-break" src="Adding_room_elements.png" alt="Advisor reviewing floor and room structure on tablet" style="object-position:center 20%">
+
+<div class="body">
+  <div class="two r" style="margin:4rem 0 5rem;gap:2.5rem;align-items:start">
+    <div>
+      <img class="photo" src="Checking_over_the_data.png" alt="Advisor reviewing captured data before submission" style="aspect-ratio:4/5;object-fit:cover;object-position:center top">
+      <p class="cap">Data review — all building data confirmed before submitting to AI processing</p>
+    </div>
+    <div style="padding-top:3rem">
+      <img class="photo" src="Data_from_outsite.png" alt="Exterior data capture — facade photos and wall type" style="aspect-ratio:4/5;object-fit:cover">
+      <p class="cap">Exterior — photos, facade material and wall construction captured in a single section</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FLOOR PLAN ══════════════════════════════════════════ -->
+<div class="warm-band">
+  <div class="warm-band-inner">
+    <p class="lbl r">The floor plan feature</p>
+    <div class="two r" style="align-items:start;gap:5rem;margin-bottom:3rem">
+      <div>
+        <h2>Window-level accuracy.<br>Built into the<br><em>floor plan.</em></h2>
+        <p class="prose" style="margin-bottom:1.4rem">Windows are one of the most consequential variables in an energy model. Their position, dimensions, and glazing spec all affect the U-value of the surrounding wall — which directly influences which retrofit measures make financial sense and which don't. Getting this wrong skews the whole recommendation downstream.</p>
+        <div class="pbox" style="background:rgba(17,17,16,.05)">
+          <p>The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors <strong>place each window directly on the plan</strong> — dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields.</p>
+        </div>
+        <p class="prose">The building footprint also served a second purpose: advisors could flag discrepancies between the registered data and what they observed on site, feeding corrections back into the dataset for future visits. Over time, the pre-populated data became more reliable.</p>
+      </div>
+      <div style="padding-top:1rem">
+        <img class="photo" src="Man_adding_windows_on_tablet.png" alt="Advisor placing window on 2D floor plan" style="aspect-ratio:4/5;object-fit:cover;object-position:center top">
+        <p class="cap" style="margin-top:.6rem">Placing a window on the 2D floor plan — position, size and glazing confirmed in one step</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ THE CUSTOMER REPORT — DARK BAND ════════════════════ -->
+<div class="dark-band">
+  <div class="dark-band-inner">
+    <p class="lbl r">The customer report</p>
+    <div class="two r" style="align-items:start;gap:5rem;margin-bottom:1rem">
+      <div>
+        <h2>Field data becomes<br>a plan a homeowner<br><em>can trust.</em></h2>
+        <p class="prose" style="margin-bottom:1.4rem">Once the field survey was submitted and the AI had processed the data, the advisor returned for a second session — this time with the homeowner, going through the report together. I designed this side of the product from scratch: a structured digital report that guided the advisor through the conversation and gave the homeowner a clear picture of their options.</p>
+        <p class="prose">The report walked through four stages: an overview of the assessment, projected energy costs if nothing was done, a ranked list of retrofit measures to choose from, and a final selection that fed directly into the iSFP document. At every stage, the numbers were traceable — rooted in the data collected on site, not estimates.</p>
+      </div>
+      <div>
+        <div class="pbox">
+          <p>Choosing measures wasn't just about picking the cheapest option. The report showed <strong>savings potential, payback period, available subsidy, and energy class improvement</strong> — all for each measure individually, and then combined for any selection. The advisor's role was to explain the trade-offs; the tool made the numbers concrete.</p>
+        </div>
+        <div class="cards" style="grid-template-columns:1fr;margin-top:1.5rem">
+          <div class="icard" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)">
+            <div class="icard-icon">01</div>
+            <div class="icard-t" style="color:var(--paper)">Current Assessment</div>
+            <p class="icard-d" style="color:rgba(246,243,237,.45)">Building overview, current energy class, savings potential and property value uplift — based entirely on data from the field visit.</p>
+          </div>
+          <div class="icard" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)">
+            <div class="icard-icon">02</div>
+            <div class="icard-t" style="color:var(--paper)">Future Outlook</div>
+            <p class="icard-d" style="color:rgba(246,243,237,.45)">Projected energy cost increases through 2064, plus a full breakdown of available Bundesförderung subsidies and iSFP bonuses.</p>
+          </div>
+          <div class="icard" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)">
+            <div class="icard-icon">03</div>
+            <div class="icard-t" style="color:var(--paper)">Renovation Roadmap</div>
+            <p class="icard-d" style="color:rgba(246,243,237,.45)">AI-ranked measures with savings, payback, cost and subsidy. Advisor and homeowner select together — confirmed selection compiles into the iSFP.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report screens grid: pre-framed iPad images on black bg blend into dark section -->
+    <div class="report-grid r">
+
+      <!-- Row 1: Overview (wide, centred) -->
+      <div class="rg-item rg-wide">
+        <img class="device-img" src="Report-1-about.png" alt="Report overview — Energieberatung Übersicht">
+        <p class="rg-caption">Report overview — structure and contents presented before the session begins</p>
+      </div>
+
+      <!-- Row 2: Current assessment + Future costs -->
+      <div class="rg-item">
+        <img class="device-img" src="Report-4-Current_status.png" alt="Current building assessment — Aktuelle Bewertung">
+        <p class="rg-caption">Aktuelle Bewertung — energy class, savings potential and suggested measures</p>
+      </div>
+      <div class="rg-item">
+        <img class="device-img" src="Report-2-futurecosts.png" alt="Future energy cost projections">
+        <p class="rg-caption">Zukünftiger Ausblick — projected gas, oil and electricity costs through 2064</p>
+      </div>
+
+      <!-- Row 3: Subsidies + Roadmap -->
+      <div class="rg-item">
+        <img class="device-img" src="Report-3-funding-info.png" alt="Subsidy overview — BEG Einzelmaßnahmen">
+        <p class="rg-caption">Förderübersicht — BEG base rates, iSFP bonus and worked cost examples</p>
+      </div>
+      <div class="rg-item">
+        <img class="device-img" src="Report-5-Measues.png" alt="Renovation roadmap — Sanierungsfahrplan">
+        <p class="rg-caption">Sanierungsfahrplan — all measures ranked by savings, payback, cost and recommendation grade</p>
+      </div>
+
+      <!-- Row 4: Measure detail + Confirmation -->
+      <div class="rg-item">
+        <img class="device-img" src="Report-6-MeasuesInfo.png" alt="Wärmepumpe measure detail">
+        <p class="rg-caption">Measure detail — Wärmepumpe with savings, property value uplift and subsidy breakdown</p>
+      </div>
+      <div class="rg-item">
+        <img class="device-img" src="Report-6-allmeasues-changes.png" alt="Selected measures confirmation modal">
+        <p class="rg-caption">Selection confirmed — combined energy class improvement, subsidy and cost after grants</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PIPELINE ═══════════════════════════════════════════ -->
+<div class="body">
+  <section class="section r">
+    <p class="lbl">End to end</p>
+    <h2>Field data. AI model.<br>Government document.<br><em>One continuous flow.</em></h2>
+    <p class="prose" style="margin-bottom:1.8rem">The product connected a doorstep visit to a legally valid government output. Designing both sides — field tool and customer report — meant understanding not just what advisors needed to capture, but what the AI model required to compute accurately, what format the iSFP demanded structurally, and what would give a homeowner enough confidence to sign off on a six-figure renovation.</p>
+
+    <div class="pipeline">
+      <div class="pipeline-row">
+        <div class="pipe-node"><div class="pipe-node-t">Field Visit</div><div class="pipe-node-d">Advisor on site with tablet</div></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><div class="pipe-node-t">Building Survey</div><div class="pipe-node-d">Floors, rooms, materials, 2D plan</div></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><div class="pipe-node-t">AI Processing</div><div class="pipe-node-d">Energy model from captured data</div></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><div class="pipe-node-t">Customer Report</div><div class="pipe-node-d">Assessment, roadmap &amp; subsidy plan</div></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><div class="pipe-node-t">iSFP Document</div><div class="pipe-node-d">Official govt. doc, subsidy-ready</div></div>
+      </div>
+    </div>
+
+    <p class="prose">A window placed on a floor plan feeds into the U-value for that wall, which changes the payback period of a window-replacement measure, which shapes whether a homeowner includes it in their selection. That selection becomes the iSFP. Precision in the field — a minute's careful work with the floor plan tool — determined what was possible at the end of the process.</p>
+  </section>
+</div>
+
+<a href="coup.html" class="next">
+  <div class="next-l">
+    <div><p class="next-eyebrow">Next project →</p><div class="next-title">Coup<br><em>Mobility</em></div></div>
+    <p class="next-sub">Product Designer · Bosch · Fleet Operations</p>
+  </div>
+  <div class="next-r"><img class="next-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="Coup Mobility"></div>
+</a>
+
+<footer>
+  <p>© 2024 James Ciclitira · Product Designer · Berlin</p>
+  <div class="fsoc">
+    <a href="index.html#contact">Contact</a>
+    <a href="#">LinkedIn</a>
+    <a href="cv.html">Résumé</a>
+  </div>
+</footer>
+
+<script>
+const cur=document.getElementById('cur');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+document.querySelectorAll('a,button,input,textarea').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cur.classList.add('h'));
+  el.addEventListener('mouseleave',()=>cur.classList.remove('h'));
+});
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+},{threshold:0.06});
+document.querySelectorAll('.r').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

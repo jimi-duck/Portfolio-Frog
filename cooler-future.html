@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cooler Future — James Ciclitira</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@300;400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
-<style>/* === SHARED CASE STUDY STYLES — paste into <style> of every page === */
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@300;400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --ink:#111110;--paper:#f6f3ed;--warm:#eae6dc;
@@ -16,26 +17,22 @@
 }
 html{scroll-behavior:smooth}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden;cursor:none}
-/* cursor */
 #cur{position:fixed;width:9px;height:9px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:multiply}
 #cur.h{width:30px;height:30px;background:var(--accent-lt)}
-/* nav */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 2.5rem;background:rgba(246,243,237,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
 .nav-logo{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--ink);text-decoration:none;opacity:.55}
 .nav-links{display:flex;gap:1.8rem;list-style:none}
 .nav-links a{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-decoration:none;opacity:.45;transition:opacity .2s}
 .nav-links a:hover{opacity:1}
-/* footer */
 footer{border-top:1px solid var(--border);padding:1.6rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
 footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(--muted)}
 .fsoc{display:flex;gap:1.5rem}
 .fsoc a{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
 .fsoc a:hover{color:var(--accent)}
-/* reveal */
-.r{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.r{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
 .r.in{opacity:1;transform:none}
-/* === CASE STUDY PAGE STYLES === */
-/* hero */
+
+/* HERO */
 .cs-hero{padding:7.5rem 2.5rem 4.5rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;border-bottom:1px solid var(--border)}
 .back{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;margin-bottom:1.8rem;transition:color .2s}
 .back:hover{color:var(--accent)}
@@ -46,67 +43,80 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
 .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
 .meta-item label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
 .meta-item p{font-size:.9rem;line-height:1.5}
-/* hero image */
-.hero-img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;display:block}
-/* stat bar */
-.stats{background:var(--ink);display:grid;grid-template-columns:repeat(3,1fr)}
-.stats.four{grid-template-columns:repeat(4,1fr)}
+
+/* Hero image — let it breathe at its natural ratio */
+.hero-img{width:100%;display:block}
+
+/* STATS */
+.stats{background:var(--ink);display:grid;grid-template-columns:repeat(4,1fr)}
 .stat{padding:2rem 2.5rem;border-right:1px solid rgba(255,255,255,.06);color:var(--paper)}
 .stat:last-child{border-right:none}
 .stat-n{font-family:var(--serif);font-size:2.2rem;font-style:italic;color:var(--accent-lt);line-height:1;margin-bottom:.3rem}
 .stat-l{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);line-height:1.65}
-/* body */
+
+/* BODY */
 .body{max-width:1180px;margin:0 auto;padding:5rem 2.5rem}
 .section{margin-bottom:5rem}
 .section:last-child{margin-bottom:0}
-/* labels */
 .lbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;display:flex;align-items:center;gap:1rem}
 .lbl::after{content:'';flex:1;height:1px;background:var(--border)}
-/* headings */
 h2{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.4rem);font-weight:400;line-height:1.18;margin-bottom:1.4rem}
 h2 em{font-style:italic;color:var(--accent)}
-/* prose */
 .prose{font-size:.98rem;color:var(--muted);line-height:1.88;max-width:64ch}
 .prose strong{color:var(--ink);font-weight:400}
 .prose+.prose{margin-top:1rem}
-/* problem box */
 .pbox{background:var(--warm);border-left:3px solid var(--accent);padding:1.6rem 1.9rem;margin:1.8rem 0}
 .pbox p{font-size:.94rem;line-height:1.78}
 .pbox strong{font-weight:500;color:var(--ink)}
-/* layouts */
 .two{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
 .three{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
-.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
-/* images */
-.img{width:100%;display:block;object-fit:cover;object-position:center top;border:1px solid var(--border)}
+.img{width:100%;display:block;object-fit:cover;border:1px solid var(--border)}
 .img.tall{aspect-ratio:4/3}
-.img.wide{aspect-ratio:16/9}
-.img.short{aspect-ratio:16/8}
-.img.sq{aspect-ratio:1/1}
-.img.port{aspect-ratio:9/16}
-.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.5rem}
-/* cards */
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
-.icard{padding:1.4rem;border:1px solid var(--border);background:var(--paper)}
-.icard-icon{font-size:1.2rem;margin-bottom:.65rem}
-.icard-t{font-family:var(--serif);font-size:.98rem;font-weight:400;margin-bottom:.35rem}
-.icard-d{font-size:.82rem;color:var(--muted);line-height:1.6}
-/* sprint days */
-.sprint{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:1.8rem 0}
-.day{background:var(--paper);padding:1.3rem}
-.day-n{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--accent);margin-bottom:.4rem}
-.day-t{font-family:var(--serif);font-size:.95rem;font-weight:400;margin-bottom:.3rem}
-.day-d{font-size:.8rem;color:var(--muted);line-height:1.55}
-/* user type blocks */
+.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.55rem}
+
+/* PHONE IMAGES — just images, no wrapper div adding colour */
+.phone{width:100%;display:block}
+.phone-col{display:flex;flex-direction:column}
+.phone-col .cap{text-align:center}
+
+/* Staggered pairs and trios */
+.phones-pair{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:end}
+.phones-pair .phone-col:first-child{margin-top:3.5rem}
+.phones-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;align-items:end}
+.phones-trio .phone-col:nth-child(1){margin-top:4rem}
+.phones-trio .phone-col:nth-child(3){margin-top:4rem}
+
+/* USER TYPE CARDS */
 .utype{padding:1.8rem;background:var(--warm);border:1px solid var(--border)}
 .utype-tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.65rem}
 .utype h3{font-family:var(--serif);font-size:1.08rem;font-weight:400;margin-bottom:.4rem}
 .utype p{font-size:.84rem;color:var(--muted);line-height:1.65}
-/* pull quote */
-.pq{padding:2.8rem 2.5rem;background:var(--ink);color:var(--paper);margin:2.5rem 0}
-.pq p{font-family:var(--serif);font-size:clamp(1.1rem,2.2vw,1.55rem);font-style:italic;line-height:1.45;color:rgba(246,243,237,.88)}
-.pq cite{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.36);margin-top:.9rem}
-/* next */
+.utype p em{color:var(--ink);font-style:italic}
+
+/* DARK BAND */
+.dark-band{background:var(--ink);padding:6rem 2.5rem}
+.dark-band-inner{max-width:1180px;margin:0 auto}
+.dark-band .lbl{color:rgba(246,243,237,.3)}
+.dark-band .lbl::after{background:rgba(255,255,255,.07)}
+.dark-band h2{color:var(--paper)}
+.dark-band h2 em{color:var(--accent-lt)}
+.dark-band .prose{color:rgba(246,243,237,.55)}
+.dark-band .prose strong{color:rgba(246,243,237,.85)}
+.dark-band .pbox{background:rgba(255,255,255,.05);border-color:rgba(238,201,190,.4)}
+.dark-band .pbox p{color:rgba(246,243,237,.6)}
+.dark-band .pbox strong{color:var(--paper)}
+.dark-band .cap{color:rgba(246,243,237,.3)}
+.dark-band .utype{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+.dark-band .utype-tag{color:rgba(238,201,190,.6)}
+.dark-band .utype h3{color:var(--paper)}
+.dark-band .utype p{color:rgba(246,243,237,.5)}
+
+/* WARM BAND */
+.warm-band{background:var(--warm);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:6rem 2.5rem}
+.warm-band-inner{max-width:1180px;margin:0 auto}
+.warm-band .pbox{background:rgba(17,17,16,.05);border-color:var(--accent)}
+
+/* NEXT */
 .next{display:grid;grid-template-columns:1fr 1fr;min-height:260px;text-decoration:none;color:inherit}
 .next:hover .next-img{transform:scale(1.03)}
 .next-l{background:var(--ink);padding:2.8rem;display:flex;flex-direction:column;justify-content:space-between;transition:background .25s}
@@ -117,155 +127,258 @@ h2 em{font-style:italic;color:var(--accent)}
 .next-sub{font-family:var(--mono);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(246,243,237,.28);margin-top:1rem}
 .next-r{overflow:hidden}
 .next-img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block}
-/* back home variant */
-.backhome{display:flex;align-items:center;justify-content:center;min-height:240px;background:var(--warm);border-top:1px solid var(--border);text-decoration:none;color:var(--ink);transition:background .25s}
-.backhome:hover{background:var(--ink)}
-.backhome:hover .bh-lbl,.backhome:hover .bh-t{color:var(--paper)}
-.bh-lbl{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;transition:color .25s;text-align:center}
-.bh-t{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:400;line-height:1.1;text-align:center;transition:color .25s}
-.bh-t em{font-style:italic;color:var(--accent)}
-/* responsive */
+
+/* RESPONSIVE */
 @media(max-width:860px){
   .cs-hero{grid-template-columns:1fr;padding:6.5rem 1.4rem 3rem;gap:2rem}
-  .stats{grid-template-columns:1fr 1fr}.stats.four{grid-template-columns:1fr 1fr}
-  .stat:nth-child(3):not(.stats.four .stat:nth-child(3)){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
-  .stats.four .stat:nth-child(3),.stats.four .stat:nth-child(4){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat:nth-child(3){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
   .body{padding:3rem 1.4rem}
-  .two,.three,.four,.cards,.sprint{grid-template-columns:1fr}
+  .dark-band,.warm-band{padding:4rem 1.4rem}
+  .two,.three{grid-template-columns:1fr}
+  .phones-pair,.phones-trio{grid-template-columns:1fr 1fr}
+  .phones-trio .phone-col:nth-child(3){display:none}
+  .phones-pair .phone-col:first-child,
+  .phones-trio .phone-col:nth-child(1),
+  .phones-trio .phone-col:nth-child(3){margin-top:0}
   .next{grid-template-columns:1fr}.next-r{min-height:180px}
   nav,footer{padding-left:1.4rem;padding-right:1.4rem}
-  .pq{padding:2rem 1.4rem}
 }
-@media(max-width:480px){.stats{grid-template-columns:1fr}.stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}}
+@media(max-width:520px){
+  .stats{grid-template-columns:1fr}
+  .stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}
+  .phones-pair,.phones-trio{grid-template-columns:1fr;max-width:280px;margin-left:auto;margin-right:auto}
+  .phones-trio .phone-col:nth-child(3){display:block}
+}
 </style>
 </head>
 <body>
 <div id="cur"></div>
 <nav>
   <a href="index.html" class="nav-logo">James Ciclitira</a>
-  <ul class="nav-links"><li><a href="index.html#work">Work</a></li><li><a href="index.html#contact">Contact</a></li><li><a href="cv.html">Résumé</a></li></ul>
+  <ul class="nav-links">
+    <li><a href="index.html#work">Work</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    <li><a href="cv.html">Résumé</a></li>
+  </ul>
 </nav>
 
+<!-- HERO -->
 <header class="cs-hero">
   <div>
     <a href="index.html" class="back">← All work</a>
-    <p class="eyebrow">02 — Climate Fintech · 0→1 Launch</p>
+    <p class="eyebrow">Climate Fintech · Lead Design · Full Launch</p>
     <h1 class="cs-title">Cooler<br><em>Future</em></h1>
-    <p class="cs-tagline">The sustainable investing space was full of greenwash and impenetrable jargon. Cooler Future wanted to change that. I led design from pre-launch — research, product, and website — until the doors opened.</p>
+    <p class="cs-tagline">The sustainable investing space was full of greenwash and impenetrable jargon. Cooler Future wanted to change that. I led design from day one — through research, product, and website — until launch.</p>
   </div>
   <div class="meta-grid">
     <div class="meta-item"><label>Role</label><p>Lead Product Designer</p></div>
-    <div class="meta-item"><label>Stage</label><p>0 → 1 · Full launch</p></div>
+    <div class="meta-item"><label>Stage</label><p>Pre-launch through to full product release</p></div>
     <div class="meta-item"><label>Deliverables</label><p>Mobile app · Marketing website · Design system</p></div>
     <div class="meta-item"><label>Methods</label><p>User interviews · Diary studies · Card sorting · Storyboarding</p></div>
   </div>
 </header>
 
-<img class="hero-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65940ab6bcaf577124a4acb9_CoolerHero.png" alt="Cooler Future">
+<!-- Full marketing hero shot — natural dimensions, no crop -->
+<img class="hero-img" src="cf-hero.png" alt="Cooler Future — Invest in what matters">
 
 <div class="stats">
-  <div class="stat r"><div class="stat-n">€20</div><div class="stat-l">Minimum investment —<br>the whole point</div></div>
-  <div class="stat r"><div class="stat-n">0→1</div><div class="stat-l">Concept to shipped product,<br>design led the way</div></div>
-  <div class="stat r"><div class="stat-n">2</div><div class="stat-l">Distinct user types with<br>completely different needs</div></div>
+  <div class="stat r"><div class="stat-n">€20</div><div class="stat-l">Minimum investment —<br>radical accessibility by design</div></div>
+  <div class="stat r"><div class="stat-n">2</div><div class="stat-l">Distinct user types with<br>fundamentally different needs</div></div>
+  <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Surfaces designed: app,<br>website, design system</div></div>
+  <div class="stat r"><div class="stat-n">Full</div><div class="stat-l">End-to-end ownership from<br>research to shipped product</div></div>
 </div>
 
+<!-- CONTEXT -->
 <div class="body">
-
   <section class="section r">
-    <p class="lbl">The problem</p>
-    <h2>Every euro leaves a footprint.<br>Nobody knew what <em>theirs looked like.</em></h2>
-    <div class="two" style="margin-top:1.4rem">
-      <p class="prose">Slapping "green" on an ETF is easy. Working out whether it actually aligns with your values? Nearly impossible for most people. The sustainable finance space was — and largely still is — a tangle of vague claims, opaque methodologies, and inaccessible entry points.<br><br>Cooler Future's mission: radically transparent, genuinely sustainable investing, accessible to anyone from €20. Not just a nicer version of what already existed — a fundamentally different approach to how the impact of money is shown and understood.</p>
-      <p class="prose">As Lead Designer from day one, my job was to translate that vision into an experience that worked for someone who'd never invested before and someone who'd been investing for years and was actively skeptical of greenwash.<br><br>Those are very different people with very different questions. Before I touched a screen, I needed to <strong>understand both of them properly.</strong></p>
+    <p class="lbl">The brief</p>
+    <h2>Sustainable investing existed.<br>Sustainable investing you could<br><em>actually trust</em> — didn't.</h2>
+    <div class="two" style="margin-top:1.6rem">
+      <p class="prose">The market for so-called green investing had a credibility problem. Slapping "sustainable" on a fund is straightforward; demonstrating it in a way that withstands scrutiny is genuinely hard. Most products either hid behind jargon, buried the complexity, or leaned on vague impact claims that didn't survive a second look.<br><br>Cooler Future's position was different: radical transparency as the product strategy. Show people exactly what's in their portfolio, what it excludes, how the credentials are verified, and what the actual impact of their money is — including the parts that aren't flattering.</p>
+      <p class="prose">I joined at the beginning, before anything had been designed. The mandate was broad: lead design across the mobile app, the marketing website, and the design system that would hold everything together. But before any of that, the most important work was understanding who we were actually building for — and what each of them genuinely needed the product to do.<br><br><strong>Research came first, and it shaped everything that followed.</strong></p>
     </div>
   </section>
+</div>
 
-  <section class="section r">
-    <p class="lbl">Research — who are we actually designing for?</p>
-    <h2>Two users. Two jobs to be done.<br><em>Neither one is obvious.</em></h2>
-    <p class="prose" style="margin-bottom:1.8rem">User interviews, diary studies, and card sorting sessions across both segments revealed that the product had to do two fundamentally different things at once.</p>
-    <div class="two">
-      <div class="utype">
-        <p class="utype-tag">User type 01 — First-time investors</p>
-        <h3>Curious but overwhelmed</h3>
-        <p>They're interested. They feel vaguely guilty their money is doing harm. But "invest in a green fund" is not actionable when you've never invested before and every article is either jargon or patronising. The question they arrive with: <em>"Is this actually better than just leaving it in the bank?"</em> We answered with education woven into the product itself.</p>
+<!-- RESEARCH — DARK BAND -->
+<div class="dark-band">
+  <div class="dark-band-inner">
+    <p class="lbl r">Research — understanding both audiences</p>
+    <h2 class="r">Two users. Two completely<br>different jobs to be done.<br><em>Neither one is obvious.</em></h2>
+    <div class="two r" style="margin-top:2rem;gap:5rem;align-items:start">
+      <div>
+        <p class="prose" style="margin-bottom:1.8rem">User interviews, diary studies, and card sorting sessions across both target segments revealed something the initial brief hadn't fully captured: the product wasn't serving one type of person with one type of need. It was serving two fundamentally different people who would look at the same screen and ask completely different questions.</p>
+        <p class="prose">Understanding both — what they already knew, what they were afraid of, what would build trust and what would destroy it — was the foundation everything else was built on. The research didn't just inform the design. It reframed what the product needed to be.</p>
       </div>
-      <div class="utype">
-        <p class="utype-tag">User type 02 — Existing investors</p>
-        <h3>Skeptical and evidence-hungry</h3>
-        <p>They're already investing. They've seen greenwash before. They need to be shown — not told — that Cooler Future is different. The question they arrive with: <em>"Prove to me this is actually greener than my current portfolio."</em> We answered with fund transparency as the centrepiece of the experience.</p>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="utype">
+          <p class="utype-tag">First-time investors</p>
+          <h3>Curious but overwhelmed</h3>
+          <p>Interested, vaguely guilty, not equipped to act. The question they arrive with: <em>"Is this actually better than just leaving my money in the bank?"</em> The answer had to be woven into the product — not a separate explainer.</p>
+        </div>
+        <div class="utype">
+          <p class="utype-tag">Existing investors</p>
+          <h3>Skeptical and evidence-hungry</h3>
+          <p>Already investing. Already burned by greenwash. The question they arrive with: <em>"Prove to me this is actually different from what I already have."</em> Transparency wasn't just a value — it was the entire conversion strategy for this audience.</p>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</div>
 
+<!-- ONBOARDING -->
+<div class="body">
   <section class="section r">
     <p class="lbl">Onboarding — removing friction without removing rigour</p>
-    <h2>Opening a German depot account<br>is <em>legally complex.</em><br>It doesn't have to feel it.</h2>
-    <div class="pbox"><p>First-time users needed to open a <strong>German depot account</strong> as part of signup — a KYC-heavy legal process with identity verification, tax information, and regulatory disclosures. This is not optional. Our job was to make it feel like the <em>minimum necessary</em> friction, and no more.</p></div>
-    <p class="prose" style="margin-top:1.4rem">The approach was ruthless prioritisation: anything that could be deferred was deferred, anything legally skippable was removed, every potentially anxiety-inducing step was front-loaded with context. We told users exactly what they'd need before they needed it. No surprises mid-flow. Transparent progress at all times.</p>
-    <img class="img short" style="margin-top:1.8rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65aa88390b45841620f34365_Onboarding.png" alt="Onboarding flow">
-    <p class="cap" style="margin-top:.5rem">Onboarding: the hardest flow to simplify, and the most important to get right</p>
+    <h2>Opening a regulated investment<br>account is legally complex.<br><em>It doesn't have to feel it.</em></h2>
+    <div class="two" style="margin-top:1.8rem;gap:4rem;align-items:start">
+      <div>
+        <div class="pbox">
+          <p>New users had to open a German depot account as part of signup — KYC, identity verification, tax information, regulatory disclosures. <strong>This wasn't optional and it couldn't be hidden.</strong> The job was to make it feel like the minimum necessary friction, and nothing more.</p>
+        </div>
+        <p class="prose" style="margin-top:1.4rem">The approach was methodical: anything that could be deferred was deferred. Anything legally skippable was removed. Every anxiety-inducing step was front-loaded with context — users knew what they'd need before they needed it. Progress was always visible. Nothing appeared without explanation.</p>
+        <p class="prose" style="margin-top:1rem">Once registered, users moved straight into fund selection — choosing the themes that matched their values before committing any money. Smart Energy, Clean Water, Circular Economy, Forestry &amp; Timber. The investment followed the conviction.</p>
+        <p class="prose" style="margin-top:1rem"><strong>Onboarding completion is the single most important metric for a product like this.</strong> Every moment of unexpected friction is a drop-off point. Getting this right wasn't a nice-to-have — it was the difference between a business that worked and one that didn't.</p>
+      </div>
+      <!-- Three phones: register → select themes → invest. All natural sizes, no wrapper backgrounds -->
+      <div>
+        <div class="phones-trio">
+          <div class="phone-col">
+            <img class="phone" src="cf-register.png" alt="Registration flow — take your first step">
+            <p class="cap" style="margin-top:.6rem">Register in 10 mins</p>
+          </div>
+          <div class="phone-col">
+            <img class="phone" src="cf-explore-funds.png" alt="Explore the funds">
+            <p class="cap" style="margin-top:.6rem">Choose your themes</p>
+          </div>
+          <div class="phone-col">
+            <img class="phone" src="cf-portfolio.png" alt="Portfolio overview">
+            <p class="cap" style="margin-top:.6rem">Your portfolio</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
+</div>
 
-  <div class="two" style="margin-bottom:5rem">
-    <img class="img" style="aspect-ratio:3/4" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659d10ee5264ae2444422d0f_1.png" alt="App screen">
-    <img class="img" style="aspect-ratio:3/4" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659d10eff855401c49227a1f_2.png" alt="App screen">
+<!-- PORTFOLIO EXPERIENCE — full-bleed dark band -->
+<div class="dark-band">
+  <div class="dark-band-inner">
+    <p class="lbl r">The portfolio experience</p>
+    <div class="two r" style="align-items:center;gap:5rem">
+      <div>
+        <h2>Clean enough to trust<br>at a glance. Deep enough<br><em>to explore.</em></h2>
+        <p class="prose" style="margin-bottom:1.4rem">The portfolio screen was the product's home — the place users returned to most often. It had to answer a simple question immediately: how is my money doing? But it also had to connect that financial performance to actual environmental impact, honestly rather than decoratively.</p>
+        <p class="prose">Fund detail screens gave the skeptical investor what they needed: performance data, a sector breakdown, and a clear account of what the fund excludes and why. The transparency that research told us would build trust was designed into every layer of the experience.</p>
+      </div>
+      <!-- Two white-frame phones: portfolio overview + fund detail -->
+      <div class="phones-pair">
+        <div class="phone-col">
+          <img class="phone" src="cf-portfolio.png" alt="Portfolio — performance chart and investments">
+          <p class="cap" style="margin-top:.6rem;color:rgba(246,243,237,.3)">Portfolio overview</p>
+        </div>
+        <div class="phone-col">
+          <img class="phone" src="cf-fund-detail.png" alt="Smart Energy fund detail screen">
+          <p class="cap" style="margin-top:.6rem;color:rgba(246,243,237,.3)">Fund detail &amp; impact</p>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 
+<!-- IMPACT — body section -->
+<div class="body">
   <section class="section r">
-    <p class="lbl">The hardest design problem — showing impact honestly</p>
-    <h2>Climate numbers get thrown around<br>constantly. <em>Most of them are useless.</em></h2>
-    <div class="pbox"><p>How do you visualise the impact of an investment honestly — showing <strong>both positive and negative effects</strong>, without making things up, without oversimplifying, and without losing people who just want to know if they're doing good?</p></div>
-    <p class="prose" style="margin-top:1.4rem">There was no industry standard to copy. I ran multiple rounds of research sessions, tested different visualisation approaches with real users, and iterated through many directions before landing on an approach that was honest about its own limitations.<br><br>The work shown here was the foundation layer — the first steps of a feature that would require significant future development. But <strong>establishing the right principles and language was the critical job</strong>: don't claim more than you can prove, make the positives as visible as the negatives, and never bury the complexity.</p>
-    <div class="three" style="margin-top:1.8rem">
-      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659d34fd45c82f1c984c3c4e_Impact-1.png" alt="Impact screen 1">
-      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659d34fc073b2a66e1835a10_Impact-2.png" alt="Impact screen 2">
-      <img class="img port" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659d34fb6c4d0c10e7deee04_Impact-3.png" alt="Impact screen 3">
+    <p class="lbl">The impact problem</p>
+    <h2>Showing what money does.<br><em>Harder than it sounds.</em></h2>
+    <div class="two" style="margin-top:1.4rem;gap:4rem;align-items:center">
+      <div>
+        <p class="prose" style="margin-bottom:1.2rem">Communicating the environmental impact of someone's investments was the most genuinely difficult problem on the product. Financial regulators, data providers and environmental accounting standards all held different views on what could be shown and how.</p>
+        <p class="prose" style="margin-bottom:1.2rem">The causal chain between a €500 investment and a wind farm involves enough intermediaries to make clean attribution near-impossible. I explored several directions — goal-based breakdowns, supported project feeds, carbon dashboards with real-world equivalents. Each revealed something new about where the line between useful and misleading sat.</p>
+        <p class="prose">This remained exploratory work. The value was in building a principled foundation: show what the data genuinely supports, contextualise it clearly, and don't overclaim.</p>
+      </div>
+      <div class="phones-pair" style="margin-top:0">
+        <div class="phone-col">
+          <img class="phone" src="cf-impact-goals.png" alt="Impact dashboard — sustainable investment goals">
+          <p class="cap" style="margin-top:.6rem;text-align:center">Goals — breaking impact down by investment theme</p>
+        </div>
+        <div class="phone-col">
+          <img class="phone" src="cf-impact-projects.png" alt="Supported projects — wind farm and solar">
+          <p class="cap" style="margin-top:.6rem;text-align:center">Projects — showing what funds are actively supporting</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- EDUCATION + WEBSITE -->
+<div class="body">
+  <section class="section r">
+    <p class="lbl">Education — trust built through knowledge</p>
+    <h2>Transparency was<br><em>the conversion strategy.</em></h2>
+    <div class="two" style="align-items:start;gap:4rem;margin-top:1.4rem">
+      <div>
+        <p class="prose" style="margin-bottom:1.4rem">For both user types, trust was the barrier — and trust can't be declared, only demonstrated. The Learn section was built to be a genuine resource: investing fundamentals for beginners, and detailed fund methodology for the skeptical experienced investor.</p>
+        <p class="prose">Courses were designed to feel earned rather than pushed. Users moved at their own pace, tracked their progress, and could suggest topics the product didn't yet cover. <strong>Education wasn't marketing in disguise</strong> — it was the product doing exactly what it promised: making sustainable investing legible to anyone.</p>
+      </div>
+      <!-- Two white-frame phones: Learn section + course detail -->
+      <div class="phones-pair">
+        <div class="phone-col">
+          <img class="phone" src="cf-learn.png" alt="Learn section — courses and blog">
+          <p class="cap" style="margin-top:.6rem">Learn — courses and sustainability content</p>
+        </div>
+        <div class="phone-col">
+          <img class="phone" src="cf-course-detail.png" alt="Investing 101 — lesson list with progress">
+          <p class="cap" style="margin-top:.6rem">Investing 101 — progress tracked lesson by lesson</p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <div class="pq r">
-    <p>"When you're designing in a space with no established patterns and high stakes for honesty, research isn't a phase. It's the whole job."</p>
-    <cite>James Ciclitira — on Cooler Future</cite>
-  </div>
-
   <section class="section r">
-    <p class="lbl">Education & explore</p>
-    <h2>Trust isn't declared.<br><em>It's demonstrated.</em></h2>
-    <p class="prose">For both user types, trust was the barrier. The Explore & Learn section was built to be genuinely educational — not marketing wrapped in content-shaped packaging. Users could inspect exactly how each fund was constructed, what it excluded, and how the green credentials were verified. Transparency was the conversion strategy.</p>
-    <img class="img short" style="margin-top:1.8rem" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/65aa89fc0650f455a8f02e6f_Explore%26learn.png" alt="Explore and learn">
-  </section>
-
-  <section class="section r">
-    <p class="lbl">Website — the first touchpoint</p>
-    <h2>The app and website needed<br>to feel like <em>one world.</em></h2>
-    <p class="prose" style="margin-bottom:1.8rem">While building the mobile app, I was simultaneously designing the marketing site — often the first place a potential user encountered Cooler Future. The visual language, the tone, the hierarchy of trust signals all had to feel cohesive. Two surfaces, one story.</p>
+    <p class="lbl">Marketing website</p>
+    <h2>Two surfaces.<br><em>One world.</em></h2>
+    <p class="prose" style="margin-bottom:1.8rem">Alongside the mobile app, I was designing the marketing website — often the first place a potential user encountered Cooler Future. The visual language, tone, and hierarchy of trust signals had to feel completely cohesive with the app. For a product where credibility was everything, a disconnect between the two would have been costly. The design system I built was the thread connecting both.</p>
     <div class="two">
-      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b4a3376c60d9512ab4_web.1.png" alt="Website 1">
-      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b377c40374a3cf5191_web.4.png" alt="Website 4">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b4a3376c60d9512ab4_web.1.png" alt="Website homepage">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b377c40374a3cf5191_web.4.png" alt="Website funds page">
     </div>
     <div class="two" style="margin-top:1.1rem">
-      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b347f145b2260583c4_web.2.png" alt="Website 2">
-      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b443099ebeffe6fc1a_web.3.png" alt="Website 3">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b347f145b2260583c4_web.2.png" alt="Website about">
+      <img class="img tall" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/659fe3b443099ebeffe6fc1a_web.3.png" alt="Website invest">
     </div>
   </section>
-
 </div>
 
 <a href="vivy.html" class="next">
   <div class="next-l">
     <div><p class="next-eyebrow">Next project →</p><div class="next-title">Vivy —<br><em>Health</em></div></div>
-    <p class="next-sub">Founding Designer · Allianz-backed</p>
+    <p class="next-sub">Founding Designer · Allianz-backed · Digital health</p>
   </div>
   <div class="next-r"><img class="next-img" src="https://cdn.prod.website-files.com/6311f6950d0939109fcd513e/6593e7ac7fe0b1cbed638346_VivyHero.jpeg" alt="Vivy"></div>
 </a>
 
-<footer><p>© 2024 James Ciclitira · Product Designer · Berlin</p><div class="fsoc"><a href="index.html#contact">Contact</a><a href="#">LinkedIn</a><a href="cv.html">Résumé</a></div></footer>
+<footer>
+  <p>© 2024 James Ciclitira · Product Designer · Berlin</p>
+  <div class="fsoc">
+    <a href="index.html#contact">Contact</a>
+    <a href="#">LinkedIn</a>
+    <a href="cv.html">Résumé</a>
+  </div>
+</footer>
+
 <script>
 const cur=document.getElementById('cur');
 document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
-document.querySelectorAll('a,button,input,textarea').forEach(el=>{el.addEventListener('mouseenter',()=>cur.classList.add('h'));el.addEventListener('mouseleave',()=>cur.classList.remove('h'))});
-const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('a,button,input,textarea').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cur.classList.add('h'));
+  el.addEventListener('mouseleave',()=>cur.classList.remove('h'));
+});
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+},{threshold:0.06});
 document.querySelectorAll('.r').forEach(el=>io.observe(el));
 </script>
-</body></html>
+</body>
+</html>
