@@ -41,16 +41,15 @@ h1 em{font-style:italic;color:var(--accent)}
 .btn-bare:hover{color:var(--accent);border-color:var(--accent)}
 .hero-r{position:relative;background:var(--warm);overflow:hidden}
 .hero-photo{width:100%;height:100%;display:block;object-fit:cover;object-position:center 20%;filter:grayscale(18%) contrast(1.04);mix-blend-mode:multiply;position:absolute;top:0;left:0;right:0;bottom:0}
-.hero-tag{position:absolute;top:1.75rem;right:1.75rem;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.35rem .7rem;z-index:2}
-.avail{position:absolute;bottom:1.75rem;left:1.75rem;background:var(--accent);color:var(--paper);font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:.32rem .7rem;z-index:2;display:flex;align-items:center;gap:.4rem}
-.avail::before{content:'';width:5px;height:5px;background:var(--paper);border-radius:50%;animation:blink 2s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hero-tag{position:absolute;top:1.75rem;right:1.75rem;z-index:2;background:rgba(17,17,16,.55);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border:1px solid rgba(255,255,255,.22);box-shadow:0 4px 20px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.4);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem;border-radius:999px}
 /* NUMBERS */
-.nums{background:var(--ink);display:grid;grid-template-columns:repeat(3,1fr)}
-.num-cell{padding:2.25rem 2.5rem;border-right:1px solid rgba(255,255,255,.06);color:var(--paper)}
-.num-cell:last-child{border-right:none}
-.num-n{font-family:var(--serif);font-size:2.6rem;font-style:italic;color:var(--accent-lt);line-height:1;margin-bottom:.35rem}
-.num-l{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,243,237,.35);line-height:1.65}
+.nums{background:var(--ink);padding:4.5rem 2.5rem}
+.nums-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(246,243,237,.35);margin-bottom:1.75rem}
+.nums-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.num-cell{padding:2rem 1.75rem;color:var(--paper);border:1px solid rgba(255,255,255,.08);border-radius:16px;transition:border-color .3s}
+.num-cell:hover{border-color:rgba(255,255,255,.16)}
+.num-n{font-family:var(--serif);font-size:3.2rem;font-style:italic;color:var(--accent-lt);line-height:1;display:block;margin-bottom:.85rem}
+.num-l{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(246,243,237,.55);line-height:1.6}
 /* SECTION */
 .sec{padding:5rem 2.5rem}
 .sec-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:3rem;display:flex;align-items:center;gap:1rem}
@@ -73,7 +72,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .cimg-wrap{overflow:hidden;position:relative;aspect-ratio:16/10}
 /* Natural image — no forced ratio, just display image naturally */
 .cimg{width:100%;height:100%;display:block;object-fit:cover;transition:transform .55s cubic-bezier(.25,.46,.45,.94)}
-.ctag{position:absolute;top:.85rem;left:.85rem;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .6rem}
+.ctag{position:absolute;top:.85rem;left:.85rem;background:rgba(17,17,16,.55);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border:1px solid rgba(255,255,255,.22);box-shadow:0 4px 20px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.4);font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.32rem .75rem;border-radius:999px}
 .cbody{padding:1.1rem 1.2rem 1.4rem}
 .cnum{font-family:var(--mono);font-size:.56rem;letter-spacing:.06em;color:var(--accent);margin-bottom:.3rem}
 .ctitle{font-family:var(--serif);font-size:1.15rem;font-weight:400;margin-bottom:.2rem}
@@ -120,15 +119,15 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
 /* RESPONSIVE */
 @media(max-width:860px){
   .hero{height:auto;grid-template-columns:1fr}.hero-l{padding-top:5.5rem}.hero-r{min-height:60vw;align-items:flex-end}
-  .nums{grid-template-columns:1fr 1fr}.num-cell:nth-child(3){border-right:none;border-top:1px solid rgba(255,255,255,.06)}
+  .nums-grid{grid-template-columns:1fr 1fr}
   .grid{grid-template-columns:1fr 1fr}.card.lg,.card.sm,.card.md{grid-column:span 1}
   .about,.contact{grid-template-columns:1fr;gap:2.5rem}
   .how-grid{grid-template-columns:1fr 1fr}
   .frow{grid-template-columns:1fr}
   nav,.sec,.about,.how,.contact,footer{padding-left:1.4rem;padding-right:1.4rem}
-  .nums .num-cell{padding:1.5rem 1.4rem}
+  .num-cell{padding:1.6rem 1.5rem}
 }
-@media(max-width:520px){.nums{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+@media(max-width:520px){.nums-grid{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -158,7 +157,6 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
   </div>
   <div class="hero-r">
     <span class="hero-tag">Berlin, DE</span>
-    <span class="avail">Available now</span>
     <img class="hero-photo"
       src="hero-photo.jpg" width="1600" height="1066"
       alt="James Ciclitira" loading="eager">
@@ -167,17 +165,20 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
 
 <!-- NUMBERS -->
 <div class="nums">
-  <div class="num-cell r">
-    <div class="num-n">6+</div>
-    <div class="num-l">Products shipped<br>across mobile &amp; web</div>
-  </div>
-  <div class="num-cell r">
-    <div class="num-n">3</div>
-    <div class="num-l">European cities where<br>my work is in use</div>
-  </div>
-  <div class="num-cell r">
-    <div class="num-n">10M+</div>
-    <div class="num-l">People who've used<br>something I designed</div>
+  <div class="nums-label r">By the numbers</div>
+  <div class="nums-grid">
+    <div class="num-cell r">
+      <div class="num-n">6+</div>
+      <div class="num-l">Products shipped<br>across mobile &amp; web</div>
+    </div>
+    <div class="num-cell r">
+      <div class="num-n">3</div>
+      <div class="num-l">0-to-1 products taken<br>from sketch to launch</div>
+    </div>
+    <div class="num-cell r">
+      <div class="num-n">10M+</div>
+      <div class="num-l">People who've used<br>something I designed</div>
+    </div>
   </div>
 </div>
 
@@ -195,7 +196,7 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
 <!-- WORK -->
 <section class="sec" id="work" style="padding-top:3rem">
   <div class="work-hd r">
-    <h2 class="sec-h">The work<br><em>in detail.</em></h2>
+    <h2 class="sec-h">Selected work</h2>
     <span class="work-ct">6 case studies</span>
   </div>
 
@@ -205,7 +206,7 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
       <div class="cimg-wrap">
         <img class="cimg" src="Man_selecting_the_footprint.png"
           alt="Enter field app" loading="lazy" style="object-position:center 35%">
-        <span class="ctag">Energy Tech · Field Ops · Berlin</span>
+        <span class="ctag">Energy Tech</span>
       </div>
       <div class="cbody">
         <span class="carrow">↗</span>
@@ -221,7 +222,7 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
       <div class="cimg-wrap">
         <img class="cimg" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg"
           alt="Coup Mobility app" loading="lazy">
-        <span class="ctag">Bosch · Berlin / Paris / Madrid</span>
+        <span class="ctag">Urban Mobility</span>
       </div>
       <div class="cbody">
         <span class="carrow">↗</span>
@@ -237,7 +238,7 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
       <div class="cimg-wrap">
         <img class="cimg" src="cf-hero.png"
           alt="Cooler Future app" loading="lazy" style="object-position:center 40%">
-        <span class="ctag">Climate Fintech · Full launch</span>
+        <span class="ctag">Climate Fintech</span>
       </div>
       <div class="cbody">
         <span class="carrow">↗</span>
@@ -250,10 +251,10 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
 
     <!-- 04 VIVY — md (6) -->
     <a href="vivy.html" class="card md r">
-      <div class="cimg-wrap">
+      <div class="cimg-wrap" style="aspect-ratio:700/448">
         <img class="cimg" src="img/6593e7ac7fe0b1cbed638346_VivyHero.jpeg"
           alt="Vivy health app" loading="lazy">
-        <span class="ctag">Digital Health · Allianz-backed</span>
+        <span class="ctag">Digital Health</span>
       </div>
       <div class="cbody">
         <span class="carrow">↗</span>
@@ -266,10 +267,10 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
 
     <!-- 05 CROWDSCORES — lg (7) -->
     <a href="crowdscores.html" class="card lg r">
-      <div class="cimg-wrap">
+      <div class="cimg-wrap" style="aspect-ratio:700/448">
         <img class="cimg" src="img/6593e7ac8583e718138071ec_CrowdscoresHero.jpeg"
           alt="CrowdScores app" loading="lazy">
-        <span class="ctag">Consumer Sports · iOS &amp; Android</span>
+        <span class="ctag">Consumer Sports</span>
       </div>
       <div class="cbody">
         <span class="carrow">↗</span>
@@ -285,7 +286,7 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
       <div class="cimg-wrap">
         <img class="cimg" src="img/6593e7adf0ff45bf84ea4cb5_YunojunoHero.jpeg"
           alt="YunoJuno platform" loading="lazy">
-        <span class="ctag">B2B SaaS · HR Tech</span>
+        <span class="ctag">HR Tech</span>
       </div>
       <div class="cbody">
         <span class="carrow">↗</span>

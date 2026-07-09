@@ -55,7 +55,7 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
 .meta-item label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
 .meta-item p{font-size:.9rem;line-height:1.5}
 /* hero image */
-.hero-img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;display:block}
+.hero-img{width:100%;aspect-ratio:700/448;object-fit:cover;object-position:center;display:block}
 /* stat bar */
 .stats{background:var(--ink);display:grid;grid-template-columns:repeat(3,1fr)}
 .stats.four{grid-template-columns:repeat(4,1fr)}
@@ -92,7 +92,13 @@ h2 em{font-style:italic;color:var(--accent)}
 .img.short{aspect-ratio:16/8}
 .img.sq{aspect-ratio:1/1}
 .img.port{aspect-ratio:9/16}
-.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.5rem}
+.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.7rem}
+/* process artifacts — diagrams, sketches, whiteboard exports; framed, never cropped */
+.artifact{background:var(--warm);border:1px solid var(--border);padding:2.5rem}
+.artifact img{width:100%;height:auto;display:block;max-height:420px;object-fit:contain;margin:0 auto}
+/* mixed-orientation image rows — height-matched, width auto, so nothing is ever cropped */
+.shots{display:flex;gap:1.5rem;align-items:flex-end;flex-wrap:wrap;margin-top:1.8rem}
+.shots img{height:360px;width:auto;max-width:100%;object-fit:cover;border:1px solid var(--border);display:block}
 /* cards */
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
 .icard{padding:1.4rem;border:1px solid var(--border);background:var(--paper)}
@@ -143,6 +149,9 @@ h2 em{font-style:italic;color:var(--accent)}
   .next{grid-template-columns:1fr}.next-r{min-height:180px}
   nav,footer{padding-left:1.4rem;padding-right:1.4rem}
   .pq{padding:2rem 1.4rem}
+  .artifact{padding:1.4rem}
+  .shots{flex-direction:column;align-items:stretch}
+  .shots img{height:auto;width:100%}
 }
 @media(max-width:480px){.stats{grid-template-columns:1fr}.stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}}
 </style>
@@ -188,10 +197,11 @@ h2 em{font-style:italic;color:var(--accent)}
     </div>
   </section>
 
-  <div class="two" style="margin-bottom:5rem">
-    <img class="img port" src="img/6595708a74e7c7b462fb70f4_info.png" alt="Match info">
-    <img class="img port" src="img/6595708a2dac22c7dfd7f18f_match.png" alt="Match screen">
+  <div class="two">
+    <img class="img" style="aspect-ratio:773/1289" src="img/6595708a74e7c7b462fb70f4_info.png" alt="Match info">
+    <img class="img" style="aspect-ratio:773/1289" src="img/6595708a2dac22c7dfd7f18f_match.png" alt="Match screen">
   </div>
+  <p class="cap" style="margin-bottom:5rem">Match details and live commentary — the two screens fans lived in during a game</p>
 
   <section class="section r">
     <p class="lbl">The core UX problem — navigation at scale</p>
@@ -199,9 +209,10 @@ h2 em{font-style:italic;color:var(--accent)}
     <div class="pbox"><p>With over 1,300 matches per week across dozens of competitions, <strong>finding the game you care about was the hardest problem in the product.</strong> The original navigation sent users through country → league → match. Fine for 20 games. Broken for 1,300.</p></div>
     <p class="prose" style="margin-top:1.4rem">Users don't think in geographic taxonomies. They think in teams. Arsenal. Bayern. PSG. The solution was to rebuild navigation around search as the primary action — not a buried utility. By surfacing powerful, fast search upfront, we collapsed time-to-match from five-plus taps to under two. <strong>The insight was obvious in hindsight; getting there required watching real users fail in real time.</strong></p>
     <div class="two" style="margin-top:1.8rem">
-      <img class="img port" src="img/6595708ae040424c6fd491ae_filters.png" alt="Filter system">
-      <img class="img port" src="img/6595708a3326d44ca430a999_more-options.png" alt="Options">
+      <img class="img" style="aspect-ratio:773/1289" src="img/6595708ae040424c6fd491ae_filters.png" alt="Filter system">
+      <img class="img" style="aspect-ratio:773/1289" src="img/6595708a3326d44ca430a999_more-options.png" alt="Options">
     </div>
+    <p class="cap">Search-first navigation — replacing five-plus taps through a league tree with under two</p>
   </section>
 
   <section class="section r">
@@ -209,9 +220,10 @@ h2 em{font-style:italic;color:var(--accent)}
     <h2>An app fans <em>love</em>, not<br>just one they tolerate.</h2>
     <p class="prose">A score tracker that only shows numbers is an app people use because there's no better alternative. I wanted CrowdScores to feel different — to have personality. So I designed a complete set of in-match event animations (goals, cards, substitutions, VAR reviews) that communicated events at a glance.<br><br>The test for every animation: does it communicate faster than text? If not, cut it. <strong>These weren't decorative — they were functional speed improvements.</strong></p>
     <div class="two" style="margin-top:1.8rem">
-      <img class="img wide" src="img/6595708a4cc7a545949f4477_visual-1.png" alt="Visual design 1">
-      <img class="img wide" src="img/65957089b999215fee6e3929_visual-2.png" alt="Visual design 2">
+      <img class="img" style="aspect-ratio:773/1289" src="img/6595708a4cc7a545949f4477_visual-1.png" alt="Visual design 1">
+      <img class="img" style="aspect-ratio:773/1289" src="img/65957089b999215fee6e3929_visual-2.png" alt="Visual design 2">
     </div>
+    <p class="cap">In-match event animations, built to communicate faster than the text next to them</p>
   </section>
 
   <div class="pq r">
