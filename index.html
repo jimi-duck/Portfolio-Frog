@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>James Ciclitira — Product Designer, Berlin</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23111110%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Georgia,serif%27 font-size=%2728%27 fill=%27%23b8412a%27 text-anchor=%27middle%27%3EJC%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2064%2064%27%3E%0A%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%23111110%27%2F%3E%0A%3Cpath%20d%3D%27M32%2049%20L15.5%2020%20A19%2019%200%200%201%2048.5%2020%20Z%27%20fill%3D%27%23f4b73e%27%2F%3E%0A%3Cpath%20d%3D%27M15.5%2020%20A19%2019%200%200%201%2048.5%2020%27%20fill%3D%27none%27%20stroke%3D%27%23c97d34%27%20stroke-width%3D%275%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3Ccircle%20cx%3D%2726.5%27%20cy%3D%2729.5%27%20r%3D%272.9%27%20fill%3D%27%23b8412a%27%2F%3E%0A%3Ccircle%20cx%3D%2737%27%20cy%3D%2732.5%27%20r%3D%272.9%27%20fill%3D%27%23b8412a%27%2F%3E%0A%3Ccircle%20cx%3D%2730.5%27%20cy%3D%2739.5%27%20r%3D%272.6%27%20fill%3D%27%23b8412a%27%2F%3E%0A%3C%2Fsvg%3E">
 <meta name="description" content="Senior Product Designer based in Berlin. A decade of work on products that deal with genuinely hard problems — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="James Ciclitira — Product Designer, Berlin">
@@ -41,7 +41,12 @@ h1 em{font-style:italic;color:var(--accent)}
 .btn-bare:hover{color:var(--accent);border-color:var(--accent)}
 .hero-r{position:relative;background:var(--warm);overflow:hidden}
 .hero-photo{width:100%;height:100%;display:block;object-fit:cover;object-position:center 20%;filter:grayscale(18%) contrast(1.04);mix-blend-mode:multiply;position:absolute;top:0;left:0;right:0;bottom:0}
-.hero-tag{position:absolute;top:1.75rem;right:1.75rem;z-index:2;background:rgba(17,17,16,.55);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border:1px solid rgba(255,255,255,.22);box-shadow:0 4px 20px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.4);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem;border-radius:999px}
+.hero-tag{position:absolute;top:1.75rem;right:1.75rem;z-index:2;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem}
+.hero-tag::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
+.avail{position:absolute;bottom:1.75rem;left:1.75rem;z-index:2;display:flex;align-items:center;gap:.5rem;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem .4rem .75rem}
+.avail::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
+.avail-dot{width:6px;height:6px;border-radius:50%;background:#5fd97a;box-shadow:0 0 6px rgba(95,217,122,.85);flex:none;animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 /* NUMBERS */
 .nums{background:var(--ink);padding:4.5rem 2.5rem}
 .nums-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(246,243,237,.35);margin-bottom:1.75rem}
@@ -72,7 +77,8 @@ h1 em{font-style:italic;color:var(--accent)}
 .cimg-wrap{overflow:hidden;position:relative;aspect-ratio:16/10}
 /* Natural image — no forced ratio, just display image naturally */
 .cimg{width:100%;height:100%;display:block;object-fit:cover;transition:transform .55s cubic-bezier(.25,.46,.45,.94)}
-.ctag{position:absolute;top:.85rem;left:.85rem;background:rgba(17,17,16,.55);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border:1px solid rgba(255,255,255,.22);box-shadow:0 4px 20px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.4);font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.32rem .75rem;border-radius:999px}
+.ctag{position:absolute;top:.85rem;left:.85rem;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.32rem .75rem}
+.ctag::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
 .cbody{padding:1.1rem 1.2rem 1.4rem}
 .cnum{font-family:var(--mono);font-size:.56rem;letter-spacing:.06em;color:var(--accent);margin-bottom:.3rem}
 .ctitle{font-family:var(--serif);font-size:1.15rem;font-weight:400;margin-bottom:.2rem}
@@ -157,6 +163,7 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
   </div>
   <div class="hero-r">
     <span class="hero-tag">Berlin, DE</span>
+    <span class="avail"><span class="avail-dot"></span>Available now</span>
     <img class="hero-photo"
       src="hero-photo.jpg" width="1600" height="1066"
       alt="James Ciclitira" loading="eager">
