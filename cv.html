@@ -3,6 +3,14 @@
 <head>
   <meta charset="utf-8">
   <title>James Ciclitira — Résumé</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23111110%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Georgia,serif%27 font-size=%2728%27 fill=%27%23b8412a%27 text-anchor=%27middle%27%3EJC%3C/text%3E%3C/svg%3E">
+  <meta name="description" content="Senior Product Designer with 10+ years building digital products people actually use — across mobility, health, climate fintech, and e-commerce. Based in Berlin, open to the right role.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="James Ciclitira — Résumé">
+  <meta property="og:description" content="Senior Product Designer with 10+ years building digital products people actually use — across mobility, health, climate fintech, and e-commerce. Based in Berlin, open to the right role.">
+  <meta property="og:image" content="https://www.jciclitira.com/hero-photo.jpg">
+  <meta property="og:url" content="https://www.jciclitira.com/cv.html">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +23,7 @@
       --warm: #eae6dc;
       --accent: #b8412a;
       --accent-lt: #eec9be;
-      --muted: #7a7670;
+      --muted: #58544d;
       --border: rgba(17,17,16,0.09);
       --serif: 'Lora', Georgia, serif;
       --mono: 'DM Mono', monospace;
@@ -23,24 +31,26 @@
       --max-w: 960px;
     }
     html { font-size: 16px; scroll-behavior: smooth; }
-    body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-weight: 300; -webkit-font-smoothing: antialiased; cursor: none; }
+    body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-weight: 400; -webkit-font-smoothing: antialiased; cursor: none; }
 
     /* cursor */
     #cur { position: fixed; width: 9px; height: 9px; background: var(--accent); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .2s, height .2s; mix-blend-mode: multiply; }
     #cur.h { width: 30px; height: 30px; background: var(--accent-lt); }
 
-    .page { max-width: var(--max-w); margin: 0 auto; padding: 0 2.5rem 6rem; }
+    .page { max-width: var(--max-w); margin: 0 auto; padding: 6.5rem 2.5rem 6rem; }
 
-    /* TOP BAR */
-    .topbar { padding: 1.4rem 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-    .back-link { font-family: var(--mono); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; text-decoration: none; color: var(--muted); display: inline-flex; align-items: center; gap: .4rem; transition: color .2s; }
-    .back-link:hover { color: var(--accent); }
-    .back-link::before { content: "←"; }
-    .print-btn { font-family: var(--mono); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; padding: .45rem 1rem; background: transparent; color: var(--ink); border: 1px solid var(--border); cursor: pointer; transition: border-color .2s, color .2s; }
-    .print-btn:hover { border-color: var(--ink); color: var(--ink); }
+    /* NAV — shared with index.html */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1.4rem 2.5rem; background: rgba(246,243,237,.92); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: var(--mono); font-size: .7rem; letter-spacing: .08em; color: var(--ink); text-decoration: none; opacity: .55; }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; }
+    .nav-links a { font-family: var(--mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); text-decoration: none; opacity: .45; transition: opacity .2s; }
+    .nav-links a:hover, .nav-links a.current { opacity: 1; }
+
+    .print-btn { font-family: var(--mono); font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-decoration: none; background: none; border: none; border-bottom: 1px solid rgba(122,118,112,.3); padding: 0 0 1px; cursor: none; transition: color .2s, border-color .2s; }
+    .print-btn:hover { color: var(--accent); border-color: var(--accent); }
 
     /* HEADER */
-    header { padding: 3.5rem 0 2.5rem; border-bottom: 1.5px solid var(--ink); display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2rem; }
+    header { padding: 1.5rem 0 2.5rem; border-bottom: 1.5px solid var(--ink); display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2rem; }
     .name { font-family: var(--serif); font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 400; line-height: 1; letter-spacing: -.02em; }
     .title-tag { font-family: var(--mono); font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-top: .7rem; display: flex; align-items: center; gap: .6rem; }
     .title-tag::before { content: ''; display: block; width: 20px; height: 1px; background: var(--accent); }
@@ -53,8 +63,8 @@
 
     /* ABOUT STRIP */
     .about-strip { padding: 1.6rem 0 1.8rem; border-bottom: 1px solid var(--border); }
-    .about-strip p { font-size: .96rem; font-weight: 300; line-height: 1.75; color: var(--muted); max-width: 70ch; }
-    .about-strip strong { color: var(--ink); font-weight: 400; }
+    .about-strip p { font-size: .96rem; font-weight: 400; line-height: 1.75; color: var(--muted); max-width: 70ch; }
+    .about-strip strong { color: var(--ink); font-weight: 500; }
 
     /* BODY GRID */
     .body-grid { display: grid; grid-template-columns: 1fr 260px; gap: 0 3.5rem; padding-top: 2.5rem; }
@@ -72,12 +82,12 @@
     .job-co:hover { color: var(--accent); }
     .job-dates { font-family: var(--mono); font-size: .56rem; letter-spacing: .06em; color: var(--muted); white-space: nowrap; }
     .job-role { font-family: var(--mono); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: .55rem; margin-top: .15rem; }
-    .job-desc { font-size: .88rem; font-weight: 300; line-height: 1.72; color: var(--muted); }
-    .job-desc strong { color: var(--ink); font-weight: 400; }
+    .job-desc { font-size: .88rem; font-weight: 400; line-height: 1.72; color: var(--muted); }
+    .job-desc strong { color: var(--ink); font-weight: 500; }
     .bullets { margin-top: .6rem; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .3rem; }
-    .bullets li { font-size: .84rem; font-weight: 300; line-height: 1.6; color: var(--muted); padding-left: 1rem; position: relative; }
+    .bullets li { font-size: .84rem; font-weight: 400; line-height: 1.6; color: var(--muted); padding-left: 1rem; position: relative; }
     .bullets li::before { content: "—"; position: absolute; left: 0; color: var(--accent); font-family: var(--mono); font-size: .7rem; }
-    .bullets li strong { color: var(--ink); font-weight: 400; }
+    .bullets li strong { color: var(--ink); font-weight: 500; }
 
     /* EDUCATION */
     .edu-hd { display: flex; justify-content: space-between; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
@@ -100,17 +110,20 @@
     .tool-icon img, .tool-icon svg { width: 18px; height: 18px; object-fit: contain; }
     .tool-lbl { font-family: var(--mono); font-size: .52rem; letter-spacing: .06em; text-align: center; color: var(--muted); }
 
-    /* CV FOOTER */
-    .cv-footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 1.5px solid var(--ink); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .8rem; }
-    .cv-footer p { font-family: var(--mono); font-size: .56rem; letter-spacing: .05em; color: var(--muted); }
-    .cv-footer a { color: var(--accent); text-decoration: none; }
+    /* CV FOOTER — shared style with index.html footer */
+    .cv-footer { margin-top: 3rem; padding-top: 1.6rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .cv-footer p { font-family: var(--mono); font-size: .6rem; letter-spacing: .05em; color: var(--muted); }
+    .cv-footer-links { display: flex; gap: 1.5rem; }
+    .cv-footer-links a { font-family: var(--mono); font-size: .6rem; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .cv-footer-links a:hover { color: var(--accent); }
 
     /* REVEAL */
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .page > * { animation: fadeUp 0.4s ease both; }
-    .topbar { animation-delay: .02s; } header { animation-delay: .07s; }
-    .about-strip { animation-delay: .13s; } .body-grid { animation-delay: .2s; }
+    header { animation-delay: .05s; }
+    .about-strip { animation-delay: .11s; } .body-grid { animation-delay: .17s; }
 
+    @media (max-width: 860px) { nav { padding-left: 1.4rem; padding-right: 1.4rem; } }
     @media (max-width: 700px) {
       .page { padding-left: 1.4rem; padding-right: 1.4rem; }
       header { grid-template-columns: 1fr; gap: 1rem; }
@@ -122,20 +135,25 @@
     @media print {
       body { background: white; font-size: 14px; cursor: auto; }
       #cur { display: none; }
-      .topbar { display: none; }
+      nav { display: none; }
+      .page { padding-top: 0; padding-bottom: 0; }
       .body-grid { grid-template-columns: 1fr 220px; }
-      .page { padding-bottom: 0; }
     }
   </style>
 </head>
 <body>
 <div id="cur"></div>
-  <div class="page">
 
-    <div class="topbar">
-      <a href="index.html" class="back-link">Portfolio</a>
-      <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
-    </div>
+<nav>
+  <a href="index.html" class="nav-logo">James Ciclitira</a>
+  <ul class="nav-links">
+    <li><a href="index.html#work">Work</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    <li><a href="cv.html" class="current">Résumé</a></li>
+  </ul>
+</nav>
+
+  <div class="page">
 
     <header>
       <div>
@@ -152,6 +170,7 @@
         <div class="location-badge">
           Berlin, Germany
         </div>
+        <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
       </div>
     </header>
 
@@ -359,8 +378,11 @@
     </div>
 
     <div class="cv-footer">
-      <p>James Ciclitira &mdash; Senior Product Designer &mdash; Berlin</p>
-      <p><a href="index.html">jciclitira.com</a></p>
+      <p>© 2024 James Ciclitira · Product Designer · Berlin</p>
+      <div class="cv-footer-links">
+        <a href="https://linkedin.com/in/jciclitira" target="_blank">LinkedIn</a>
+        <a href="index.html">Portfolio ↗</a>
+      </div>
     </div>
 
   </div>
