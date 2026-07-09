@@ -55,7 +55,7 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
 .meta-item label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
 .meta-item p{font-size:.9rem;line-height:1.5}
 /* hero image */
-.hero-img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;display:block}
+.hero-img{width:100%;aspect-ratio:700/448;object-fit:cover;object-position:center;display:block}
 /* stat bar */
 .stats{background:var(--ink);display:grid;grid-template-columns:repeat(3,1fr)}
 .stats.four{grid-template-columns:repeat(4,1fr)}
@@ -92,7 +92,13 @@ h2 em{font-style:italic;color:var(--accent)}
 .img.short{aspect-ratio:16/8}
 .img.sq{aspect-ratio:1/1}
 .img.port{aspect-ratio:9/16}
-.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.5rem}
+.cap{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.7rem}
+/* process artifacts — diagrams, sketches, whiteboard exports; framed, never cropped */
+.artifact{background:var(--warm);border:1px solid var(--border);padding:2.5rem}
+.artifact img{width:100%;height:auto;display:block;max-height:420px;object-fit:contain;margin:0 auto}
+/* mixed-orientation image rows — height-matched, width auto, so nothing is ever cropped */
+.shots{display:flex;gap:1.5rem;align-items:flex-end;flex-wrap:wrap;margin-top:1.8rem}
+.shots img{height:360px;width:auto;max-width:100%;object-fit:cover;border:1px solid var(--border);display:block}
 /* cards */
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
 .icard{padding:1.4rem;border:1px solid var(--border);background:var(--paper)}
@@ -143,6 +149,9 @@ h2 em{font-style:italic;color:var(--accent)}
   .next{grid-template-columns:1fr}.next-r{min-height:180px}
   nav,footer{padding-left:1.4rem;padding-right:1.4rem}
   .pq{padding:2rem 1.4rem}
+  .artifact{padding:1.4rem}
+  .shots{flex-direction:column;align-items:stretch}
+  .shots img{height:auto;width:100%}
 }
 @media(max-width:480px){.stats{grid-template-columns:1fr}.stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}}
 </style>
@@ -188,16 +197,19 @@ h2 em{font-style:italic;color:var(--accent)}
     </div>
   </section>
 
-  <img class="img short" style="margin-bottom:5rem" src="img/659405f82052fcd4fd187216_onboarding.png" alt="Onboarding">
+  <img class="img" style="aspect-ratio:2500/1446" src="img/659405f82052fcd4fd187216_onboarding.png" alt="Onboarding">
+  <p class="cap" style="margin-bottom:5rem">First run — setting the tone before a single document is added</p>
 
   <section class="section r">
     <p class="lbl">Document request & sharing</p>
     <h2>The core flow: request a<br>document, receive it, share it.<br><em>Encrypted throughout.</em></h2>
     <p class="prose">A patient opens the app, sends a request to their GP for last month's blood results, and receives them directly to their phone — no phone calls, no waiting rooms, no paper. Once there, files can be shared with any other practitioner in seconds, with access controlled entirely by the patient.</p>
-    <div class="two" style="margin-top:1.8rem">
-      <img class="img tall" src="img/659416107fe0b1cbed80711f_request.png" alt="Document request">
-      <img class="img tall" src="img/659416107f9e54b4050a80a7_request_flow.png" alt="Request flow">
+    <img class="img" style="aspect-ratio:2500/1415;margin-top:1.8rem" src="img/659416107fe0b1cbed80711f_request.png" alt="Document request">
+    <p class="cap">Requesting, uploading, and finding a doctor — three entry points into the same flow</p>
+    <div class="artifact r" style="margin-top:2rem">
+      <img src="img/659416107f9e54b4050a80a7_request_flow.png" alt="Request flow exploration diagram">
     </div>
+    <p class="cap">An early flow map, sketching how a request could reach a doctor — and where it could quietly break down. That risk turned out to be the real story (next).</p>
   </section>
 
   <section class="section r">
@@ -206,9 +218,10 @@ h2 em{font-style:italic;color:var(--accent)}
     <div class="pbox"><p>When we launched, many document requests went unanswered — because most doctors had never heard of Vivy. <strong>The technology worked. The ecosystem wasn't ready yet.</strong> Patients felt the app was broken. The problem wasn't the product — it was that we'd set expectations we couldn't yet meet.</p></div>
     <p class="prose" style="margin-top:1.4rem">The solution was to design for transparency rather than optimism. Instead of hiding uncertainty behind progress spinners, I built a request status system that kept users genuinely informed — what was pending, why it might be delayed, what their options were. We added educational moments that helped patients understand the process, not just the interface.<br><br>This was one of the most important decisions I made at Vivy: <strong>trusting users with honest information</strong> rather than papering over an imperfect reality with reassuring UX patterns. Patients responded better to honesty than to false confidence.</p>
     <div class="two" style="margin-top:1.8rem">
-      <img class="img tall" src="img/6594171c0766f1d5452648f9_expectation2.png" alt="Expectation states">
-      <img class="img tall" src="img/6594178a73954868b9e34622_expectation1.png" alt="Status communication">
+      <img class="img" style="aspect-ratio:799/1415" src="img/6594171c0766f1d5452648f9_expectation2.png" alt="Expectation states">
+      <img class="img" style="aspect-ratio:816/1415" src="img/6594178a73954868b9e34622_expectation1.png" alt="Status communication">
     </div>
+    <p class="cap">Replacing a progress spinner with a specific status, a reason, and a next step</p>
   </section>
 
   <div class="pq r">
@@ -226,17 +239,19 @@ h2 em{font-style:italic;color:var(--accent)}
       <div class="day"><p class="day-n">Day 03</p><p class="day-t">Rapid prototyping</p><p class="day-d">Multiple invoice submission flows, tested on-the-spot with real patients and Allianz staff.</p></div>
       <div class="day"><p class="day-n">Day 04</p><p class="day-t">Validation & sign-off</p><p class="day-d">Working prototype. Feature requirements aligned. A shared language between design, tech, and insurer.</p></div>
     </div>
-    <img class="img short" style="margin-top:1.1rem" src="img/6594171e826c9de511445a4c_viewing.png" alt="Invoice management">
+    <img class="img" style="aspect-ratio:2500/1439;margin-top:1.1rem" src="img/6594171e826c9de511445a4c_viewing.png" alt="Invoice management">
+    <p class="cap">The invoice flow that came out of the sprint — validated with Allianz and real patients</p>
   </section>
 
   <section class="section r">
     <p class="lbl">File sharing & the practitioner interface</p>
     <h2>The patient experience only<br>works if doctors <em>trust it too.</em></h2>
     <p class="prose" style="margin-bottom:1.8rem">I also designed the practitioner-facing side — a secure, direct connection that made file sharing feel professional and trustworthy for both clinician and patient. The key design challenge: building enough trust signals that a doctor would be willing to integrate it into their workflow.</p>
-    <div class="two">
-      <img class="img tall" src="img/65953db7535215a416bf2af0_share1.png" alt="File sharing">
-      <img class="img tall" src="img/6594171ddb2f3e1ef7c7923a_dr.png" alt="Doctor interface">
+    <div class="shots r">
+      <img src="img/65953db7535215a416bf2af0_share1.png" alt="File sharing">
+      <img src="img/6594171ddb2f3e1ef7c7923a_dr.png" alt="Doctor interface">
     </div>
+    <p class="cap">The patient's phone (left) and the practitioner's portal (right) — two contexts, one trust model</p>
   </section>
 
 </div>
