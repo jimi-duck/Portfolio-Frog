@@ -23,7 +23,7 @@
   --serif:'Lora',Georgia,serif;--mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
 }
 html{scroll-behavior:smooth}
-body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:400;line-height:1.7;overflow-x:hidden;cursor:none}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:400;line-height:1.7;overflow-x:hidden;cursor:none;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 #cur{position:fixed;width:9px;height:9px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,opacity .2s;mix-blend-mode:multiply;opacity:1}
 #cur.h{width:32px;height:32px;background:var(--accent-lt)}
 .wrap{max-width:1240px;margin:0 auto;padding-left:2.5rem;padding-right:2.5rem}
@@ -38,8 +38,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(248,246,241,
 .nav-links a.nav-cta:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 /* HERO */
 .hero{min-height:100dvh;display:grid;grid-template-columns:1.05fr .95fr;gap:3.5rem;align-items:center;padding-top:5.5rem;padding-bottom:2.5rem}
-.hero-kicker{font-family:var(--sans);font-weight:500;font-size:.86rem;color:var(--muted);margin-bottom:1.4rem;display:flex;align-items:center;gap:.55rem}
-.hero-kicker::before{content:'';width:7px;height:7px;border-radius:50%;background:#5fd97a;box-shadow:0 0 7px rgba(95,217,122,.8)}
 h1{font-family:var(--serif);font-size:clamp(2.9rem,3.6vw + 1.9vh,5.3rem);font-weight:400;line-height:1.06;letter-spacing:-.018em;margin-bottom:1.5rem}
 h1 em{font-style:italic;color:var(--accent)}
 .hero-intro{font-size:1.06rem;line-height:1.75;color:var(--muted);max-width:48ch;margin-bottom:2rem}
@@ -49,7 +47,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .btn:hover{background:var(--accent);border-color:var(--accent)}
 .btn-ghost{display:inline-flex;align-items:center;gap:.45rem;padding:.85rem 1.65rem;background:transparent;color:var(--ink);font-family:var(--sans);font-weight:500;font-size:.88rem;text-decoration:none;border-radius:999px;border:1px solid var(--border-strong);transition:border-color .2s,background .2s;cursor:none;appearance:none;-webkit-appearance:none}
 .btn-ghost:hover{border-color:var(--ink)}
-.hero-visual{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--warm);aspect-ratio:4/5;max-height:calc(100dvh - 10rem);width:100%;align-self:center}
+.hero-visual{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--warm);aspect-ratio:4/5;max-height:calc(100dvh - 10rem);width:100%;align-self:center;box-shadow:0 24px 60px rgba(19,18,16,.1)}
 .hero-photo{width:100%;height:100%;display:block;object-fit:cover;object-position:center 20%;filter:grayscale(18%) contrast(1.04);mix-blend-mode:multiply;position:absolute;inset:0}
 .hero-tag{position:absolute;top:1.4rem;right:1.4rem;z-index:2;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:#f6f3ed;text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem}
 .hero-tag::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
@@ -83,7 +81,6 @@ body.astro-active #astroTipWrap{display:flex}
 /* NUMBERS — quiet stat row */
 .nums{border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .nums-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;padding:3.2rem 0}
-.num-cell{padding-left:1.6rem;border-left:1px solid var(--border)}
 .num-n{font-family:var(--serif);font-size:2.9rem;font-style:italic;line-height:1;display:block;margin-bottom:.6rem;color:var(--ink)}
 .num-l{font-size:.88rem;color:var(--muted);line-height:1.55}
 /* LOGOS */
@@ -111,12 +108,6 @@ body.astro-active #astroTipWrap{display:flex}
 .csub{font-size:.83rem;color:var(--muted);margin-top:.15rem;margin-bottom:.5rem}
 .csnip{font-size:.92rem;color:var(--muted);line-height:1.65;max-width:52ch}
 .csnip strong{color:var(--ink);font-weight:500}
-/* EXPERIENCE */
-.xp-list{border-top:1px solid var(--border)}
-.xp-row{display:grid;grid-template-columns:1.1fr 1.2fr auto;gap:1.2rem;align-items:baseline;padding:1.15rem 0;border-bottom:1px solid var(--border)}
-.xp-co{font-family:var(--serif);font-size:1.08rem;font-weight:400}
-.xp-role{font-size:.9rem;color:var(--muted)}
-.xp-years{font-family:var(--mono);font-size:.72rem;color:var(--muted);white-space:nowrap;min-width:6.2rem;text-align:right}
 /* ABOUT */
 .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4.5rem;align-items:start}
 .about-body{font-size:1rem;line-height:1.85;color:var(--muted)}
@@ -159,9 +150,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
   .hero{min-height:0;grid-template-columns:1fr;gap:2.2rem;padding-top:6.2rem}
   .hero-visual{aspect-ratio:4/4.4;max-height:none}
   .nums-grid{grid-template-columns:1fr;gap:1.6rem;padding:2.4rem 0}
-  .num-cell{padding-left:1.2rem}
   .grid{grid-template-columns:1fr}
-  .xp-row{grid-template-columns:1fr auto}.xp-role{grid-column:1/-1;margin-top:-.4rem}
   .about-grid,.contact-grid{grid-template-columns:1fr;gap:2.4rem}
   .how-grid{grid-template-columns:1fr 1fr}
   .frow{grid-template-columns:1fr}
@@ -175,7 +164,6 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
   .nav-links{gap:.9rem}
   .nav-links a{font-size:.8rem}
   .nav-links a.nav-cta{padding:.34rem .8rem}
-  .nav-links li.nav-xp{display:none}
 }
 </style>
 </head>
@@ -187,7 +175,6 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
     <a href="index.html" class="nav-logo">James Ciclitira</a>
     <ul class="nav-links">
       <li><a href="#work">Work</a></li>
-      <li class="nav-xp"><a href="#experience">Experience</a></li>
       <li><a href="#contact">Contact</a></li>
       <li><a href="cv.html" class="nav-cta">Résumé</a></li>
     </ul>
@@ -197,14 +184,12 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
 <!-- HERO -->
 <header class="hero wrap">
   <div>
-    <p class="hero-kicker">Product Designer · Berlin</p>
     <h1>Good design<br>starts with<br><em>questions.</em></h1>
     <p class="hero-intro">
       Senior Product Designer based in Berlin. A decade of work on products that deal with <strong>genuinely hard problems</strong> — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.
     </p>
     <div class="hero-cta">
-      <a href="#work" class="btn">See the work</a>
-      <button class="btn-ghost" id="copy-email" type="button" data-email="jciclitira@gmail.com">Copy email</button>
+      <a href="#work" class="btn">Selected work</a>
       <a href="https://linkedin.com/in/jciclitira" target="_blank" class="btn-ghost">LinkedIn</a>
     </div>
   </div>
@@ -212,7 +197,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
     <span class="hero-tag">Berlin, DE</span>
     <span class="avail"><span class="avail-dot"></span>Open for projects</span>
     <img class="hero-photo"
-      src="hero-photo.jpg" width="1600" height="1066"
+      src="hero-photo.jpg" width="2000" height="1333"
       alt="James Ciclitira" loading="eager">
   </div>
 </header>
@@ -222,7 +207,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
   <div class="wrap">
     <div class="nums-grid">
       <div class="num-cell r">
-        <span class="num-n">6+</span>
+        <span class="num-n">8+</span>
         <span class="num-l">Products shipped<br>across mobile &amp; web</span>
       </div>
       <div class="num-cell r">
@@ -342,47 +327,6 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
   </div>
 </section>
 
-<!-- EXPERIENCE -->
-<section class="sec wrap" id="experience" style="padding-top:2.2rem">
-  <div class="sec-label">Previous experience</div>
-  <div class="xp-list r">
-    <div class="xp-row">
-      <span class="xp-co">Enter</span>
-      <span class="xp-role">Senior Product Designer</span>
-      <span class="xp-years">2024 – 2026</span>
-    </div>
-    <div class="xp-row">
-      <span class="xp-co">Cooler Future</span>
-      <span class="xp-role">Lead Product Designer</span>
-      <span class="xp-years">2021 – 2023</span>
-    </div>
-    <div class="xp-row">
-      <span class="xp-co">Something Creative</span>
-      <span class="xp-role">Product Designer</span>
-      <span class="xp-years">2021</span>
-    </div>
-    <div class="xp-row">
-      <span class="xp-co">Bosch — Coup Mobility</span>
-      <span class="xp-role">Product Designer</span>
-      <span class="xp-years">2019 – 2020</span>
-    </div>
-    <div class="xp-row">
-      <span class="xp-co">Vivy</span>
-      <span class="xp-role">Founding Product Designer</span>
-      <span class="xp-years">2017 – 2019</span>
-    </div>
-    <div class="xp-row">
-      <span class="xp-co">Freelance — YunoJuno, Quidco, Suggestv</span>
-      <span class="xp-role">Product &amp; Web Designer</span>
-      <span class="xp-years">2016 – 2017</span>
-    </div>
-    <div class="xp-row">
-      <span class="xp-co">CrowdScores</span>
-      <span class="xp-role">Product Designer</span>
-      <span class="xp-years">2015 – 2017</span>
-    </div>
-  </div>
-</section>
 
 <!-- ABOUT -->
 <section class="sec wrap" id="about" style="padding-top:2.2rem">
@@ -500,25 +444,6 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     el.style.transitionDelay=(i%4*.06)+'s';
   io.observe(el);
 });
-// Copy email pill
-(function(){
-  var b=document.getElementById('copy-email');
-  if(!b)return;
-  var orig=b.textContent,t=null;
-  b.addEventListener('click',function(){
-    var write=navigator.clipboard&&navigator.clipboard.writeText
-      ?navigator.clipboard.writeText(b.dataset.email)
-      :Promise.reject();
-    write.catch(function(){
-      var ta=document.createElement('textarea');
-      ta.value=b.dataset.email;document.body.appendChild(ta);
-      ta.select();document.execCommand('copy');document.body.removeChild(ta);
-    }).finally(function(){
-      b.textContent='Copied!';
-      clearTimeout(t);t=setTimeout(function(){b.textContent=orig},1800);
-    });
-  });
-})();
 </script>
 
 <!-- ASTEROID BLASTER — hidden easter egg, only wired up on click, never runs otherwise -->
