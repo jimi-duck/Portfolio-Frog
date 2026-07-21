@@ -4,10 +4,10 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>James Ciclitira — Product Designer, Berlin</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Ctext%20x%3D%2750%27%20y%3D%2758%27%20font-size%3D%2772%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27central%27%3E%F0%9F%8D%95%3C%2Ftext%3E%3C%2Fsvg%3E">
-<meta name="description" content="Senior Product Designer based in Berlin. A decade of work on products that deal with genuinely hard problems — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.">
+<meta name="description" content="Senior Product Designer based in Berlin. A decade of work on products that deal with genuine problems — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="James Ciclitira — Product Designer, Berlin">
-<meta property="og:description" content="Senior Product Designer based in Berlin. A decade of work on products that deal with genuinely hard problems — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.">
+<meta property="og:description" content="Senior Product Designer based in Berlin. A decade of work on products that deal with genuine problems — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.">
 <meta property="og:image" content="https://www.jciclitira.com/hero-photo.jpg">
 <meta property="og:url" content="https://www.jciclitira.com/">
 <meta name="twitter:card" content="summary_large_image">
@@ -15,35 +15,43 @@
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@300;400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--ink:#111110;--paper:#f6f3ed;--warm:#eae6dc;--accent:#b8412a;--accent-lt:#eec9be;--muted:#7a7670;--border:rgba(17,17,16,0.09);--serif:'Lora',Georgia,serif;--mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif}
+:root{
+  --ink:#131210;--paper:#f8f6f1;--warm:#ede9df;
+  --accent:#b8412a;--accent-lt:#eec9be;
+  --muted:#6b675f;--border:rgba(19,18,16,.09);--border-strong:rgba(19,18,16,.2);
+  --r-sm:12px;--r:18px;--r-lg:26px;
+  --serif:'Lora',Georgia,serif;--mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+}
 html{scroll-behavior:smooth}
-body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden;cursor:none}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:400;line-height:1.7;overflow-x:hidden;cursor:none;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 #cur{position:fixed;width:9px;height:9px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,opacity .2s;mix-blend-mode:multiply;opacity:1}
 #cur.h{width:32px;height:32px;background:var(--accent-lt)}
+.wrap{max-width:1240px;margin:0 auto;padding-left:2.5rem;padding-right:2.5rem}
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 2.5rem;background:rgba(246,243,237,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--ink);text-decoration:none;opacity:.55}
-.nav-links{display:flex;gap:1.8rem;list-style:none}
-.nav-links a{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-decoration:none;opacity:.45;transition:opacity .2s}
-.nav-links a:hover{opacity:1}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(248,246,241,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1240px;margin:0 auto;padding:1.05rem 2.5rem;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:var(--sans);font-weight:500;font-size:.92rem;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
+.nav-links{display:flex;gap:1.6rem;list-style:none;align-items:center}
+.nav-links a{font-family:var(--sans);font-size:.86rem;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a.nav-cta{border:1px solid var(--border-strong);border-radius:999px;padding:.42rem 1.05rem;color:var(--ink);transition:border-color .2s,background .2s,color .2s}
+.nav-links a.nav-cta:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 /* HERO */
-.hero{height:100vh;height:100dvh;display:grid;grid-template-columns:55% 45%;overflow:hidden}
-.hero-l{padding:6.5rem 3rem 3rem 2.5rem;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border);min-height:0;overflow:hidden}
-.hero-kicker{font-family:var(--mono);font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem}
-h1{font-family:var(--serif);font-size:clamp(2.8rem,3.8vw + 2.2vh,5.6rem);font-weight:400;line-height:1.05;letter-spacing:-.015em;margin-bottom:1.3rem}
+.hero{min-height:100dvh;display:grid;grid-template-columns:1.05fr .95fr;gap:3.5rem;align-items:center;padding-top:5.5rem;padding-bottom:2.5rem}
+h1{font-family:var(--serif);font-size:clamp(2.9rem,3.6vw + 1.9vh,5.3rem);font-weight:400;line-height:1.06;letter-spacing:-.018em;margin-bottom:1.5rem}
 h1 em{font-style:italic;color:var(--accent)}
-.hero-intro{font-size:1.05rem;line-height:1.7;color:var(--muted);max-width:46ch;margin-bottom:1.6rem}
-.hero-intro strong{color:var(--ink);font-weight:400}
-.hero-cta{display:flex;align-items:center;gap:1.5rem}
-.btn{display:inline-flex;align-items:center;padding:.8rem 1.8rem;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:background .2s}
-.btn:hover{background:var(--accent)}
-.btn-bare{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:1px solid rgba(122,118,112,.3);padding-bottom:1px;transition:color .2s,border-color .2s}
-.btn-bare:hover{color:var(--accent);border-color:var(--accent)}
-.hero-r{position:relative;background:var(--warm);overflow:hidden}
-.hero-photo{width:100%;height:100%;display:block;object-fit:cover;object-position:center 20%;filter:grayscale(18%) contrast(1.04);mix-blend-mode:multiply;position:absolute;top:0;left:0;right:0;bottom:0}
-.hero-tag{position:absolute;top:1.75rem;right:1.75rem;z-index:2;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem}
+.hero-intro{font-size:1.06rem;line-height:1.75;color:var(--muted);max-width:48ch;margin-bottom:2rem}
+.hero-intro strong{color:var(--ink);font-weight:500}
+.hero-cta{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:.45rem;padding:.85rem 1.65rem;background:var(--ink);color:var(--paper);font-family:var(--sans);font-weight:500;font-size:.88rem;text-decoration:none;border-radius:999px;border:1px solid var(--ink);transition:background .2s,border-color .2s;cursor:none}
+.btn:hover{background:var(--accent);border-color:var(--accent)}
+.btn-ghost{display:inline-flex;align-items:center;gap:.45rem;padding:.85rem 1.65rem;background:transparent;color:var(--ink);font-family:var(--sans);font-weight:500;font-size:.88rem;text-decoration:none;border-radius:999px;border:1px solid var(--border-strong);transition:border-color .2s,background .2s;cursor:none;appearance:none;-webkit-appearance:none}
+.btn-ghost:hover{border-color:var(--ink)}
+.hero-visual{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--warm);aspect-ratio:4/5;max-height:calc(100dvh - 10rem);width:100%;align-self:center;box-shadow:0 24px 60px rgba(19,18,16,.1)}
+.hero-photo{width:100%;height:100%;display:block;object-fit:cover;object-position:center 20%;filter:grayscale(18%) contrast(1.04);mix-blend-mode:multiply;position:absolute;inset:0}
+.hero-tag{position:absolute;top:1.4rem;right:1.4rem;z-index:2;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:#f6f3ed;text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem}
 .hero-tag::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
-.avail{position:absolute;bottom:1.75rem;left:1.75rem;z-index:2;display:flex;align-items:center;gap:.5rem;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem .4rem .75rem;transition:transform .3s ease,box-shadow .3s ease}
+.avail{position:absolute;bottom:1.4rem;left:1.4rem;z-index:2;display:flex;align-items:center;gap:.5rem;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:#f6f3ed;text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem .4rem .75rem;transition:transform .3s ease,box-shadow .3s ease}
 .avail::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
 .avail::after{content:'';position:absolute;inset:-7px;border-radius:999px;border:1.5px solid rgba(127,227,236,.85);opacity:0;pointer-events:none}
 .avail:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 14px 34px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14),0 0 22px rgba(127,227,236,.5)}
@@ -52,8 +60,8 @@ h1 em{font-style:italic;color:var(--accent)}
 .avail-dot{width:6px;height:6px;border-radius:50%;background:#5fd97a;box-shadow:0 0 6px rgba(95,217,122,.85);flex:none;animation:blink 2s ease-in-out infinite;transition:background .3s ease,box-shadow .3s ease}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 @keyframes availPing{0%{opacity:.9;transform:scale(.85)}70%{opacity:0;transform:scale(1.3)}100%{opacity:0;transform:scale(1.3)}}
-/* ── ASTEROID BLASTER — hidden easter egg, triggered from the "Available now" chip ── */
-.game-pill{position:relative;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border:none;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);text-transform:uppercase}
+/* ── ASTEROID BLASTER — hidden easter egg, triggered from the "Open for projects" chip ── */
+.game-pill{position:relative;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border:none;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:#f6f3ed;text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);text-transform:uppercase}
 .game-pill::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
 #astroDim{position:fixed;inset:0;width:100vw;height:100vh;z-index:99996;pointer-events:none;display:none;background:rgba(0,0,0,.56)}
 #astroCanvas{position:fixed;inset:0;width:100vw;height:100vh;z-index:99997;pointer-events:none;display:none}
@@ -64,150 +72,158 @@ body.astro-active #astroDim,body.astro-active #astroCanvas{display:block}
 body.astro-active #astroExit{display:flex}
 body.astro-active #astroTipWrap{display:flex}
 @media(max-width:600px){#astroExit{padding:.5rem .9rem !important}#astroTip{font-size:.64rem;padding:.65rem 1rem}}
-/* NUMBERS */
-.nums{background:var(--ink);padding:4.5rem 2.5rem}
-.nums-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(246,243,237,.35);margin-bottom:1.75rem}
-.nums-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
-.num-cell{padding:2rem 1.75rem;color:var(--paper);border:1px solid rgba(255,255,255,.08);border-radius:16px;transition:border-color .3s}
-.num-cell:hover{border-color:rgba(255,255,255,.16)}
-.num-n{font-family:var(--serif);font-size:3.2rem;font-style:italic;color:var(--accent-lt);line-height:1;display:block;margin-bottom:.85rem}
-.num-l{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(246,243,237,.55);line-height:1.6}
-/* SECTION */
-.sec{padding:5rem 2.5rem}
-.sec-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:3rem;display:flex;align-items:center;gap:1rem}
+/* SECTION BASICS */
+.sec{padding-top:5.5rem;padding-bottom:5.5rem}
+.sec-label{font-family:var(--sans);font-weight:500;font-size:.86rem;color:var(--muted);margin-bottom:2.6rem;display:flex;align-items:center;gap:1.1rem}
 .sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
-.sec-h{font-family:var(--serif);font-size:clamp(2rem,4vw,3.4rem);font-weight:400;line-height:1.1}
+.sec-h{font-family:var(--serif);font-size:clamp(1.9rem,3.6vw,3.1rem);font-weight:400;line-height:1.12;letter-spacing:-.012em}
 .sec-h em{font-style:italic;color:var(--accent)}
+/* NUMBERS — quiet stat row */
+.nums{border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.nums-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;padding:3.2rem 0}
+.num-n{font-family:var(--serif);font-size:2.9rem;font-style:italic;line-height:1;display:block;margin-bottom:.6rem;color:var(--ink)}
+.num-l{font-size:.88rem;color:var(--muted);line-height:1.55}
 /* LOGOS */
-.logos-row{display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap;filter:grayscale(1);opacity:.3;transition:opacity .35s}
-.logos-row:hover{opacity:.5}
-.logos-row img{height:24px;object-fit:contain}
+.logos-row{display:flex;align-items:center;gap:2.6rem;flex-wrap:wrap;filter:grayscale(1);opacity:.38;transition:opacity .35s}
+.logos-row:hover{opacity:.6}
+.logos-row img{height:23px;object-fit:contain}
 /* WORK GRID */
-.work-hd{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3rem}
-.work-ct{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-/* Cards — natural image sizes, no forced cropping */
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:1.2rem;align-items:start}
-.card{display:block;text-decoration:none;color:inherit;background:var(--warm);overflow:hidden;transition:transform .35s cubic-bezier(.25,.46,.45,.94)}
-.card:hover{transform:translateY(-4px)}
-.card:hover .cimg{transform:scale(1.03)}
-.card.lg{grid-column:span 7}.card.sm{grid-column:span 5}.card.md{grid-column:span 6}
-.cimg-wrap{overflow:hidden;position:relative;aspect-ratio:16/10}
-/* Natural image — no forced ratio, just display image naturally */
+.work-hd{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2.8rem}
+.work-ct{font-family:var(--sans);font-size:.86rem;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:2.6rem 2rem}
+.card{display:block;text-decoration:none;color:inherit}
+.card:hover .cimg{transform:scale(1.025)}
+.card:hover .cimg-wrap{transform:translateY(-4px);box-shadow:0 18px 44px rgba(19,18,16,.1)}
+.card:hover .ctitle{color:var(--accent)}
+.cimg-wrap{overflow:hidden;position:relative;aspect-ratio:16/10;border-radius:var(--r);background:var(--warm);transition:transform .35s cubic-bezier(.25,.46,.45,.94),box-shadow .35s ease}
 .cimg{width:100%;height:100%;display:block;object-fit:cover;transition:transform .55s cubic-bezier(.25,.46,.45,.94)}
-.ctag{position:absolute;top:.85rem;left:.85rem;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.32rem .75rem}
+.ctag{position:absolute;top:.9rem;left:.9rem;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:#f6f3ed;text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.32rem .75rem}
 .ctag::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
-.cbody{padding:1.1rem 1.2rem 1.4rem}
-.cnum{font-family:var(--mono);font-size:.56rem;letter-spacing:.06em;color:var(--accent);margin-bottom:.3rem}
-.ctitle{font-family:var(--serif);font-size:1.15rem;font-weight:400;margin-bottom:.2rem}
-.csub{font-family:var(--mono);font-size:.58rem;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:.55rem}
-.csnip{font-size:.85rem;color:var(--muted);line-height:1.6;max-width:32ch}
-.csnip strong{color:var(--ink);font-weight:400}
-.carrow{float:right;margin-top:.1rem;font-size:1rem;color:var(--muted);transition:transform .25s}
+.cbody{padding:1.15rem .25rem 0}
+.chead{display:flex;align-items:baseline;gap:.7rem}
+.cnum{font-family:var(--mono);font-size:.62rem;color:var(--accent)}
+.ctitle{font-family:var(--serif);font-size:1.32rem;font-weight:400;transition:color .2s}
+.carrow{margin-left:auto;font-size:1rem;color:var(--muted);transition:transform .25s}
 .card:hover .carrow{transform:translate(3px,-3px)}
+.csub{font-size:.83rem;color:var(--muted);margin-top:.15rem;margin-bottom:.5rem}
+.csnip{font-size:.92rem;color:var(--muted);line-height:1.65;max-width:52ch}
+.csnip strong{color:var(--ink);font-weight:500}
 /* ABOUT */
-.about{background:var(--ink);color:var(--paper);padding:5rem 2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
-.about-h{font-family:var(--serif);font-size:clamp(1.8rem,3.8vw,3rem);font-weight:400;line-height:1.15}
-.about-h em{font-style:italic;color:var(--accent-lt)}
-.about-body{font-size:.98rem;line-height:1.9;color:rgba(246,243,237,.6);font-weight:300}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4.5rem;align-items:start}
+.about-body{font-size:1rem;line-height:1.85;color:var(--muted)}
 .about-body p+p{margin-top:1.1rem}
-.about-body strong{color:rgba(246,243,237,.85);font-weight:400}
-.atags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.5rem}
-.atag{font-family:var(--mono);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;border:1px solid rgba(246,243,237,.16);color:rgba(246,243,237,.4);padding:.25rem .65rem}
+.about-body strong{color:var(--ink);font-weight:500}
+.atags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.6rem}
+.atag{font-family:var(--sans);font-weight:500;font-size:.78rem;border:1px solid var(--border-strong);color:var(--muted);padding:.32rem .85rem;border-radius:999px}
 /* HOW */
-.how{padding:5rem 2.5rem;background:var(--warm);border-top:1px solid var(--border)}
-.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.1rem;margin-top:3rem}
-.how-step{padding:1.6rem;border:1px solid var(--border);background:var(--paper)}
-.how-n{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--accent);margin-bottom:.7rem}
-.how-t{font-family:var(--serif);font-size:1.05rem;font-weight:400;margin-bottom:.45rem}
-.how-d{font-size:.83rem;color:var(--muted);line-height:1.65}
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.1rem}
+.how-step{padding:1.7rem 1.6rem;border-radius:var(--r);background:var(--warm)}
+.how-n{font-family:var(--mono);font-size:.62rem;color:var(--accent);margin-bottom:.75rem}
+.how-t{font-family:var(--serif);font-size:1.08rem;font-weight:400;margin-bottom:.45rem}
+.how-d{font-size:.86rem;color:var(--muted);line-height:1.65}
 /* CONTACT */
-.contact{padding:5rem 2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
-.form{display:flex;flex-direction:column;gap:.85rem}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:4.5rem;align-items:start}
+.form{display:flex;flex-direction:column;gap:1rem}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 .fg{display:flex;flex-direction:column;gap:.3rem}
-.fg label{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.fg input,.fg textarea{font-family:var(--sans);font-size:.88rem;font-weight:300;background:transparent;border:none;border-bottom:1px solid var(--border);padding:.5rem 0;color:var(--ink);outline:none;transition:border-color .2s;width:100%;-webkit-appearance:none}
+.fg label{font-family:var(--sans);font-weight:500;font-size:.8rem;color:var(--muted)}
+.fg input,.fg textarea{font-family:var(--sans);font-size:.92rem;font-weight:400;background:transparent;border:none;border-bottom:1px solid var(--border-strong);padding:.5rem 0;color:var(--ink);outline:none;transition:border-color .2s;width:100%;-webkit-appearance:none;border-radius:0}
 .fg input:focus,.fg textarea:focus{border-bottom-color:var(--accent)}
-.fg textarea{resize:vertical;min-height:85px}
-.btn-send{align-self:flex-start;margin-top:.35rem;padding:.8rem 2rem;background:var(--accent);color:var(--paper);border:none;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;cursor:none;transition:background .2s}
-.btn-send:hover{background:var(--ink)}
-footer{border-top:1px solid var(--border);padding:1.6rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
-footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(--muted)}
-.fsoc{display:flex;gap:1.5rem}
-.fsoc a{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.fg textarea{resize:vertical;min-height:90px}
+.btn-send{align-self:flex-start;margin-top:.4rem;padding:.85rem 1.9rem;background:var(--accent);color:var(--paper);border:1px solid var(--accent);border-radius:999px;font-family:var(--sans);font-weight:500;font-size:.88rem;cursor:none;transition:background .2s,border-color .2s}
+.btn-send:hover{background:var(--ink);border-color:var(--ink)}
+/* FOOTER */
+footer{border-top:1px solid var(--border)}
+.footer-inner{max-width:1240px;margin:0 auto;padding:1.5rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
+.fsoc{display:flex;gap:1.4rem}
+.fsoc a{font-family:var(--sans);font-size:.8rem;color:var(--muted);text-decoration:none;transition:color .2s}
 .fsoc a:hover{color:var(--accent)}
 /* REVEAL */
 .r{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
 .r.in{opacity:1;transform:none}
 /* RESPONSIVE */
-@media(max-width:860px){
-  .hero{height:auto;grid-template-columns:1fr}.hero-l{padding-top:5.5rem}.hero-r{min-height:60vw;align-items:flex-end}
-  .nums-grid{grid-template-columns:1fr 1fr}
-  .grid{grid-template-columns:1fr 1fr}.card.lg,.card.sm,.card.md{grid-column:span 1}
-  .about,.contact{grid-template-columns:1fr;gap:2.5rem}
+@media(max-width:900px){
+  .wrap{padding-left:1.4rem;padding-right:1.4rem}
+  .nav-inner{padding:1rem 1.4rem}
+  .footer-inner{padding:1.4rem}
+  .hero{min-height:0;grid-template-columns:1fr;gap:2.2rem;padding-top:6.2rem}
+  .hero-visual{aspect-ratio:4/4.4;max-height:none}
+  .nums-grid{grid-template-columns:1fr;gap:1.6rem;padding:2.4rem 0}
+  .grid{grid-template-columns:1fr}
+  .about-grid,.contact-grid{grid-template-columns:1fr;gap:2.4rem}
   .how-grid{grid-template-columns:1fr 1fr}
   .frow{grid-template-columns:1fr}
-  nav,.sec,.about,.how,.contact,footer{padding-left:1.4rem;padding-right:1.4rem}
-  .num-cell{padding:1.6rem 1.5rem}
+  .sec{padding-top:3.6rem;padding-bottom:3.6rem}
 }
-@media(max-width:520px){.nums-grid{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+@media(max-width:560px){.how-grid{grid-template-columns:1fr}}
+
+@media(max-width:560px){
+  .nav-inner{padding:.9rem 1rem}
+  .nav-logo{font-size:.86rem;white-space:nowrap}
+  .nav-links{gap:.9rem}
+  .nav-links a{font-size:.8rem}
+  .nav-links a.nav-cta{padding:.34rem .8rem}
+}
 </style>
 </head>
 <body>
 <div id="cur"></div>
 
 <nav>
-  <a href="index.html" class="nav-logo">James Ciclitira</a>
-  <ul class="nav-links">
-    <li><a href="#work">Work</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="cv.html">Résumé</a></li>
-  </ul>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">James Ciclitira</a>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="cv.html" class="nav-cta">Résumé</a></li>
+    </ul>
+  </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero">
-  <div class="hero-l">
-    <p class="hero-kicker">Product Designer · Berlin</p>
+<header class="hero wrap">
+  <div>
     <h1>Good design<br>starts with<br><em>questions.</em></h1>
     <p class="hero-intro">
-      Senior Product Designer based in Berlin. A decade of work on products that deal with <strong>genuinely hard problems</strong> — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.
+      Senior Product Designer based in Berlin. A decade of work on products that deal with <strong>genuine problems</strong> — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.
     </p>
     <div class="hero-cta">
-      <a href="#work" class="btn">See the work →</a>
-      <a href="cv.html" class="btn-bare">Résumé</a>
+      <a href="#work" class="btn">Selected work</a>
+      <a href="https://linkedin.com/in/jciclitira" target="_blank" class="btn-ghost">LinkedIn</a>
     </div>
   </div>
-  <div class="hero-r">
+  <div class="hero-visual">
     <span class="hero-tag">Berlin, DE</span>
     <span class="avail"><span class="avail-dot"></span>Open for projects</span>
     <img class="hero-photo"
-      src="hero-photo.jpg" width="1600" height="1066"
+      src="hero-photo.jpg" width="2000" height="1333"
       alt="James Ciclitira" loading="eager">
   </div>
-</section>
+</header>
 
 <!-- NUMBERS -->
 <div class="nums">
-  <div class="nums-label r">By the numbers</div>
-  <div class="nums-grid">
-    <div class="num-cell r">
-      <div class="num-n">6+</div>
-      <div class="num-l">Products shipped<br>across mobile &amp; web</div>
-    </div>
-    <div class="num-cell r">
-      <div class="num-n">3</div>
-      <div class="num-l">0-to-1 products taken<br>from sketch to launch</div>
-    </div>
-    <div class="num-cell r">
-      <div class="num-n">1M+</div>
-      <div class="num-l">People who've used<br>something I designed</div>
+  <div class="wrap">
+    <div class="nums-grid">
+      <div class="num-cell r">
+        <span class="num-n">8+</span>
+        <span class="num-l">Products shipped<br>across mobile &amp; web</span>
+      </div>
+      <div class="num-cell r">
+        <span class="num-n">3</span>
+        <span class="num-l">0-to-1 products taken<br>from sketch to launch</span>
+      </div>
+      <div class="num-cell r">
+        <span class="num-n">1M+</span>
+        <span class="num-l">People who've used<br>something I designed</span>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- LOGOS -->
-<section class="sec" style="padding-bottom:2rem">
+<section class="sec wrap" style="padding-bottom:1.6rem">
   <div class="sec-label">Some of the places I've worked</div>
   <div class="logos-row r">
     <img src="img/63120022425d060ff644f311_Bosch.svg" alt="Bosch">
@@ -218,131 +234,95 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
 </section>
 
 <!-- WORK -->
-<section class="sec" id="work" style="padding-top:3rem">
+<section class="sec wrap" id="work" style="padding-top:3.2rem">
   <div class="work-hd r">
     <h2 class="sec-h">Selected work</h2>
-    <span class="work-ct">6 case studies</span>
+    <span class="work-ct">4 case studies</span>
   </div>
 
   <div class="grid">
-    <!-- 01 ENTER — lg (7) -->
-    <a href="enter.html" class="card lg r">
+    <!-- 01 ENTER -->
+    <a href="enter.html" class="card r">
       <div class="cimg-wrap">
         <img class="cimg" src="Man_selecting_the_footprint.png"
           alt="Enter field app" loading="lazy" style="object-position:center 35%">
         <span class="ctag">Energy Tech</span>
       </div>
       <div class="cbody">
-        <span class="carrow">↗</span>
-        <div class="cnum">01</div>
-        <div class="ctitle">Enter</div>
+        <div class="chead"><span class="cnum">01</span><span class="ctitle">Enter</span><span class="carrow">↗</span></div>
         <div class="csub">Senior Product Designer · Field ops &amp; customer journey</div>
         <p class="csnip">A field intelligence tool for energy advisors — collecting detailed building data on-site, feeding it into an AI model, and producing the official retrofit report needed to unlock <strong>government subsidies</strong>.</p>
       </div>
     </a>
 
-    <!-- 02 COUP — sm (5) -->
-    <a href="coup.html" class="card sm r">
+    <!-- 02 COUP -->
+    <a href="coup.html" class="card r">
       <div class="cimg-wrap">
         <img class="cimg" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg"
           alt="Coup Mobility app" loading="lazy">
         <span class="ctag">Urban Mobility</span>
       </div>
       <div class="cbody">
-        <span class="carrow">↗</span>
-        <div class="cnum">02</div>
-        <div class="ctitle">Coup Mobility</div>
+        <div class="chead"><span class="cnum">02</span><span class="ctitle">Coup Mobility</span><span class="carrow">↗</span></div>
         <div class="csub">Ride UX · Ops tooling · Field App</div>
         <p class="csnip">A Bosch-owned e-moped service across three cities — and the operational gaps quietly costing it. Ride UX, dispatcher tooling, and a field worker app designed to keep the fleet moving.</p>
       </div>
     </a>
 
-    <!-- 03 COOLER FUTURE — md (6) -->
-    <a href="cooler-future.html" class="card md r">
+    <!-- 03 COOLER FUTURE -->
+    <a href="cooler-future.html" class="card r">
       <div class="cimg-wrap">
         <img class="cimg" src="cf-hero.png"
           alt="Cooler Future app" loading="lazy" style="object-position:center 40%">
         <span class="ctag">Climate Fintech</span>
       </div>
       <div class="cbody">
-        <span class="carrow">↗</span>
-        <div class="cnum">03</div>
-        <div class="ctitle">Cooler Future</div>
+        <div class="chead"><span class="cnum">03</span><span class="ctitle">Cooler Future</span><span class="carrow">↗</span></div>
         <div class="csub">Lead Designer · Full launch</div>
         <p class="csnip">A climate investing app taking on greenwash head-on. Sustainable funds, transparent impact data, and an onboarding flow that made it accessible from <strong>€20</strong>.</p>
       </div>
     </a>
 
-    <!-- 04 VIVY — md (6) -->
-    <a href="vivy.html" class="card md r">
-      <div class="cimg-wrap" style="aspect-ratio:700/448">
+    <!-- 04 VIVY -->
+    <a href="vivy.html" class="card r">
+      <div class="cimg-wrap">
         <img class="cimg" src="img/6593e7ac7fe0b1cbed638346_VivyHero.jpeg"
           alt="Vivy health app" loading="lazy">
         <span class="ctag">Digital Health</span>
       </div>
       <div class="cbody">
-        <span class="carrow">↗</span>
-        <div class="cnum">04</div>
-        <div class="ctitle">Vivy</div>
+        <div class="chead"><span class="cnum">04</span><span class="ctitle">Vivy</span><span class="carrow">↗</span></div>
         <div class="csub">Founding Designer · Medical records</div>
         <p class="csnip">An Allianz-backed digital health record — letting patients request, store, and share encrypted medical files from their phone. Designed from the ground up.</p>
-      </div>
-    </a>
-
-    <!-- 05 CROWDSCORES — lg (7) -->
-    <a href="crowdscores.html" class="card lg r">
-      <div class="cimg-wrap" style="aspect-ratio:700/448">
-        <img class="cimg" src="img/6593e7ac8583e718138071ec_CrowdscoresHero.jpeg"
-          alt="CrowdScores app" loading="lazy">
-        <span class="ctag">Consumer Sports</span>
-      </div>
-      <div class="cbody">
-        <span class="carrow">↗</span>
-        <div class="cnum">05</div>
-        <div class="ctitle">CrowdScores</div>
-        <div class="csub">Principal Designer · Native apps</div>
-        <p class="csnip">A real-time football scores app covering <strong>1,300+ matches weekly</strong> across iOS and Android — with a social layer for fan commentary and match events.</p>
-      </div>
-    </a>
-
-    <!-- 06 YUNOJUNO — sm (5) -->
-    <a href="yunojuno.html" class="card sm r">
-      <div class="cimg-wrap">
-        <img class="cimg" src="img/6593e7adf0ff45bf84ea4cb5_YunojunoHero.jpeg"
-          alt="YunoJuno platform" loading="lazy">
-        <span class="ctag">HR Tech</span>
-      </div>
-      <div class="cbody">
-        <span class="carrow">↗</span>
-        <div class="cnum">06</div>
-        <div class="ctitle">YunoJuno</div>
-        <div class="csub">Freelance management platform</div>
-        <p class="csnip">A freelance management platform connecting <strong>100k+ contractors</strong> with the companies that hire them — handling contracts, compliance, and payments in one place.</p>
       </div>
     </a>
   </div>
 </section>
 
+
 <!-- ABOUT -->
-<div class="about" id="about">
-  <div>
-    <h2 class="about-h r">Work that<br>matters more than<br><em>the brief.</em></h2>
-    <div class="atags r">
-      <span class="atag">Sustainability</span>
-      <span class="atag">Accessibility</span>
-      <span class="atag">Social impact</span>
-      <span class="atag">Education</span>
+<section class="sec wrap" id="about" style="padding-top:2.2rem">
+  <div class="sec-label">About</div>
+  <div class="about-grid">
+    <div>
+      <h2 class="sec-h r">Work that<br>matters more than<br><em>the brief.</em></h2>
+      <div class="atags r">
+        <span class="atag">Sustainability</span>
+        <span class="atag">Accessibility</span>
+        <span class="atag">Social impact</span>
+        <span class="atag">Education</span>
+      </div>
+    </div>
+    <div class="about-body r">
+      <p>Ten years of product design, mostly in complicated domains — health records, investing, urban transport. The common thread: products people rely on, where the details matter.</p>
+      <p>I start with research because it's cheaper to learn before building than after. Time with real users usually points to the answer; my job is to ask good questions and keep the design simple.</p>
+      <p>I've been the only designer in the company and one of many in a large cross-functional team — both suit me. Based in Berlin, <strong>open to full-time roles and freelance projects</strong>.</p>
     </div>
   </div>
-  <div class="about-body r">
-    <p>A decade of work on products where the problems are genuinely hard and the stakes are real — health records, financial inclusion, urban transport. Not toy projects.</p>
-    <p>The work starts with research. Spending enough time with real users tends to surface the right answer. The skill is in asking the right questions, spotting the pattern, and having the nerve to simplify.</p>
-    <p>Experienced working solo as the only designer, embedded in cross-functional teams, and everything in between. Based in Berlin, <strong>open to the right opportunity</strong> — full-time or freelance.</p>
-  </div>
-</div>
+</section>
 
 <!-- HOW I WORK -->
-<section class="how">
+<section class="sec wrap" style="padding-top:2.2rem">
   <div class="sec-label">The process</div>
   <div class="how-grid">
     <div class="how-step r">
@@ -369,48 +349,52 @@ footer p{font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(
 </section>
 
 <!-- CONTACT -->
-<section class="contact" id="contact">
-  <div>
-    <div class="sec-label">Say hello</div>
-    <h2 class="sec-h r">Let's talk about<br>what you're<br><em>building.</em></h2>
-    <p style="font-size:.97rem;color:var(--muted);margin-top:1.4rem;line-height:1.8;max-width:34ch" class="r">
-      Open to full-time roles and the occasional freelance project. Berlin-based, remote-friendly. Usually back within a day or two.
-    </p>
+<section class="sec wrap" id="contact" style="padding-top:2.2rem">
+  <div class="sec-label">Say hello</div>
+  <div class="contact-grid">
+    <div>
+      <h2 class="sec-h r">Let's talk about<br>what you're<br><em>building.</em></h2>
+      <p style="font-size:.97rem;color:var(--muted);margin-top:1.4rem;line-height:1.8;max-width:36ch" class="r">
+        Open to full-time roles and the occasional freelance project. Berlin-based, remote-friendly. Usually back within a day or two.
+      </p>
+    </div>
+    <form class="form r" id="contact-form" novalidate>
+      <div class="frow">
+        <div class="fg">
+          <label for="from_name">Your name</label>
+          <input id="from_name" name="from_name" type="text" placeholder="James Smith" required>
+        </div>
+        <div class="fg">
+          <label for="reply_to">Email</label>
+          <input id="reply_to" name="reply_to" type="email" placeholder="james@company.com" required>
+        </div>
+      </div>
+      <div class="fg">
+        <label for="subject">What's the project?</label>
+        <input id="subject" name="subject" type="text" placeholder="Give me the quick version" required>
+      </div>
+      <div class="fg">
+        <label for="message">Tell me more</label>
+        <textarea id="message" name="message" placeholder="What are you building, what's the problem, when do you need someone…" required></textarea>
+      </div>
+      <!-- State feedback -->
+      <div id="form-msg" style="display:none;font-family:var(--sans);font-size:.84rem;padding:.6rem 0;margin-top:.2rem"></div>
+      <button class="btn-send" type="submit" id="form-btn">Send it →</button>
+    </form>
   </div>
-  <form class="form r" id="contact-form" novalidate>
-    <div class="frow">
-      <div class="fg">
-        <label for="from_name">Your name</label>
-        <input id="from_name" name="from_name" type="text" placeholder="James Smith" required>
-      </div>
-      <div class="fg">
-        <label for="reply_to">Email</label>
-        <input id="reply_to" name="reply_to" type="email" placeholder="james@company.com" required>
-      </div>
-    </div>
-    <div class="fg">
-      <label for="subject">What's the project?</label>
-      <input id="subject" name="subject" type="text" placeholder="Give me the quick version" required>
-    </div>
-    <div class="fg">
-      <label for="message">Tell me more</label>
-      <textarea id="message" name="message" placeholder="What are you building, what's the problem, when do you need someone…" required></textarea>
-    </div>
-    <!-- State feedback -->
-    <div id="form-msg" style="display:none;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;padding:.6rem 0;margin-top:.2rem"></div>
-    <button class="btn-send" type="submit" id="form-btn">Send it →</button>
-  </form>
 </section>
 
 <footer>
-  <p>© 2024 James Ciclitira · Product Designer · Berlin</p>
-  <div class="fsoc">
-    <a href="https://linkedin.com/in/jciclitira" target="_blank">LinkedIn</a>
-    <a href="cv.html">Résumé ↗</a>
+  <div class="footer-inner">
+    <p>© 2026 James Ciclitira · Product Designer · Berlin</p>
+    <div class="fsoc">
+      <a href="https://linkedin.com/in/jciclitira" target="_blank">LinkedIn</a>
+      <a href="cv.html">Résumé ↗</a>
+    </div>
   </div>
 </footer>
 
-<!-- ASTEROID BLASTER — hidden easter egg. Click "Available now" to launch. -->
+<!-- ASTEROID BLASTER — hidden easter egg. Click "Open for projects" to launch. -->
 <div id="astroDim"></div>
 <canvas id="astroCanvas"></canvas>
 <div id="astroTipWrap"><div id="astroTip" class="game-pill">↑ thrust · ←→ rotate · space fire · esc exit</div></div>
@@ -780,47 +764,15 @@ document.querySelectorAll('.r').forEach((el,i)=>{
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
      EMAILJS — FREE EMAIL FORM (200 emails/month, no backend needed)
-     
-     ONE-TIME SETUP (takes ~5 minutes):
-     
-     1. Go to https://www.emailjs.com and create a free account
-     
-     2. Add an Email Service:
-        Dashboard → Email Services → Add New Service
-        Choose Gmail → connect your jciclitira@gmail.com account
-        Note your SERVICE ID (e.g. "service_abc123")
-     
-     3. Create an Email Template:
-        Dashboard → Email Templates → Create New Template
-        Set "To Email" field to: jciclitira@gmail.com
-        Paste this template body:
-        ─────────────────────────────
-        From: {{from_name}} ({{reply_to}})
-        Subject: {{subject}}
-        
-        {{message}}
-        ─────────────────────────────
-        Note your TEMPLATE ID (e.g. "template_xyz789")
-     
-     4. Get your Public Key:
-        Dashboard → Account → General → Public Key
-     
-     5. Replace the three placeholder values below with your real IDs:
-        - YOUR_PUBLIC_KEY
-        - YOUR_SERVICE_ID  
-        - YOUR_TEMPLATE_ID
-     
-     That's it. The form will start sending emails to jciclitira@gmail.com.
+     Configured with real IDs. Template sends to jciclitira@gmail.com.
 ═══════════════════════════════════════════════════════════════════════════ -->
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 (function(){
-  // ── Replace these three values after EmailJS setup ──────────────────────
   var PUBLIC_KEY   = 'hTZL-G3lnk36Wg8JD';
   var SERVICE_ID   = 'service_rwv0n4u';
   var TEMPLATE_ID  = 'template_0zf917w';
-  // ────────────────────────────────────────────────────────────────────────
 
   var configured = PUBLIC_KEY !== 'YOUR_PUBLIC_KEY';
 
@@ -841,7 +793,6 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Basic validation
     var name    = form.from_name.value.trim();
     var email   = form.reply_to.value.trim();
     var subject = form.subject.value.trim();
