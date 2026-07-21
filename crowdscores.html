@@ -81,8 +81,8 @@ h2 em{font-style:italic;color:var(--accent)}
 .pbox p{font-size:.94rem;line-height:1.78}
 .pbox strong{font-weight:500;color:var(--ink)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
-.three{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
-.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;align-items:start}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;align-items:start}
 .cap{font-size:.78rem;color:var(--muted);margin-top:.6rem;line-height:1.5}
 
 /* IMAGES */
@@ -90,12 +90,8 @@ h2 em{font-style:italic;color:var(--accent)}
 .photo.wide{aspect-ratio:16/9}
 .photo.tall{aspect-ratio:3/4}
 .photo.square{aspect-ratio:1/1}
-.img{width:100%;display:block;object-fit:cover;object-position:center top;border:1px solid var(--border);border-radius:var(--r-sm)}
-.img.tall{aspect-ratio:4/3}
-.img.wide{aspect-ratio:16/9}
-.img.short{aspect-ratio:16/8}
-.img.sq{aspect-ratio:1/1}
-.img.port{aspect-ratio:9/16}
+/* screenshots at natural height — never cropped */
+.img{width:100%;height:auto;display:block;border:1px solid var(--border);border-radius:var(--r-sm)}
 .device-img{width:100%;display:block;border-radius:var(--r-sm)}
 .phone{width:100%;display:block;border-radius:var(--r-sm)}
 .phone-col{display:flex;flex-direction:column}
