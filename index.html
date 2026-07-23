@@ -379,7 +379,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
       </div>
       <!-- State feedback -->
       <div id="form-msg" style="display:none;font-family:var(--sans);font-size:.84rem;padding:.6rem 0;margin-top:.2rem"></div>
-      <button class="btn-send" type="submit" id="form-btn">Send it →</button>
+      <button class="btn-send" type="submit" id="form-btn">Send message →</button>
     </form>
   </div>
 </section>
@@ -827,7 +827,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       form.reset();
     }, function(err) {
       btn.disabled = false;
-      btn.textContent = 'Send it →';
+      btn.textContent = 'Send message →';
       showMsg('Something went wrong. Try emailing directly: jciclitira@gmail.com', 'var(--accent)');
       console.error('EmailJS error:', err);
     });
