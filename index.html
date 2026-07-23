@@ -63,7 +63,7 @@ h1 em{font-style:italic;color:var(--accent)}
 /* ── ASTEROID BLASTER — hidden easter egg, triggered from the "Open for projects" chip ── */
 .game-pill{position:relative;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border:none;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:#f6f3ed;text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);text-transform:uppercase}
 .game-pill::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
-#astroDim{position:fixed;inset:0;width:100vw;height:100vh;z-index:99996;pointer-events:none;display:none;background:rgba(0,0,0,.56)}
+#astroDim{position:fixed;inset:0;width:100vw;height:100vh;z-index:99996;pointer-events:none;display:none;background:rgba(0,0,0,.72)}
 #astroCanvas{position:fixed;inset:0;width:100vw;height:100vh;z-index:99997;pointer-events:none;display:none}
 #astroExit{position:fixed;top:1.5rem;right:1.5rem;z-index:99999;display:none;align-items:center;padding:.6rem 1.2rem;font-size:.62rem;letter-spacing:.1em;cursor:pointer;pointer-events:auto;appearance:none;-webkit-appearance:none;margin:0}
 #astroTipWrap{position:fixed;top:1.5rem;left:0;right:0;z-index:99998;display:none;justify-content:center;pointer-events:none}
@@ -186,7 +186,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
   <div>
     <h1>Good design<br>starts with<br><em>questions.</em></h1>
     <p class="hero-intro">
-      Senior Product Designer based in Berlin. A decade of work on products that deal with <strong>genuine problems</strong> — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.
+      Senior Product Designer based in Berlin with 10+ years of experience helping mission-driven companies build digital products. I lead the design process end-to-end, from user research to delivery, with a focus on products that drive <strong>positive environmental impact</strong>.
     </p>
     <div class="hero-cta">
       <a href="#work" class="btn">Selected work</a>
@@ -305,7 +305,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
   <div class="sec-label">About</div>
   <div class="about-grid">
     <div>
-      <h2 class="sec-h r">Work that<br>matters more than<br><em>the brief.</em></h2>
+      <h2 class="sec-h r">How I think<br>about the <em>work.</em></h2>
       <div class="atags r">
         <span class="atag">Sustainability</span>
         <span class="atag">Accessibility</span>
@@ -333,7 +333,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
     <div class="how-step r">
       <div class="how-n">02</div>
       <div class="how-t">Make it concrete early</div>
-      <p class="how-d">Storyboards and rough wireframes before anything polished. Team alignment before anyone falls in love with pixels.</p>
+      <p class="how-d">Storyboards and rough wireframes before anything polished. It's easier to change direction while the work still looks unfinished.</p>
     </div>
     <div class="how-step r">
       <div class="how-n">03</div>
@@ -343,7 +343,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
     <div class="how-step r">
       <div class="how-n">04</div>
       <div class="how-t">Stay until it ships</div>
-      <p class="how-d">Close collaboration with engineers through build. A design that doesn't survive implementation wasn't finished.</p>
+      <p class="how-d">Working closely with engineers through the build. If a design doesn't hold up once it's actually coded, it wasn't done.</p>
     </div>
   </div>
 </section>
@@ -379,7 +379,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
       </div>
       <!-- State feedback -->
       <div id="form-msg" style="display:none;font-family:var(--sans);font-size:.84rem;padding:.6rem 0;margin-top:.2rem"></div>
-      <button class="btn-send" type="submit" id="form-btn">Send it →</button>
+      <button class="btn-send" type="submit" id="form-btn">Send message →</button>
     </form>
   </div>
 </section>
@@ -388,6 +388,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
   <div class="footer-inner">
     <p>© 2026 James Ciclitira · Product Designer · Berlin</p>
     <div class="fsoc">
+      <a href="#" id="play-game"><img src="pacman.gif" alt="" aria-hidden="true" style="height:1em;width:auto;vertical-align:-.12em;margin-right:.45em">Play a game</a>
       <a href="https://linkedin.com/in/jciclitira" target="_blank">LinkedIn</a>
       <a href="cv.html">Résumé ↗</a>
     </div>
@@ -431,12 +432,12 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   var NOSE_OFFSET = 17;
 
   var ROT_SPEED = 0.06, THRUST = 0.14, BULLET_SPEED = 9, SHOT_COOLDOWN = 220, MAX_AREA_RATIO = 0.3, BOUNCE = 0.4;
-  var ASTEROID_COUNT = 24, SHIP_RADIUS = 9, INVULN_FRAMES = 90;
-  var DIFFICULTY_INTERVAL = 10, SPEED_GROWTH = 1.08, SPEED_MULT_CAP = 3, MAX_ASTEROIDS = 40;
+  var ASTEROID_COUNT = 44, SHIP_RADIUS = 9, INVULN_FRAMES = 60, START_SPEED = 2;
+  var DIFFICULTY_INTERVAL = 7, SPEED_GROWTH = 1.13, SPEED_MULT_CAP = 4.5, MAX_ASTEROIDS = 64;
 
   var active = false, raf = null, keys = {}, lastShot = 0, docH = 0;
   var ship, bullets, particles, destroyed, asteroids;
-  var speedMult = 1, startTime = 0, lastDifficultyTick = 0;
+  var speedMult = START_SPEED, startTime = 0, lastDifficultyTick = 0;
 
   function computeDocHeight(){
     docH = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
@@ -502,25 +503,6 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     ship.invuln = INVULN_FRAMES;
   }
 
-  function isTarget(el){
-    if(!el || el === document.body || el === document.documentElement) return false;
-    if(el.closest('#astroCanvas,#astroExit,#cur')) return false;
-    if(destroyed.indexOf(el) !== -1) return false;
-    var r = el.getBoundingClientRect();
-    if(r.width <= 0 || r.height <= 0) return false;
-    if((r.width*r.height)/(window.innerWidth*window.innerHeight) > MAX_AREA_RATIO) return false;
-    return true;
-  }
-
-  function destroyEl(el, x, y, camY){
-    destroyed.push(el);
-    el.style.transition = 'transform .45s ease-in, opacity .45s ease-in';
-    el.style.transform = 'scale(.2) rotate(' + (Math.random()*180-90).toFixed(0) + 'deg)';
-    el.style.opacity = '0';
-    el.style.pointerEvents = 'none';
-    burst(x, y+camY, 10);
-  }
-
   function blockClicks(e){
     if(e.target.closest('#astroExit')) return;
     e.preventDefault(); e.stopPropagation();
@@ -546,7 +528,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
         var sp = Math.hypot(ax.vx, ax.vy);
         if(sp > maxSp){ ax.vx = ax.vx/sp*maxSp; ax.vy = ax.vy/sp*maxSp; }
       });
-      if(asteroids.length < MAX_ASTEROIDS) asteroids.push(spawnSafeAsteroid());
+      for(var d=0; d<3 && asteroids.length < MAX_ASTEROIDS; d++) asteroids.push(spawnSafeAsteroid());
     }
 
     if(keys.ArrowLeft) ship.angle -= ROT_SPEED;
@@ -575,8 +557,8 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       if(Math.hypot(ship.x-ax.x, ship.y-ax.y) < ax.r + SHIP_RADIUS) hitShip();
     });
 
-    // camera follow — scroll the page as the ship approaches the top/bottom of the viewport
-    var margin = 140;
+    // camera follow — keep the ship near the middle; start scrolling well before it reaches an edge
+    var margin = window.innerHeight * 0.4;
     var viewY = ship.y - window.scrollY;
     var maxScroll = Math.max(0, docH - window.innerHeight);
     var target = window.scrollY;
@@ -584,7 +566,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     else if(viewY > window.innerHeight - margin) target = ship.y - window.innerHeight + margin;
     target = Math.max(0, Math.min(target, maxScroll));
     if(Math.abs(target - window.scrollY) > 0.5){
-      window.scrollTo(window.scrollX, window.scrollY + (target - window.scrollY) * 0.18);
+      window.scrollTo(window.scrollX, window.scrollY + (target - window.scrollY) * 0.22);
     }
 
     var now = performance.now();
@@ -616,15 +598,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
           break;
         }
       }
-      if(hitRock) continue;
-      var testY = b.y - camY;
-      if(testY >= 0 && testY <= window.innerHeight){
-        var el = document.elementFromPoint(b.x, testY);
-        if(isTarget(el)){
-          destroyEl(el, b.x, testY, camY);
-          bullets.splice(i,1);
-        }
-      }
+      // bullets pass over the page — the game no longer affects content
     }
 
     for(var j=particles.length-1;j>=0;j--){
@@ -721,7 +695,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     if(active) return;
     active = true;
     bullets = []; particles = []; destroyed = [];
-    speedMult = 1; startTime = performance.now(); lastDifficultyTick = 0;
+    speedMult = START_SPEED; startTime = performance.now(); lastDifficultyTick = 0;
     resize();
     resetShip();
     spawnAsteroids();
@@ -759,6 +733,8 @@ document.querySelectorAll('.r').forEach((el,i)=>{
 
   avail.addEventListener('click', start);
   exitBtn.addEventListener('click', stop);
+  var playLink = document.getElementById('play-game');
+  if(playLink) playLink.addEventListener('click', function(e){ e.preventDefault(); start(); });
 })();
 </script>
 
@@ -827,7 +803,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       form.reset();
     }, function(err) {
       btn.disabled = false;
-      btn.textContent = 'Send it →';
+      btn.textContent = 'Send message →';
       showMsg('Something went wrong. Try emailing directly: jciclitira@gmail.com', 'var(--accent)');
       console.error('EmailJS error:', err);
     });
