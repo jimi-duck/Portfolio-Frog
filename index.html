@@ -63,7 +63,7 @@ h1 em{font-style:italic;color:var(--accent)}
 /* ── ASTEROID BLASTER — hidden easter egg, triggered from the "Open for projects" chip ── */
 .game-pill{position:relative;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border:none;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:#f6f3ed;text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);text-transform:uppercase}
 .game-pill::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
-#astroDim{position:fixed;inset:0;width:100vw;height:100vh;z-index:99996;pointer-events:none;display:none;background:rgba(0,0,0,.56)}
+#astroDim{position:fixed;inset:0;width:100vw;height:100vh;z-index:99996;pointer-events:none;display:none;background:rgba(0,0,0,.72)}
 #astroCanvas{position:fixed;inset:0;width:100vw;height:100vh;z-index:99997;pointer-events:none;display:none}
 #astroExit{position:fixed;top:1.5rem;right:1.5rem;z-index:99999;display:none;align-items:center;padding:.6rem 1.2rem;font-size:.62rem;letter-spacing:.1em;cursor:pointer;pointer-events:auto;appearance:none;-webkit-appearance:none;margin:0}
 #astroTipWrap{position:fixed;top:1.5rem;left:0;right:0;z-index:99998;display:none;justify-content:center;pointer-events:none}
@@ -388,6 +388,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
   <div class="footer-inner">
     <p>© 2026 James Ciclitira · Product Designer · Berlin</p>
     <div class="fsoc">
+      <a href="#" id="play-game">Play a game</a>
       <a href="https://linkedin.com/in/jciclitira" target="_blank">LinkedIn</a>
       <a href="cv.html">Résumé ↗</a>
     </div>
@@ -431,12 +432,12 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   var NOSE_OFFSET = 17;
 
   var ROT_SPEED = 0.06, THRUST = 0.14, BULLET_SPEED = 9, SHOT_COOLDOWN = 220, MAX_AREA_RATIO = 0.3, BOUNCE = 0.4;
-  var ASTEROID_COUNT = 24, SHIP_RADIUS = 9, INVULN_FRAMES = 90;
+  var ASTEROID_COUNT = 30, SHIP_RADIUS = 9, INVULN_FRAMES = 90, START_SPEED = 1.4;
   var DIFFICULTY_INTERVAL = 10, SPEED_GROWTH = 1.08, SPEED_MULT_CAP = 3, MAX_ASTEROIDS = 40;
 
   var active = false, raf = null, keys = {}, lastShot = 0, docH = 0;
   var ship, bullets, particles, destroyed, asteroids;
-  var speedMult = 1, startTime = 0, lastDifficultyTick = 0;
+  var speedMult = START_SPEED, startTime = 0, lastDifficultyTick = 0;
 
   function computeDocHeight(){
     docH = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
@@ -500,25 +501,6 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     ship.y = window.scrollY + window.innerHeight/2;
     ship.vx = 0; ship.vy = 0;
     ship.invuln = INVULN_FRAMES;
-  }
-
-  function isTarget(el){
-    if(!el || el === document.body || el === document.documentElement) return false;
-    if(el.closest('#astroCanvas,#astroExit,#cur')) return false;
-    if(destroyed.indexOf(el) !== -1) return false;
-    var r = el.getBoundingClientRect();
-    if(r.width <= 0 || r.height <= 0) return false;
-    if((r.width*r.height)/(window.innerWidth*window.innerHeight) > MAX_AREA_RATIO) return false;
-    return true;
-  }
-
-  function destroyEl(el, x, y, camY){
-    destroyed.push(el);
-    el.style.transition = 'transform .45s ease-in, opacity .45s ease-in';
-    el.style.transform = 'scale(.2) rotate(' + (Math.random()*180-90).toFixed(0) + 'deg)';
-    el.style.opacity = '0';
-    el.style.pointerEvents = 'none';
-    burst(x, y+camY, 10);
   }
 
   function blockClicks(e){
@@ -616,15 +598,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
           break;
         }
       }
-      if(hitRock) continue;
-      var testY = b.y - camY;
-      if(testY >= 0 && testY <= window.innerHeight){
-        var el = document.elementFromPoint(b.x, testY);
-        if(isTarget(el)){
-          destroyEl(el, b.x, testY, camY);
-          bullets.splice(i,1);
-        }
-      }
+      // bullets pass over the page — the game no longer affects content
     }
 
     for(var j=particles.length-1;j>=0;j--){
@@ -721,7 +695,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     if(active) return;
     active = true;
     bullets = []; particles = []; destroyed = [];
-    speedMult = 1; startTime = performance.now(); lastDifficultyTick = 0;
+    speedMult = START_SPEED; startTime = performance.now(); lastDifficultyTick = 0;
     resize();
     resetShip();
     spawnAsteroids();
@@ -759,6 +733,8 @@ document.querySelectorAll('.r').forEach((el,i)=>{
 
   avail.addEventListener('click', start);
   exitBtn.addEventListener('click', stop);
+  var playLink = document.getElementById('play-game');
+  if(playLink) playLink.addEventListener('click', function(e){ e.preventDefault(); start(); });
 })();
 </script>
 
