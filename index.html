@@ -432,8 +432,8 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   var NOSE_OFFSET = 17;
 
   var ROT_SPEED = 0.06, THRUST = 0.14, BULLET_SPEED = 9, SHOT_COOLDOWN = 220, MAX_AREA_RATIO = 0.3, BOUNCE = 0.4;
-  var ASTEROID_COUNT = 30, SHIP_RADIUS = 9, INVULN_FRAMES = 90, START_SPEED = 1.4;
-  var DIFFICULTY_INTERVAL = 10, SPEED_GROWTH = 1.08, SPEED_MULT_CAP = 3, MAX_ASTEROIDS = 40;
+  var ASTEROID_COUNT = 44, SHIP_RADIUS = 9, INVULN_FRAMES = 60, START_SPEED = 2;
+  var DIFFICULTY_INTERVAL = 7, SPEED_GROWTH = 1.13, SPEED_MULT_CAP = 4.5, MAX_ASTEROIDS = 64;
 
   var active = false, raf = null, keys = {}, lastShot = 0, docH = 0;
   var ship, bullets, particles, destroyed, asteroids;
@@ -528,7 +528,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
         var sp = Math.hypot(ax.vx, ax.vy);
         if(sp > maxSp){ ax.vx = ax.vx/sp*maxSp; ax.vy = ax.vy/sp*maxSp; }
       });
-      if(asteroids.length < MAX_ASTEROIDS) asteroids.push(spawnSafeAsteroid());
+      for(var d=0; d<3 && asteroids.length < MAX_ASTEROIDS; d++) asteroids.push(spawnSafeAsteroid());
     }
 
     if(keys.ArrowLeft) ship.angle -= ROT_SPEED;
@@ -557,8 +557,8 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       if(Math.hypot(ship.x-ax.x, ship.y-ax.y) < ax.r + SHIP_RADIUS) hitShip();
     });
 
-    // camera follow — scroll the page as the ship approaches the top/bottom of the viewport
-    var margin = 140;
+    // camera follow — keep the ship near the middle; start scrolling well before it reaches an edge
+    var margin = window.innerHeight * 0.4;
     var viewY = ship.y - window.scrollY;
     var maxScroll = Math.max(0, docH - window.innerHeight);
     var target = window.scrollY;
@@ -566,7 +566,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     else if(viewY > window.innerHeight - margin) target = ship.y - window.innerHeight + margin;
     target = Math.max(0, Math.min(target, maxScroll));
     if(Math.abs(target - window.scrollY) > 0.5){
-      window.scrollTo(window.scrollX, window.scrollY + (target - window.scrollY) * 0.18);
+      window.scrollTo(window.scrollX, window.scrollY + (target - window.scrollY) * 0.22);
     }
 
     var now = performance.now();
