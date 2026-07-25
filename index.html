@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>James Ciclitira — Product Designer, Berlin</title>
+<script>(function(){try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Ctext%20x%3D%2750%27%20y%3D%2758%27%20font-size%3D%2772%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27central%27%3E%F0%9F%8D%95%3C%2Ftext%3E%3C%2Fsvg%3E">
 <meta name="description" content="Senior Product Designer based in Berlin. A decade of work on products that deal with genuine problems — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.">
 <meta property="og:type" content="website">
@@ -63,7 +64,12 @@ h1 em{font-style:italic;color:var(--accent)}
 /* ── ASTEROID BLASTER — hidden easter egg, triggered from the "Open for projects" chip ── */
 .game-pill{position:relative;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border:none;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:#f6f3ed;text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);text-transform:uppercase}
 .game-pill::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
-#astroDim{position:fixed;inset:0;width:100vw;height:100vh;z-index:99996;pointer-events:none;display:none;background:rgba(0,0,0,.72)}
+#astroDim{position:fixed;inset:0;width:100vw;height:100vh;z-index:99996;pointer-events:none;display:none;background:rgba(0,0,0,.84)}
+#game-launch{position:fixed;left:1.4rem;bottom:1.4rem;z-index:90;display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .9rem;border-radius:999px;border:1px solid var(--border-strong);background:var(--paper);color:var(--muted);font-family:var(--sans);font-weight:500;font-size:.8rem;cursor:none;opacity:.5;transition:opacity .25s,color .2s,border-color .2s,transform .2s,box-shadow .2s;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+#game-launch:hover{opacity:1;color:var(--ink);border-color:var(--ink);transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.14)}
+#game-launch img{height:1.05em;width:auto}
+body.astro-active #game-launch{display:none}
+@media(max-width:600px){#game-launch{display:none}}
 #astroCanvas{position:fixed;inset:0;width:100vw;height:100vh;z-index:99997;pointer-events:none;display:none}
 #astroExit{position:fixed;top:1.5rem;right:1.5rem;z-index:99999;display:none;align-items:center;padding:.6rem 1.2rem;font-size:.62rem;letter-spacing:.1em;cursor:pointer;pointer-events:auto;appearance:none;-webkit-appearance:none;margin:0}
 #astroTipWrap{position:fixed;top:1.5rem;left:0;right:0;z-index:99998;display:none;justify-content:center;pointer-events:none}
@@ -165,6 +171,31 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
   .nav-links a{font-size:.8rem}
   .nav-links a.nav-cta{padding:.34rem .8rem}
 }
+
+/* ── THEME TOGGLE ── */
+.nav-theme{display:flex;align-items:center}
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:52px;height:28px;padding:0;border:none;background:none;cursor:none;-webkit-appearance:none;appearance:none}
+.tt-track{position:relative;width:52px;height:28px;border-radius:999px;background:var(--warm);border:1px solid var(--border-strong);transition:background .3s,border-color .3s}
+.tt-knob{position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--ink);display:grid;place-items:center;transition:transform .35s cubic-bezier(.4,.05,.25,1.1)}
+.tt-knob svg{position:absolute;width:13px;height:13px;color:var(--paper);transition:opacity .25s}
+.tt-moon{opacity:0}
+[data-theme="dark"] .tt-knob{transform:translateX(24px)}
+[data-theme="dark"] .tt-sun{opacity:0}
+[data-theme="dark"] .tt-moon{opacity:1}
+/* ── DARK MODE ── */
+:root[data-theme="dark"]{--ink:#ece7f2;--paper:#141019;--warm:#211b2c;--accent:#b191f7;--accent-lt:#cbb8ff;--muted:#9c96a8;--border:rgba(236,231,242,.12);--border-strong:rgba(236,231,242,.24)}
+[data-theme="dark"] nav{background:rgba(20,16,25,.82)}
+[data-theme="dark"] .hero-photo{mix-blend-mode:normal;filter:grayscale(12%) contrast(1.02)}
+[data-theme="dark"] #cur{mix-blend-mode:normal}
+[data-theme="dark"] .logos-row{filter:grayscale(1) invert(1) brightness(1.5);opacity:.5}
+[data-theme="dark"] .hero-visual{box-shadow:0 24px 60px rgba(0,0,0,.55)}
+[data-theme="dark"] .hero-img{box-shadow:0 24px 60px rgba(0,0,0,.5)}
+[data-theme="dark"] .card:hover .cimg-wrap{box-shadow:0 18px 44px rgba(0,0,0,.55)}
+[data-theme="dark"] .pq{background:var(--warm)}
+[data-theme="dark"] .fg input::placeholder,[data-theme="dark"] .fg textarea::placeholder{color:var(--muted)}
+/* smooth cross-fade only while toggling */
+html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease,fill .35s ease,transform .35s ease !important}
+@media(max-width:560px){.nav-links li:has(a:not(.nav-cta)){display:none}}
 </style>
 </head>
 <body>
@@ -177,6 +208,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
       <li><a href="#work">Work</a></li>
       <li><a href="#contact">Contact</a></li>
       <li><a href="cv.html" class="nav-cta">Résumé</a></li>
+      <li class="nav-theme"><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch between light and dark mode" title="Toggle theme"><span class="tt-track"><span class="tt-knob"><svg class="tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="2.5" x2="12" y2="4.6"/><line x1="12" y1="19.4" x2="12" y2="21.5"/><line x1="4.2" y1="4.2" x2="5.7" y2="5.7"/><line x1="18.3" y1="18.3" x2="19.8" y2="19.8"/><line x1="2.5" y1="12" x2="4.6" y2="12"/><line x1="19.4" y1="12" x2="21.5" y2="12"/><line x1="4.2" y1="19.8" x2="5.7" y2="18.3"/><line x1="18.3" y1="5.7" x2="19.8" y2="4.2"/></g></svg><svg class="tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 14.3A8.5 8.5 0 1 1 9.7 3.5a6.8 6.8 0 0 0 10.8 10.8z"/></svg></span></span></button></li>
     </ul>
   </div>
 </nav>
@@ -251,7 +283,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
       <div class="cbody">
         <div class="chead"><span class="cnum">01</span><span class="ctitle">Enter</span><span class="carrow">↗</span></div>
         <div class="csub">Senior Product Designer · Field ops &amp; customer journey</div>
-        <p class="csnip">A field intelligence tool for energy advisors — collecting detailed building data on-site, feeding it into an AI model, and producing the official retrofit report needed to unlock <strong>government subsidies</strong>.</p>
+        <p class="csnip">A tool energy advisors use on-site to capture detailed building data, feed it into an AI model, and produce the official retrofit report homeowners need to claim <strong>government subsidies</strong>.</p>
       </div>
     </a>
 
@@ -279,7 +311,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
       <div class="cbody">
         <div class="chead"><span class="cnum">03</span><span class="ctitle">Cooler Future</span><span class="carrow">↗</span></div>
         <div class="csub">Lead Designer · Full launch</div>
-        <p class="csnip">A climate investing app taking on greenwash head-on. Sustainable funds, transparent impact data, and an onboarding flow that made it accessible from <strong>€20</strong>.</p>
+        <p class="csnip">A climate investing app trying to cut through the greenwash. Sustainable funds, honest impact data, and onboarding that opened it up from <strong>€20</strong>.</p>
       </div>
     </a>
 
@@ -314,9 +346,9 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
       </div>
     </div>
     <div class="about-body r">
-      <p>Ten years of product design, mostly in complicated domains — health records, investing, urban transport. The common thread: products people rely on, where the details matter.</p>
-      <p>I start with research because it's cheaper to learn before building than after. Time with real users usually points to the answer; my job is to ask good questions and keep the design simple.</p>
-      <p>I've been the only designer in the company and one of many in a large cross-functional team — both suit me. Based in Berlin, <strong>open to full-time roles and freelance projects</strong>.</p>
+      <p>Ten years of product design, mostly in complicated areas — health records, investing, urban transport. The thread running through it: products people rely on, and increasingly ones built to do some environmental good.</p>
+      <p>I start with research, because it's cheaper to learn something before you build it than after. Time with real users usually points to the answer; my job is to ask the right questions and keep things simple.</p>
+      <p>I've been the only designer in a company and one of many in a big cross-functional team, and I'm happy either way. Based in Berlin, <strong>open to full-time roles and the occasional freelance project</strong>.</p>
     </div>
   </div>
 </section>
@@ -328,7 +360,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
     <div class="how-step r">
       <div class="how-n">01</div>
       <div class="how-t">Listen first</div>
-      <p class="how-d">User interviews, diary studies, watching people use the thing. No sketching until there's a clear picture of what's actually going wrong.</p>
+      <p class="how-d">User interviews, diary studies, watching people actually use the product. No sketching until there's a clear picture of what's going wrong.</p>
     </div>
     <div class="how-step r">
       <div class="how-n">02</div>
@@ -338,7 +370,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
     <div class="how-step r">
       <div class="how-n">03</div>
       <div class="how-t">Test with real people</div>
-      <p class="how-d">Prototypes close enough to real to surface honest reactions. Then iterate until it actually works.</p>
+      <p class="how-d">Prototypes realistic enough to get honest reactions, then keep iterating until it actually works.</p>
     </div>
     <div class="how-step r">
       <div class="how-n">04</div>
@@ -355,7 +387,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
     <div>
       <h2 class="sec-h r">Let's talk about<br>what you're<br><em>building.</em></h2>
       <p style="font-size:.97rem;color:var(--muted);margin-top:1.4rem;line-height:1.8;max-width:36ch" class="r">
-        Open to full-time roles and the occasional freelance project. Berlin-based, remote-friendly. Usually back within a day or two.
+        Open to full-time roles and the occasional freelance project. Berlin-based, remote-friendly. I'm usually back within a day or two.
       </p>
     </div>
     <form class="form r" id="contact-form" novalidate>
@@ -388,14 +420,14 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
   <div class="footer-inner">
     <p>© 2026 James Ciclitira · Product Designer · Berlin</p>
     <div class="fsoc">
-      <a href="#" id="play-game"><img src="pacman.gif" alt="" aria-hidden="true" style="height:1em;width:auto;vertical-align:-.12em;margin-right:.45em">Play a game</a>
       <a href="https://linkedin.com/in/jciclitira" target="_blank">LinkedIn</a>
       <a href="cv.html">Résumé ↗</a>
     </div>
   </div>
 </footer>
 
-<!-- ASTEROID BLASTER — hidden easter egg. Click "Open for projects" to launch. -->
+<!-- ASTEROID BLASTER — launch from the "Open for projects" chip, the footer link, or this subtle corner button. -->
+<button id="game-launch" type="button" aria-label="Play a game"><img src="pacman.gif" alt="" aria-hidden="true">Play</button>
 <div id="astroDim"></div>
 <canvas id="astroCanvas"></canvas>
 <div id="astroTipWrap"><div id="astroTip" class="game-pill">↑ thrust · ←→ rotate · space fire · esc exit</div></div>
@@ -431,7 +463,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
 
   var NOSE_OFFSET = 17;
 
-  var ROT_SPEED = 0.06, THRUST = 0.14, BULLET_SPEED = 9, SHOT_COOLDOWN = 220, MAX_AREA_RATIO = 0.3, BOUNCE = 0.4;
+  var ROT_SPEED = 0.06, THRUST = 0.18, BULLET_SPEED = 9, SHOT_COOLDOWN = 220, MAX_AREA_RATIO = 0.3, BOUNCE = 0.4;
   var ASTEROID_COUNT = 44, SHIP_RADIUS = 9, INVULN_FRAMES = 60, START_SPEED = 2;
   var DIFFICULTY_INTERVAL = 7, SPEED_GROWTH = 1.13, SPEED_MULT_CAP = 4.5, MAX_ASTEROIDS = 64;
 
@@ -621,12 +653,15 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       ctx.beginPath();
       ax.pts.forEach(function(p,i){ if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); });
       ctx.closePath();
-      ctx.strokeStyle = 'rgba(8,8,10,.7)';
-      ctx.lineWidth = 3.2;
+      ctx.strokeStyle = 'rgba(10,4,20,.6)';
+      ctx.lineWidth = 3.4;
       ctx.stroke();
-      ctx.strokeStyle = '#e3e8ec';
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#c77dff';
+      ctx.shadowColor = '#a855f7';
+      ctx.shadowBlur = 12;
+      ctx.lineWidth = 1.7;
       ctx.stroke();
+      ctx.shadowBlur = 0;
       ctx.restore();
     });
 
@@ -735,6 +770,8 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   exitBtn.addEventListener('click', stop);
   var playLink = document.getElementById('play-game');
   if(playLink) playLink.addEventListener('click', function(e){ e.preventDefault(); start(); });
+  var launchBtn = document.getElementById('game-launch');
+  if(launchBtn) launchBtn.addEventListener('click', start);
 })();
 </script>
 
@@ -809,6 +846,9 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     });
   });
 })();
+</script>
+<script>
+(function(){var root=document.documentElement,btn=document.getElementById("theme-toggle");function sync(){if(btn)btn.setAttribute("aria-pressed",root.getAttribute("data-theme")==="dark");}sync();if(btn)btn.addEventListener("click",function(){var next=root.getAttribute("data-theme")==="dark"?"light":"dark";root.classList.add("theme-anim");root.setAttribute("data-theme",next);try{localStorage.setItem("theme",next);}catch(e){}sync();window.setTimeout(function(){root.classList.remove("theme-anim");},420);});})();
 </script>
 </body>
 </html>
