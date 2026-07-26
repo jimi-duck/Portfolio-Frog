@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>James Ciclitira — Product Designer, Berlin</title>
+<title>James Ciclitira · Product Designer, Berlin</title>
 <script>(function(){try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Ctext%20x%3D%2750%27%20y%3D%2758%27%20font-size%3D%2772%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27central%27%3E%F0%9F%8D%95%3C%2Ftext%3E%3C%2Fsvg%3E">
-<meta name="description" content="Senior Product Designer based in Berlin. A decade of work on products that deal with genuine problems — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.">
+<meta name="description" content="Senior Product Designer based in Berlin with 10+ years designing digital products for mission-driven companies. End-to-end across research, strategy and delivery, with a focus on products that create positive impact.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="James Ciclitira — Product Designer, Berlin">
-<meta property="og:description" content="Senior Product Designer based in Berlin. A decade of work on products that deal with genuine problems — urban mobility, digital health, climate investing. Research-led, cross-functional, end-to-end.">
+<meta property="og:title" content="James Ciclitira · Product Designer, Berlin">
+<meta property="og:description" content="Senior Product Designer based in Berlin with 10+ years designing digital products for mission-driven companies. End-to-end across research, strategy and delivery, with a focus on products that create positive impact.">
 <meta property="og:image" content="https://www.jciclitira.com/hero-photo.jpg">
 <meta property="og:url" content="https://www.jciclitira.com/">
 <meta name="twitter:card" content="summary_large_image">
@@ -77,6 +77,8 @@ body.astro-active #game-launch{display:none}
 body.astro-active #astroDim,body.astro-active #astroCanvas{display:block}
 body.astro-active #astroExit{display:flex}
 body.astro-active #astroTipWrap{display:flex}
+#astroScore{position:fixed;left:1.5rem;bottom:1.5rem;z-index:99999;display:none;padding:.55rem 1.1rem;font-size:.72rem;letter-spacing:.1em;font-variant-numeric:tabular-nums}
+body.astro-active #astroScore{display:block}
 @media(max-width:600px){#astroExit{padding:.5rem .9rem !important}#astroTip{font-size:.64rem;padding:.65rem 1rem}}
 /* SECTION BASICS */
 .sec{padding-top:5.5rem;padding-bottom:5.5rem}
@@ -90,14 +92,15 @@ body.astro-active #astroTipWrap{display:flex}
 .num-n{font-family:var(--serif);font-size:2.9rem;font-style:italic;line-height:1;display:block;margin-bottom:.6rem;color:var(--ink)}
 .num-l{font-size:.88rem;color:var(--muted);line-height:1.55}
 /* LOGOS */
-.logos-row{display:flex;align-items:center;gap:2.6rem;flex-wrap:wrap;filter:grayscale(1);opacity:.38;transition:opacity .35s}
-.logos-row:hover{opacity:.6}
-.logos-row img{height:23px;object-fit:contain}
+.logos-row{display:flex;align-items:center;gap:2.6rem;flex-wrap:wrap}
+/* dim the images, not the row: the row also carries .r and .r.in would override an opacity set here */
+.logos-row img{height:22px;width:auto;object-fit:contain;filter:brightness(0);opacity:.3;transition:opacity .35s}
+.logos-row:hover img{opacity:.46}
 /* WORK GRID */
 .work-hd{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2.8rem}
 .work-ct{font-family:var(--sans);font-size:.86rem;color:var(--muted)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:2.6rem 2rem}
-.card{display:block;text-decoration:none;color:inherit}
+.card{display:block;text-decoration:none;color:inherit;position:relative}
 .card:hover .cimg{transform:scale(1.025)}
 .card:hover .cimg-wrap{transform:translateY(-4px);box-shadow:0 18px 44px rgba(19,18,16,.1)}
 .card:hover .ctitle{color:var(--accent)}
@@ -105,12 +108,13 @@ body.astro-active #astroTipWrap{display:flex}
 .cimg{width:100%;height:100%;display:block;object-fit:cover;transition:transform .55s cubic-bezier(.25,.46,.45,.94)}
 .ctag{position:absolute;top:.9rem;left:.9rem;background:rgba(22,22,20,.4);backdrop-filter:blur(20px) saturate(190%) brightness(1.08);-webkit-backdrop-filter:blur(20px) saturate(190%) brightness(1.08);border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.14);color:#f6f3ed;text-shadow:0 1px 3px rgba(0,0,0,.45);font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.32rem .75rem}
 .ctag::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(128deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 30%,rgba(255,255,255,0) 55%);pointer-events:none}
-.cbody{padding:1.15rem .25rem 0}
+.cbody{padding:1.15rem .25rem 0;position:relative}
 .chead{display:flex;align-items:baseline;gap:.7rem}
 .cnum{font-family:var(--mono);font-size:.62rem;color:var(--accent)}
 .ctitle{font-family:var(--serif);font-size:1.32rem;font-weight:400;transition:color .2s}
-.carrow{margin-left:auto;font-size:1rem;color:var(--muted);transition:transform .25s}
-.card:hover .carrow{transform:translate(3px,-3px)}
+.carrow{margin-left:auto;align-self:center;flex-shrink:0;width:22px;height:22px;color:var(--muted);opacity:.7;transition:transform .35s cubic-bezier(.25,.46,.45,.94),color .25s,opacity .25s}
+.carrow svg{width:100%;height:100%;display:block}
+.card:hover .carrow{transform:translateX(6px);color:var(--accent);opacity:1}
 .csub{font-size:.83rem;color:var(--muted);margin-top:.15rem;margin-bottom:.5rem}
 .csnip{font-size:.92rem;color:var(--muted);line-height:1.65;max-width:52ch}
 .csnip strong{color:var(--ink);font-weight:500}
@@ -187,7 +191,7 @@ footer p{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
 [data-theme="dark"] nav{background:rgba(20,16,25,.82)}
 [data-theme="dark"] .hero-photo{mix-blend-mode:normal;filter:grayscale(12%) contrast(1.02)}
 [data-theme="dark"] #cur{mix-blend-mode:normal}
-[data-theme="dark"] .logos-row{filter:grayscale(1) invert(1) brightness(1.5);opacity:.5}
+[data-theme="dark"] .logos-row img{filter:brightness(0) invert(1);opacity:.55}
 [data-theme="dark"] .hero-visual{box-shadow:0 24px 60px rgba(0,0,0,.55)}
 [data-theme="dark"] .hero-img{box-shadow:0 24px 60px rgba(0,0,0,.5)}
 [data-theme="dark"] .card:hover .cimg-wrap{box-shadow:0 18px 44px rgba(0,0,0,.55)}
@@ -218,7 +222,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
   <div>
     <h1>Good design<br>starts with<br><em>questions.</em></h1>
     <p class="hero-intro">
-      Senior Product Designer based in Berlin with 10+ years of experience helping mission-driven companies build digital products. I lead the design process end-to-end, from user research to delivery, with a focus on products that drive <strong>positive environmental impact</strong>.
+      Senior Product Designer based in Berlin with 10+ years of experience designing digital products for mission-driven companies. End-to-end across research, strategy and delivery, with a focus on products that create <strong>positive impact</strong>.
     </p>
     <div class="hero-cta">
       <a href="#work" class="btn">Selected work</a>
@@ -244,11 +248,11 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
       </div>
       <div class="num-cell r">
         <span class="num-n">3</span>
-        <span class="num-l">0-to-1 products taken<br>from sketch to launch</span>
+        <span class="num-l">Products brought<br>from sketch to launch</span>
       </div>
       <div class="num-cell r">
         <span class="num-n">1M+</span>
-        <span class="num-l">People who've used<br>something I designed</span>
+        <span class="num-l">People who've used<br>products designed by me</span>
       </div>
     </div>
   </div>
@@ -256,12 +260,14 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
 
 <!-- LOGOS -->
 <section class="sec wrap" style="padding-bottom:1.6rem">
-  <div class="sec-label">Some of the places I've worked</div>
+  <div class="sec-label">Some of the places I've worked:</div>
   <div class="logos-row r">
-    <img src="img/63120022425d060ff644f311_Bosch.svg" alt="Bosch">
-    <img src="img/631200228ebd854e3d920754_YonoJuno.svg" alt="YunoJuno">
-    <img src="img/6312002203e4f34facdad03f_Allianz.svg" alt="Allianz">
-    <img src="img/631200221936d30520080112_Cooler-future.svg" alt="Cooler Future">
+    <img src="img/enter-logo.svg" alt="Enter" style="height:14px" loading="lazy">
+    <img src="img/63120022425d060ff644f311_Bosch.svg" alt="Bosch" loading="lazy">
+    <img src="img/631200228ebd854e3d920754_YonoJuno.svg" alt="YunoJuno" loading="lazy">
+    <img src="img/6312002203e4f34facdad03f_Allianz.svg" alt="Allianz" loading="lazy">
+    <img src="img/631200221936d30520080112_Cooler-future.svg" alt="Cooler Future" loading="lazy">
+    <img src="img/Quidco.svg" alt="Quidco" style="height:14px" loading="lazy">
   </div>
 </section>
 
@@ -278,12 +284,12 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
       <div class="cimg-wrap">
         <img class="cimg" src="Man_selecting_the_footprint.png"
           alt="Enter field app" loading="lazy" style="object-position:center 35%">
-        <span class="ctag">Energy Tech</span>
+        <span class="ctag">Energy Transition</span>
       </div>
       <div class="cbody">
-        <div class="chead"><span class="cnum">01</span><span class="ctitle">Enter</span><span class="carrow">↗</span></div>
+        <div class="chead"><span class="cnum">01</span><span class="ctitle">Enter</span><span class="carrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h14"/><path d="M12.8 6.2 18.5 12l-5.7 5.8"/></svg></span></div>
         <div class="csub">Senior Product Designer · Field ops &amp; customer journey</div>
-        <p class="csnip">A tool energy advisors use on-site to capture detailed building data, feed it into an AI model, and produce the official retrofit report homeowners need to claim <strong>government subsidies</strong>.</p>
+        <p class="csnip">A field tool for energy advisors that streamlines building assessments, using AI to generate suggested retrofits and the official reports homeowners need to access <strong>government subsidies</strong>.</p>
       </div>
     </a>
 
@@ -292,12 +298,12 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
       <div class="cimg-wrap">
         <img class="cimg" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg"
           alt="Coup Mobility app" loading="lazy">
-        <span class="ctag">Urban Mobility</span>
+        <span class="ctag">Fleet Management</span>
       </div>
       <div class="cbody">
-        <div class="chead"><span class="cnum">02</span><span class="ctitle">Coup Mobility</span><span class="carrow">↗</span></div>
+        <div class="chead"><span class="cnum">02</span><span class="ctitle">Coup Mobility</span><span class="carrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h14"/><path d="M12.8 6.2 18.5 12l-5.7 5.8"/></svg></span></div>
         <div class="csub">Ride UX · Ops tooling · Field App</div>
-        <p class="csnip">A Bosch-owned e-moped service across three cities — and the operational gaps quietly costing it. Ride UX, dispatcher tooling, and a field worker app designed to keep the fleet moving.</p>
+        <p class="csnip">A Bosch-owned e-moped sharing service across three cities, where operational gaps were quietly impacting performance. I redesigned the rider experience, dispatcher tools, and field worker app to keep the fleet <strong>moving efficiently</strong>.</p>
       </div>
     </a>
 
@@ -306,12 +312,12 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
       <div class="cimg-wrap">
         <img class="cimg" src="cf-hero.png"
           alt="Cooler Future app" loading="lazy" style="object-position:center 40%">
-        <span class="ctag">Climate Fintech</span>
+        <span class="ctag">Sustainable Fintech</span>
       </div>
       <div class="cbody">
-        <div class="chead"><span class="cnum">03</span><span class="ctitle">Cooler Future</span><span class="carrow">↗</span></div>
+        <div class="chead"><span class="cnum">03</span><span class="ctitle">Cooler Future</span><span class="carrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h14"/><path d="M12.8 6.2 18.5 12l-5.7 5.8"/></svg></span></div>
         <div class="csub">Lead Designer · Full launch</div>
-        <p class="csnip">A climate investing app trying to cut through the greenwash. Sustainable funds, honest impact data, and onboarding that opened it up from <strong>€20</strong>.</p>
+        <p class="csnip">A sustainable investing platform that helps people invest with confidence through transparent impact data, curated funds, and an accessible <strong>€20 minimum investment</strong>.</p>
       </div>
     </a>
 
@@ -323,9 +329,9 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
         <span class="ctag">Digital Health</span>
       </div>
       <div class="cbody">
-        <div class="chead"><span class="cnum">04</span><span class="ctitle">Vivy</span><span class="carrow">↗</span></div>
+        <div class="chead"><span class="cnum">04</span><span class="ctitle">Vivy</span><span class="carrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h14"/><path d="M12.8 6.2 18.5 12l-5.7 5.8"/></svg></span></div>
         <div class="csub">Founding Designer · Medical records</div>
-        <p class="csnip">An Allianz-backed digital health record — letting patients request, store, and share encrypted medical files from their phone. Designed from the ground up.</p>
+        <p class="csnip">An Allianz-backed digital health record that lets patients securely request, store, and share <strong>encrypted medical documents</strong> from their phone. Designed from the ground up.</p>
       </div>
     </a>
   </div>
@@ -346,9 +352,10 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
       </div>
     </div>
     <div class="about-body r">
-      <p>Ten years of product design, mostly in complicated areas — health records, investing, urban transport. The thread running through it: products people rely on, and increasingly ones built to do some environmental good.</p>
-      <p>I start with research, because it's cheaper to learn something before you build it than after. Time with real users usually points to the answer; my job is to ask the right questions and keep things simple.</p>
-      <p>I've been the only designer in a company and one of many in a big cross-functional team, and I'm happy either way. Based in Berlin, <strong>open to full-time roles and the occasional freelance project</strong>.</p>
+      <p>Ten years of product design, mostly in complex domains such as digital health, sustainable investing, and urban mobility. The common thread: building products people depend on, and increasingly, products that contribute to a <strong>more sustainable future</strong>.</p>
+      <p>Research comes first. It is far cheaper to learn before building than after launch. Spending time with real users usually reveals the right direction; the role of design is to ask the right questions, reduce complexity, and turn those insights into clear, usable experiences.</p>
+      <p>Experience spans both ends of the spectrum, from being the sole designer in a startup to working within large cross-functional product teams. Comfortable taking ownership of the entire design process or collaborating closely with researchers, engineers, product managers, and other designers.</p>
+      <p>Based in Berlin and open to full-time opportunities as well as select freelance projects.</p>
     </div>
   </div>
 </section>
@@ -427,11 +434,12 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
 </footer>
 
 <!-- ASTEROID BLASTER — launch from the "Open for projects" chip, the footer link, or this subtle corner button. -->
-<button id="game-launch" type="button" aria-label="Play a game"><img src="pacman.gif" alt="" aria-hidden="true">Play</button>
+<button id="game-launch" type="button" aria-label="Play a game"><img src="pacman.gif" alt="" aria-hidden="true" loading="lazy">Play</button>
 <div id="astroDim"></div>
 <canvas id="astroCanvas"></canvas>
 <div id="astroTipWrap"><div id="astroTip" class="game-pill">↑ thrust · ←→ rotate · space fire · esc exit</div></div>
 <button id="astroExit" class="game-pill">← Back to site</button>
+<div id="astroScore" class="game-pill">Score: 0</div>
 
 <script>
 const cur=document.getElementById('cur');
@@ -459,6 +467,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   var ctx     = canvas.getContext('2d');
   var exitBtn = document.getElementById('astroExit');
   var tipEl   = document.getElementById('astroTip');
+  var scoreEl = document.getElementById('astroScore');
   var tipTimer = null;
 
   var NOSE_OFFSET = 17;
@@ -533,6 +542,11 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     ship.y = window.scrollY + window.innerHeight/2;
     ship.vx = 0; ship.vy = 0;
     ship.invuln = INVULN_FRAMES;
+    // death resets the run — score and difficulty back to the start
+    startTime = performance.now();
+    lastDifficultyTick = 0;
+    speedMult = START_SPEED;
+    spawnAsteroids();
   }
 
   function blockClicks(e){
@@ -551,6 +565,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
 
   function update(){
     var elapsed = (performance.now() - startTime) / 1000;
+    if(scoreEl) scoreEl.textContent = 'Score: ' + Math.floor(elapsed * 10);
     if(elapsed - lastDifficultyTick >= DIFFICULTY_INTERVAL){
       lastDifficultyTick += DIFFICULTY_INTERVAL;
       speedMult = Math.min(speedMult * SPEED_GROWTH, SPEED_MULT_CAP);
@@ -821,7 +836,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     }
 
     if (!configured) {
-      showMsg('⚠ EmailJS not configured yet — see the code comments for setup instructions.', 'var(--muted)');
+      showMsg('⚠ EmailJS not configured yet. See the code comments for setup instructions.', 'var(--muted)');
       return;
     }
 
@@ -836,7 +851,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       message:   message
     }).then(function() {
       btn.textContent = 'Sent ✓';
-      showMsg('Message sent — will be in touch soon.', 'var(--muted)');
+      showMsg('Message sent. Will be in touch soon.', 'var(--muted)');
       form.reset();
     }, function(err) {
       btn.disabled = false;

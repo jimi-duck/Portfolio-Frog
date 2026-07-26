@@ -4,7 +4,7 @@
     {
       "name": "static-site",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["/private/tmp/claude-502/-Users-jimmy-Documents-GitHub-Portfolio-Frog/db5e9ec7-e792-4276-93d1-39bf40ed7479/scratchpad/livereload_server.py", "8010", "/private/tmp/claude-502/-Users-jimmy-Documents-GitHub-Portfolio-Frog/db5e9ec7-e792-4276-93d1-39bf40ed7479/scratchpad/site"],
+      "runtimeArgs": ["/private/tmp/claude-502/-Users-jimmy-Documents-GitHub-Portfolio-Frog/8ea00eb5-3e0a-4b21-9e36-ecebb0c39047/scratchpad/livereload_server.py", "8010", "/private/tmp/claude-502/-Users-jimmy-Documents-GitHub-Portfolio-Frog/8ea00eb5-3e0a-4b21-9e36-ecebb0c39047/scratchpad/site"],
       "port": 8010
     }
   ]

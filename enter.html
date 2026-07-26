@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Enter — James Ciclitira</title>
+<title>Enter · James Ciclitira</title>
 <script>(function(){try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Ctext%20x%3D%2750%27%20y%3D%2758%27%20font-size%3D%2772%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27central%27%3E%F0%9F%8D%95%3C%2Ftext%3E%3C%2Fsvg%3E">
-<meta name="description" content="A field intelligence tool for energy advisors — collecting detailed building data on-site, feeding it into an AI model, and producing the official retrofit report needed to unlock government subsidies.">
+<meta name="description" content="A field intelligence tool for energy advisors, collecting detailed building data on-site, feeding it into an AI model, and producing the official retrofit report needed to unlock government subsidies.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Enter — James Ciclitira">
-<meta property="og:description" content="A field intelligence tool for energy advisors — collecting detailed building data on-site, feeding it into an AI model, and producing the official retrofit report needed to unlock government subsidies.">
+<meta property="og:title" content="Enter · James Ciclitira">
+<meta property="og:description" content="A field intelligence tool for energy advisors, collecting detailed building data on-site, feeding it into an AI model, and producing the official retrofit report needed to unlock government subsidies.">
 <meta property="og:image" content="https://www.jciclitira.com/Man_selecting_the_footprint.png">
 <meta property="og:url" content="https://www.jciclitira.com/enter.html">
 <meta name="twitter:card" content="summary_large_image">
@@ -171,6 +171,34 @@ h2 em{font-style:italic;color:var(--accent)}
 .report-grid .rg-item.rg-wide{grid-column:1/-1;max-width:70%;margin:0 auto 1rem}
 .report-grid .rg-caption{font-size:.76rem;color:var(--muted);margin-top:.6rem;padding-left:.2rem;line-height:1.5}
 
+/* REPORT CONTENTS — echoes the report's own opening page */
+.toc{background:var(--paper);border:1px solid var(--border);border-radius:var(--r);padding:1.7rem 1.8rem}
+.toc-lbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:1.2rem}
+.toc-list{list-style:none}
+.toc-list li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.15rem .95rem;padding:.85rem 0;border-top:1px solid var(--border)}
+.toc-list li:first-child{border-top:none;padding-top:0}
+.toc-list li:last-child{padding-bottom:0}
+.toc-n{grid-row:span 2;font-family:var(--mono);font-size:.68rem;color:var(--accent);padding-top:.28rem}
+.toc-t{font-family:var(--serif);font-size:1rem;line-height:1.3}
+.toc-d{font-size:.82rem;color:var(--muted);line-height:1.55}
+
+/* REPORT WALKTHROUGH — numbered story steps, image alternating side to side */
+.walk{display:flex;flex-direction:column;margin-top:3.2rem;border-top:1px solid var(--border-strong)}
+.walk-row{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1fr);gap:4rem;align-items:center;padding:3.2rem 0;border-bottom:1px solid var(--border)}
+.walk-row:last-child{border-bottom:none;padding-bottom:0}
+.walk-row:nth-child(even) .walk-media{order:2}
+.walk-media img{width:100%;max-width:400px;height:auto;display:block;margin:0 auto;filter:drop-shadow(0 22px 44px rgba(19,18,16,.16))}
+.walk-n{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.85rem}
+.walk-t{font-family:var(--serif);font-size:clamp(1.2rem,2vw,1.5rem);font-weight:400;line-height:1.24;letter-spacing:-.008em;margin-bottom:.7rem}
+.walk-d{font-size:.94rem;color:var(--muted);line-height:1.82;max-width:46ch}
+[data-theme="dark"] .walk-media img{filter:drop-shadow(0 22px 44px rgba(0,0,0,.5))}
+
+/* HOW SUCCESS WAS MEASURED — editorial list, not a KPI block */
+.measures{margin-top:2.4rem;border-top:1px solid var(--border-strong)}
+.measure{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1fr);gap:3rem;padding:1.5rem 0;border-bottom:1px solid var(--border);align-items:baseline}
+.measure-t{font-family:var(--serif);font-size:1.06rem;font-weight:400;line-height:1.35;letter-spacing:-.005em}
+.measure-d{font-size:.92rem;color:var(--muted);line-height:1.78}
+
 /* CARDS */
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
 .icard{padding:1.5rem;border-radius:var(--r);background:var(--warm)}
@@ -228,6 +256,10 @@ h2 em{font-style:italic;color:var(--accent)}
   .report-grid{grid-template-columns:1fr}
   .report-grid .rg-item:nth-child(even){margin-top:0}
   .report-grid .rg-item.rg-wide{max-width:100%}
+  .walk-row{grid-template-columns:1fr;gap:1.8rem;padding:2.4rem 0}
+  .walk-row:nth-child(even) .walk-media{order:0}
+  .walk-media img{max-width:320px}
+  .measure{grid-template-columns:1fr;gap:.4rem;padding:1.2rem 0}
   .pipeline-row{flex-direction:column}
   .pipe-arr{transform:rotate(90deg);justify-content:center;padding:.4rem 0}
   .next{grid-template-columns:1fr;width:calc(100% - 2.8rem)}
@@ -294,9 +326,9 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
 <header class="cs-hero">
   <div>
     <a href="index.html" class="back">← All work</a>
-    <p class="eyebrow">Field Operations · Energy Tech · Customer Journey</p>
-    <h1 class="cs-title">Enter —<br><em>Field Intelligence</em></h1>
-    <p class="cs-tagline">A Berlin startup helping German homeowners through energy renovations. I led design on the tool advisors use in the field and on the whole customer journey — from the first doorstep visit to a government-grade retrofit report.</p>
+    <p class="eyebrow">Climate Tech · Field Operations · Customer Journey</p>
+    <h1 class="cs-title"><em>Enter</em></h1>
+    <p class="cs-tagline">A climate-tech startup helping German homeowners plan energy-efficient renovations. I designed the advisor tool used in the field and the customer journey, from the first on-site visit to the official retrofit report.</p>
   </div>
   <div class="meta-grid">
     <div class="meta-item"><label>Role</label><p>Senior Product Designer</p></div>
@@ -320,8 +352,27 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     <p class="lbl">The context</p>
     <h2>Billions in renovation funding.<br>The data to unlock it<br><em>didn't yet exist.</em></h2>
     <div class="two" style="margin-top:1.6rem">
-      <p class="prose">Enter helps German homeowners navigate energetic renovation — insulation, heat pumps, windows, and the government funding that can cover a significant portion of it. The Bundesförderung für effiziente Gebäude offers up to 70% on certain measures, but to access it, homeowners need an iSFP: an individual renovation roadmap produced by a certified energy advisor following an on-site assessment.<br><br>That visit is the critical moment. The quality of data collected on site determines everything — the AI model that calculates energy performance, the retrofit recommendations that come out, and the legal validity of the document produced at the end.</p>
-      <p class="prose">When I joined, advisors were working from paper forms and personal notes. Data was inconsistent and difficult to feed into any automated processing pipeline. There was no proper tool for either side of the interaction — the advisor collecting data in the field, or the homeowner reviewing results and choosing their path forward.<br><br>I led design across <strong>both surfaces</strong>: the tablet-first field tool used during property visits, and the digital customer report advisors used to walk homeowners through their personalised renovation plan.</p>
+      <p class="prose">Enter helps German homeowners navigate energy-efficient renovations, from insulation and heat pumps to new windows and the government funding that can cover much of the cost. Through the Bundesförderung für effiziente Gebäude (BEG), homeowners can receive subsidies of up to 70% for certain measures. To qualify, they need an Individual Renovation Roadmap (iSFP) prepared by a certified energy advisor following an on-site assessment.<br><br>That visit is the foundation of everything that follows: the energy model, the retrofit recommendations it generates, and the official report homeowners need to claim funding.</p>
+      <p class="prose">When I joined, advisors relied on paper forms, handwritten notes, and fragmented workflows. Data was inconsistent, difficult to digitise, and unsuitable for a scalable AI pipeline. There was no dedicated product for advisors collecting information in the field, or for homeowners trying to understand their renovation options and next steps.<br><br>I led the design of <strong>both experiences</strong>: a tablet-first field app that guides energy advisors through on-site assessments, and a digital customer report that helps homeowners understand recommendations, compare renovation scenarios, and move confidently toward funding and implementation.</p>
+    </div>
+  </section>
+
+  <!-- ═══ PIPELINE — the map, before the deep dives ═════════ -->
+  <section class="section r">
+    <p class="lbl">End to end</p>
+    <h2>Field data. AI model.<br>Government document.<br><em>One continuous flow.</em></h2>
+    <div class="pipeline">
+      <div class="pipeline-row">
+        <div class="pipe-node"><div class="pipe-node-t">Field Visit</div><div class="pipe-node-d">Advisor conducts the assessment on site using a tablet</div></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><div class="pipe-node-t">Building Survey</div><div class="pipe-node-d">Rooms, floors, construction materials, windows, heating systems and a detailed floor plan are captured</div></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><div class="pipe-node-t">AI Processing</div><div class="pipe-node-d">The assessment data is analysed to generate the building's energy model and recommended retrofit measures</div></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><div class="pipe-node-t">Customer Report</div><div class="pipe-node-d">The advisor reviews the results with the homeowner: assessment, recommended measures, expected savings and available subsidies</div></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><div class="pipe-node-t">Final iSFP</div><div class="pipe-node-d">The agreed measures are compiled into the official Individual Renovation Roadmap, ready to support government funding applications</div></div>
+      </div>
     </div>
   </section>
 </div>
@@ -333,18 +384,18 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     <div class="two r" style="align-items:start;gap:5rem">
       <div>
         <h2>Everything the advisor needs<br>before they<br><em>knock on the door.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">The appointment screen was where each visit started. Before tapping "Termin starten", advisors saw the client's name and address, a map preview, a rough building size, and quick ways to call ahead or navigate. The iSFP data sat behind a deliberate lock — tapping it started the session and committed the advisor.</p>
-        <p class="prose">Post-completion, the same screen confirmed the data had been submitted — and surfaced the customer report, which had been locked throughout. The report only became available once the advisor had collected every required section of the building survey. <strong>It couldn't be generated until the data it depended on actually existed.</strong></p>
+        <p class="prose" style="margin-bottom:1.4rem">The appointment screen was the starting point for every property visit. Before tapping "Start appointment", advisors could review the homeowner's details, view the property on a map, check the estimated building size, and quickly call the client or open navigation. The iSFP assessment remained intentionally locked. Starting the appointment marked the beginning of the official assessment and unlocked the data collection flow.</p>
+        <p class="prose">Once the assessment data had been uploaded, the same screen reflected the appointment's completion and unlocked the customer report. <strong>It could only be generated after every required section of the survey had been completed and submitted</strong>, so every recommendation rested on a complete, validated dataset.</p>
       </div>
       <!-- Pre-framed phone images — black backgrounds blend into dark band -->
       <div class="phones-pair">
         <div class="phone-col">
-          <img class="device-img" src="Pre-data_capture.png" alt="Pre-appointment briefing screen">
-          <p class="cap">Before — data locked, "Termin starten" visible</p>
+          <img class="device-img" src="Pre-data_capture.png" alt="Pre-appointment briefing screen" loading="lazy">
+          <p class="cap">Before: data locked, "Termin starten" visible</p>
         </div>
         <div class="phone-col">
-          <img class="device-img" src="Post_data_capture.png" alt="Post-completion appointment screen">
-          <p class="cap">After — full data unlocked, iSFP ready</p>
+          <img class="device-img" src="Post_data_capture.png" alt="Post-completion appointment screen" loading="lazy">
+          <p class="cap">After: full data unlocked, iSFP ready</p>
         </div>
       </div>
     </div>
@@ -357,26 +408,25 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     <p class="lbl">Building data capture</p>
     <h2>Every house is different.<br>Every detail <em>matters.</em></h2>
     <div class="two" style="margin-top:1.4rem">
-      <p class="prose">The field tool was structured around the iSFP format — house data, floors and rooms, construction materials, mechanical systems, and exterior. Advisors navigated between tabs, drilling into each floor and room in turn. Nothing was free-text where it could be structured: dropdowns, toggles, and preconfigured options kept data clean and consistent for the AI model downstream.</p>
-      <p class="prose">Each section followed the same pattern: enter data, take photos if relevant, move on. The tab structure meant the advisor always knew where they were in the survey — and exactly what was left. On a 186m² detached house, that gave them a reliable mental model without needing to manage it consciously.</p>
+      <p class="prose">The field tool was structured around the iSFP format: house data, systems, floors and rooms, and construction. Advisors navigated between tabs, drilling into each floor and room in turn. Nothing was free-text where it could be structured: dropdowns, toggles, and preconfigured options kept data clean and consistent for the AI model downstream.</p>
+      <p class="prose">Each section followed the same pattern: enter data, take photos if relevant, move on. The advisor always knew where they were in the survey and exactly what was left. On a 186m² detached house, that mattered.</p>
     </div>
 
-    <div class="flow" style="margin-top:2.5rem">
-      <div class="flow-step"><div class="flow-n">01</div><div class="flow-t">House Data</div><div class="flow-d">Year built, footprint, heating source, living area</div></div>
-      <div class="flow-step"><div class="flow-n">02</div><div class="flow-t">Floors &amp; Rooms</div><div class="flow-d">Each storey: room count, area, windows, heating status</div></div>
-      <div class="flow-step"><div class="flow-n">03</div><div class="flow-t">Construction</div><div class="flow-d">Walls, insulation, roof, basement — materials &amp; U-values</div></div>
-      <div class="flow-step"><div class="flow-n">04</div><div class="flow-t">Systems</div><div class="flow-d">Heating, hot water, ventilation, renewables</div></div>
-      <div class="flow-step"><div class="flow-n">05</div><div class="flow-t">Exterior</div><div class="flow-d">Facade photos, wall type, condition notes</div></div>
+    <div class="flow" style="margin-top:2.5rem;grid-template-columns:repeat(4,1fr)">
+      <div class="flow-step"><div class="flow-n">01</div><div class="flow-t">House Data</div><div class="flow-d">Year built, footprint, energy costs, living area</div></div>
+      <div class="flow-step"><div class="flow-n">02</div><div class="flow-t">Systems</div><div class="flow-d">Heating, hot water, ventilation, renewables</div></div>
+      <div class="flow-step"><div class="flow-n">03</div><div class="flow-t">Floors &amp; Rooms</div><div class="flow-d">Each storey: room count, area, windows, heating status</div></div>
+      <div class="flow-step"><div class="flow-n">04</div><div class="flow-t">Construction</div><div class="flow-d">Walls, insulation, roof, basement: materials &amp; U-values</div></div>
     </div>
 
     <div class="two r" style="margin-top:2.5rem;gap:1.5rem;align-items:start">
       <div>
-        <img class="photo" src="Adding_room_elements.png" alt="Advisor navigating floor list on tablet" style="width:100%;display:block;object-fit:cover;aspect-ratio:3/4;object-position:center top">
-        <p class="cap">Floor and room structure — each storey drilled into in sequence</p>
+        <img class="photo" src="Adding_room_elements.png" alt="Advisor navigating floor list on tablet" style="width:100%;display:block;object-fit:cover;aspect-ratio:3/4;object-position:center top" loading="lazy">
+        <p class="cap">Floor and room structure: each storey drilled into in sequence</p>
       </div>
       <div>
-        <img class="photo" src="Male_hand_pointing_on_tablet_mockup__Mockuuups_Studio_.png" alt="Data review screen" style="width:100%;display:block">
-        <p class="cap">Data confirmation — all building data reviewed before submitting to AI processing</p>
+        <img class="photo" src="Male_hand_pointing_on_tablet_mockup__Mockuuups_Studio_.png" alt="Data review screen" style="width:100%;display:block" loading="lazy">
+        <p class="cap">Data confirmation: all building data reviewed before submitting to AI processing</p>
       </div>
     </div>
   </section>
@@ -389,15 +439,15 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     <div class="two r" style="align-items:start;gap:5rem;margin-bottom:3rem">
       <div>
         <h2>Window-level accuracy.<br>Built into the<br><em>floor plan.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">Windows are one of the most consequential variables in an energy model. Their position, dimensions, and glazing spec all affect the U-value of the surrounding wall — which directly influences which retrofit measures make financial sense and which don't. Getting this wrong skews the whole recommendation downstream.</p>
+        <p class="prose" style="margin-bottom:1.4rem">Windows are one of the most consequential variables in an energy model. Their position, dimensions, and glazing spec all affect the U-value of the surrounding wall, which directly influences which retrofit measures make financial sense and which don't. Getting this wrong skews the whole recommendation downstream.</p>
         <div class="pbox" style="background:rgba(17,17,16,.05)">
-          <p>The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors <strong>place each window directly on the plan</strong> — dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields.</p>
+          <p>The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors <strong>place each window directly on the plan</strong>, dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields.</p>
         </div>
         <p class="prose">The building footprint also served a second purpose: advisors could flag discrepancies between the registered data and what they observed on site, feeding corrections back into the dataset for future visits. Over time, the pre-populated data became more reliable.</p>
       </div>
       <div style="padding-top:1rem">
-        <img class="photo" src="Man_adding_windows_on_tablet.png" alt="Advisor placing window on 2D floor plan" style="aspect-ratio:4/5;object-fit:cover;object-position:center top">
-        <p class="cap" style="margin-top:.6rem">Placing a window on the 2D floor plan — position, size and glazing confirmed in one step</p>
+        <img class="photo" src="Man_adding_windows_on_tablet.png" alt="Advisor placing window on 2D floor plan" style="aspect-ratio:4/5;object-fit:cover;object-position:center top" loading="lazy">
+        <p class="cap" style="margin-top:.6rem">Placing a window on the 2D floor plan: position, size and glazing confirmed in one step</p>
       </div>
     </div>
   </div>
@@ -407,59 +457,104 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
 <div class="dark-band">
   <div class="dark-band-inner">
     <p class="lbl r">The customer report</p>
-    <div class="two r" style="align-items:start;gap:5rem;margin-bottom:3rem">
+    <div class="two r" style="align-items:center;gap:5rem;margin-bottom:3rem">
       <div>
         <h2>Field data becomes<br>a plan a homeowner<br><em>can trust.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">Once the field survey was submitted and the AI had processed the data, the advisor returned for a second session — this time with the homeowner, going through the report together. I designed this side of the product from scratch: a structured digital report that guided the advisor through the conversation and gave the homeowner a clear picture of their options.</p>
-        <p class="prose">The report moved through four stages: current building assessment, projected energy costs, a ranked list of retrofit measures to choose from, and a confirmed selection that compiled directly into the iSFP. At every stage, the numbers traced back to data collected on site — not estimates.</p>
+        <p class="prose" style="margin-bottom:1.4rem">Once the field survey was submitted, the AI processed the assessment data and generated a draft report within seconds. Rather than returning for a second visit, the advisor stayed with the homeowner and used the report immediately to review the findings together.</p>
+        <p class="prose">I designed this part of the product from the ground up: a structured digital report that guided the conversation and helped the homeowner choose between the available retrofit options. Together they confirmed which measures went into the final Individual Renovation Roadmap (iSFP), the document behind the funding application.</p>
       </div>
       <div>
-        <div class="pbox">
-          <p>Choosing measures wasn't just about picking the cheapest option. The report showed <strong>savings potential, payback period, available subsidy, and energy class improvement</strong> — for each measure individually, and combined for any selection. The advisor explained the trade-offs; the tool made the numbers concrete.</p>
+        <!-- Mirrors the report's own opening contents page -->
+        <div class="toc">
+          <p class="toc-lbl">The report</p>
+          <ol class="toc-list">
+            <li>
+              <span class="toc-n">01</span>
+              <span class="toc-t">Future outlook</span>
+              <span class="toc-d">Rising energy costs in the years ahead, and the subsidies available.</span>
+            </li>
+            <li>
+              <span class="toc-n">02</span>
+              <span class="toc-t">Current assessment</span>
+              <span class="toc-d">The property's energy performance today, and its savings potential.</span>
+            </li>
+            <li>
+              <span class="toc-n">03</span>
+              <span class="toc-t">Renovation roadmap</span>
+              <span class="toc-d">Measures reviewed and chosen, ranked by saving, cost and suitability.</span>
+            </li>
+            <li>
+              <span class="toc-n">04</span>
+              <span class="toc-t">Your next steps</span>
+              <span class="toc-d">When the iSFP arrives, and the quote comparison service that follows.</span>
+            </li>
+          </ol>
         </div>
       </div>
     </div>
 
-    <!-- Three key report screens in a simple row -->
-    <div class="report-grid r" style="grid-template-columns:1fr 1fr 1fr;gap:1.5rem">
-      <div class="rg-item">
-        <img class="device-img" src="Report-4-Current_status.png" alt="Current building assessment">
-        <p class="rg-caption">Current assessment — energy class, savings potential and suggested measures</p>
+    <!-- Report walkthrough — four steps, in the order the conversation took them -->
+    <div class="walk">
+      <div class="walk-row r">
+        <div class="walk-media"><img src="Enter-report-1.png" alt="Report screen showing projected energy price development and expected household costs" loading="lazy"></div>
+        <div class="walk-text">
+          <p class="walk-n">Step 01</p>
+          <h3 class="walk-t">The cost of doing nothing</h3>
+          <p class="walk-d">The report opened with energy prices rather than renovation costs. Projected gas, oil and electricity rates ran out to 2064, set against what this household was already spending each year. It gave the rest of the conversation a baseline: not what a retrofit costs, but what standing still costs.</p>
+        </div>
       </div>
-      <div class="rg-item" style="margin-top:2.5rem">
-        <img class="device-img" src="Report-5-Measues.png" alt="Renovation roadmap">
-        <p class="rg-caption">Renovation roadmap — measures ranked by savings, payback and subsidy</p>
+      <div class="walk-row r">
+        <div class="walk-media"><img src="Enter-report-2.png" alt="Report screen showing the current building assessment and energy class" loading="lazy"></div>
+        <div class="walk-text">
+          <p class="walk-n">Step 02</p>
+          <h3 class="walk-t">Where the building stands today</h3>
+          <p class="walk-d">Year built, floor area, heat source and annual consumption, drawn straight from the survey the advisor had completed minutes earlier in the same house. Beside it, the current energy class and the class the building could realistically reach. Homeowners recognised their own property here, which is what made the numbers credible.</p>
+        </div>
       </div>
-      <div class="rg-item">
-        <img class="device-img" src="Report-6-allmeasues-changes.png" alt="Selection confirmed">
-        <p class="rg-caption">Selection confirmed — combined impact and cost after grants</p>
+      <div class="walk-row r">
+        <div class="walk-media"><img src="Enter-report-3.png" alt="Report screen listing all available retrofit measures with rankings" loading="lazy"></div>
+        <div class="walk-text">
+          <p class="walk-n">Step 03</p>
+          <h3 class="walk-t">Every measure, ranked</h3>
+          <p class="walk-d">The AI's full set of recommendations in one table: annual savings, payback period, cost and a recommendation rating for each measure. Ticking a measure updated the totals along the bottom, so the pair could assemble a package and watch the combined saving, energy class and subsidy move as they went.</p>
+        </div>
+      </div>
+      <div class="walk-row r">
+        <div class="walk-media"><img src="Enter-report-4.png" alt="Report screen showing the individual impact of a selected heat pump measure" loading="lazy"></div>
+        <div class="walk-text">
+          <p class="walk-n">Step 04</p>
+          <h3 class="walk-t">What one measure does on its own</h3>
+          <p class="walk-d">Opening a measure showed it in isolation: what it saves, what it costs, the subsidy it attracts, the payback period and the energy class it moves the building to. This was usually where the decision happened.</p>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ PIPELINE ═══════════════════════════════════════════ -->
-<div class="body">
+<!-- ═══ HOW SUCCESS WAS MEASURED ═══════════════════════════ -->
+<div class="body" style="padding-top:0">
   <section class="section r">
-    <p class="lbl">End to end</p>
-    <h2>Field data. AI model.<br>Government document.<br><em>One continuous flow.</em></h2>
-    <p class="prose" style="margin-bottom:1.8rem">The product connected a doorstep visit to a legally valid government output. Designing both sides — field tool and customer report — meant understanding not just what advisors needed to capture, but what the AI model required to compute accurately, what format the iSFP demanded structurally, and what would give a homeowner enough confidence to sign off on a six-figure renovation.</p>
-
-    <div class="pipeline">
-      <div class="pipeline-row">
-        <div class="pipe-node"><div class="pipe-node-t">Field Visit</div><div class="pipe-node-d">Advisor on site with tablet</div></div>
-        <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">Building Survey</div><div class="pipe-node-d">Floors, rooms, materials, 2D plan</div></div>
-        <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">AI Processing</div><div class="pipe-node-d">Energy model from captured data</div></div>
-        <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">Customer Report</div><div class="pipe-node-d">Assessment, roadmap &amp; subsidy plan</div></div>
-        <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">iSFP Document</div><div class="pipe-node-d">Official govt. doc, subsidy-ready</div></div>
+    <p class="lbl">How success was measured</p>
+    <h2>Better outcomes,<br>not <em>more features.</em></h2>
+    <p class="prose">The work was measured by whether it improved the advisor's day and gave homeowners the confidence to make informed renovation decisions.</p>
+    <div class="measures">
+      <div class="measure">
+        <p class="measure-t">Reduction in data errors</p>
+        <p class="measure-d">Improving the accuracy and consistency of the information captured during advisor visits, so the energy model was built on a complete, validated dataset.</p>
+      </div>
+      <div class="measure">
+        <p class="measure-t">Reduction in time on site</p>
+        <p class="measure-d">Helping advisors complete each property assessment more efficiently, without cutting anything the iSFP specification required.</p>
+      </div>
+      <div class="measure">
+        <p class="measure-t">Reduction in time to produce the iSFP</p>
+        <p class="measure-d">Shortening the path from data capture to the final government-ready document, removing the second visit that used to sit in the middle of it.</p>
+      </div>
+      <div class="measure">
+        <p class="measure-t">Increase in retrofit sales</p>
+        <p class="measure-d">Helping homeowners understand the recommendations well enough to make an informed decision about which measures to commit to.</p>
       </div>
     </div>
-
-    <p class="prose">A window placed on a floor plan feeds into the U-value for that wall, which changes the payback period of a window-replacement measure, which shapes whether a homeowner includes it in their selection. That selection becomes the iSFP. Precision in the field — a minute's careful work with the floor plan tool — determined what was possible at the end of the process.</p>
   </section>
 </div>
 
@@ -468,7 +563,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     <div><p class="next-eyebrow">Next project →</p><div class="next-title">Coup<br><em>Mobility</em></div></div>
     <p class="next-sub">Product Designer · Bosch · Fleet Operations</p>
   </div>
-  <div class="next-r"><img class="next-img" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="Coup Mobility"></div>
+  <div class="next-r"><img class="next-img" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="Coup Mobility" loading="lazy"></div>
 </a>
 
 <footer>
