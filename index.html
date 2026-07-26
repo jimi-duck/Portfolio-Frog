@@ -541,6 +541,11 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     ship.y = window.scrollY + window.innerHeight/2;
     ship.vx = 0; ship.vy = 0;
     ship.invuln = INVULN_FRAMES;
+    // death resets the run — score and difficulty back to the start
+    startTime = performance.now();
+    lastDifficultyTick = 0;
+    speedMult = START_SPEED;
+    spawnAsteroids();
   }
 
   function blockClicks(e){
