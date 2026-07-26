@@ -294,9 +294,9 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
 <header class="cs-hero">
   <div>
     <a href="index.html" class="back">← All work</a>
-    <p class="eyebrow">Field Operations · Energy Tech · Customer Journey</p>
-    <h1 class="cs-title">Enter —<br><em>Field Intelligence</em></h1>
-    <p class="cs-tagline">A Berlin startup helping German homeowners through energy renovations. I led design on the tool advisors use in the field and on the whole customer journey — from the first doorstep visit to a government-grade retrofit report.</p>
+    <p class="eyebrow">Enter · Climate Tech · Field Operations</p>
+    <h1 class="cs-title">Energy <em>Transition</em></h1>
+    <p class="cs-tagline">A climate-tech startup helping German homeowners plan energy-efficient renovations. I designed the advisor tool used in the field and the customer journey — from the first on-site visit to the official retrofit report.</p>
   </div>
   <div class="meta-grid">
     <div class="meta-item"><label>Role</label><p>Senior Product Designer</p></div>
@@ -320,11 +320,13 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     <p class="lbl">The context</p>
     <h2>Billions in renovation funding.<br>The data to unlock it<br><em>didn't yet exist.</em></h2>
     <div class="two" style="margin-top:1.6rem">
-      <p class="prose">Enter helps German homeowners navigate energetic renovation — insulation, heat pumps, windows, and the government funding that can cover a significant portion of it. The Bundesförderung für effiziente Gebäude offers up to 70% on certain measures, but to access it, homeowners need an iSFP: an individual renovation roadmap produced by a certified energy advisor following an on-site assessment.<br><br>That visit is the critical moment. The quality of data collected on site determines everything — the AI model that calculates energy performance, the retrofit recommendations that come out, and the legal validity of the document produced at the end.</p>
-      <p class="prose">When I joined, advisors were working from paper forms and personal notes. Data was inconsistent and difficult to feed into any automated processing pipeline. There was no proper tool for either side of the interaction — the advisor collecting data in the field, or the homeowner reviewing results and choosing their path forward.<br><br>I led design across <strong>both surfaces</strong>: the tablet-first field tool used during property visits, and the digital customer report advisors used to walk homeowners through their personalised renovation plan.</p>
+      <p class="prose">Enter helps German homeowners navigate energy-efficient renovations, from insulation and heat pumps to new windows and the government funding that can cover much of the cost. Through the Bundesförderung für effiziente Gebäude (BEG), homeowners can receive subsidies of up to 70% for certain measures. To qualify, they need an Individual Renovation Roadmap (iSFP) prepared by a certified energy advisor following an on-site assessment.<br><br>That visit is the foundation of the entire process. The quality of data captured on site determines everything that follows: the AI model used to calculate energy performance, the retrofit recommendations it generates, and the official report homeowners need to claim funding.</p>
+      <p class="prose">When I joined, advisors relied on paper forms, handwritten notes, and fragmented workflows. Data was inconsistent, difficult to digitise, and unsuitable for a scalable AI pipeline. There was no dedicated product for advisors collecting information in the field, or for homeowners trying to understand their renovation options and next steps.<br><br>I led the design of <strong>both experiences</strong>: a tablet-first field app that guides energy advisors through on-site assessments, and a digital customer report that helps homeowners understand recommendations, compare renovation scenarios, and move confidently toward funding and implementation.</p>
     </div>
   </section>
 </div>
+
+<img src="img/enter-onsite.png" alt="Energy advisor running an on-site appointment with homeowners, tablet in hand" style="display:block;width:calc(100% - 5rem);max-width:860px;height:auto;margin:0 auto 1rem;border-radius:var(--r-lg);box-shadow:0 24px 60px rgba(19,18,16,.09)">
 
 <!-- ═══ APPOINTMENT — DARK BAND ════════════════════════════ -->
 <div class="dark-band">
@@ -333,8 +335,8 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     <div class="two r" style="align-items:start;gap:5rem">
       <div>
         <h2>Everything the advisor needs<br>before they<br><em>knock on the door.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">The appointment screen was where each visit started. Before tapping "Termin starten", advisors saw the client's name and address, a map preview, a rough building size, and quick ways to call ahead or navigate. The iSFP data sat behind a deliberate lock — tapping it started the session and committed the advisor.</p>
-        <p class="prose">Post-completion, the same screen confirmed the data had been submitted — and surfaced the customer report, which had been locked throughout. The report only became available once the advisor had collected every required section of the building survey. <strong>It couldn't be generated until the data it depended on actually existed.</strong></p>
+        <p class="prose" style="margin-bottom:1.4rem">The appointment screen was the starting point for every property visit. Before tapping "Start appointment", advisors could review the homeowner's details, view the property on a map, check the estimated building size, and quickly call the client or open navigation. The iSFP assessment stayed intentionally locked — starting the appointment marked the beginning of the official assessment and unlocked the data-collection flow.</p>
+        <p class="prose">Once the assessment data had been uploaded, the same screen reflected the appointment's completion and unlocked the customer report. Until then, the report remained unavailable. <strong>It could only be generated after every required section of the building survey had been completed and submitted</strong> — ensuring every recommendation was based on a complete, validated dataset.</p>
       </div>
       <!-- Pre-framed phone images — black backgrounds blend into dark band -->
       <div class="phones-pair">
@@ -357,16 +359,15 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     <p class="lbl">Building data capture</p>
     <h2>Every house is different.<br>Every detail <em>matters.</em></h2>
     <div class="two" style="margin-top:1.4rem">
-      <p class="prose">The field tool was structured around the iSFP format — house data, floors and rooms, construction materials, mechanical systems, and exterior. Advisors navigated between tabs, drilling into each floor and room in turn. Nothing was free-text where it could be structured: dropdowns, toggles, and preconfigured options kept data clean and consistent for the AI model downstream.</p>
+      <p class="prose">The field tool was structured around the iSFP format — house data, systems, floors and rooms, and construction. Advisors navigated between tabs, drilling into each floor and room in turn. Nothing was free-text where it could be structured: dropdowns, toggles, and preconfigured options kept data clean and consistent for the AI model downstream.</p>
       <p class="prose">Each section followed the same pattern: enter data, take photos if relevant, move on. The tab structure meant the advisor always knew where they were in the survey — and exactly what was left. On a 186m² detached house, that gave them a reliable mental model without needing to manage it consciously.</p>
     </div>
 
-    <div class="flow" style="margin-top:2.5rem">
-      <div class="flow-step"><div class="flow-n">01</div><div class="flow-t">House Data</div><div class="flow-d">Year built, footprint, heating source, living area</div></div>
-      <div class="flow-step"><div class="flow-n">02</div><div class="flow-t">Floors &amp; Rooms</div><div class="flow-d">Each storey: room count, area, windows, heating status</div></div>
-      <div class="flow-step"><div class="flow-n">03</div><div class="flow-t">Construction</div><div class="flow-d">Walls, insulation, roof, basement — materials &amp; U-values</div></div>
-      <div class="flow-step"><div class="flow-n">04</div><div class="flow-t">Systems</div><div class="flow-d">Heating, hot water, ventilation, renewables</div></div>
-      <div class="flow-step"><div class="flow-n">05</div><div class="flow-t">Exterior</div><div class="flow-d">Facade photos, wall type, condition notes</div></div>
+    <div class="flow" style="margin-top:2.5rem;grid-template-columns:repeat(4,1fr)">
+      <div class="flow-step"><div class="flow-n">01</div><div class="flow-t">House Data</div><div class="flow-d">Year built, footprint, energy costs, living area</div></div>
+      <div class="flow-step"><div class="flow-n">02</div><div class="flow-t">Systems</div><div class="flow-d">Heating, hot water, ventilation, renewables</div></div>
+      <div class="flow-step"><div class="flow-n">03</div><div class="flow-t">Floors &amp; Rooms</div><div class="flow-d">Each storey: room count, area, windows, heating status</div></div>
+      <div class="flow-step"><div class="flow-n">04</div><div class="flow-t">Construction</div><div class="flow-d">Walls, insulation, roof, basement — materials &amp; U-values</div></div>
     </div>
 
     <div class="two r" style="margin-top:2.5rem;gap:1.5rem;align-items:start">
@@ -410,8 +411,8 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     <div class="two r" style="align-items:start;gap:5rem;margin-bottom:3rem">
       <div>
         <h2>Field data becomes<br>a plan a homeowner<br><em>can trust.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">Once the field survey was submitted and the AI had processed the data, the advisor returned for a second session — this time with the homeowner, going through the report together. I designed this side of the product from scratch: a structured digital report that guided the advisor through the conversation and gave the homeowner a clear picture of their options.</p>
-        <p class="prose">The report moved through four stages: current building assessment, projected energy costs, a ranked list of retrofit measures to choose from, and a confirmed selection that compiled directly into the iSFP. At every stage, the numbers traced back to data collected on site — not estimates.</p>
+        <p class="prose" style="margin-bottom:1.4rem">Once the field survey was submitted, the AI processed the assessment data and generated a draft report within seconds. Rather than returning for a second visit, the advisor stayed with the homeowner and used the report immediately to review the findings together.</p>
+        <p class="prose">I designed this part of the product from the ground up: a structured digital report that guided the conversation, explained the property's current energy performance, and helped the homeowner understand the available retrofit options.</p>
       </div>
       <div>
         <div class="pbox">
@@ -420,19 +421,21 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
       </div>
     </div>
 
-    <!-- Three key report screens in a simple row -->
-    <div class="report-grid r" style="grid-template-columns:1fr 1fr 1fr;gap:1.5rem">
-      <div class="rg-item">
+    <p class="prose r" style="max-width:80ch;margin-top:2.4rem">The report walked through the building assessment, projected energy savings and costs, and a prioritised list of recommended renovation measures. Working together, the advisor and homeowner confirmed which measures should go into the final Individual Renovation Roadmap (iSFP). Every recommendation was generated from data collected during the on-site assessment — a direct link between the on-site visit, the AI analysis, and the final government-ready report.</p>
+
+    <!-- Report screens, shown large and readable -->
+    <div class="r" style="margin:3rem auto 0;max-width:900px;display:flex;flex-direction:column;gap:3rem">
+      <div>
         <img class="device-img" src="Report-4-Current_status.png" alt="Current building assessment">
-        <p class="rg-caption">Current assessment — energy class, savings potential and suggested measures</p>
+        <p class="rg-caption" style="text-align:center">Current assessment — energy class, savings potential and suggested measures</p>
       </div>
-      <div class="rg-item" style="margin-top:2.5rem">
+      <div>
         <img class="device-img" src="Report-5-Measues.png" alt="Renovation roadmap">
-        <p class="rg-caption">Renovation roadmap — measures ranked by savings, payback and subsidy</p>
+        <p class="rg-caption" style="text-align:center">Renovation roadmap — measures ranked by savings, payback and subsidy</p>
       </div>
-      <div class="rg-item">
+      <div>
         <img class="device-img" src="Report-6-allmeasues-changes.png" alt="Selection confirmed">
-        <p class="rg-caption">Selection confirmed — combined impact and cost after grants</p>
+        <p class="rg-caption" style="text-align:center">Selection confirmed — combined impact and cost after grants</p>
       </div>
     </div>
   </div>
@@ -443,23 +446,38 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
   <section class="section r">
     <p class="lbl">End to end</p>
     <h2>Field data. AI model.<br>Government document.<br><em>One continuous flow.</em></h2>
-    <p class="prose" style="margin-bottom:1.8rem">The product connected a doorstep visit to a legally valid government output. Designing both sides — field tool and customer report — meant understanding not just what advisors needed to capture, but what the AI model required to compute accurately, what format the iSFP demanded structurally, and what would give a homeowner enough confidence to sign off on a six-figure renovation.</p>
+    <p class="prose" style="margin-bottom:1.8rem">The product connected a doorstep assessment to a legally valid government document. Designing both the field tool and the customer report meant understanding the entire workflow: what advisors needed to capture, what the AI model required to generate accurate recommendations, what the iSFP specification demanded, and what homeowners needed to confidently choose their renovation measures.</p>
 
     <div class="pipeline">
       <div class="pipeline-row">
-        <div class="pipe-node"><div class="pipe-node-t">Field Visit</div><div class="pipe-node-d">Advisor on site with tablet</div></div>
+        <div class="pipe-node"><div class="pipe-node-t">Field Visit</div><div class="pipe-node-d">Advisor conducts the assessment on site using a tablet</div></div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">Building Survey</div><div class="pipe-node-d">Floors, rooms, materials, 2D plan</div></div>
+        <div class="pipe-node"><div class="pipe-node-t">Building Survey</div><div class="pipe-node-d">Rooms, floors, materials, windows, heating and a detailed floor plan are captured</div></div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">AI Processing</div><div class="pipe-node-d">Energy model from captured data</div></div>
+        <div class="pipe-node"><div class="pipe-node-t">AI Processing</div><div class="pipe-node-d">The data is analysed to generate the energy model and recommended measures</div></div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">Customer Report</div><div class="pipe-node-d">Assessment, roadmap &amp; subsidy plan</div></div>
+        <div class="pipe-node"><div class="pipe-node-t">Customer Report</div><div class="pipe-node-d">Advisor and homeowner review the assessment, measures, savings and subsidies</div></div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">iSFP Document</div><div class="pipe-node-d">Official govt. doc, subsidy-ready</div></div>
+        <div class="pipe-node"><div class="pipe-node-t">Final iSFP</div><div class="pipe-node-d">Agreed measures compiled into the official roadmap, ready for funding applications</div></div>
       </div>
     </div>
 
-    <p class="prose">A window placed on a floor plan feeds into the U-value for that wall, which changes the payback period of a window-replacement measure, which shapes whether a homeowner includes it in their selection. That selection becomes the iSFP. Precision in the field — a minute's careful work with the floor plan tool — determined what was possible at the end of the process.</p>
+    <p class="prose">Small details collected in the field had a direct impact on the outcome. A correctly positioned window on the floor plan affected the wall's thermal performance, which influenced the energy model, the recommended measures, the projected payback period, and ultimately whether that measure made it into the homeowner's final iSFP. Every recommendation could be traced back to data captured during the on-site assessment — making accuracy in the field essential to the entire process.</p>
+  </section>
+</div>
+
+<!-- ═══ SUCCESS METRICS ════════════════════════════════════ -->
+<div class="body" style="padding-top:0">
+  <section class="section r">
+    <p class="lbl">Success metrics</p>
+    <h2>How success was <em>measured.</em></h2>
+    <p class="prose" style="margin-bottom:2.2rem">Design decisions were guided by a focused set of measures spanning data quality, advisor efficiency, and business outcomes — the signals the product was built to improve.</p>
+    <div class="two" style="gap:1.4rem">
+      <div class="pbox" style="margin:0"><p><strong>Reduction in data errors</strong><br>Improving the accuracy and consistency of information captured during advisor visits.</p></div>
+      <div class="pbox" style="margin:0"><p><strong>Reduction in time on site</strong><br>Helping advisors complete property assessments more efficiently.</p></div>
+      <div class="pbox" style="margin:0"><p><strong>Faster iSFP turnaround</strong><br>Shortening the path from data capture to the final government-ready document.</p></div>
+      <div class="pbox" style="margin:0"><p><strong>Increase in retrofit sales</strong><br>Helping homeowners understand recommendations and make informed decisions about renovation measures.</p></div>
+    </div>
   </section>
 </div>
 
