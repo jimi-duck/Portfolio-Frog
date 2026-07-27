@@ -172,6 +172,14 @@ h2 em{font-style:italic;color:var(--accent)}
 .report-grid .rg-item.rg-wide{grid-column:1/-1;max-width:70%;margin:0 auto 1rem}
 .report-grid .rg-caption{font-size:.76rem;color:var(--muted);margin-top:.6rem;padding-left:.2rem;line-height:1.5}
 
+/* HOW SUCCESS WAS MEASURED — 2x2 metric cards */
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:1.9rem}
+.mcard{display:flex;align-items:flex-start;gap:18px;background:var(--warm);border-radius:var(--r-sm);padding:28px}
+.mcard-ico{flex:none;width:26px;height:26px;color:var(--accent);margin-top:.15rem}
+.mcard-ico svg{width:100%;height:100%;display:block}
+.mcard p{font-size:.94rem;color:var(--muted);line-height:1.78;margin:0}
+.mcard strong{display:block;font-family:var(--serif);font-weight:400;font-size:1.02rem;line-height:1.35;color:var(--ink);margin-bottom:.5rem}
+
 /* CARDS */
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
 .icard{padding:1.5rem;border-radius:var(--r);background:var(--warm)}
@@ -215,6 +223,8 @@ h2 em{font-style:italic;color:var(--accent)}
   .stat{padding:1.2rem 0}
   .body{padding:3rem 1.4rem}
   .two,.three,.four,.cards,.flow,.sprint{grid-template-columns:1fr}
+  .mgrid{grid-template-columns:1fr;gap:18px}
+  .mcard{padding:22px}
   .flow-step{border-right:none;border-bottom:1px solid var(--border)}
   .flow-step:last-child{border-bottom:none}
   .dark-band,.warm-band{width:calc(100% - 2.8rem);padding:2.6rem 1.6rem}
@@ -362,7 +372,6 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
         </div>
         <p class="prose" style="margin-top:1.4rem">Anything that could be postponed was postponed, and anything not legally required was removed. Every step was introduced with clear context, users knew what information they needed before reaching it, and progress remained visible throughout.</p>
         <p class="prose" style="margin-top:1rem">After registration, users moved straight into fund selection, choosing themes aligned with their values before committing any money: Smart Energy, Clean Water, Circular Economy, and Forestry &amp; Timber. The investment journey started with personal conviction, not financial complexity.</p>
-        <p class="prose" style="margin-top:1rem">Success was measured in two ways: <strong>reducing onboarding drop-off</strong> throughout the regulated journey, and <strong>increasing first investment conversion</strong> by helping more users move confidently from account creation to investing.</p>
       </div>
       <!-- Three phones: register → select themes → invest. All natural sizes, no wrapper backgrounds -->
       <div>
@@ -474,6 +483,28 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     </div>
   </section>
 
+</div>
+
+<!-- ═══ HOW SUCCESS WAS MEASURED ═══════════════════════════ -->
+<div class="body" style="padding-top:0">
+  <section class="section r">
+    <p class="lbl">Product metrics</p>
+    <h2>How success was <em>defined.</em></h2>
+    <div class="mgrid">
+      <article class="mcard">
+        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.4 17.6a9.4 9.4 0 1 1 17.2 0"/><path d="M12 13.6l4-4.2"/><circle cx="12" cy="14.4" r="1.1"/></svg></span>
+        <p><strong>Onboarding completion</strong>Fewer people dropping out of a regulated sign-up they never asked for.</p>
+      </article>
+      <article class="mcard">
+        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.4 8.2h13.2a2 2 0 0 1 2 2v7.6a2 2 0 0 1-2 2H5.4a2 2 0 0 1-2-2z"/><path d="M3.4 8.2V6.4a1.8 1.8 0 0 1 1.8-1.8h9.4"/><circle cx="15" cy="14" r="1.1"/><path d="M20.4 7.2v-4"/><path d="M18.4 5.2l2-2 2 2"/></svg></span>
+        <p><strong>First investment</strong>New accounts going on to invest, not just to look around.</p>
+      </article>
+      <article class="mcard">
+        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4.4c0 8-4.6 12.4-10 12.4a6 6 0 0 1-6-6C4 5.6 12.4 4.4 20 4.4z"/><path d="M4.6 20.2c1.4-4.4 4.4-7.6 8.6-9.6"/></svg></span>
+        <p><strong>Trust in impact data</strong>Sustainability claims people could verify rather than take on faith.</p>
+      </article>
+    </div>
+  </section>
 </div>
 
 <a href="vivy.html" class="next">
