@@ -171,6 +171,14 @@ h2 em{font-style:italic;color:var(--accent)}
 .report-grid .rg-item.rg-wide{grid-column:1/-1;max-width:70%;margin:0 auto 1rem}
 .report-grid .rg-caption{font-size:.76rem;color:var(--muted);margin-top:.6rem;padding-left:.2rem;line-height:1.5}
 
+/* HOW SUCCESS WAS MEASURED — 2x2 metric cards */
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:1.9rem}
+.mcard{display:flex;align-items:flex-start;gap:18px;background:var(--warm);border-radius:var(--r-sm);padding:28px}
+.mcard-ico{flex:none;width:26px;height:26px;color:var(--accent);margin-top:.15rem}
+.mcard-ico svg{width:100%;height:100%;display:block}
+.mcard p{font-size:.94rem;color:var(--muted);line-height:1.78;margin:0}
+.mcard strong{display:block;font-family:var(--serif);font-weight:400;font-size:1.02rem;line-height:1.35;color:var(--ink);margin-bottom:.5rem}
+
 /* CARDS */
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
 .icard{padding:1.5rem;border-radius:var(--r);background:var(--warm)}
@@ -214,6 +222,8 @@ h2 em{font-style:italic;color:var(--accent)}
   .stat{padding:1.2rem 0}
   .body{padding:3rem 1.4rem}
   .two,.three,.four,.cards,.flow,.sprint{grid-template-columns:1fr}
+  .mgrid{grid-template-columns:1fr;gap:18px}
+  .mcard{padding:22px}
   .flow-step{border-right:none;border-bottom:1px solid var(--border)}
   .flow-step:last-child{border-bottom:none}
   .dark-band,.warm-band{width:calc(100% - 2.8rem);padding:2.6rem 1.6rem}
@@ -385,6 +395,28 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     </div>
   </section>
 
+</div>
+
+<!-- ═══ HOW SUCCESS WAS MEASURED ═══════════════════════════ -->
+<div class="body" style="padding-top:0">
+  <section class="section r">
+    <p class="lbl">Product metrics</p>
+    <h2>How success was <em>defined.</em></h2>
+    <div class="mgrid">
+      <article class="mcard">
+        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 3.2h5.9L18.6 7.5V20.8H8.4z"/><path d="M14.3 3.2v4.3h4.3"/><path d="M13.5 11.4v5.2"/><path d="M11.3 14.4l2.2 2.2 2.2-2.2"/></svg></span>
+        <p><strong>Document requests</strong>More requests fulfilled, and honest status on the ones that stalled.</p>
+      </article>
+      <article class="mcard">
+        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.2 3.2v5.2a4 4 0 0 0 8 0V3.2"/><path d="M4.6 3.2h3.2"/><path d="M12.6 3.2h3.2"/><path d="M10.2 12.4v2.8a4.6 4.6 0 0 0 9.2 0v-1.4"/><circle cx="19.4" cy="11.6" r="2.2"/></svg></span>
+        <p><strong>Provider adoption</strong>Practices taking part without changing how they already work.</p>
+      </article>
+      <article class="mcard">
+        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8l7.2 2.8v6c0 4.6-3 8.4-7.2 9.6-4.2-1.2-7.2-5-7.2-9.6v-6z"/><rect x="9.2" y="10.6" width="5.6" height="4.6" rx="1"/><path d="M10.4 10.6V9.2a1.6 1.6 0 0 1 3.2 0v1.4"/></svg></span>
+        <p><strong>Patient trust</strong>People confident enough to keep sensitive records in one place.</p>
+      </article>
+    </div>
+  </section>
 </div>
 
 <a href="index.html" class="backhome">
