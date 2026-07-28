@@ -81,6 +81,15 @@ body.astro-active #astroTipWrap{display:flex}
 #astroScore{position:fixed;left:1.5rem;bottom:1.5rem;z-index:99999;display:none;padding:0;font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#f6f3ed;text-shadow:0 1px 5px rgba(0,0,0,.8);font-variant-numeric:tabular-nums}
 body.astro-active #astroScore{display:block}
 @media(max-width:600px){#astroExit{padding:.5rem .9rem !important}#astroTip{font-size:.64rem;padding:.65rem 1rem}}
+/* ── GAME OVER ── */
+#astroOver{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;pointer-events:auto;cursor:pointer}
+#astroOver.on{display:flex}
+#astroOverCard{text-align:center;padding:2.2rem 2.8rem;background:rgba(8,10,8,.9);border:1px solid rgba(57,255,20,.42);box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 26px rgba(57,255,20,.16);font-family:var(--mono);color:#f6f3ed}
+#astroOverCard .ao-t{font-size:1.05rem;letter-spacing:.18em;text-transform:uppercase;color:#ff7a63;margin-bottom:.9rem}
+#astroOverCard .ao-s{font-size:1.9rem;letter-spacing:.06em;font-variant-numeric:tabular-nums;margin-bottom:1.1rem}
+#astroOverCard .ao-h{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(246,243,237,.6)}
+@media(max-width:600px){#astroOverCard{padding:1.7rem 1.9rem}#astroOverCard .ao-s{font-size:1.5rem}}
+
 /* ── TOUCH CONTROLS — only on coarse-pointer devices ── */
 #astroTouch{position:fixed;inset:0;z-index:99998;display:none;pointer-events:none;touch-action:none}
 html.coarse body.astro-active #astroTouch{display:block}
@@ -458,6 +467,11 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
 <div id="astroTipWrap"><div id="astroTip" class="game-pill">↑ thrust · ←→ rotate · space fire · esc exit</div></div>
 <button id="astroExit" class="game-pill">← Back to site</button>
 <div id="astroScore">Score: 0</div>
+<div id="astroOver"><div id="astroOverCard">
+  <div class="ao-t">Game over</div>
+  <div class="ao-s">Score <span id="astroFinal">0</span></div>
+  <div class="ao-h" id="astroRestartHint">press any key to play again</div>
+</div></div>
 <div id="astroTouch">
   <div id="astroStick"><div id="astroKnob"></div></div>
   <div id="astroFire">FIRE</div>
@@ -494,9 +508,9 @@ document.querySelectorAll('.r').forEach((el,i)=>{
 
   var NOSE_OFFSET = 17;
 
-  var ROT_SPEED = 0.06, THRUST = 0.18, BULLET_SPEED = 9, SHOT_COOLDOWN = 220, MAX_AREA_RATIO = 0.3, BOUNCE = 0.4;
-  var ASTEROID_COUNT = 44, SHIP_RADIUS = 9, INVULN_FRAMES = 60, START_SPEED = 2;
-  var DIFFICULTY_INTERVAL = 7, SPEED_GROWTH = 1.13, SPEED_MULT_CAP = 4.5, MAX_ASTEROIDS = 64;
+  var ROT_SPEED = 0.06, THRUST = 0.18, BULLET_SPEED = 9, SHOT_COOLDOWN = 310, MAX_AREA_RATIO = 0.3, BOUNCE = 0.4;
+  var ASTEROID_COUNT = 44, SHIP_RADIUS = 9, INVULN_FRAMES = 60, START_SPEED = 1.55;
+  var DIFFICULTY_INTERVAL = 9, SPEED_GROWTH = 1.07, SPEED_MULT_CAP = 4.5, MAX_ASTEROIDS = 64;
 
   var active = false, raf = null, keys = {}, lastShot = 0, docH = 0;
   // analog touch input: joystick steers + throttles, fire button shoots
@@ -504,9 +518,18 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   var isCoarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
   var ship, bullets, particles, destroyed, asteroids;
   // alien saucers: occasional, slow-firing, forgiving to dodge
-  var ALIEN_FIRST = 16, ALIEN_INTERVAL = 22, ALIEN_SPEED = 1.5, ALIEN_R = 15;
-  var ALIEN_SHOT_COOLDOWN = 1700, ALIEN_BULLET_SPEED = 3.4, ALIEN_AIM_SPREAD = 0.22, ALIEN_BONUS = 150;
+  var ALIEN_FIRST = 7, ALIEN_SPEED = 1.5, ALIEN_R = 15, ALIEN_BONUS = 150;
+  // saucers ramp with time: they arrive more often, fire faster and aim truer
+  function alienInterval(t){ return Math.max(9,  20   - t * 0.055); }
+  function alienCooldown(t){ return Math.max(950, 1800 - t * 7); }
+  function alienSpread(t){   return Math.max(0.09, 0.26 - t * 0.0012); }
+  function alienBulletSpeed(t){ return Math.min(5.0, 3.1 + t * 0.011); }
+  function alienMax(t){ return t > 75 ? 2 : 1; }
   var aliens = [], alienBullets = [], nextAlienAt = ALIEN_FIRST, bonus = 0;
+  var gameOver = false;
+  var overEl = document.getElementById('astroOver');
+  var finalEl = document.getElementById('astroFinal');
+  var hintEl = document.getElementById('astroRestartHint');
   var speedMult = START_SPEED, startTime = 0, lastDifficultyTick = 0;
 
   function computeDocHeight(){
@@ -534,7 +557,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     }
   }
 
-  function makeAsteroid(){
+  function makeAsteroid(mode){
     var r = 14 + Math.random()*14;
     var n = 8 + Math.floor(Math.random()*3);
     var pts = [];
@@ -543,25 +566,65 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       var rad = r * (0.7 + Math.random()*0.5);
       pts.push([Math.cos(a)*rad, Math.sin(a)*rad]);
     }
-    var ang = Math.random()*Math.PI*2, spd = (0.4 + Math.random()*0.8) * speedMult;
-    return {
-      x: Math.random()*window.innerWidth, y: Math.random()*docH,
-      vx: Math.cos(ang)*spd, vy: Math.sin(ang)*spd,
-      r: r, pts: pts, rot: Math.random()*Math.PI*2, rotSpeed: (Math.random()-0.5)*0.02
-    };
+    var spd = (0.4 + Math.random()*0.8) * speedMult;
+    var top = window.scrollY, vh = window.innerHeight, vw = window.innerWidth;
+    var x, y, vx, vy, entering = false;
+
+    if(mode === 'edge'){
+      // drift in from just outside a screen edge, heading across the view —
+      // nothing ever blinks into existence in front of the player
+      var m = r + 8, side = Math.floor(Math.random()*4);
+      if(side === 0){      x = -m;      y = top + Math.random()*vh; }
+      else if(side === 1){ x = vw + m;  y = top + Math.random()*vh; }
+      else if(side === 2){ x = Math.random()*vw; y = top - m; }
+      else {               x = Math.random()*vw; y = top + vh + m; }
+      var tx = vw * (0.2 + Math.random()*0.6);
+      var ty = top + vh * (0.2 + Math.random()*0.6);
+      var aim = Math.atan2(ty - y, tx - x) + (Math.random()-0.5)*0.7;
+      vx = Math.cos(aim)*spd; vy = Math.sin(aim)*spd;
+      entering = true;
+    } else {
+      // opening field: scattered down the page, but never inside the current view
+      var tries = 0;
+      do {
+        x = Math.random()*vw; y = Math.random()*docH; tries++;
+      } while(tries < 25 && y > top - 60 && y < top + vh + 60);
+      var ang = Math.random()*Math.PI*2;
+      vx = Math.cos(ang)*spd; vy = Math.sin(ang)*spd;
+    }
+
+    return { x:x, y:y, vx:vx, vy:vy, r:r, pts:pts,
+             rot: Math.random()*Math.PI*2, rotSpeed: (Math.random()-0.5)*0.02,
+             entering: entering };
   }
 
   function spawnSafeAsteroid(){
+    // reject openings that send a rock straight down the player's throat
     var a, tries = 0;
-    do { a = makeAsteroid(); tries++; } while(tries < 10 && Math.hypot(a.x-ship.x, a.y-ship.y) < 180);
+    do {
+      a = makeAsteroid('edge'); tries++;
+      var len = Math.hypot(a.vx, a.vy) || 1;
+      var px = ship.x - a.x, py = ship.y - a.y;
+      var t = (px*a.vx + py*a.vy) / (len*len);
+      var miss = t > 0 ? Math.hypot(px - a.vx*t, py - a.vy*t) : Math.hypot(px, py);
+      if(miss > 110) break;
+    } while(tries < 8);
+    return a;
+  }
+
+  function spawnFieldAsteroid(){
+    var a, tries = 0;
+    do { a = makeAsteroid('field'); tries++; } while(tries < 10 && Math.hypot(a.x-ship.x, a.y-ship.y) < 180);
     return a;
   }
 
   function spawnAsteroids(){
     asteroids = [];
-    for(var i=0;i<ASTEROID_COUNT;i++){
-      asteroids.push(spawnSafeAsteroid());
-    }
+    // most of the field sits off-view down the page; a handful fly in from the
+    // edges straight away so the opening screen isn't empty
+    var EDGE_SEED = 9;
+    for(var i=0;i<ASTEROID_COUNT-EDGE_SEED;i++) asteroids.push(spawnFieldAsteroid());
+    for(var j=0;j<EDGE_SEED;j++) asteroids.push(spawnSafeAsteroid());
   }
 
   function spawnAlien(){
@@ -576,28 +639,47 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     });
   }
 
+  function currentScore(){
+    return Math.floor((performance.now() - startTime) / 1000 * 10) + bonus;
+  }
+
   function hitShip(){
-    if(ship.invuln > 0) return;
-    burst(ship.x, ship.y, 16);
-    ship.x = window.innerWidth/2;
-    ship.y = window.scrollY + window.innerHeight/2;
-    ship.vx = 0; ship.vy = 0;
-    ship.invuln = INVULN_FRAMES;
-    // death resets the run — score and difficulty back to the start
+    if(gameOver || ship.invuln > 0) return;
+    burst(ship.x, ship.y, 26);
+    gameOver = true;                    // loop() paints this frame, then stops
+    if(finalEl) finalEl.textContent = currentScore();
+    if(hintEl) hintEl.textContent = isCoarse ? 'tap to play again' : 'press any key to play again';
+    if(overEl) overEl.classList.add('on');
+  }
+
+  // wipe the run back to zero — score, difficulty, rocks and saucers
+  function resetRun(){
+    bullets = []; particles = []; aliens = []; alienBullets = [];
+    bonus = 0; nextAlienAt = ALIEN_FIRST;
+    speedMult = START_SPEED;
     startTime = performance.now();
     lastDifficultyTick = 0;
-    speedMult = START_SPEED;
-    aliens = []; alienBullets = []; bonus = 0; nextAlienAt = ALIEN_FIRST;
+    resetShip();
     spawnAsteroids();
+    if(scoreEl) scoreEl.textContent = 'Score: 0';
+  }
+
+  function restart(){
+    if(!gameOver) return;
+    gameOver = false;
+    if(overEl) overEl.classList.remove('on');
+    resetRun();
+    raf = requestAnimationFrame(loop);
   }
 
   function blockClicks(e){
-    if(e.target.closest('#astroExit')) return;
+    if(e.target.closest('#astroExit') || e.target.closest('#astroOver')) return;
     e.preventDefault(); e.stopPropagation();
   }
 
   function onKeyDown(e){
     if(e.code === 'Escape'){ stop(); return; }
+    if(gameOver){ e.preventDefault(); restart(); return; }
     if(e.code==='ArrowUp'||e.code==='ArrowDown'||e.code==='ArrowLeft'||e.code==='ArrowRight'||e.code==='Space'){
       e.preventDefault();
       keys[e.code] = true;
@@ -624,6 +706,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     knobEl.style.transform = 'translate(' + kx.toFixed(1) + 'px,' + ky.toFixed(1) + 'px)';
   }
   function stickDown(e){
+    if(gameOver){ e.preventDefault(); restart(); return; }
     if(stickId !== null) return;
     stickId = e.pointerId;
     stickEl.classList.add('on');
@@ -640,8 +723,14 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     knobEl.style.transform = '';
   }
 
-  function fireDown(e){ e.preventDefault(); pad.fire = true;  fireEl.classList.add('on'); }
+  function fireDown(e){
+    e.preventDefault();
+    if(gameOver){ restart(); return; }
+    pad.fire = true; fireEl.classList.add('on');
+  }
   function fireUp(e){   e.preventDefault(); pad.fire = false; fireEl.classList.remove('on'); }
+
+  if(overEl) overEl.addEventListener('pointerdown', function(e){ e.preventDefault(); restart(); });
 
   if(stickEl){
     stickEl.addEventListener('pointerdown', stickDown);
@@ -666,7 +755,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
         var sp = Math.hypot(ax.vx, ax.vy);
         if(sp > maxSp){ ax.vx = ax.vx/sp*maxSp; ax.vy = ax.vy/sp*maxSp; }
       });
-      for(var d=0; d<3 && asteroids.length < MAX_ASTEROIDS; d++) asteroids.push(spawnSafeAsteroid());
+      for(var d=0; d<2 && asteroids.length < MAX_ASTEROIDS; d++) asteroids.push(spawnSafeAsteroid());
     }
 
     if(keys.ArrowLeft) ship.angle -= ROT_SPEED;
@@ -703,10 +792,15 @@ document.querySelectorAll('.r').forEach((el,i)=>{
 
     asteroids.forEach(function(ax){
       ax.x += ax.vx; ax.y += ax.vy; ax.rot += ax.rotSpeed;
-      if(ax.x < -ax.r) ax.x = window.innerWidth + ax.r;
-      else if(ax.x > window.innerWidth + ax.r) ax.x = -ax.r;
-      if(ax.y < -ax.r) ax.y = docH + ax.r;
-      else if(ax.y > docH + ax.r) ax.y = -ax.r;
+      if(ax.entering){
+        // hold off wrapping until it has actually made it onto the screen
+        if(ax.x >= -ax.r && ax.x <= window.innerWidth + ax.r) ax.entering = false;
+      } else {
+        if(ax.x < -ax.r) ax.x = window.innerWidth + ax.r;
+        else if(ax.x > window.innerWidth + ax.r) ax.x = -ax.r;
+        if(ax.y < -ax.r) ax.y = docH + ax.r;
+        else if(ax.y > docH + ax.r) ax.y = -ax.r;
+      }
       if(Math.hypot(ship.x-ax.x, ship.y-ax.y) < ax.r + SHIP_RADIUS) hitShip();
     });
 
@@ -768,10 +862,10 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       // bullets pass over the page — the game no longer affects content
     }
 
-    // one saucer at a time, arriving on a timer
-    if(elapsed >= nextAlienAt && aliens.length === 0){
+    // saucers arrive on a timer that tightens as the run goes on
+    if(elapsed >= nextAlienAt && aliens.length < alienMax(elapsed)){
       spawnAlien();
-      nextAlienAt = elapsed + ALIEN_INTERVAL;
+      nextAlienAt = elapsed + alienInterval(elapsed);
     }
 
     for(var ai=aliens.length-1; ai>=0; ai--){
@@ -784,12 +878,13 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       if(Math.hypot(ship.x-al.x, ship.y-al.y) < ALIEN_R + SHIP_RADIUS){
         burst(al.x, al.y, 14); aliens.splice(ai,1); hitShip(); continue;
       }
-      if(now - al.lastShot > ALIEN_SHOT_COOLDOWN){
+      if(now - al.lastShot > alienCooldown(elapsed)){
         al.lastShot = now;
-        var aim = Math.atan2(ship.y-al.y, ship.x-al.x) + (Math.random()-0.5) * 2 * ALIEN_AIM_SPREAD;
+        var sp = alienBulletSpeed(elapsed);
+        var aimA = Math.atan2(ship.y-al.y, ship.x-al.x) + (Math.random()-0.5) * 2 * alienSpread(elapsed);
         alienBullets.push({
           x: al.x, y: al.y,
-          vx: Math.cos(aim) * ALIEN_BULLET_SPEED, vy: Math.sin(aim) * ALIEN_BULLET_SPEED,
+          vx: Math.cos(aimA) * sp, vy: Math.sin(aimA) * sp,
           life: 170
         });
       }
@@ -909,9 +1004,10 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   }
 
   function loop(){
-    if(!active) return;
+    if(!active || gameOver) return;   // a late frame must not keep scoring
     update();
     draw();
+    if(gameOver) return;              // died this frame: paint it, then stop
     raf = requestAnimationFrame(loop);
   }
 
@@ -928,6 +1024,8 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     active = true;
     bullets = []; particles = []; destroyed = []; aliens = []; alienBullets = [];
     bonus = 0; nextAlienAt = ALIEN_FIRST;
+    gameOver = false;
+    if(overEl) overEl.classList.remove('on');
     speedMult = START_SPEED; startTime = performance.now(); lastDifficultyTick = 0;
     resize();
     resetShip();
@@ -960,6 +1058,8 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     window.removeEventListener('keyup', onKeyUp);
     document.removeEventListener('click', blockClicks, true);
     keys = {};
+    gameOver = false;
+    if(overEl) overEl.classList.remove('on');
     pad.mag = 0; pad.fire = false; stickId = null;
     if(knobEl) knobEl.style.transform = '';
     if(fireEl) fireEl.classList.remove('on');
