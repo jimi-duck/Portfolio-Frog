@@ -109,6 +109,7 @@ h2 em{font-style:italic;color:var(--accent)}
 
 /* FLOW STEPS */
 .flow{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:1.8rem 0}
+.flow.cols-4{grid-template-columns:repeat(4,1fr)}
 .flow-step{padding:1.4rem 1.2rem;border-right:1px solid var(--border);background:var(--paper)}
 .flow-step:last-child{border-right:none}
 .flow-n{font-family:var(--mono);font-size:.6rem;color:var(--accent);margin-bottom:.5rem}
@@ -244,7 +245,7 @@ h2 em{font-style:italic;color:var(--accent)}
   .stats.four{grid-template-columns:1fr 1fr}
   .stat{padding:1.2rem 0}
   .body{padding:3rem 1.4rem}
-  .two,.three,.four,.cards,.flow,.sprint{grid-template-columns:1fr}
+  .two,.three,.four,.cards,.flow,.flow.cols-4,.sprint{grid-template-columns:1fr}
   .flow-step{border-right:none;border-bottom:1px solid var(--border)}
   .flow-step:last-child{border-bottom:none}
   .dark-band,.warm-band{width:calc(100% - 2.8rem);padding:2.6rem 1.6rem}
@@ -416,7 +417,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
       <p class="prose">Each section followed the same pattern: enter data, take photos if relevant, move on. The advisor always knew where they were in the survey and exactly what was left. On a 186m² detached house, that mattered.</p>
     </div>
 
-    <div class="flow" style="margin-top:2.5rem;grid-template-columns:repeat(4,1fr)">
+    <div class="flow cols-4" style="margin-top:2.5rem">
       <div class="flow-step"><div class="flow-n">01</div><div class="flow-t">House Data</div><div class="flow-d">Year built, footprint, energy costs, living area</div></div>
       <div class="flow-step"><div class="flow-n">02</div><div class="flow-t">Systems</div><div class="flow-d">Heating, hot water, ventilation, renewables</div></div>
       <div class="flow-step"><div class="flow-n">03</div><div class="flow-t">Floors &amp; Rooms</div><div class="flow-d">Each storey: room count, area, windows, heating status</div></div>
