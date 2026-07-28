@@ -78,7 +78,7 @@ body.astro-active #game-launch{display:none}
 body.astro-active #astroDim,body.astro-active #astroCanvas{display:block}
 body.astro-active #astroExit{display:flex}
 body.astro-active #astroTipWrap{display:flex}
-#astroScore{position:fixed;left:1.5rem;bottom:1.5rem;z-index:99999;display:none;padding:.55rem 1.1rem;font-size:.72rem;letter-spacing:.1em;font-variant-numeric:tabular-nums}
+#astroScore{position:fixed;left:1.5rem;bottom:1.5rem;z-index:99999;display:none;padding:0;font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#f6f3ed;text-shadow:0 1px 5px rgba(0,0,0,.8);font-variant-numeric:tabular-nums}
 body.astro-active #astroScore{display:block}
 @media(max-width:600px){#astroExit{padding:.5rem .9rem !important}#astroTip{font-size:.64rem;padding:.65rem 1rem}}
 /* ── TOUCH CONTROLS — only on coarse-pointer devices ── */
@@ -457,7 +457,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
 <canvas id="astroCanvas"></canvas>
 <div id="astroTipWrap"><div id="astroTip" class="game-pill">↑ thrust · ←→ rotate · space fire · esc exit</div></div>
 <button id="astroExit" class="game-pill">← Back to site</button>
-<div id="astroScore" class="game-pill">Score: 0</div>
+<div id="astroScore">Score: 0</div>
 <div id="astroTouch">
   <div id="astroStick"><div id="astroKnob"></div></div>
   <div id="astroFire">FIRE</div>
@@ -503,6 +503,10 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   var pad = { angle: 0, mag: 0, fire: false };
   var isCoarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
   var ship, bullets, particles, destroyed, asteroids;
+  // alien saucers: occasional, slow-firing, forgiving to dodge
+  var ALIEN_FIRST = 16, ALIEN_INTERVAL = 22, ALIEN_SPEED = 1.5, ALIEN_R = 15;
+  var ALIEN_SHOT_COOLDOWN = 1700, ALIEN_BULLET_SPEED = 3.4, ALIEN_AIM_SPREAD = 0.22, ALIEN_BONUS = 150;
+  var aliens = [], alienBullets = [], nextAlienAt = ALIEN_FIRST, bonus = 0;
   var speedMult = START_SPEED, startTime = 0, lastDifficultyTick = 0;
 
   function computeDocHeight(){
@@ -560,6 +564,18 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     }
   }
 
+  function spawnAlien(){
+    var fromLeft = Math.random() < 0.5;
+    var y = window.scrollY + window.innerHeight * (0.2 + Math.random() * 0.6);
+    aliens.push({
+      x: fromLeft ? -ALIEN_R * 2 : window.innerWidth + ALIEN_R * 2,
+      y: y, baseY: y,
+      vx: (fromLeft ? 1 : -1) * ALIEN_SPEED,
+      t: Math.random() * Math.PI * 2,
+      lastShot: performance.now() + 700   // a beat before it opens fire
+    });
+  }
+
   function hitShip(){
     if(ship.invuln > 0) return;
     burst(ship.x, ship.y, 16);
@@ -571,6 +587,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     startTime = performance.now();
     lastDifficultyTick = 0;
     speedMult = START_SPEED;
+    aliens = []; alienBullets = []; bonus = 0; nextAlienAt = ALIEN_FIRST;
     spawnAsteroids();
   }
 
@@ -639,7 +656,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
 
   function update(){
     var elapsed = (performance.now() - startTime) / 1000;
-    if(scoreEl) scoreEl.textContent = 'Score: ' + Math.floor(elapsed * 10);
+    if(scoreEl) scoreEl.textContent = 'Score: ' + (Math.floor(elapsed * 10) + bonus);
     if(elapsed - lastDifficultyTick >= DIFFICULTY_INTERVAL){
       lastDifficultyTick += DIFFICULTY_INTERVAL;
       speedMult = Math.min(speedMult * SPEED_GROWTH, SPEED_MULT_CAP);
@@ -722,6 +739,20 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       if(b.life<=0 || b.x<0 || b.x>window.innerWidth || b.y<0 || b.y>docH){
         bullets.splice(i,1); continue;
       }
+      var hitAlien = false;
+      for(var m=aliens.length-1;m>=0;m--){
+        var al2 = aliens[m];
+        if(Math.hypot(b.x-al2.x, b.y-al2.y) < ALIEN_R){
+          burst(al2.x, al2.y, 18);
+          aliens.splice(m,1);
+          bullets.splice(i,1);
+          bonus += ALIEN_BONUS;
+          hitAlien = true;
+          break;
+        }
+      }
+      if(hitAlien) continue;
+
       var hitRock = false;
       for(var k=asteroids.length-1;k>=0;k--){
         var ax = asteroids[k];
@@ -735,6 +766,40 @@ document.querySelectorAll('.r').forEach((el,i)=>{
         }
       }
       // bullets pass over the page — the game no longer affects content
+    }
+
+    // one saucer at a time, arriving on a timer
+    if(elapsed >= nextAlienAt && aliens.length === 0){
+      spawnAlien();
+      nextAlienAt = elapsed + ALIEN_INTERVAL;
+    }
+
+    for(var ai=aliens.length-1; ai>=0; ai--){
+      var al = aliens[ai];
+      al.t += 0.03;
+      al.x += al.vx;
+      al.y = al.baseY + Math.sin(al.t) * 26;
+      // drifted off the far side
+      if(al.vx > 0 ? al.x > window.innerWidth + ALIEN_R*3 : al.x < -ALIEN_R*3){ aliens.splice(ai,1); continue; }
+      if(Math.hypot(ship.x-al.x, ship.y-al.y) < ALIEN_R + SHIP_RADIUS){
+        burst(al.x, al.y, 14); aliens.splice(ai,1); hitShip(); continue;
+      }
+      if(now - al.lastShot > ALIEN_SHOT_COOLDOWN){
+        al.lastShot = now;
+        var aim = Math.atan2(ship.y-al.y, ship.x-al.x) + (Math.random()-0.5) * 2 * ALIEN_AIM_SPREAD;
+        alienBullets.push({
+          x: al.x, y: al.y,
+          vx: Math.cos(aim) * ALIEN_BULLET_SPEED, vy: Math.sin(aim) * ALIEN_BULLET_SPEED,
+          life: 170
+        });
+      }
+    }
+
+    for(var q=alienBullets.length-1; q>=0; q--){
+      var ab = alienBullets[q];
+      ab.x += ab.vx; ab.y += ab.vy; ab.life--;
+      if(ab.life<=0 || ab.x<0 || ab.x>window.innerWidth || ab.y<0 || ab.y>docH){ alienBullets.splice(q,1); continue; }
+      if(Math.hypot(ab.x-ship.x, ab.y-ship.y) < SHIP_RADIUS + 3){ alienBullets.splice(q,1); hitShip(); }
     }
 
     for(var j=particles.length-1;j>=0;j--){
@@ -765,6 +830,34 @@ document.querySelectorAll('.r').forEach((el,i)=>{
       ctx.shadowBlur = 12;
       ctx.lineWidth = 1.7;
       ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    });
+
+    aliens.forEach(function(al){
+      ctx.save();
+      ctx.translate(al.x, al.y - camY);
+      // dark outline first, then the neon pass — same treatment as the asteroids
+      ctx.strokeStyle = 'rgba(2,16,18,.6)';
+      ctx.lineWidth = 3.4;
+      ctx.beginPath(); ctx.ellipse(0, 2, ALIEN_R, ALIEN_R*0.42, 0, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, -1, ALIEN_R*0.5, Math.PI, 0); ctx.stroke();
+      ctx.strokeStyle = '#7fe3ec';
+      ctx.shadowColor = '#7fe3ec';
+      ctx.shadowBlur = 12;
+      ctx.lineWidth = 1.7;
+      ctx.beginPath(); ctx.ellipse(0, 2, ALIEN_R, ALIEN_R*0.42, 0, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, -1, ALIEN_R*0.5, Math.PI, 0); ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    });
+
+    alienBullets.forEach(function(ab){
+      ctx.save();
+      ctx.fillStyle = '#ff7a63';
+      ctx.shadowColor = '#ff5a46';
+      ctx.shadowBlur = 10;
+      ctx.beginPath(); ctx.arc(ab.x, ab.y - camY, 3, 0, Math.PI*2); ctx.fill();
       ctx.shadowBlur = 0;
       ctx.restore();
     });
@@ -833,7 +926,8 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   function start(){
     if(active) return;
     active = true;
-    bullets = []; particles = []; destroyed = [];
+    bullets = []; particles = []; destroyed = []; aliens = []; alienBullets = [];
+    bonus = 0; nextAlienAt = ALIEN_FIRST;
     speedMult = START_SPEED; startTime = performance.now(); lastDifficultyTick = 0;
     resize();
     resetShip();
