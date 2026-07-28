@@ -81,6 +81,23 @@ body.astro-active #astroTipWrap{display:flex}
 #astroScore{position:fixed;left:1.5rem;bottom:1.5rem;z-index:99999;display:none;padding:.55rem 1.1rem;font-size:.72rem;letter-spacing:.1em;font-variant-numeric:tabular-nums}
 body.astro-active #astroScore{display:block}
 @media(max-width:600px){#astroExit{padding:.5rem .9rem !important}#astroTip{font-size:.64rem;padding:.65rem 1rem}}
+/* ── TOUCH CONTROLS — only on coarse-pointer devices ── */
+#astroTouch{position:fixed;inset:0;z-index:99998;display:none;pointer-events:none;touch-action:none}
+html.coarse body.astro-active #astroTouch{display:block}
+#astroStick,#astroFire{position:absolute;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#astroStick{left:1.5rem;bottom:1.9rem;width:138px;height:138px;border-radius:50%;background:rgba(8,10,8,.5);border:1px solid rgba(57,255,20,.3);box-shadow:inset 0 0 26px rgba(57,255,20,.1),0 8px 26px rgba(0,0,0,.45)}
+#astroKnob{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:rgba(57,255,20,.2);border:1px solid rgba(57,255,20,.65);box-shadow:0 0 18px rgba(57,255,20,.35);pointer-events:none;transition:transform .07s linear}
+#astroStick.on #astroKnob{background:rgba(57,255,20,.34);box-shadow:0 0 26px rgba(57,255,20,.6)}
+#astroFire{right:1.5rem;bottom:2.4rem;width:104px;height:104px;border-radius:50%;display:grid;place-items:center;background:rgba(20,6,6,.55);border:1px solid rgba(255,90,70,.5);color:#ffb4a6;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;box-shadow:inset 0 0 26px rgba(255,90,70,.12),0 8px 26px rgba(0,0,0,.45)}
+#astroFire.on{background:rgba(255,90,70,.3);color:#fff;box-shadow:0 0 30px rgba(255,90,70,.6)}
+/* joystick sits where the score normally does — move it out of the way */
+html.coarse body.astro-active #astroScore{bottom:auto;top:1.5rem;left:1.5rem}
+html.coarse body.astro-active #astroTipWrap{top:4.6rem}
+/* stop touch-scrolling fighting the camera, and kill pull-to-refresh */
+body.astro-active{overscroll-behavior:none}
+html.coarse body.astro-active{touch-action:none}
+/* the Play launcher is desktop-only above; bring it back for touch */
+html.coarse body:not(.astro-active) #game-launch{display:inline-flex}
 /* SECTION BASICS */
 .sec{padding-top:5.5rem;padding-bottom:5.5rem}
 .sec-label{font-family:var(--sans);font-weight:500;font-size:.86rem;color:var(--muted);margin-bottom:2.6rem;display:flex;align-items:center;gap:1.1rem}
@@ -441,6 +458,10 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
 <div id="astroTipWrap"><div id="astroTip" class="game-pill">↑ thrust · ←→ rotate · space fire · esc exit</div></div>
 <button id="astroExit" class="game-pill">← Back to site</button>
 <div id="astroScore" class="game-pill">Score: 0</div>
+<div id="astroTouch">
+  <div id="astroStick"><div id="astroKnob"></div></div>
+  <div id="astroFire">FIRE</div>
+</div>
 
 <script>
 const cur=document.getElementById('cur');
@@ -478,6 +499,9 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   var DIFFICULTY_INTERVAL = 7, SPEED_GROWTH = 1.13, SPEED_MULT_CAP = 4.5, MAX_ASTEROIDS = 64;
 
   var active = false, raf = null, keys = {}, lastShot = 0, docH = 0;
+  // analog touch input: joystick steers + throttles, fire button shoots
+  var pad = { angle: 0, mag: 0, fire: false };
+  var isCoarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
   var ship, bullets, particles, destroyed, asteroids;
   var speedMult = START_SPEED, startTime = 0, lastDifficultyTick = 0;
 
@@ -564,6 +588,55 @@ document.querySelectorAll('.r').forEach((el,i)=>{
   }
   function onKeyUp(e){ keys[e.code] = false; }
 
+  // ── touch pads ──
+  var stickEl = document.getElementById('astroStick');
+  var knobEl  = document.getElementById('astroKnob');
+  var fireEl  = document.getElementById('astroFire');
+  var stickId = null;
+
+  function stickTo(e){
+    var r = stickEl.getBoundingClientRect();
+    var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    var dx = e.clientX - cx, dy = e.clientY - cy;
+    var max = r.width / 2 - 14;
+    var dist = Math.hypot(dx, dy);
+    pad.angle = Math.atan2(dy, dx);
+    pad.mag = max > 0 ? Math.min(1, dist / max) : 0;
+    var kx = Math.cos(pad.angle) * pad.mag * max;
+    var ky = Math.sin(pad.angle) * pad.mag * max;
+    knobEl.style.transform = 'translate(' + kx.toFixed(1) + 'px,' + ky.toFixed(1) + 'px)';
+  }
+  function stickDown(e){
+    if(stickId !== null) return;
+    stickId = e.pointerId;
+    stickEl.classList.add('on');
+    try { stickEl.setPointerCapture(e.pointerId); } catch(err){}
+    e.preventDefault();
+    stickTo(e);
+  }
+  function stickMove(e){ if(e.pointerId !== stickId) return; e.preventDefault(); stickTo(e); }
+  function stickUp(e){
+    if(e.pointerId !== stickId) return;
+    stickId = null;
+    pad.mag = 0;
+    stickEl.classList.remove('on');
+    knobEl.style.transform = '';
+  }
+
+  function fireDown(e){ e.preventDefault(); pad.fire = true;  fireEl.classList.add('on'); }
+  function fireUp(e){   e.preventDefault(); pad.fire = false; fireEl.classList.remove('on'); }
+
+  if(stickEl){
+    stickEl.addEventListener('pointerdown', stickDown);
+    stickEl.addEventListener('pointermove', stickMove);
+    stickEl.addEventListener('pointerup', stickUp);
+    stickEl.addEventListener('pointercancel', stickUp);
+    fireEl.addEventListener('pointerdown', fireDown);
+    fireEl.addEventListener('pointerup', fireUp);
+    fireEl.addEventListener('pointercancel', fireUp);
+    fireEl.addEventListener('pointerleave', fireUp);
+  }
+
   function update(){
     var elapsed = (performance.now() - startTime) / 1000;
     if(scoreEl) scoreEl.textContent = 'Score: ' + Math.floor(elapsed * 10);
@@ -581,10 +654,25 @@ document.querySelectorAll('.r').forEach((el,i)=>{
 
     if(keys.ArrowLeft) ship.angle -= ROT_SPEED;
     if(keys.ArrowRight) ship.angle += ROT_SPEED;
-    ship.thrusting = !!keys.ArrowUp;
+
+    // joystick: rotate toward the stick direction rather than snapping to it,
+    // so the ship still feels like it turns
+    if(pad.mag > 0.18){
+      var da = pad.angle - ship.angle;
+      while(da >  Math.PI) da -= Math.PI * 2;
+      while(da < -Math.PI) da += Math.PI * 2;
+      var step = ROT_SPEED * 1.7;
+      ship.angle += Math.max(-step, Math.min(step, da));
+    }
+
+    // throttle is proportional to how far the stick is pushed
+    var thrustAmt = 0;
+    if(keys.ArrowUp) thrustAmt = 1;
+    else if(pad.mag > 0.3) thrustAmt = Math.min(1, (pad.mag - 0.3) / 0.55);
+    ship.thrusting = thrustAmt > 0;
     if(ship.thrusting){
-      ship.vx += Math.cos(ship.angle) * THRUST;
-      ship.vy += Math.sin(ship.angle) * THRUST;
+      ship.vx += Math.cos(ship.angle) * THRUST * thrustAmt;
+      ship.vy += Math.sin(ship.angle) * THRUST * thrustAmt;
     }
     ship.vx *= 0.98; ship.vy *= 0.98;
 
@@ -618,7 +706,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     }
 
     var now = performance.now();
-    if(keys.Space && now - lastShot > SHOT_COOLDOWN){
+    if((keys.Space || pad.fire) && now - lastShot > SHOT_COOLDOWN){
       lastShot = now;
       bullets.push({
         x: ship.x + Math.cos(ship.angle)*NOSE_OFFSET, y: ship.y + Math.sin(ship.angle)*NOSE_OFFSET,
@@ -752,7 +840,12 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     spawnAsteroids();
     document.body.classList.add('astro-active');
     document.documentElement.style.scrollBehavior = 'auto';
+    pad.mag = 0; pad.fire = false;
+    if(knobEl) knobEl.style.transform = '';
+    if(fireEl) fireEl.classList.remove('on');
+    if(isCoarse && tipEl) tipEl.textContent = 'drag to steer · hold fire · ← back to site';
     window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', resize);
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
     document.addEventListener('click', blockClicks, true);
@@ -768,10 +861,15 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     document.body.classList.remove('astro-active');
     document.documentElement.style.scrollBehavior = '';
     window.removeEventListener('resize', resize);
+    window.removeEventListener('orientationchange', resize);
     window.removeEventListener('keydown', onKeyDown);
     window.removeEventListener('keyup', onKeyUp);
     document.removeEventListener('click', blockClicks, true);
     keys = {};
+    pad.mag = 0; pad.fire = false; stickId = null;
+    if(knobEl) knobEl.style.transform = '';
+    if(fireEl) fireEl.classList.remove('on');
+    if(stickEl) stickEl.classList.remove('on');
     ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     destroyed.forEach(function(el){
       el.style.transition = '';
@@ -782,6 +880,7 @@ document.querySelectorAll('.r').forEach((el,i)=>{
     destroyed = [];
   }
 
+  if(isCoarse) document.documentElement.classList.add('coarse');
   avail.addEventListener('click', start);
   exitBtn.addEventListener('click', stop);
   var playLink = document.getElementById('play-game');
