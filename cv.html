@@ -138,13 +138,44 @@
       .col-right { border-top: 1px solid var(--border); padding-top: 2.5rem; }
       .tools { grid-template-columns: repeat(5, 1fr); }
     }
+    /* ── PRINT SHEET (A4) — hidden on screen, replaces the page when printing ── */
+    .print-cv { display: none; }
+    .print-cv, .print-cv * { box-sizing: border-box; }
+
+    @page { size: A4; margin: 0; }
+
     @media print {
-      body { background: white; font-size: 14px; cursor: auto; }
-      #cur { display: none; }
-      nav { display: none; }
-      .page { padding-top: 0; padding-bottom: 0; }
-      .body-grid { grid-template-columns: 1fr 220px; }
+      html, body { background: #fff; margin: 0; padding: 0; cursor: auto; }
+      /* hide the on-screen CV entirely */
+      body > *:not(.print-cv) { display: none !important; }
+      .print-cv { display: block; }
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
+
+    .print-cv {
+      --pr-ink:#000; --pr-mid:#5e5e5e; --pr-soft:#545454; --pr-label:#404040;
+      --pr-rule:#e8e8e8; --pr-rule-mid:#c6c6c6; --pr-rule-hard:#b2b2b2;
+      font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; color:var(--pr-ink); background:#fff;
+    }
+    .print-cv a { color:var(--pr-ink); text-decoration:none; }
+    .pr-page { width:210mm; min-height:297mm; padding:46px 46px 38px; display:flex; flex-direction:column; background:#fff; }
+    .pr-head { display:grid; grid-template-columns:1fr 240px; gap:24px; align-items:end;
+               border-bottom:3px solid var(--pr-ink); padding-bottom:13px; }
+    .pr-name { font-size:56px; font-weight:700; letter-spacing:-.035em; line-height:.92; }
+    .pr-meta { font-size:11px; line-height:1.6; text-transform:uppercase; letter-spacing:.08em; text-align:right; }
+    .pr-summary { padding:18px 0 22px; border-bottom:1px solid var(--pr-ink);
+                  font-size:17px; line-height:1.4; letter-spacing:-.012em; max-width:62ch; }
+    .pr-colhead { display:grid; grid-template-columns:150px 1fr 240px; gap:0 18px;
+                  font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--pr-label);
+                  padding:11px 0 9px; border-bottom:1px solid var(--pr-rule-mid); }
+    .pr-row { display:grid; grid-template-columns:150px 1fr 240px; gap:0 18px; padding:13px 0; break-inside:avoid; }
+    .pr-date { font-size:11.5px; letter-spacing:-.01em; padding-top:3px; }
+    .pr-co { font-size:15px; font-weight:700; letter-spacing:-.02em; }
+    .pr-role { font-size:12px; color:var(--pr-mid); margin-top:2px; }
+    .pr-about { font-size:11.5px; line-height:1.5; color:var(--pr-soft); padding-top:3px; }
+    .pr-foot { display:grid; grid-template-columns:repeat(4,1fr); gap:22px; padding-top:22px; margin-top:auto; }
+    .pr-foot-h { font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--pr-label); margin-bottom:8px; }
+    .pr-foot-b { font-size:11.5px; line-height:1.7; }
   
 @media(max-width:560px){
   .nav-inner{padding:.9rem 1rem}
@@ -229,7 +260,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
           <div class="job">
             <div class="job-hd">
               <span class="job-co">Enter · baupal GmbH</span>
-              <span class="job-dates">Jul 2024 – Jan 2026</span>
+              <span class="job-dates">Jul 2024 – Feb 2026</span>
             </div>
             <div class="job-role">Senior Product Designer</div>
             <p class="job-desc">Led product design for a Berlin energy consultancy, redesigning the <strong>end-to-end retrofit journey</strong> across customer and operational touchpoints.</p>
@@ -243,7 +274,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
           <div class="job">
             <div class="job-hd">
               <a class="job-co" href="https://web.archive.org/web/20220301162614if_/http://www.coolerfuture.com/" target="_blank">Cooler Future</a>
-              <span class="job-dates">Jul 2021 – Jan 2023</span>
+              <span class="job-dates">Jul 2021 – May 2023</span>
             </div>
             <div class="job-role">Lead Product Designer</div>
             <p class="job-desc">Founding designer at a climate fintech making sustainable investing accessible from as little as <strong>€20</strong>.</p>
@@ -257,9 +288,9 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
           <div class="job">
             <div class="job-hd">
               <a class="job-co" href="https://www.somethingcreative.de/" target="_blank">Something Creative</a>
-              <span class="job-dates">Jan 2021 – Jul 2021</span>
+              <span class="job-dates">Feb 2021 – Jul 2021</span>
             </div>
-            <div class="job-role">Product Designer</div>
+            <div class="job-role">Senior Product Designer</div>
             <p class="job-desc">Worked with organisations across multiple industries to improve products and services.</p>
             <ul class="bullets">
               <li>Facilitated discovery workshops and user research.</li>
@@ -271,9 +302,9 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
           <div class="job">
             <div class="job-hd">
               <a class="job-co" href="https://joincoup.com/en/berlin" target="_blank">Bosch · Coup Mobility</a>
-              <span class="job-dates">Mar 2019 – Oct 2020</span>
+              <span class="job-dates">Mar 2019 – Dec 2020</span>
             </div>
-            <div class="job-role">Product Designer</div>
+            <div class="job-role">Senior Product Designer</div>
             <p class="job-desc">Designed customer and operational products for Bosch's scooter-sharing service across <strong>Berlin, Paris and Madrid</strong>.</p>
             <ul class="bullets">
               <li>Improved operational workflows connecting riders, dispatchers and field workers.</li>
@@ -298,11 +329,11 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
 
           <div class="job">
             <div class="job-hd">
-              <span class="job-co">Freelance Product Designer</span>
-              <span class="job-dates">2016 – 2017</span>
+              <span class="job-co">YunoJuno, Quidco, Suggestv</span>
+              <span class="job-dates">Oct 2016 – Oct 2017</span>
             </div>
-            <div class="job-role">Product Designer</div>
-            <p class="job-desc">Worked with <strong>YunoJuno, Quidco and Suggestv</strong> across product design, UX and front-end development.</p>
+            <div class="job-role">Freelance Product Designer</div>
+            <p class="job-desc">Product design consultant partnering with startups and scale-ups across <strong>consumer and B2B products</strong>.</p>
             <ul class="bullets">
               <li>Delivered research and interface design for consumer and marketplace products.</li>
               <li>Worked directly with founders to validate ideas and improve customer experiences.</li>
@@ -312,7 +343,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
           <div class="job">
             <div class="job-hd">
               <a class="job-co" href="https://CrowdScores.com/" target="_blank">CrowdScores</a>
-              <span class="job-dates">Sep 2015 – Jan 2017</span>
+              <span class="job-dates">Aug 2015 – Jan 2017</span>
             </div>
             <div class="job-role">Product Designer</div>
             <p class="job-desc">Sole designer for a live football scores app covering more than <strong>1,300 weekly matches</strong>.</p>
@@ -331,7 +362,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
             <a class="edu-name" href="http://www.eca.ed.ac.uk/school-of-design/undergraduate/product-design-ba-hons" target="_blank">The University of Edinburgh</a>
             <span class="edu-dates">2011 – 2015</span>
           </div>
-          <div class="edu-degree">BA (Hons) Product Design (2:1)</div>
+          <div class="edu-degree">BA (Hons) Product Design</div>
         </section>
 
       </div>
@@ -441,6 +472,86 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .3
     </div>
 
   </div>
+
+<!-- ═══ PRINT SHEET — single A4 page, shown only when printing ═══ -->
+<div class="print-cv" aria-hidden="true">
+  <section class="pr-page">
+
+    <div class="pr-head">
+      <div class="pr-name">James<br>Ciclitira</div>
+      <div class="pr-meta">
+        <div style="font-weight:700">Product Designer</div>
+        <div>Berlin, DE</div>
+        <div style="margin-top:8px"><a href="https://jciclitira.com">jciclitira.com</a></div>
+        <div><a href="https://linkedin.com/in/jciclitira">linkedin.com/in/jciclitira</a></div>
+      </div>
+    </div>
+
+    <div class="pr-summary">
+      <span style="font-weight:500">Senior Product Designer specialising in service design and complex customer journeys.</span>
+      <span style="color:var(--pr-mid)">I help organisations simplify complicated services by connecting customer needs, operational realities and digital products.</span>
+    </div>
+
+    <div class="pr-colhead">
+      <div>Experience</div><div>Company / Role</div><div>About the Company</div>
+    </div>
+
+    <div>
+      <div class="pr-row" style="border-bottom:1px solid var(--pr-rule)">
+        <div class="pr-date">Jul 2024 – Feb 2026</div>
+        <div><div class="pr-co">Enter · baupal GmbH</div><div class="pr-role">Senior Product Designer</div></div>
+        <div class="pr-about">ClimateTech platform helping homeowners plan and deliver residential retrofit projects.</div>
+      </div>
+      <div class="pr-row" style="border-bottom:1px solid var(--pr-rule)">
+        <div class="pr-date">Jul 2021 – May 2023</div>
+        <div><div class="pr-co">Cooler Future GmbH</div><div class="pr-role">Lead Product Designer</div></div>
+        <div class="pr-about">Sustainable investing platform combining regulated finance with climate impact.</div>
+      </div>
+      <div class="pr-row" style="border-bottom:1px solid var(--pr-rule)">
+        <div class="pr-date">Feb 2021 – Jul 2021</div>
+        <div><div class="pr-co">Something Creative</div><div class="pr-role">Senior Product Designer</div></div>
+        <div class="pr-about">Digital product agency delivering research and design across multiple industries.</div>
+      </div>
+      <div class="pr-row" style="border-bottom:1px solid var(--pr-rule)">
+        <div class="pr-date">Mar 2019 – Dec 2020</div>
+        <div><div class="pr-co">Bosch · Coup Mobility</div><div class="pr-role">Senior Product Designer</div></div>
+        <div class="pr-about">Coup, Bosch's electric scooter sharing service across Berlin, Paris and Madrid.</div>
+      </div>
+      <div class="pr-row" style="border-bottom:1px solid var(--pr-rule)">
+        <div class="pr-date">Oct 2017 – Mar 2019</div>
+        <div><div class="pr-co">Vivy GmbH</div><div class="pr-role">Product Designer</div></div>
+        <div class="pr-about">Allianz-backed digital health platform connecting patients, insurers and healthcare providers.</div>
+      </div>
+      <div class="pr-row" style="border-bottom:1px solid var(--pr-rule)">
+        <div class="pr-date">Oct 2016 – Oct 2017</div>
+        <div><div class="pr-co">YunoJuno, Quidco, Suggestv</div><div class="pr-role">Freelance Product Designer</div></div>
+        <div class="pr-about">Product design consultant partnering with startups and scale-ups across consumer and B2B products.</div>
+      </div>
+      <div class="pr-row" style="border-bottom:1px solid var(--pr-rule)">
+        <div class="pr-date">Aug 2015 – Jan 2017</div>
+        <div><div class="pr-co">CrowdScores</div><div class="pr-role">Product Designer</div></div>
+        <div class="pr-about">Live sports platform helping fans discover and follow real-time matches.</div>
+      </div>
+
+      <div class="pr-colhead" style="padding-top:26px">
+        <div>Education</div><div></div><div></div>
+      </div>
+      <div class="pr-row" style="border-bottom:1px solid var(--pr-rule-hard)">
+        <div class="pr-date">2011 – 2015</div>
+        <div><div class="pr-co">University of Edinburgh</div><div class="pr-role">BA (Hons) Product Design</div></div>
+        <div class="pr-about">Design education grounded in research, materials and human-centred process.</div>
+      </div>
+    </div>
+
+    <div class="pr-foot">
+      <div><div class="pr-foot-h">Strategy</div><div class="pr-foot-b">Product Strategy<br>Service Design<br>Customer Journeys</div></div>
+      <div><div class="pr-foot-h">Execution</div><div class="pr-foot-b">UX Research<br>Interaction Design<br>Prototyping<br>Design Systems</div></div>
+      <div><div class="pr-foot-h">Domains</div><div class="pr-foot-b">ClimateTech<br>Healthcare<br>Enterprise<br>Regulated Products</div></div>
+      <div><div class="pr-foot-h">Languages</div><div class="pr-foot-b">English – Native<br>German – B2 (working proficiency)</div></div>
+    </div>
+
+  </section>
+</div>
 <script>
 const cur=document.getElementById('cur');
 document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
