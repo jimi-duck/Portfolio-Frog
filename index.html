@@ -27,7 +27,6 @@
   <div class="brand"><span>James Ciclitira</span><span class="ct">000</span></div>
 </div>
 
-<div id="cur"></div>
 <div id="prog"></div>
 <div id="gridov"></div>
 <div id="gridhint">Grid · press G</div>
@@ -35,7 +34,7 @@
 <!-- ═══ NAV ═════════════════════════════════════════════════════════════════ -->
 <nav>
   <div class="nav-in edge">
-    <a href="index.html" class="nav-logo"><span class="dot"></span>James Ciclitira</a>
+    <a href="index.html" class="nav-logo">James Ciclitira</a>
     <div class="nav-desk">
       <ol class="nav-links">
         <li><a href="#work"><span class="num">01</span>Work</a></li>
@@ -82,8 +81,7 @@
         <span class="ln"><i>starts with</i></span>
         <span class="ln"><i>questions<span class="red">.</span></i></span>
       </h1>
-      <p class="hero-name r" data-delay="120">James Ciclitira</p>
-      <p class="hero-sub r" data-delay="160">
+      <p class="hero-sub r" data-delay="120">
         Ten years designing digital products for mission-driven companies — end to end,
         across research, strategy and delivery. The work I care most about is the work that
         creates positive impact.
@@ -438,13 +436,14 @@
   <div class="edge">
     <div class="f-bar">
       <span>© 2026 James Ciclitira · Product Designer · Berlin</span>
-      <span class="f-keys">Press <kbd>G</kbd> for the grid · <kbd>P</kbd> to play</span>
+      <span class="f-keys">Press <kbd>G</kbd> for the grid</span>
       <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">Back to top ↑</a>
     </div>
   </div>
 </footer>
 
-<!-- ═══ ASTEROID BLASTER — hidden easter egg, press P ═══════════════════════ -->
+<!-- ═══ ASTEROID BLASTER — launcher button, or press P ══════════════════════ -->
+<button id="game-launch" type="button" aria-label="Play a hidden game"><img src="pacman.gif" alt="" aria-hidden="true" loading="lazy"><span class="gl-t">Play</span></button>
 <div id="astroDim"></div>
 <canvas id="astroCanvas"></canvas>
 <div id="astroTipWrap"><div id="astroTip" class="g-pill">↑ thrust · ←→ rotate · space fire · esc exit</div></div>

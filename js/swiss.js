@@ -6,10 +6,8 @@
   'use strict';
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var fine = window.matchMedia('(pointer: fine)').matches;
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
-  var lerp = function (a, b, n) { return a + (b - a) * n; };
 
   /* ── THEME ─────────────────────────────────────────────────────────────── */
   function theme() {
@@ -68,25 +66,11 @@
     })(t0);
   }
 
-  /* ── CURSOR ────────────────────────────────────────────────────────────── */
-  function cursor() {
-    var el = $('#cur');
-    if (!el || !fine || reduced) return;
-    document.documentElement.classList.add('cursor-on');
-    var tx = innerWidth / 2, ty = innerHeight / 2, x = tx, y = ty;
-    addEventListener('mousemove', function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
-    document.addEventListener('mouseleave', function () { el.classList.add('hide'); });
-    document.addEventListener('mouseenter', function () { el.classList.remove('hide'); });
-    (function loop() {
-      x = lerp(x, tx, 0.32); y = lerp(y, ty, 0.32);
-      el.style.transform = 'translate(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px) translate(-50%,-50%)';
-      requestAnimationFrame(loop);
-    })();
-    document.addEventListener('mouseover', function (e) {
-      var t = e.target.closest('a,button,input,textarea,label,.circ,.cli-c');
-      el.classList.toggle('big', !!t && !e.target.closest('.wrow'));
-    });
-  }
+  /* The custom cursor lived here. It was removed: replacing the system pointer
+     means owning its legibility over every ground the page has — paper, the ink
+     band, the footer, a greyscale portrait — and it took `cursor:none` off the
+     text fields with it. Hover is communicated by the accent swap and the
+     hairline underline already on every link. */
 
   /* ── SCROLL PROGRESS ───────────────────────────────────────────────────── */
   function progress() {
@@ -95,6 +79,8 @@
     var run = function () {
       var h = document.documentElement.scrollHeight - innerHeight;
       el.style.width = (h > 0 ? (scrollY / h) * 100 : 0) + '%';
+      // the game launcher fades in once you are past the hero — see game.css
+      document.body.classList.toggle('scrolled', scrollY > innerHeight * 0.6);
     };
     addEventListener('scroll', run, { passive: true });
     addEventListener('resize', run);
@@ -195,7 +181,7 @@
   /* ── BOOT ──────────────────────────────────────────────────────────────── */
   function boot() {
     document.documentElement.dataset.swiss = '1';
-    theme(); cursor(); progress(); nav(); gridOverlay();
+    theme(); progress(); nav(); gridOverlay();
     intro(reveals);
     addEventListener('load', revealOnScreen);
     // failsafe: never let the curtain trap the page, and never leave content hidden

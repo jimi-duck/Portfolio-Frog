@@ -580,10 +580,11 @@
   exitBtn.addEventListener('click', stop);
   var playLink = document.getElementById('play-game');
   if(playLink) playLink.addEventListener('click', function(e){ e.preventDefault(); start(); });
-  // The game is an easter egg, so it is reached the same way the grid overlay
-  // is — a keypress, hinted quietly in the footer. It used to fade a Play
-  // button into the corner on scroll, which announced it to everyone and read
-  // as an ad for itself against the rest of the page.
+  var launchBtn = document.getElementById('game-launch');
+  if(launchBtn) launchBtn.addEventListener('click', start);
+
+  // Pressing P works as well, so the game is still reachable with the keyboard
+  // alone — the launcher is hidden below 600px and while the game is running.
   window.addEventListener('keydown', function(e){
     if(active) return;
     if(e.key !== 'p' && e.key !== 'P') return;

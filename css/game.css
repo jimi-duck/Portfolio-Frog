@@ -7,8 +7,24 @@
 #astroDim{position:fixed;inset:0;width:100vw;height:100vh;z-index:99996;pointer-events:none;display:none;background:rgba(0,0,0,.86)}
 #astroCanvas{position:fixed;inset:0;width:100vw;height:100vh;z-index:99997;pointer-events:none;display:none}
 
-/* There is no launcher any more. The game is reached by pressing P, hinted in
-   the footer next to the grid overlay's own hint — see js/game.js. */
+/* A quiet marker that rewards noticing: hairline box, greyscale sprite, and a
+   label that only unfolds once you reach for it. Pressing P works too. */
+#game-launch{
+  position:fixed;right:var(--pad);bottom:1.1rem;z-index:99950;
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.5rem .7rem;border:1px solid var(--rule);background:var(--paper);color:var(--mute);
+  font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;
+  opacity:0;transform:translateY(6px);pointer-events:none;cursor:pointer;
+  transition:opacity .5s var(--ez),transform .5s var(--ez),
+             color .3s var(--ez),border-color .3s var(--ez),background .3s var(--ez);
+}
+body.scrolled #game-launch{opacity:1;transform:none;pointer-events:auto;border-color:var(--ink);color:var(--ink)}
+body.scrolled #game-launch:hover{color:var(--paper);background:var(--ink);border-color:var(--ink)}
+#game-launch img{height:17px;width:auto;filter:none;opacity:1}
+#game-launch .gl-t{display:inline-block;white-space:nowrap}
+body.astro-active #game-launch{display:none}
+@media (max-width:600px){#game-launch{display:none}}
+html.coarse body:not(.astro-active) #game-launch{display:inline-flex}
 
 #astroExit{position:fixed;top:1rem;right:var(--pad);z-index:99999;display:none;align-items:center}
 #astroTipWrap{position:fixed;top:1rem;left:0;right:0;z-index:99998;display:none;justify-content:center;pointer-events:none}
@@ -44,4 +60,3 @@ html.coarse body.astro-active #astroScore{bottom:auto;top:1rem;left:var(--pad)}
 html.coarse body.astro-active #astroTipWrap{top:4.2rem}
 body.astro-active{overscroll-behavior:none}
 html.coarse body.astro-active{touch-action:none}
-body.astro-active #cur{opacity:0}
