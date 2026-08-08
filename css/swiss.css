@@ -14,6 +14,7 @@
 :root{
   --paper:#efede7;
   --sheet:#f7f6f2;
+  --warm:#e6e3da;
   --band:#131311;
   --band-ink:#efede7;
   --ink:#131311;
@@ -46,6 +47,7 @@
 :root[data-theme="dark"]{
   --paper:#101010;
   --sheet:#191918;
+  --warm:#1d1d1b;
   --band:#efede7;
   --band-ink:#131311;
   --ink:#efede7;
@@ -111,13 +113,13 @@ em{font-style:italic}
 }
 .circ svg{width:40%;height:40%;position:relative;z-index:1;transition:transform .5s var(--ez);
   stroke-width:1.5}
-a:hover>.circ,button:hover>.circ,.circ:hover{border-color:var(--ink)}
+a:hover>.circ,button:hover>.circ,.circ:hover{border-color:var(--red)}
 .circ::before{
-  content:'';position:absolute;inset:0;background:var(--ink);border-radius:50%;
+  content:'';position:absolute;inset:0;background:var(--red);border-radius:50%;
   transform:scale(0);transition:transform .5s var(--ez);
 }
 a:hover>.circ::before,button:hover>.circ::before,.circ:hover::before{transform:scale(1)}
-a:hover>.circ,button:hover>.circ,.circ:hover{color:var(--paper)}
+a:hover>.circ,button:hover>.circ,.circ:hover{color:#fff}
 a:hover>.circ svg,button:hover>.circ svg,.circ:hover svg{transform:translateX(3px)}
 
 /* Text link with a rule that wipes */
@@ -236,11 +238,17 @@ body.menu-on{overflow:hidden}
 .hero-meta span{padding:.85rem 0;flex:1;border-left:1px solid var(--rule-2)}
 .hero-meta span:first-child{border-left:0;color:var(--ink);font-weight:700}
 .hero-meta span i{font-style:normal;padding-left:1rem}
+/* availability is a status, so it gets the live marker the hero caption used to carry */
+.hero-meta .is-live{color:var(--ink);font-weight:700}
+.hero-meta .is-live i{position:relative}
+.hero-meta .is-live i::before{content:'';position:absolute;left:.1rem;top:50%;width:6px;height:6px;
+  border-radius:50%;background:var(--red);transform:translateY(-50%);animation:pulse 2.4s ease-in-out infinite}
+.hero-meta .is-live i{padding-left:1.7rem}
 .hero-meta span:first-child i{padding-left:0}
 
 .hero-main{flex:1;display:grid;grid-template-columns:1.12fr .88fr;gap:var(--gap);align-items:stretch}
 .hero-l{display:flex;flex-direction:column;justify-content:space-between;gap:1.5rem;padding:clamp(1.4rem,2.8vw,2.6rem) 0 clamp(1.2rem,2.2vw,2rem)}
-.hero-h{--lead:.84;font-size:var(--t-hero);font-weight:700;line-height:.84;letter-spacing:-.048em}
+.hero-h{--lead:.97;font-size:var(--t-hero);font-weight:700;line-height:.97;letter-spacing:-.048em}
 .hero-h .ln{display:block;overflow:hidden}
 .hero-h .ln>i{display:block;font-style:normal}
 .hero-sub{max-width:46ch;color:var(--mute);font-size:var(--t-small);line-height:1.62;margin-top:1.6rem}
@@ -322,7 +330,8 @@ body.menu-on{overflow:hidden}
   position:relative;padding-bottom:.45rem}
 .wproj-cta .cta-t{font-size:var(--t-lab);font-weight:700;text-transform:uppercase;letter-spacing:.17em}
 .wproj-cta .circ{display:none}
-.wproj-cta::before{content:'\2192';font-size:1rem;line-height:1;transition:transform .45s var(--ez)}
+.wproj-cta::before{content:'\2192';font-size:1rem;line-height:1;color:var(--red);
+  transition:transform .45s var(--ez)}
 .wproj-cta::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;
   transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ez)}
 .wproj:hover .wproj-cta::after{transform:scaleX(1);transform-origin:left}
@@ -356,7 +365,7 @@ body.menu-on{overflow:hidden}
 }
 /* ── 13. ABOUT ───────────────────────────────────────────────────────────── */
 .about{display:grid;grid-template-columns:5fr 7fr;gap:clamp(1.5rem,4vw,4.5rem);align-items:start}
-.about-h{--lead:.94;font-size:var(--t-h2);font-weight:700;letter-spacing:-.038em;line-height:.96}
+.about-h{--lead:.97;font-size:var(--t-h2);font-weight:700;letter-spacing:-.038em;line-height:.96}
 .about-body{font-size:var(--t-body);line-height:1.62;color:var(--mute);max-width:60ch}
 .about-body p+p{margin-top:1.1em}
 .about-body strong{color:var(--ink);font-weight:700}
@@ -411,11 +420,13 @@ body.menu-on{overflow:hidden}
 .fmsg.err{color:var(--red)}
 
 /* ── 16. FOOTER ──────────────────────────────────────────────────────────── */
-footer{background:var(--band);color:var(--band-ink);padding-top:clamp(3rem,6vw,6rem);overflow:hidden}
+footer{--red:#ff5b36;--red-ink:#ff5b36;
+  background:var(--band);color:var(--band-ink);padding-top:clamp(3rem,6vw,6rem);overflow:hidden}
+[data-theme="dark"] footer{--red:#c92f12;--red-ink:#c92f12}
 .f-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--gap);
   padding-bottom:clamp(2.5rem,5vw,4.5rem)}
 .f-col h4{font-size:var(--t-lab);letter-spacing:.19em;text-transform:uppercase;font-weight:700;
-  padding-bottom:.9rem;margin-bottom:.9rem;border-bottom:1px solid color-mix(in srgb,var(--band-ink) 26%,transparent)}
+  padding-bottom:.9rem;margin-bottom:.9rem;border-bottom:1px solid var(--red)}
 .f-col a,.f-col p{display:block;font-size:var(--t-small);color:color-mix(in srgb,var(--band-ink) 62%,transparent);padding:.28rem 0;line-height:1.5}
 .f-col a{transition:color .3s}
 .f-col a:hover{color:var(--red)}
@@ -440,7 +451,7 @@ html.js .r.in{opacity:1;transform:none}
    descenders, so each line runs at line-height:1 and the optical leading is
    restored by pulling the following line up with --lead. */
 .rl .ln{display:block;overflow:hidden;line-height:1}
-.rl .ln+.ln{margin-top:calc(var(--lead,.86) * 1em - 1em)}
+.rl .ln+.ln{margin-top:calc(var(--lead,.97) * 1em - 1em)}
 .rl .ln>i{display:block;font-style:normal}
 html.js .rl .ln>i{transform:translateY(110%);transition:transform .95s var(--ez)}
 html.js .rl.in .ln>i{transform:none}
@@ -482,7 +493,10 @@ body.grid-on #gridhint{display:block}
 .back:hover{color:var(--red)}
 .eyebrow{font-size:var(--t-lab);font-weight:700;letter-spacing:.19em;text-transform:uppercase;
   color:var(--red-ink);margin-bottom:1.1rem}
-.cs-title{font-size:var(--t-mega);font-weight:700;line-height:.84;letter-spacing:-.048em;margin-bottom:1.3rem}
+/* Heros measures 0.729em ascender / 0.219em descender, so lines closer than
+   0.948em let a descender collide with the ascender below it — "Coup" over
+   "Mobility" was a direct p-into-l hit. 0.97 keeps it tight and safe. */
+.cs-title{font-size:var(--t-mega);font-weight:700;line-height:.97;letter-spacing:-.048em;margin-bottom:1.3rem}
 .cs-title em{font-style:normal}
 .cs-tagline{font-size:var(--t-small);line-height:1.6;color:var(--mute);max-width:52ch}
 .meta-grid{display:grid;gap:0;border-top:1px solid var(--ink)}
@@ -581,19 +595,18 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    quality that made a lone third card read as deliberate. */
 .mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.9rem,1.6vw,1.5rem);
   margin-top:clamp(1.4rem,2.6vw,1.9rem)}
+/* The live site's card: a warm panel a shade darker than the page, softly
+   rounded, no frame. The only rounded corner in the system, kept because the
+   card reads better this way than as a hard-edged block. */
 .mcard{display:flex;align-items:flex-start;gap:clamp(.9rem,1.4vw,1.15rem);
-  background:var(--sheet);border:1px solid var(--rule-2);
-  padding:clamp(1.3rem,2.4vw,1.75rem);
-  transition:background .4s var(--ez),border-color .4s var(--ez)}
-.mcard:hover{background:var(--paper);border-color:var(--rule)}
+  background:var(--warm);border:0;border-radius:12px;
+  padding:clamp(1.4rem,2.6vw,1.85rem)}
 .mcard-ico{flex:none;width:26px;height:26px;color:var(--red-ink);margin-top:.1rem}
 .mcard-ico svg{width:100%;height:100%;display:block}
 .mcard p{font-size:var(--t-small);line-height:1.72;color:var(--mute);margin:0}
 .mcard strong{display:block;font-size:var(--t-h3);font-weight:700;letter-spacing:-.022em;
   line-height:1.22;color:var(--ink);margin-bottom:.5rem}
-.dark-band .mcard{background:color-mix(in srgb,var(--band-ink) 7%,transparent);
-  border-color:color-mix(in srgb,var(--band-ink) 15%,transparent)}
-.dark-band .mcard:hover{background:color-mix(in srgb,var(--band-ink) 11%,transparent)}
+.dark-band .mcard{background:color-mix(in srgb,var(--band-ink) 8%,transparent)}
 .dark-band .mcard strong{color:var(--band-ink)}
 
 /* bands */
