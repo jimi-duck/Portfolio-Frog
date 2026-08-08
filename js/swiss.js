@@ -95,7 +95,6 @@
     var run = function () {
       var h = document.documentElement.scrollHeight - innerHeight;
       el.style.width = (h > 0 ? (scrollY / h) * 100 : 0) + '%';
-      document.body.classList.toggle('scrolled', scrollY > innerHeight * 0.6);
     };
     addEventListener('scroll', run, { passive: true });
     addEventListener('resize', run);
@@ -128,7 +127,12 @@
         en.target.classList.add('in');
         io.unobserve(en.target);
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+      // A small threshold plus a positive bottom margin fires the reveal just
+      // before the element crosses the fold, so it has finished by the time it
+      // is properly in view. The old -6% margin held it back until the element
+      // was already well inside the viewport, which is how headings ended up
+      // sitting at part opacity while being read.
+    }, { threshold: 0.04, rootMargin: '0px 0px 12% 0px' });
 
     els.forEach(function (el) {
       var d = el.getAttribute('data-delay');

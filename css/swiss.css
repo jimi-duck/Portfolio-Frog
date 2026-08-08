@@ -102,7 +102,14 @@ em{font-style:italic}
    reflective ones (about, contact) run open. */
 .blk{padding-block:clamp(4rem,9vw,9rem)}
 .blk-air{padding-block:clamp(6rem,13vw,13rem)}
+/* For a band that continues the one above it rather than starting a new beat —
+   figures into clients. At full .blk padding that seam opened wider than any
+   real section break on the page. */
+.blk-tight{padding-block:clamp(2.2rem,4.5vw,4rem)}
 .blk-t{border-top:1px solid var(--rule)}
+
+/* Nothing anchored should land under the fixed header. */
+[id]{scroll-margin-top:calc(var(--bar) + clamp(1rem,2.4vw,2.4rem))}
 
 /* Full-bleed ink divider. Used once, above Contact, to break the page into
    three acts — Work / About + Process / Contact. */
@@ -157,11 +164,11 @@ a:hover>.circ svg,button:hover>.circ svg,.circ:hover svg{transform:translateX(3p
   html.cursor-on,html.cursor-on *{cursor:none !important}
   #cur{
     position:fixed;top:0;left:0;z-index:99990;pointer-events:none;
-    width:8px;height:8px;border-radius:50%;background:var(--red);
+    width:8px;height:8px;border-radius:50%;background:var(--ink);
     transform:translate(-50%,-50%);
     transition:width .35s var(--ez),height .35s var(--ez),background .3s,opacity .3s;
   }
-  #cur.big{width:46px;height:46px;background:transparent;border:1px solid var(--red)}
+  #cur.big{width:46px;height:46px;background:transparent;border:1px solid var(--ink)}
   #cur.hide{opacity:0}
 }
 #cur{display:none}
@@ -189,7 +196,11 @@ html.js #intro{display:flex}
 html.introing,html.introing body{overflow:hidden}
 
 /* ── 7. NAV ──────────────────────────────────────────────────────────────── */
-#prog{position:fixed;top:0;left:0;height:2px;background:var(--red);z-index:99988;width:0;pointer-events:none}
+/* Accent budget: the page allows one orange per viewport, and in the work
+   section that one is the case-study number. The progress bar, the brand dot,
+   the cursor and the CTA arrows are all present in every viewport, so they run
+   in ink — five simultaneous oranges is no accent at all. */
+#prog{position:fixed;top:0;left:0;height:2px;background:var(--ink);z-index:99988;width:0;pointer-events:none}
 nav{
   position:fixed;top:0;left:0;right:0;z-index:99980;height:var(--bar);
   display:flex;align-items:center;
@@ -199,11 +210,11 @@ nav{
 }
 .nav-in{width:100%;display:flex;align-items:center;justify-content:space-between;gap:1rem}
 .nav-logo{font-size:.9rem;font-weight:700;letter-spacing:-.028em;white-space:nowrap;display:flex;align-items:center;gap:.5rem}
-.nav-logo .dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex:none}
+.nav-logo .dot{width:7px;height:7px;border-radius:50%;background:var(--ink);flex:none}
 .nav-desk{display:flex;align-items:center;gap:clamp(1rem,2.2vw,2.2rem)}
 .nav-links{display:flex;align-items:center;gap:clamp(1rem,2.2vw,2.2rem);list-style:none}
 .nav-links a{font-size:var(--t-lab);font-weight:700;text-transform:uppercase;letter-spacing:var(--tr-lab);color:var(--ink);position:relative;padding:.35rem 0}
-.nav-links a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--red);transform:scaleX(0);transform-origin:right;transition:transform .45s var(--ez)}
+.nav-links a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:right;transition:transform .45s var(--ez)}
 .nav-links a:hover::after,.nav-links a.on::after{transform:scaleX(1);transform-origin:left}
 .nav-links .num{color:var(--mute);font-weight:400;margin-right:.4em}
 
@@ -270,12 +281,22 @@ body.menu-on{overflow:hidden}
 .hero-meta span:first-child i{padding-left:0}
 
 .hero-main{flex:1;display:grid;grid-template-columns:1.12fr .88fr;gap:var(--gap);align-items:stretch}
-.hero-l{display:flex;flex-direction:column;justify-content:space-between;gap:1.5rem;padding:clamp(1.4rem,2.8vw,2.6rem) 0 clamp(1.2rem,2.2vw,2rem)}
+/* Top-aligned, not space-between. Distributing four items down a 100svh column
+   put a viewport-sized hole between the headline and the paragraph — the taller
+   the screen, the worse it got. The column now reads as one block and the air
+   collects underneath it, where air belongs. */
+.hero-l{display:flex;flex-direction:column;justify-content:flex-start;
+  padding:clamp(1.4rem,2.8vw,2.6rem) 0 clamp(1.8rem,3.4vw,3rem)}
 .hero-h{--lead:.97;font-size:var(--t-hero);font-weight:700;line-height:.97;letter-spacing:-.048em}
 .hero-h .ln{display:block;overflow:hidden}
 .hero-h .ln>i{display:block;font-style:normal}
-.hero-sub{max-width:52ch;color:var(--mute);font-size:var(--t-small);line-height:1.62;margin-top:1.6rem}
-.hero-act{display:flex;align-items:center;gap:1.1rem;margin-top:2rem}
+/* Whose portfolio this is, at a size you can read without hunting the nav. */
+.hero-name{display:block;margin-top:clamp(1.5rem,3vw,2.6rem);
+  padding-top:clamp(.9rem,1.6vw,1.3rem);border-top:1px solid var(--rule);
+  font-size:clamp(1.3rem,2.2vw,2.05rem);font-weight:700;letter-spacing:-.032em;line-height:1.05}
+.hero-sub{max-width:52ch;color:var(--mute);font-size:var(--t-small);line-height:1.62;
+  margin-top:clamp(1.1rem,2vw,1.6rem)}
+.hero-act{display:flex;align-items:center;gap:1.1rem;margin-top:clamp(1.6rem,3vw,2.4rem)}
 .hero-act .cta-t{font-size:var(--t-lab);font-weight:700;text-transform:uppercase;letter-spacing:var(--tr-lab)}
 
 .hero-r{position:relative;border-left:1px solid var(--rule-2);padding-left:var(--gap);display:flex;flex-direction:column}
@@ -295,10 +316,12 @@ body.menu-on{overflow:hidden}
    wallpaper and read as motion for its own sake. Same band, same weight, one
    pass, hairline ticks between terms. */
 .marq{background:var(--band);color:var(--band-ink);padding-block:clamp(1.5rem,3vw,2.6rem)}
+/* Sized so all five terms hold one line at desktop width — the point of a
+   stated list is that you take it in at once. */
 .skills{display:flex;flex-wrap:wrap;align-items:center;list-style:none;
-  gap:clamp(.7rem,1.8vw,1.7rem);
-  font-size:clamp(1.15rem,2.5vw,2.15rem);font-weight:700;letter-spacing:-.032em;line-height:1.25}
-.skills li{display:flex;align-items:center;gap:clamp(.7rem,1.8vw,1.7rem)}
+  gap:clamp(.6rem,1.5vw,1.4rem);
+  font-size:clamp(1.05rem,2vw,1.7rem);font-weight:700;letter-spacing:-.032em;line-height:1.25}
+.skills li{display:flex;align-items:center;gap:clamp(.6rem,1.5vw,1.4rem)}
 .skills li+li::before{content:'';flex:none;width:1px;height:.9em;
   background:color-mix(in srgb,var(--band-ink) 38%,transparent)}
 
@@ -314,16 +337,34 @@ body.menu-on{overflow:hidden}
 .fig-l{margin-top:.9rem;font-size:var(--t-small);color:var(--mute);line-height:1.5;max-width:22ch}
 
 /* ── 11. CLIENT ROW ──────────────────────────────────────────────────────── */
-/* Rules above and below, not a box per logo. One cap height for every mark, so
-   the row reads as a single measured line rather than six framed cells. */
-.cli{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--gap);align-items:center;
+/* Rules above and below, not a box per logo — the row reads as one measured
+   line rather than six framed cells. The ink still wipes up behind a mark on
+   hover; that is the row's one piece of life. */
+.cli{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--gap);align-items:stretch;
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
-  padding-block:clamp(1.8rem,3.6vw,3rem)}
-.cli-c{display:grid;place-items:center}
-.cli-c img{height:clamp(15px,1.6vw,21px);width:auto;object-fit:contain;filter:brightness(0);opacity:.6;
-  transition:opacity .4s var(--ez)}
-[data-theme="dark"] .cli-c img{filter:brightness(0) invert(1);opacity:.6}
-.cli-c:hover img,[data-theme="dark"] .cli-c:hover img{opacity:1}
+  --cli-h:clamp(15px,1.55vw,20px)}
+.cli-c{display:grid;place-items:center;position:relative;overflow:hidden;
+  padding:clamp(1.6rem,3.2vw,2.7rem) .6rem}
+/* Optical sizing, not max-height. Four of these marks ship on a 261x77 artboard
+   with the logo floated inside it, so a single `height` renders Bosch at half
+   the presence of Enter, which is cropped tight. --k is measured ink area: the
+   box height each file needs for its drawn area to match the others. */
+.cli-c img{height:calc(var(--cli-h) * var(--k,1));width:auto;max-width:100%;object-fit:contain;
+  filter:brightness(0);opacity:.62;position:relative;z-index:1;
+  transition:opacity .4s var(--ez),filter .4s var(--ez)}
+.cli-c:nth-child(1){--k:1}      /* Enter — tight crop */
+.cli-c:nth-child(2){--k:1.96}   /* Bosch — most padding on the artboard */
+.cli-c:nth-child(3){--k:1.86}   /* Allianz */
+.cli-c:nth-child(4){--k:1.58}   /* Cooler Future — area includes its sunburst mark,
+                                   so pure area sizing leaves the wordmark short */
+.cli-c:nth-child(5){--k:1.37}   /* YunoJuno */
+.cli-c:nth-child(6){--k:1.07}   /* Quidco — tight crop */
+[data-theme="dark"] .cli-c img{filter:brightness(0) invert(1);opacity:.62}
+.cli-c::before{content:'';position:absolute;inset:0;background:var(--ink);
+  transform:scaleY(0);transform-origin:bottom;transition:transform .45s var(--ez2)}
+.cli-c:hover::before{transform:scaleY(1);transform-origin:top}
+.cli-c:hover img{filter:brightness(0) invert(1);opacity:1}
+[data-theme="dark"] .cli-c:hover img{filter:brightness(0);opacity:1}
 
 /* ── 12a. WORK — alternating editorial slabs, imagery always on ──────────── */
 .wproj{display:block;position:relative;padding-top:1.1rem;
@@ -341,9 +382,16 @@ body.menu-on{overflow:hidden}
   align-items:start;margin-top:clamp(1.4rem,2.8vw,2.6rem)}
 .wproj:nth-child(even) .wproj-fig{order:2}
 
-.wproj-fig{position:relative;overflow:hidden;aspect-ratio:16/9;background:var(--sheet)}
-.wproj-fig img{width:100%;height:100%;object-fit:cover;
+/* Fixed ratio, cover fit. The source images run from 1333x2000 portrait to
+   1600x896 landscape, so the frame has to impose the crop — 3/2 sits closer to
+   the portraits than 16/9 did without letting the landscapes go letterbox. */
+.wproj-fig{position:relative;overflow:hidden;aspect-ratio:3/2;background:var(--sheet)}
+.wproj-fig img{width:100%;height:100%;object-fit:cover;object-position:center;
   filter:grayscale(100%) contrast(1.05);transition:filter .8s var(--ez)}
+/* One exception, matching .hero-img.is-art on the case-study pages: a banner
+   that carries its own typography and logo has nothing spare to crop, so it
+   keeps the ratio it was composed at. */
+.wproj-fig.is-art{aspect-ratio:16/9}
 .wproj:hover .wproj-fig img{filter:grayscale(0%) contrast(1)}
 [data-theme="dark"] .wproj-fig img{filter:grayscale(100%) contrast(1) brightness(.88)}
 [data-theme="dark"] .wproj:hover .wproj-fig img{filter:grayscale(0%) contrast(1) brightness(.94)}
@@ -358,7 +406,7 @@ body.menu-on{overflow:hidden}
 /* Meta row — the emphasis mechanism that replaces bolded runs inside the copy.
    Facts that used to be shouted mid-sentence get a column and a hairline
    instead, which is both more Swiss and easier to scan. */
-.wmeta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 var(--gap);
+.wmeta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 var(--gap);
   width:100%;margin-top:clamp(1.5rem,3vw,2.4rem);border-top:1px solid var(--rule)}
 .wmeta>div{padding-top:.7rem;padding-bottom:.75rem;border-bottom:1px solid var(--rule-2)}
 .wmeta dt{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);line-height:1.3;
@@ -369,7 +417,7 @@ body.menu-on{overflow:hidden}
   position:relative;padding-bottom:.45rem}
 .wproj-cta .cta-t{font-size:var(--t-lab);font-weight:700;text-transform:uppercase;letter-spacing:var(--tr-lab)}
 .wproj-cta .circ{display:none}
-.wproj-cta::before{content:'\2192';font-size:1rem;line-height:1;color:var(--red);
+.wproj-cta::before{content:'\2192';font-size:1rem;line-height:1;color:currentColor;
   transition:transform .45s var(--ez)}
 .wproj-cta::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;
   transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ez)}
@@ -490,7 +538,12 @@ footer{--red:#ff5b36;--red-ink:#ff5b36;
    sets, so a page with JS off renders fully rather than blank. The matching
    .in end states carry the same html.js prefix — otherwise the start state
    out-specifies them and nothing ever reveals. */
-html.js .r{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ez),transform .8s var(--ez)}
+/* Durations are capped deliberately. A reveal exists to introduce content, not
+   to be watched: anything past ~0.6s means a visitor scrolling at a normal pace
+   reads half-opacity text, which looks like a rendering fault rather than
+   motion. Everything here also eases out (--ez), never in — an ease-in curve
+   spends its first third doing almost nothing visible. */
+html.js .r{opacity:0;transform:translateY(16px);transition:opacity .5s var(--ez),transform .5s var(--ez)}
 html.js .r.in{opacity:1;transform:none}
 
 /* Masked lines. The mask must be a full em tall or it shears the ascenders and
@@ -499,14 +552,14 @@ html.js .r.in{opacity:1;transform:none}
 .rl .ln{display:block;overflow:hidden;line-height:1}
 .rl .ln+.ln{margin-top:calc(var(--lead,.97) * 1em - 1em)}
 .rl .ln>i{display:block;font-style:normal}
-html.js .rl .ln>i{transform:translateY(110%);transition:transform .95s var(--ez)}
+html.js .rl .ln>i{transform:translateY(110%);transition:transform .6s var(--ez)}
 html.js .rl.in .ln>i{transform:none}
 .rl .ln:nth-child(1)>i{transition-delay:.02s}
-.rl .ln:nth-child(2)>i{transition-delay:.10s}
-.rl .ln:nth-child(3)>i{transition-delay:.18s}
-.rl .ln:nth-child(4)>i{transition-delay:.26s}
+.rl .ln:nth-child(2)>i{transition-delay:.09s}
+.rl .ln:nth-child(3)>i{transition-delay:.16s}
+.rl .ln:nth-child(4)>i{transition-delay:.23s}
 
-html.js .rw{transform:scaleX(0);transform-origin:left;transition:transform .95s var(--ez)}
+html.js .rw{transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ez)}
 html.js .rw.in{transform:scaleX(1)}
 
 /* Hairline draw-in. The rules that structure the page draw themselves left to
@@ -519,7 +572,7 @@ html.js .rw.in{transform:scaleX(1)}
    prefix or the start state out-specifies it. */
 .sechd::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink)}
 html.js .sechd::after,html.js .wproj::before{transform:scaleX(0);transform-origin:left;
-  transition:transform .6s cubic-bezier(.22,1,.36,1)}
+  transition:transform .5s cubic-bezier(.22,1,.36,1)}
 html.js .sechd.in::after,html.js .wproj.in::before{transform:scaleX(1)}
 /* Staggering is the existing data-delay hook, held to 70ms steps — the sibling
    figures and case-study numbers arrive in sequence and nothing waits longer
@@ -529,9 +582,13 @@ html.js .sechd.in::after,html.js .wproj.in::before{transform:scaleX(1)}
    collapses an element's visual rect makes IntersectionObserver report it as
    not intersecting, so it would never be revealed at all. */
 .rm{overflow:hidden}
-.rm img{transition:clip-path 1.05s var(--ez2),transform 1.2s var(--ez)}
-html.js .rm img{clip-path:inset(0 0 100% 0);transform:scale(1.14)}
-html.js .rm.in img{clip-path:inset(0 0 0 0);transform:scale(var(--imgS,1))}
+/* This one used --ez2 (an ease-in-out) over 1.05s, which meant the frame sat
+   almost entirely masked for the first third of a second — long enough to read
+   as a broken image in an empty box rather than as a wipe. Ease-out, and short
+   enough that the picture is there by the time the eye arrives. */
+.rm img{transition:clip-path .55s var(--ez),transform .7s var(--ez)}
+html.js .rm img{clip-path:inset(0 0 100% 0);transform:scale(1.06)}
+html.js .rm.in img{clip-path:inset(0 0 0 0);transform:scale(1)}
 
 /* ── 18. GRID OVERLAY (press G) ──────────────────────────────────────────── */
 #gridov{position:fixed;inset:0;z-index:99960;pointer-events:none;display:none;
@@ -703,7 +760,10 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    screenshot left acres of empty column beside the short commentary. */
 .walk{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(1.8rem,3.6vw,3.4rem) var(--gap)}
 .walk-row{display:flex;flex-direction:column;border-top:1px solid var(--ink);padding-top:1rem}
-.walk-media{background:var(--sheet);padding:clamp(1rem,2.2vw,1.9rem);margin-bottom:1.1rem}
+/* No plate. These ship as transparent tablet renders carrying their own soft
+   shadow, so a --sheet panel behind them just draws a grey box around empty
+   space — the same reason .device and .img.is-cutout sit unframed. */
+.walk-media{background:none;padding:0;margin-bottom:1.1rem}
 .walk-media img{width:100%;max-width:340px;height:auto;display:block;margin:0 auto}
 .walk-text{padding-right:var(--gap)}
 .walk-d{max-width:48ch}
@@ -804,7 +864,14 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .next{grid-template-columns:1fr;gap:1.6rem}
   .cols-4{grid-template-columns:1fr 1fr}
   .frow{grid-template-columns:1fr}
-  .wmeta{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* three columns of ~110px shred "Senior Product Designer" into three lines,
+     so the meta row becomes label-left / value-right rows like the contact
+     table — the same Swiss device at a width that can carry it */
+  .wmeta{grid-template-columns:1fr}
+  .wmeta>div{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+    padding-top:.6rem;padding-bottom:.65rem}
+  .wmeta dt{margin-bottom:0;flex:none}
+  .wmeta dd{text-align:right}
 }
 @media (max-width:560px){
   .sm-hide{display:none}

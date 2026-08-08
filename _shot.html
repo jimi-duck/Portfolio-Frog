@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>shot harness</title>
+<style>html,body{margin:0;padding:0;background:#fff;overflow:hidden}
+iframe{border:0;display:block;width:100vw;height:100vh}</style>
+</head>
+<body>
+<iframe id="f"></iframe>
+<script>
+(function(){
+  var p = new URLSearchParams(location.search);
+  var y = parseInt(p.get('y') || '0', 10);
+  var theme = p.get('theme') || 'light';
+  var f = document.getElementById('f');
+  var w0 = p.get('w');
+  if (w0) f.style.width = w0 + 'px';
+  try { localStorage.setItem('theme', theme); } catch (e) {}
+  f.addEventListener('load', function(){
+    var w = f.contentWindow, d = f.contentDocument;
+    try { w.sessionStorage.setItem('introSeen','1'); } catch(e){}
+    function settle(){
+      var i = d.querySelector('#intro'); if (i) i.classList.add('done');
+      d.documentElement.classList.remove('introing');
+      d.documentElement.setAttribute('data-theme', theme);
+      // IntersectionObserver inside an iframe measures against the TOP-level
+      // viewport, so anything past the pane height never reveals on its own.
+      d.querySelectorAll('.r,.rl,.rw,.rm').forEach(function(e){ e.classList.add('in'); });
+      d.documentElement.style.scrollBehavior = 'auto';
+      w.scrollTo(0, y);
+    }
+    settle();
+    [200, 700, 1500, 2600, 4000].forEach(function(ms){ setTimeout(settle, ms); });
+    w.addEventListener('load', settle);
+  });
+  f.src = p.get('page') || 'index.html';
+})();
+</script>
+</body>
+</html>
