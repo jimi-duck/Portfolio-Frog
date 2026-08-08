@@ -141,37 +141,6 @@
     });
   }
 
-  /* ── MARQUEE ───────────────────────────────────────────────────────────── */
-  function marquee() {
-    $$('.marq-t').forEach(function (track) {
-      var unit = track.firstElementChild;
-      if (!unit) return;
-      // duplicate until the track is at least twice the viewport
-      var guard = 0;
-      while (track.scrollWidth < innerWidth * 2 && guard++ < 12) {
-        track.appendChild(unit.cloneNode(true));
-      }
-      if (reduced) return;
-      var half = 0, x = 0, base = parseFloat(track.dataset.speed || '0.055'), boost = 0, last = 0;
-      var measure = function () { half = unit.getBoundingClientRect().width; };
-      measure();
-      addEventListener('resize', measure);
-      addEventListener('scroll', function () {
-        var d = scrollY - last; last = scrollY;
-        boost = Math.max(-4, Math.min(4, boost + d * 0.05));
-      }, { passive: true });
-      var prev = performance.now();
-      (function loop(t) {
-        var dt = Math.min(48, t - prev); prev = t;
-        boost *= 0.92;
-        x -= (base + Math.abs(boost) * 0.08) * dt;
-        if (half && x <= -half) x += half;
-        track.style.transform = 'translate3d(' + x.toFixed(2) + 'px,0,0)';
-        requestAnimationFrame(loop);
-      })(prev);
-    });
-  }
-
   /* ── NAV: active section + mobile menu ─────────────────────────────────── */
   function nav() {
     var links = $$('.nav-links a[href^="#"]');
@@ -200,18 +169,29 @@
     var ov = $('#gridov');
     if (!ov) return;
     for (var i = 0; i < 12; i++) ov.appendChild(document.createElement('i'));
+
+    // The overlay is purely visual, so a screen reader gets told about it
+    // instead: an off-screen live region that announces each toggle.
+    var say = document.createElement('div');
+    say.className = 'sr-only';
+    say.setAttribute('role', 'status');
+    say.setAttribute('aria-live', 'polite');
+    document.body.appendChild(say);
+
     addEventListener('keydown', function (e) {
       if (e.key !== 'g' && e.key !== 'G') return;
       var t = e.target.tagName;
-      if (t === 'INPUT' || t === 'TEXTAREA' || e.metaKey || e.ctrlKey) return;
-      document.body.classList.toggle('grid-on');
+      if (t === 'INPUT' || t === 'TEXTAREA' || e.target.isContentEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var on = document.body.classList.toggle('grid-on');
+      say.textContent = on ? '12-column grid overlay shown' : '12-column grid overlay hidden';
     });
   }
 
   /* ── BOOT ──────────────────────────────────────────────────────────────── */
   function boot() {
     document.documentElement.dataset.swiss = '1';
-    theme(); cursor(); progress(); marquee(); nav(); gridOverlay();
+    theme(); cursor(); progress(); nav(); gridOverlay();
     intro(reveals);
     addEventListener('load', revealOnScreen);
     // failsafe: never let the curtain trap the page, and never leave content hidden

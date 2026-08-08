@@ -36,14 +36,16 @@
 <nav>
   <div class="nav-in edge">
     <a href="index.html" class="nav-logo"><span class="dot"></span>James Ciclitira</a>
-    <ul class="nav-links">
-      <li><a href="#work"><span class="num">01</span>Work</a></li>
-      <li><a href="#about"><span class="num">02</span>About</a></li>
-      <li><a href="#process"><span class="num">03</span>Process</a></li>
-      <li><a href="#contact"><span class="num">04</span>Contact</a></li>
-      <li><a href="cv.html">Résumé ↗</a></li>
-      <li><button class="tt" id="theme-toggle" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button></li>
-    </ul>
+    <div class="nav-desk">
+      <ol class="nav-links">
+        <li><a href="#work"><span class="num">01</span>Work</a></li>
+        <li><a href="#about"><span class="num">02</span>About</a></li>
+        <li><a href="#process"><span class="num">03</span>Process</a></li>
+        <li><a href="#contact"><span class="num">04</span>Contact</a></li>
+        <li><a href="cv.html">Résumé ↗</a></li>
+      </ol>
+      <button class="tt" id="theme-toggle" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
+    </div>
     <div class="nav-mob">
       <button class="tt" id="theme-toggle-m" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
       <button class="burger" type="button" aria-label="Menu" aria-controls="menu"><i></i><i></i></button>
@@ -84,7 +86,7 @@
         <p class="hero-sub r" data-delay="380">
           Ten years designing digital products for mission-driven companies — end to end,
           across research, strategy and delivery. The work I care most about is the work that
-          creates <strong>positive impact</strong>.
+          creates positive impact.
         </p>
         <a href="#work" class="hero-act">
           <span class="circ" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15"/><path d="M5.6 13.2 12 19.6l6.4-6.4"/></svg></span>
@@ -101,12 +103,18 @@
   </div>
 </header>
 
-<!-- ═══ MARQUEE ═════════════════════════════════════════════════════════════ -->
-<div class="marq" aria-hidden="true">
-  <div class="marq-t" data-speed="0.05">
-    <span>
-      <b>Product Strategy</b><em>✳</em><b>Service Design</b><em>✳</em><b>UX Research</b><em>✳</em><b>Design Systems</b><em>✳</em><b>Prototyping</b><em>✳</em><b>Climate Tech</b><em>✳</em><b>Regulated Products</b><em>✳</em>
-    </span>
+<!-- ═══ SKILL LINE ══════════════════════════════════════════════════════════ -->
+<div class="marq">
+  <div class="edge">
+    <ul class="skills" aria-label="Capabilities">
+      <li>Product Strategy</li>
+      <li>Service Design</li>
+      <li>UX Research</li>
+      <li>Design Systems</li>
+      <li>Prototyping</li>
+      <li>Climate Tech</li>
+      <li>Regulated Products</li>
+    </ul>
   </div>
 </div>
 
@@ -115,15 +123,15 @@
   <div class="figs">
     <div class="fig">
       <div class="fig-n rl"><span class="ln"><i>08+</i></span></div>
-      <p class="fig-l r" data-delay="120">Products shipped across mobile and web</p>
+      <p class="fig-l r" data-delay="70">Products shipped across mobile and web</p>
     </div>
     <div class="fig">
-      <div class="fig-n rl" data-delay="90"><span class="ln"><i>03</i></span></div>
-      <p class="fig-l r" data-delay="200">Products taken from first sketch to public launch</p>
+      <div class="fig-n rl" data-delay="70"><span class="ln"><i>03</i></span></div>
+      <p class="fig-l r" data-delay="140">Products taken from first sketch to public launch</p>
     </div>
     <div class="fig">
-      <div class="fig-n rl" data-delay="180"><span class="ln"><i>1M+</i></span></div>
-      <p class="fig-l r" data-delay="280">People who have used a product I designed</p>
+      <div class="fig-n rl" data-delay="140"><span class="ln"><i>1M+</i></span></div>
+      <p class="fig-l r" data-delay="210">People who have used a product I designed</p>
     </div>
   </div>
 </section>
@@ -158,7 +166,7 @@
       <div class="wproj-hd">
         <span class="wproj-n">01</span>
         <span class="fill"></span>
-        <span class="wproj-tag">Climate tech · Field operations</span>
+        <span class="wproj-tag">Field ops app · Customer report</span>
       </div>
       <div class="wproj-body">
         <div class="wproj-fig rm">
@@ -166,8 +174,13 @@
         </div>
         <div class="wproj-txt">
           <h3 class="wproj-t">Enter</h3>
-          <p class="wproj-role">Senior Product Designer</p>
-          <p class="wproj-d">A field tool for energy advisors that turns an on-site survey into an AI-generated energy model — and the official report German homeowners need to unlock <strong>up to 70% in retrofit subsidies</strong>.</p>
+          <p class="wproj-d">A field tool for energy advisors that turns an on-site survey into an AI-generated energy model — and the official report German homeowners need to unlock up to 70% in retrofit subsidies.</p>
+          <dl class="wmeta">
+            <div><dt>Role</dt><dd>Senior Product Designer</dd></div>
+            <div><dt>Domain</dt><dd>Climate tech</dd></div>
+            <div><dt>Year</dt><dd>2024—26</dd></div>
+            <div><dt>Status</dt><dd>Shipped</dd></div>
+          </dl>
           <span class="wproj-cta">
             <span class="circ" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h15"/><path d="M13 5.6 19.4 12 13 18.4"/></svg></span>
             <span class="cta-t">View case study</span>
@@ -176,11 +189,11 @@
       </div>
     </a>
 
-    <a href="coup.html" class="wproj r">
+    <a href="coup.html" class="wproj r" data-delay="70">
       <div class="wproj-hd">
         <span class="wproj-n">02</span>
         <span class="fill"></span>
-        <span class="wproj-tag">Fleet management · Bosch</span>
+        <span class="wproj-tag">Ride app · Dispatcher · Field worker</span>
       </div>
       <div class="wproj-body">
         <div class="wproj-fig rm">
@@ -188,8 +201,13 @@
         </div>
         <div class="wproj-txt">
           <h3 class="wproj-t">Coup Mobility</h3>
-          <p class="wproj-role">Senior Product Designer</p>
-          <p class="wproj-d">Bosch's e-moped sharing service across three cities, where operational gaps were quietly costing revenue. I redesigned the rider experience, the dispatcher tools and the field worker app to keep the fleet <strong>moving efficiently</strong>.</p>
+          <p class="wproj-d">Bosch's e-moped sharing service across three cities, where operational gaps were quietly costing revenue. I redesigned the rider experience, the dispatcher tools and the field worker app to keep the fleet moving.</p>
+          <dl class="wmeta">
+            <div><dt>Role</dt><dd>Senior Product Designer</dd></div>
+            <div><dt>Domain</dt><dd>Urban mobility</dd></div>
+            <div><dt>Year</dt><dd>2019—20</dd></div>
+            <div><dt>Status</dt><dd>Shipped</dd></div>
+          </dl>
           <span class="wproj-cta">
             <span class="circ" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h15"/><path d="M13 5.6 19.4 12 13 18.4"/></svg></span>
             <span class="cta-t">View case study</span>
@@ -198,11 +216,11 @@
       </div>
     </a>
 
-    <a href="cooler-future.html" class="wproj r">
+    <a href="cooler-future.html" class="wproj r" data-delay="140">
       <div class="wproj-hd">
         <span class="wproj-n">03</span>
         <span class="fill"></span>
-        <span class="wproj-tag">Sustainable fintech · Full launch</span>
+        <span class="wproj-tag">Mobile app · Website · Design system</span>
       </div>
       <div class="wproj-body">
         <div class="wproj-fig rm">
@@ -210,8 +228,13 @@
         </div>
         <div class="wproj-txt">
           <h3 class="wproj-t">Cooler Future</h3>
-          <p class="wproj-role">Lead Product Designer</p>
-          <p class="wproj-d">A sustainable investing platform that makes climate impact legible: transparent impact data, curated funds and an accessible <strong>€20 minimum investment</strong>. Designed from day one through to launch.</p>
+          <p class="wproj-d">A sustainable investing platform that makes climate impact legible: transparent impact data, curated funds and a €20 minimum investment. Designed from day one through to launch.</p>
+          <dl class="wmeta">
+            <div><dt>Role</dt><dd>Lead Product Designer</dd></div>
+            <div><dt>Domain</dt><dd>Sustainable fintech</dd></div>
+            <div><dt>Year</dt><dd>2021—23</dd></div>
+            <div><dt>Status</dt><dd>Launched</dd></div>
+          </dl>
           <span class="wproj-cta">
             <span class="circ" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h15"/><path d="M13 5.6 19.4 12 13 18.4"/></svg></span>
             <span class="cta-t">View case study</span>
@@ -220,11 +243,11 @@
       </div>
     </a>
 
-    <a href="vivy.html" class="wproj r">
+    <a href="vivy.html" class="wproj r" data-delay="210">
       <div class="wproj-hd">
         <span class="wproj-n">04</span>
         <span class="fill"></span>
-        <span class="wproj-tag">Digital health · Allianz</span>
+        <span class="wproj-tag">Patient app · Practitioner portal</span>
       </div>
       <div class="wproj-body">
         <div class="wproj-fig rm">
@@ -232,8 +255,13 @@
         </div>
         <div class="wproj-txt">
           <h3 class="wproj-t">Vivy</h3>
-          <p class="wproj-role">Founding Designer</p>
-          <p class="wproj-d">An Allianz-backed digital health record that lets patients request, store and share <strong>encrypted medical documents</strong> from their phone. Built from the ground up.</p>
+          <p class="wproj-d">An Allianz-backed digital health record that lets patients request, store and share encrypted medical documents from their phone. Built from the ground up.</p>
+          <dl class="wmeta">
+            <div><dt>Role</dt><dd>Founding Designer</dd></div>
+            <div><dt>Domain</dt><dd>Digital health</dd></div>
+            <div><dt>Year</dt><dd>2017—19</dd></div>
+            <div><dt>Status</dt><dd>Shipped</dd></div>
+          </dl>
           <span class="wproj-cta">
             <span class="circ" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h15"/><path d="M13 5.6 19.4 12 13 18.4"/></svg></span>
             <span class="cta-t">View case study</span>
@@ -245,7 +273,7 @@
 </section>
 
 <!-- ═══ ABOUT ═══════════════════════════════════════════════════════════════ -->
-<section class="edge blk blk-t" id="about">
+<section class="edge blk-air blk-t" id="about">
   <div class="sechd r">
     <span class="lab">About</span>
     <span class="fill"></span>
@@ -265,7 +293,7 @@
       </div>
     </div>
     <div class="about-body r" data-delay="140">
-      <p>Ten years of product design, mostly in complex domains: digital health, sustainable investing, urban mobility. The common thread is building products people depend on — increasingly for companies creating <strong>positive environmental impact</strong>.</p>
+      <p>Ten years of product design, mostly in complex domains: digital health, sustainable investing, urban mobility. The common thread is building products people depend on — increasingly for companies creating positive environmental impact.</p>
       <p>Research comes first. It is far cheaper to learn before building than after launch. Time with real users usually reveals the right direction; the job is to ask the right questions, reduce complexity, and turn insight into products that are clear and usable.</p>
       <p>My experience ranges from being the sole designer in an early-stage startup to working inside large cross-functional teams, leading projects from research through to delivery.</p>
       <p>Based in Berlin. Open to full-time roles as well as select freelance projects.</p>
@@ -333,7 +361,11 @@
 </section>
 
 <!-- ═══ CONTACT ═════════════════════════════════════════════════════════════ -->
-<section class="edge blk blk-t" id="contact">
+<!-- The page's one full-bleed ink rule: Work / About + Process above it,
+     Contact below. Three acts. -->
+<hr class="div-ink rw">
+
+<section class="edge blk-air" id="contact">
   <div class="sechd r">
     <span class="lab">Say hello</span>
     <span class="fill"></span>
@@ -413,13 +445,13 @@
   <div class="edge">
     <div class="f-bar">
       <span>© 2026 James Ciclitira · Product Designer · Berlin</span>
+      <span class="f-keys">Press <kbd>G</kbd> for the grid · <kbd>P</kbd> to play</span>
       <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">Back to top ↑</a>
     </div>
   </div>
 </footer>
 
-<!-- ═══ ASTEROID BLASTER — hidden easter egg ════════════════════════════════ -->
-<button id="game-launch" type="button" aria-label="Play a hidden game"><img src="pacman.gif" alt="" aria-hidden="true" loading="lazy"><span class="gl-t">Play</span></button>
+<!-- ═══ ASTEROID BLASTER — hidden easter egg, press P ═══════════════════════ -->
 <div id="astroDim"></div>
 <canvas id="astroCanvas"></canvas>
 <div id="astroTipWrap"><div id="astroTip" class="g-pill">↑ thrust · ←→ rotate · space fire · esc exit</div></div>

@@ -580,6 +580,17 @@
   exitBtn.addEventListener('click', stop);
   var playLink = document.getElementById('play-game');
   if(playLink) playLink.addEventListener('click', function(e){ e.preventDefault(); start(); });
-  var launchBtn = document.getElementById('game-launch');
-  if(launchBtn) launchBtn.addEventListener('click', start);
+  // The game is an easter egg, so it is reached the same way the grid overlay
+  // is — a keypress, hinted quietly in the footer. It used to fade a Play
+  // button into the corner on scroll, which announced it to everyone and read
+  // as an ad for itself against the rest of the page.
+  window.addEventListener('keydown', function(e){
+    if(active) return;
+    if(e.key !== 'p' && e.key !== 'P') return;
+    if(e.metaKey || e.ctrlKey || e.altKey) return;
+    var t = e.target.tagName;
+    if(t === 'INPUT' || t === 'TEXTAREA' || e.target.isContentEditable) return;
+    e.preventDefault();
+    start();
+  });
 })();
