@@ -5,10 +5,10 @@
 <title>Coup Mobility · James Ciclitira</title>
 <script>(function(){var r=document.documentElement;r.className+=' js';try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}r.setAttribute('data-theme',t);}catch(e){}if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)r.className+=' coarse';setTimeout(function(){if(!r.dataset.swiss)r.className=r.className.replace(/\bjs\b/,'').replace(/\bintroing\b/,'');},4000);})();</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27%23131311%27%2F%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2726%27%20fill%3D%27%23e23a16%27%2F%3E%3C%2Fsvg%3E">
-<meta name="description" content="A Bosch-owned e-moped service across three cities, and the operational gaps quietly costing it. Ride UX, dispatcher tooling, and a field worker app designed to keep the fleet moving.">
+<meta name="description" content="A Bosch-owned e-moped service across three cities. Rebuilding a ride experience that left riders without the information they needed, plus the dispatcher tooling and field worker app behind it.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Coup Mobility · James Ciclitira">
-<meta property="og:description" content="A Bosch-owned e-moped service across three cities, and the operational gaps quietly costing it. Ride UX, dispatcher tooling, and a field worker app designed to keep the fleet moving.">
+<meta property="og:description" content="A Bosch-owned e-moped service across three cities. Rebuilding a ride experience that left riders without the information they needed, plus the dispatcher tooling and field worker app behind it.">
 <meta property="og:image" content="https://www.jciclitira.com/img/6593e7acaa8939066cb3ff74_CoupHero.jpeg">
 <meta property="og:url" content="https://www.jciclitira.com/coup.html">
 <link rel="canonical" href="https://www.jciclitira.com/coup.html">
@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="css/swiss.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div id="prog"></div>
 <div id="gridov"></div>
 <div id="gridhint">Grid &middot; press G</div>
@@ -52,6 +53,8 @@
   </div>
 </div>
 
+<main id="main" tabindex="-1">
+
 <header class="cs-hero">
   <div>
     <a href="index.html" class="back">← All work</a>
@@ -79,10 +82,10 @@
 <div class="body">
   <section class="section r">
     <p class="lbl">The brief</p>
-    <h2>A product people loved.<br>An experience that hadn't<br><em>caught up yet.</em></h2>
+    <h2>A product people loved.<br>An app that kept<br><em>letting them down.</em></h2>
     <div class="two" style="margin-top:1.6rem">
-      <p class="prose">Coup was ahead of its time: fully electric, free-floating mopeds across Berlin, Paris and Madrid, before the category had really taken shape. Backed by Bosch and growing quickly, the service had real momentum. But people loved the scooters more than they loved the app.<br><br>The app had been built for speed, getting the fleet live and proving the concept. It worked, but it did not reflect the quality of the riding experience. The first challenge was redesigning every interaction around the ride itself, from finding a scooter to ending a trip.</p>
-      <p class="prose">The second challenge was behind the scenes. Coup's field operations ran on WhatsApp groups and spreadsheets, with no reliable way to assign work, track maintenance or report issues. Every scooter unavailable for longer than necessary meant lost revenue, multiplied across thousands of vehicles and three cities.<br><br>There was no dedicated system supporting this operational layer. <strong>The opportunity was to design one from the ground up.</strong> The dispatcher dashboard and field worker app started with understanding the reality of the work: people maintaining vehicles on the street, in all weather conditions, with limited time and constant pressure to keep the fleet moving.</p>
+      <p class="prose">Coup was ahead of its time: fully electric, free-floating mopeds across Berlin, Paris and Madrid, before the category had really taken shape. Backed by Bosch and growing quickly, the service had real momentum. But the app was the weak link.<br><br>It had been built for speed — get the fleet live, prove the concept — and it showed. Riders were left without the information they needed at the points they needed it, and the service broke down in exactly the places a service has to hold. The first job was to rebuild every interaction around the ride itself, from finding a scooter to ending a trip.</p>
+      <p class="prose">The second challenge was behind the scenes. Coup’s field operations ran on WhatsApp groups and spreadsheets, with no reliable way to assign work, track maintenance or report issues. Every scooter unavailable for longer than necessary meant lost revenue, multiplied across thousands of vehicles and three cities.<br><br>There was no dedicated system supporting this operational layer. The opportunity was to design one from the ground up. The dispatcher dashboard and field worker app started with understanding the reality of the work: people maintaining vehicles on the street, in all weather conditions, with limited time and constant pressure to keep the fleet moving.</p>
     </div>
   </section>
 </div>
@@ -92,17 +95,17 @@
   <div class="dark-band-inner">
     <span class="section-num r">01</span>
     <p class="lbl r">The consumer ride app</p>
-    <h2 class="r">Making the ride <em>feel</em> as good<br>as the scooters.</h2>
+    <h2 class="r">Rebuilt from the ground up,<br>not <em>reskinned.</em></h2>
 
     <div class="two r" style="margin-top:1.8rem;gap:5rem;align-items:start">
       <div>
-        <p class="prose" style="margin-bottom:1.4rem">The old app worked. Riders could find a scooter, unlock it, and end a ride. But it was purely transactional. It removed friction without adding confidence or enjoyment, and for a product built around the feeling of riding an electric moped through a city, that felt like a missed opportunity.</p>
-        <p class="prose" style="margin-bottom:1.8rem">The redesign started with a simple question: how should this experience feel to use? Not which features to add, but what riders needed to feel. Across interviews in all three cities, one theme came through consistently: confidence. Riders wanted to know they had chosen the right scooter, understood what was happening, and were always in control. Every design decision followed from that.</p>
+        <p class="prose" style="margin-bottom:1.4rem">On paper the old app worked: riders could find a scooter, unlock it and end a ride. In practice it failed them. The information a rider needed in order to decide was missing at the moment they needed it, and the app rarely said what was happening or what to do next. Cancellations and support tickets were the symptoms. The cause was a service that had never been designed as one.</p>
+        <p class="prose" style="margin-bottom:1.8rem">So we did not reskin it. We rebuilt the journey against the basics: does the rider always know what state they are in, what happens next, and what to do when something goes wrong? Interviews across all three cities kept returning the same word — confidence. Riders wanted to know they had picked the right scooter, to understand what the service was doing on their behalf, and to stay in control from start to finish.</p>
         <div class="pbox">
-          <p>I redesigned the entire ride experience: discovery and maps, scooter selection, reservations, pre-ride checks, the ride itself, and trip completion. <strong>The details mattered most</strong>: what information appeared at each moment, how prompts were timed, and how interactions built trust.</p>
+          <p>We rebuilt every step of the ride: discovery and maps, scooter selection, reservations, pre-ride checks, the ride itself and trip completion. The work was in what the app said and when it said it — which information belonged at each moment, how prompts were timed, and whether a rider could always answer the question &ldquo;what now?&rdquo;</p>
         </div>
-        <p class="prose" style="margin-bottom:1.4rem">Reliability was the other half of the problem. Bluetooth connections between the app and the scooter could fail, unlock attempts could break down, and errors were not always handled in a way that helped riders recover quickly. Experienced users learned the quirks over time, but for new riders the journey could feel unpredictable. I mapped the moments that caused hesitation, confusion or failure, then focused the redesign on clearer guidance, better error handling, and a faster route back to moving.</p>
-        <p class="prose">The redesign also transformed the rider app into a valuable source of operational insight. Instead of relying on riders to proactively report issues, the experience captured signals at the moments when problems occurred. A simple three-tap cancellation flow gave the operations team clearer feedback than a dedicated reporting feature, because it matched the rider's actual behaviour.</p>
+        <p class="prose" style="margin-bottom:1.4rem">Reliability was the other half of the failure. Bluetooth connections between the app and the scooter could drop and unlock attempts could break down, and when they did the app left riders guessing. Experienced users had learned the quirks; new riders were simply stuck. We mapped every moment that caused hesitation, confusion or failure, then rebuilt those flows around clear guidance, honest error states and the fastest route back to moving.</p>
+        <p class="prose">Rebuilding the flow also turned the rider app into a source of operational insight. Rather than relying on riders to report problems, we captured the signal at the moment a problem occurred. A three-tap cancellation flow told the operations team more than a dedicated reporting feature would have, because it matched what riders already did.</p>
       </div>
       <div>
         <img class="img is-cutout device" src="img/coup-scooter.png" width="840" height="840" alt="The Coup e-moped" loading="lazy">
@@ -125,7 +128,7 @@
         <p class="lbl">Passive intelligence</p>
         <h2>One in eight rides was<br>cancelled. Nobody knew <em>why.</em></h2>
         <p class="prose" style="margin-bottom:1.4rem">Around one in eight rides was cancelled before the engine even started. It was costly, but more importantly, impossible to improve because the reasons behind cancellations were invisible. Was the scooter damaged? Was the battery too low? Had the rider selected the wrong vehicle? Was a required item missing? Without reliable data, every improvement was based on assumptions.</p>
-        <p class="prose" style="margin-bottom:1.4rem">I added a lightweight feedback step directly into the cancellation flow: a small set of predefined reasons that riders could select in a single tap before leaving. The experience stayed quick for the rider while creating a structured, timestamped source of operational insight.</p>
+        <p class="prose" style="margin-bottom:1.4rem">We added a lightweight feedback step directly into the cancellation flow: a small set of predefined reasons that riders could select in a single tap before leaving. The experience stayed quick for the rider while creating a structured, timestamped source of operational insight.</p>
         <p class="prose">For the first time the team could see why rides were failing, and target the issues causing the most friction instead of guessing at them across thousands of scooters.</p>
       </div>
       <div>
@@ -144,7 +147,7 @@
     <p class="lbl">Research before commitment</p>
     <h2>Testing an expensive idea<br><em>before building anything.</em></h2>
     <div class="two" style="margin-top:1.4rem;align-items:center">
-      <p class="prose">The idea on the table: let engaged riders earn credits by swapping flat batteries themselves, cutting ops costs and reliance on field workers. The appeal was obvious, but validating it properly would have meant building charging infrastructure that didn't yet exist. An expensive bet to place on a hunch.<br><br>Instead, I designed a lightweight in-app pilot: small, targeted changes to the existing flow that let us watch how real riders behaved. It produced useful data quickly and cheaply, and gave the business what it needed to decide whether the infrastructure was worth committing to. <strong>Design used to answer a question, not to ship a feature.</strong></p>
+      <p class="prose">The idea on the table: let engaged riders earn credits by swapping flat batteries themselves, cutting ops costs and reliance on field workers. The appeal was obvious, but validating it properly would have meant building charging infrastructure that didn’t yet exist. An expensive bet to place on a hunch.<br><br>Instead we designed a lightweight in-app pilot: small, targeted changes to the existing flow that let us watch how real riders behaved. It produced useful data quickly and cheaply, and gave the business what it needed to decide whether the infrastructure was worth committing to. Design used to answer a question, not to ship a feature.</p>
       <div>
         <img class="img short device" src="img/659543559b4091a7a75e3a89_swap.png" alt="Community battery swap pilot" loading="lazy" width="1294" height="676">
         <p class="cap">Community battery swapping pilot: testing intent before infrastructure commitment</p>
@@ -159,7 +162,7 @@
     <h2>Nothing existed.<br>We built the <em>whole thing.</em></h2>
     <div class="two" style="margin-top:1.6rem">
       <p class="prose">Before this existed, ground operations ran on WhatsApp, spreadsheets, and memory. Assignments came through group chats. Maintenance was logged inconsistently, if it was logged at all. Dispatchers had no live view of the fleet, field workers had no reliable way to receive and complete jobs, and there was no central record of what had been done across thousands of scooters.<br><br>Every gap had a cost. A scooter with an unresolved fault stayed offline. A field worker without clear priorities wasted time. A dispatcher without accurate information had to make decisions based on assumptions rather than data.</p>
-      <p class="prose">There was no detailed brief, just a blank page. I started by understanding the reality of the work: riding along with field workers, observing dispatchers, and mapping the informal systems teams had created to keep the fleet running.<br><br>Two distinct needs emerged. <strong>Dispatchers needed visibility and control over the entire fleet. Field workers needed clear instructions and a simple way to complete tasks while working on the street.</strong> That became two connected products: a web-based fleet management dashboard for dispatchers and a mobile-first app for field workers.</p>
+      <p class="prose">There was no detailed brief, just a blank page. We started by understanding the reality of the work: riding along with field workers, observing dispatchers, and mapping the informal systems teams had created to keep the fleet running.<br><br>Two distinct needs emerged. Dispatchers needed visibility and control over the entire fleet. Field workers needed clear instructions and a simple way to complete tasks while working on the street. That became two connected products: a web-based fleet management dashboard for dispatchers and a mobile-first app for field workers.</p>
     </div>
   </section>
 
@@ -190,7 +193,7 @@
       </div>
       <div>
         <img class="img tall device" src="img/65954355119f7531490b3925_report.png" alt="Maintenance report screen" loading="lazy" width="1288" height="672">
-        <p class="cap">Maintenance report: structured outcome logging that built the ops team's data picture over time</p>
+        <p class="cap">Maintenance report: structured outcome logging that built the ops team’s data picture over time</p>
       </div>
     </div>
     <div class="three r" style="margin-top:1.1rem">
@@ -238,11 +241,13 @@
   <div class="next-r"><img class="next-img" src="img/65940ab6bcaf577124a4acb9_CoolerHero.jpg" alt="Cooler Future" loading="lazy" width="700" height="448"></div>
 </a>
 
+</main>
+
 <footer>
   <div class="edge">
     <div class="f-grid">
       <div class="f-col">
-        <h4>Index</h4>
+        <h2>Index</h2>
         <a href="index.html#work">Selected work</a>
         <a href="index.html#about">About</a>
         <a href="index.html#process">Process</a>
@@ -250,14 +255,14 @@
         <a href="cv.html">R&eacute;sum&eacute;</a>
       </div>
       <div class="f-col">
-        <h4>Case studies</h4>
+        <h2>Case studies</h2>
         <a href="enter.html">01 &mdash; Enter</a>
         <a href="coup.html">02 &mdash; Coup Mobility</a>
         <a href="cooler-future.html">03 &mdash; Cooler Future</a>
         <a href="vivy.html">04 &mdash; Vivy</a>
       </div>
       <div class="f-col">
-        <h4>Elsewhere</h4>
+        <h2>Elsewhere</h2>
         <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
         <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
       </div>

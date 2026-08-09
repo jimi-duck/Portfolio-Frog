@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="css/swiss.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div id="prog"></div>
 <div id="gridov"></div>
 <div id="gridhint">Grid &middot; press G</div>
@@ -52,6 +53,8 @@
   </div>
 </div>
 
+<main id="main" tabindex="-1">
+
 <!-- ═══ HERO ══════════════════════════════════════════════ -->
 <header class="cs-hero">
   <div>
@@ -80,10 +83,10 @@
 <div class="body">
   <section class="section r">
     <p class="lbl">The context</p>
-    <h2>Billions in renovation funding.<br>The data to unlock it<br><em>didn't yet exist.</em></h2>
+    <h2>Billions in renovation funding.<br>The data to unlock it<br><em>didn’t yet exist.</em></h2>
     <div class="two" style="margin-top:1.6rem">
       <p class="prose">Enter helps German homeowners navigate energy-efficient renovations, from insulation and heat pumps to new windows and the government funding that can cover much of the cost. Through the Bundesförderung für effiziente Gebäude (BEG), homeowners can receive subsidies of up to 70% for certain measures. To qualify, they need an Individual Renovation Roadmap (iSFP) prepared by a certified energy advisor following an on-site assessment.<br><br>That visit is the foundation of everything that follows: the energy model, the retrofit recommendations it generates, and the official report homeowners need to claim funding.</p>
-      <p class="prose">When I joined, advisors relied on paper forms, handwritten notes, and fragmented workflows. Data was inconsistent, difficult to digitise, and unsuitable for a scalable AI pipeline. There was no dedicated product for advisors collecting information in the field, or for homeowners trying to understand their renovation options and next steps.<br><br>I led the design of <strong>both experiences</strong>: a tablet-first field app that guides energy advisors through on-site assessments, and a digital customer report that helps homeowners understand recommendations, compare renovation scenarios, and move confidently toward funding and implementation.</p>
+      <p class="prose">When I joined, advisors relied on paper forms, handwritten notes, and fragmented workflows. Data was inconsistent, difficult to digitise, and unsuitable for a scalable AI pipeline. There was no dedicated product for advisors collecting information in the field, or for homeowners trying to understand their renovation options and next steps.<br><br>I led the design of both experiences: a tablet-first field app that guides energy advisors through on-site assessments, and a digital customer report that helps homeowners understand recommendations, compare renovation scenarios, and move confidently toward funding and implementation.</p>
     </div>
   </section>
 
@@ -97,7 +100,7 @@
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><div class="pipe-node-t">Building Survey</div><div class="pipe-node-d">Rooms, floors, construction materials, windows, heating systems and a detailed floor plan are captured</div></div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">AI Processing</div><div class="pipe-node-d">The assessment data is analysed to generate the building's energy model and recommended retrofit measures</div></div>
+        <div class="pipe-node"><div class="pipe-node-t">AI Processing</div><div class="pipe-node-d">The assessment data is analysed to generate the building’s energy model and recommended retrofit measures</div></div>
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><div class="pipe-node-t">Customer Report</div><div class="pipe-node-d">The advisor reviews the results with the homeowner: assessment, recommended measures, expected savings and available subsidies</div></div>
         <div class="pipe-arr">→</div>
@@ -114,14 +117,14 @@
     <div class="two r" style="align-items:start;gap:5rem">
       <div>
         <h2>Everything the advisor needs<br>before they<br><em>knock on the door.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">The appointment screen was the starting point for every property visit. Before tapping "Start appointment", advisors could review the homeowner's details, view the property on a map, check the estimated building size, and quickly call the client or open navigation. The iSFP assessment remained intentionally locked. Starting the appointment marked the beginning of the official assessment and unlocked the data collection flow.</p>
-        <p class="prose">Once the assessment data had been uploaded, the same screen reflected the appointment's completion and unlocked the customer report. <strong>It could only be generated after every required section of the survey had been completed and submitted</strong>, so every recommendation rested on a complete, validated dataset.</p>
+        <p class="prose" style="margin-bottom:1.4rem">The appointment screen was the starting point for every property visit. Before tapping “Start appointment”, advisors could review the homeowner’s details, view the property on a map, check the estimated building size, and quickly call the client or open navigation. The iSFP assessment remained intentionally locked. Starting the appointment marked the beginning of the official assessment and unlocked the data collection flow.</p>
+        <p class="prose">Once the assessment data had been uploaded, the same screen reflected the appointment’s completion and unlocked the customer report. It could only be generated after every required section of the survey had been completed and submitted, so every recommendation rested on a complete, validated dataset.</p>
       </div>
       <!-- Pre-framed phone images — black backgrounds blend into dark band -->
       <div class="phones-pair">
         <div class="phone-col">
           <img class="device-img" src="Pre-data_capture.png" alt="Pre-appointment briefing screen" loading="lazy" width="606" height="1006">
-          <p class="cap">Before: data locked, "Termin starten" visible</p>
+          <p class="cap">Before: data locked, “Termin starten” visible</p>
         </div>
         <div class="phone-col">
           <img class="device-img" src="Post_data_capture.png" alt="Post-completion appointment screen" loading="lazy" width="606" height="1136">
@@ -169,9 +172,9 @@
     <div class="two r" style="align-items:start;gap:5rem;margin-bottom:3rem">
       <div>
         <h2>Window-level accuracy.<br>Built into the<br><em>floor plan.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">Windows are one of the most consequential variables in an energy model. Their position, dimensions, and glazing spec all affect the U-value of the surrounding wall, which directly influences which retrofit measures make financial sense and which don't. Getting this wrong skews the whole recommendation downstream.</p>
+        <p class="prose" style="margin-bottom:1.4rem">Windows are one of the most consequential variables in an energy model. Their position, dimensions, and glazing spec all affect the U-value of the surrounding wall, which directly influences which retrofit measures make financial sense and which don’t. Getting this wrong skews the whole recommendation downstream.</p>
         <div class="pbox" style="background:rgba(17,17,16,.05)">
-          <p>The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors <strong>place each window directly on the plan</strong>, dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields.</p>
+          <p>The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors place each window directly on the plan, dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields.</p>
         </div>
         <p class="prose">The building footprint also served a second purpose: advisors could flag discrepancies between the registered data and what they observed on site, feeding corrections back into the dataset for future visits. Over time, the pre-populated data became more reliable.</p>
       </div>
@@ -206,7 +209,7 @@
             <li>
               <span class="toc-n">02</span>
               <span class="toc-t">Current assessment</span>
-              <span class="toc-d">The property's energy performance today, and its savings potential.</span>
+              <span class="toc-d">The property’s energy performance today, and its savings potential.</span>
             </li>
             <li>
               <span class="toc-n">03</span>
@@ -246,7 +249,7 @@
         <div class="walk-text">
           <p class="walk-n">Renovation measures</p>
           <h3 class="walk-t">Every measure, ranked</h3>
-          <p class="walk-d">The AI's full set of recommendations in one table: annual savings, payback period, cost and a recommendation rating for each measure. Ticking a measure updated the totals along the bottom, so the pair could assemble a package and watch the combined saving, energy class and subsidy move as they went.</p>
+          <p class="walk-d">The AI’s full set of recommendations in one table: annual savings, payback period, cost and a recommendation rating for each measure. Ticking a measure updated the totals along the bottom, so the pair could assemble a package and watch the combined saving, energy class and subsidy move as they went.</p>
         </div>
       </div>
       <div class="walk-row r">
@@ -295,11 +298,13 @@
   <div class="next-r"><img class="next-img" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="Coup Mobility" loading="lazy" width="700" height="448"></div>
 </a>
 
+</main>
+
 <footer>
   <div class="edge">
     <div class="f-grid">
       <div class="f-col">
-        <h4>Index</h4>
+        <h2>Index</h2>
         <a href="index.html#work">Selected work</a>
         <a href="index.html#about">About</a>
         <a href="index.html#process">Process</a>
@@ -307,14 +312,14 @@
         <a href="cv.html">R&eacute;sum&eacute;</a>
       </div>
       <div class="f-col">
-        <h4>Case studies</h4>
+        <h2>Case studies</h2>
         <a href="enter.html">01 &mdash; Enter</a>
         <a href="coup.html">02 &mdash; Coup Mobility</a>
         <a href="cooler-future.html">03 &mdash; Cooler Future</a>
         <a href="vivy.html">04 &mdash; Vivy</a>
       </div>
       <div class="f-col">
-        <h4>Elsewhere</h4>
+        <h2>Elsewhere</h2>
         <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
         <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
       </div>

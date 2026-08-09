@@ -26,7 +26,6 @@
 .about-strip{padding:clamp(1.4rem,3vw,2.4rem) 0;border-bottom:1px solid var(--rule)}
 .about-strip p{font-size:clamp(1.05rem,1.9vw,1.6rem);font-weight:400;line-height:1.35;
   letter-spacing:-.022em;max-width:56ch;color:var(--mute)}
-.about-strip strong{color:var(--ink);font-weight:700}
 
 .body-grid{display:grid;grid-template-columns:1.55fr .95fr;gap:clamp(1.6rem,4vw,4.5rem);
   padding-top:clamp(2rem,4vw,3.4rem);padding-bottom:clamp(2.4rem,5vw,4.5rem)}
@@ -44,12 +43,10 @@ a.job-co:hover{color:var(--red)}
   white-space:nowrap;font-variant-numeric:tabular-nums}
 .job-role{margin-top:.2rem;font-size:var(--t-small);color:var(--red-ink);font-weight:700}
 .job-desc{margin-top:.65rem;font-size:var(--t-small);line-height:1.55;color:var(--mute);max-width:60ch}
-.job-desc strong{color:var(--ink);font-weight:700}
 .bullets{list-style:none;margin-top:.7rem;max-width:62ch}
 .bullets li{position:relative;padding-left:1.4rem;font-size:var(--t-small);line-height:1.55;
   color:var(--mute);margin-top:.35rem}
 .bullets li::before{content:'';position:absolute;left:0;top:.62em;width:.7rem;height:1px;background:var(--red)}
-.bullets strong{color:var(--ink);font-weight:700}
 
 .edu-hd{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap}
 .edu-name{font-size:var(--t-h3);font-weight:700;letter-spacing:-.025em;transition:color .3s}
@@ -68,11 +65,6 @@ a.job-co:hover{color:var(--red)}
 .tool:hover .tool-icon{filter:none;opacity:1}
 .tool-lbl{font-size:var(--t-small);color:var(--mute)}
 
-.cv-footer{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
-  padding:1.1rem 0 1.6rem;border-top:1px solid var(--rule);
-  font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute)}
-.cv-footer-links{display:flex;gap:1.4rem}
-.cv-footer a:hover{color:var(--red)}
 
 @media (max-width:900px){
   .page>header{grid-template-columns:1fr;gap:1.4rem;align-items:start}

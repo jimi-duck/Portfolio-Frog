@@ -148,10 +148,35 @@
     }
     var burger = $('.burger');
     if (!burger) return;
-    var close = function () { document.body.classList.remove('menu-on'); };
-    burger.addEventListener('click', function () { document.body.classList.toggle('menu-on'); });
-    $$('#menu a').forEach(function (a) { a.addEventListener('click', close); });
-    addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    var setOpen = function (open) {
+      document.body.classList.toggle('menu-on', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    setOpen(false);
+    var close = function (refocus) {
+      if (!document.body.classList.contains('menu-on')) return;
+      setOpen(false);
+      // send focus back to the control that opened it, or it lands at the top
+      // of the document with no indication of what just happened
+      if (refocus) burger.focus();
+    };
+    burger.addEventListener('click', function () {
+      setOpen(!document.body.classList.contains('menu-on'));
+    });
+    $$('#menu a').forEach(function (a) { a.addEventListener('click', function () { close(false); }); });
+    addEventListener('keydown', function (e) { if (e.key === 'Escape') close(true); });
+  }
+
+  /* ── GAME LAUNCHER: stand down over the footer ─────────────────────────── */
+  // Pinned bottom-right, it sat exactly on top of the footer's "Back to top"
+  // link — one control covering another. Watch the footer rather than guessing
+  // a scroll offset, so it stays right whatever the footer's height becomes.
+  function launcher() {
+    var btn = $('#game-launch'), foot = $('footer');
+    if (!btn || !foot || !('IntersectionObserver' in window)) return;
+    new IntersectionObserver(function (en) {
+      document.body.classList.toggle('foot-in', en[0].isIntersecting);
+    }, { rootMargin: '0px 0px -12% 0px' }).observe(foot);
   }
 
   /* ── GRID OVERLAY (press G) ────────────────────────────────────────────── */
@@ -181,7 +206,7 @@
   /* ── BOOT ──────────────────────────────────────────────────────────────── */
   function boot() {
     document.documentElement.dataset.swiss = '1';
-    theme(); progress(); nav(); gridOverlay();
+    theme(); progress(); nav(); gridOverlay(); launcher();
     intro(reveals);
     addEventListener('load', revealOnScreen);
     // failsafe: never let the curtain trap the page, and never leave content hidden

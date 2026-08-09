@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="css/swiss.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div id="prog"></div>
 <div id="gridov"></div>
 <div id="gridhint">Grid &middot; press G</div>
@@ -52,12 +53,14 @@
   </div>
 </div>
 
+<main id="main" tabindex="-1">
+
 <header class="cs-hero">
   <div>
     <a href="index.html" class="back">← All work</a>
     <p class="eyebrow">Digital Health · Allianz-backed</p>
     <h1 class="cs-title">Vivy</h1>
-    <p class="cs-tagline">Your medical history, from lab results and prescriptions to X-rays and discharge letters, is often spread across hospitals, clinics and paper records. Vivy set out to bring it together in one secure, encrypted place under the patient's control. I joined as one of the first product designers, helping shape the experience from the ground up as the product evolved into a digital health record backed by Allianz.</p>
+    <p class="cs-tagline">Your medical history, from lab results and prescriptions to X-rays and discharge letters, is often spread across hospitals, clinics and paper records. Vivy set out to bring it together in one secure, encrypted place under the patient’s control. I joined as one of the first product designers, helping shape the experience from the ground up as the product evolved into a digital health record backed by Allianz.</p>
   </div>
   <div class="meta-grid">
     <div class="meta-item"><label>Role</label><p>Product Designer, founding team</p></div>
@@ -78,10 +81,10 @@
 
   <section class="section r">
     <p class="lbl">The problem</p>
-    <h2>Your health records exist.<br>They just don't exist<br><em>anywhere useful.</em></h2>
+    <h2>Your health records exist.<br>They just don’t exist<br><em>anywhere useful.</em></h2>
     <div class="two" style="margin-top:1.4rem">
-      <p class="prose">In Germany, a patient's medical history is often fragmented. Lab results sit with one provider, X-rays with another, prescriptions arrive on paper, and discharge letters end up in a folder at home. Sharing that information between healthcare providers still relies on phone calls, faxes and in-person requests, introducing unnecessary delays and administrative overhead.<br><br>Vivy set out to change that by giving patients a secure, encrypted place to store their health records, request medical documents digitally, and share them directly with healthcare professionals whenever they chose.</p>
-      <p class="prose">As one of the first product designers, my role went well beyond designing screens. We were building a new kind of product in a heavily regulated industry, so design meant <strong>establishing research practices, defining product principles, and creating a shared approach to decision-making</strong>. Every feature had to balance usability, security and trust, while staying honest about what the product could and couldn't yet do.</p>
+      <p class="prose">In Germany, a patient’s medical history is often fragmented. Lab results sit with one provider, X-rays with another, prescriptions arrive on paper, and discharge letters end up in a folder at home. Sharing that information between healthcare providers still relies on phone calls, faxes and in-person requests, introducing unnecessary delays and administrative overhead.<br><br>Vivy set out to change that by giving patients a secure, encrypted place to store their health records, request medical documents digitally, and share them directly with healthcare professionals whenever they chose.</p>
+      <p class="prose">As one of the first product designers, my role went well beyond designing screens. We were building a new kind of product in a heavily regulated industry, so design meant establishing research practices, defining product principles, and creating a shared approach to decision-making. Every feature had to balance usability, security and trust, while staying honest about what the product could and couldn’t yet do.</p>
     </div>
   </section>
 
@@ -91,7 +94,7 @@
   <section class="section r">
     <p class="lbl">Document request & sharing</p>
     <h2>The core flow: request a<br>document, receive it, share it.<br><em>Encrypted throughout.</em></h2>
-    <p class="prose">A patient opens the app, sends a request to their GP for last month's blood results, and receives them directly to their phone, with no phone calls, no waiting rooms and no paper. Once there, files can be shared with any other practitioner in seconds, with access controlled entirely by the patient.</p>
+    <p class="prose">A patient opens the app, sends a request to their GP for last month’s blood results, and receives them directly to their phone, with no phone calls, no waiting rooms and no paper. Once there, files can be shared with any other practitioner in seconds, with access controlled entirely by the patient.</p>
     <img class="img device" src="img/659416107fe0b1cbed80711f_request.png" alt="Document request" loading="lazy" width="1600" height="905">
     <p class="cap">Requesting, uploading and finding a doctor: three entry points into the same flow</p>
     <div class="artifact r" style="margin-top:2rem">
@@ -103,8 +106,8 @@
   <section class="section r">
     <p class="lbl">The trickiest UX challenge: expectation management</p>
     <h2>Better to be honest with people<br>than <em>reassuring.</em></h2>
-    <div class="pbox"><p>When we launched, many document requests went unanswered, because most doctors had never heard of Vivy. <strong>The technology worked. The ecosystem wasn't ready yet.</strong> Patients felt the app was broken. The problem wasn't the product; it was that we'd set expectations we couldn't yet meet.</p></div>
-    <p class="prose" style="margin-top:1.4rem">So rather than hiding the uncertainty behind a progress spinner, I made it visible. The request-status system kept people informed: what was pending, why it might be delayed, and what their options were, with small explanatory moments along the way so patients understood the process, not just the interface.<br><br>It was one of the better decisions I made at Vivy: <strong>trust people with honest information</strong> rather than paper over a messy reality with reassuring-looking UI. Patients coped far better with honesty than with false confidence.</p>
+    <div class="pbox"><p>When we launched, many document requests went unanswered, because most doctors had never heard of Vivy. The technology worked. The ecosystem wasn’t ready yet. Patients felt the app was broken. The problem wasn’t the product; it was that we’d set expectations we couldn’t yet meet.</p></div>
+    <p class="prose" style="margin-top:1.4rem">So rather than hiding the uncertainty behind a progress spinner, I made it visible. The request-status system kept people informed: what was pending, why it might be delayed, and what their options were, with small explanatory moments along the way so patients understood the process, not just the interface.<br><br>It was one of the better decisions I made at Vivy: trust people with honest information rather than paper over a messy reality with reassuring-looking UI. Patients coped far better with honesty than with false confidence.</p>
     <div class="two device-pair" style="margin-top:1.8rem">
       <img class="img device device-1up" src="img/6594171c0766f1d5452648f9_expectation2.png" alt="Expectation states" loading="lazy" width="799" height="1415">
       <img class="img device device-1up" src="img/6594178a73954868b9e34622_expectation1.png" alt="Status communication" loading="lazy" width="816" height="1415">
@@ -113,7 +116,7 @@
   </section>
 
   <div class="pq r">
-    <p>"Building a product that's ahead of its supporting infrastructure teaches you something most UX courses don't: how to manage the gap between vision and reality with dignity."</p>
+    <p>“Building a product that’s ahead of its supporting infrastructure teaches you something most UX courses don’t: how to manage the gap between vision and reality with dignity.”</p>
     <cite>James Ciclitira, on Vivy</cite>
   </div>
 
@@ -122,7 +125,7 @@
     <h2>Four days with Allianz.<br>One major feature, <em>defined properly.</em></h2>
     <p class="prose" style="margin-bottom:1.8rem">Private healthcare in Germany carries a specific burden: patients pay out-of-pocket and file reimbursement claims with their insurer. It is a time-consuming, paper-heavy process that causes real anxiety. I travelled to Munich to run a four-day design sprint with Allianz, to understand both patient and insurer needs before building a single screen.</p>
     <div class="sprint">
-      <div class="day"><p class="day-n">Day 01</p><p class="day-t">Stakeholder mapping</p><p class="day-d">Unpacking Allianz's internal workflows and the legal requirements for invoice processing.</p></div>
+      <div class="day"><p class="day-n">Day 01</p><p class="day-t">Stakeholder mapping</p><p class="day-d">Unpacking Allianz’s internal workflows and the legal requirements for invoice processing.</p></div>
       <div class="day"><p class="day-n">Day 02</p><p class="day-t">Patient pain journey</p><p class="day-d">Mapping every frustration, every piece of confusion, every moment of delay in the current process.</p></div>
       <div class="day"><p class="day-n">Day 03</p><p class="day-t">Rapid prototyping</p><p class="day-d">Multiple invoice submission flows, tested on-the-spot with real patients and Allianz staff.</p></div>
       <div class="day"><p class="day-n">Day 04</p><p class="day-t">Validation & sign-off</p><p class="day-d">Working prototype. Feature requirements aligned. A shared language between design, tech, and insurer.</p></div>
@@ -139,10 +142,10 @@
       <img class="device s-phone" src="img/65953db7535215a416bf2af0_share1.png" alt="File sharing" loading="lazy" width="799" height="1415">
       <img class="device s-desk" src="img/6594171ddb2f3e1ef7c7923a_dr.png" alt="Doctor interface" loading="lazy" width="1314" height="820">
     </div>
-    <p class="cap">The patient's phone (left) and the practitioner's portal (right): two contexts, one trust model</p>
+    <p class="cap">The patient’s phone (left) and the practitioner’s portal (right): two contexts, one trust model</p>
     <div class="r" style="margin-top:1.8rem">
       <img class="img" src="img/vivy-pro-portal.jpg" alt="Vivy Pro Portal online check-in list for practices" loading="lazy" width="1600" height="889">
-      <p class="cap">The Pro Portal's online check-in: patients arrive with paperwork already done, staff see who's due at a glance</p>
+      <p class="cap">The Pro Portal’s online check-in: patients arrive with paperwork already done, staff see who’s due at a glance</p>
     </div>
   </section>
 
@@ -170,18 +173,21 @@
   </section>
 </div>
 
-<a href="index.html" class="backhome">
-  <div>
-    <p class="bh-lbl">That's all the work →</p>
-    <p class="bh-t">Back to the <em>portfolio</em></p>
+<a href="crowdscores.html" class="next">
+  <div class="next-l">
+    <div><p class="next-eyebrow">Next project →</p><div class="next-title">Crowd<br><em>Scores</em></div></div>
+    <p class="next-sub">Principal Designer · Live football data · Consumer mobile</p>
   </div>
+  <div class="next-r"><img class="next-img" src="img/6593e7ac8583e718138071ec_CrowdscoresHero.jpeg" alt="CrowdScores" loading="lazy" width="700" height="448"></div>
 </a>
+
+</main>
 
 <footer>
   <div class="edge">
     <div class="f-grid">
       <div class="f-col">
-        <h4>Index</h4>
+        <h2>Index</h2>
         <a href="index.html#work">Selected work</a>
         <a href="index.html#about">About</a>
         <a href="index.html#process">Process</a>
@@ -189,14 +195,14 @@
         <a href="cv.html">R&eacute;sum&eacute;</a>
       </div>
       <div class="f-col">
-        <h4>Case studies</h4>
+        <h2>Case studies</h2>
         <a href="enter.html">01 &mdash; Enter</a>
         <a href="coup.html">02 &mdash; Coup Mobility</a>
         <a href="cooler-future.html">03 &mdash; Cooler Future</a>
         <a href="vivy.html">04 &mdash; Vivy</a>
       </div>
       <div class="f-col">
-        <h4>Elsewhere</h4>
+        <h2>Elsewhere</h2>
         <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
         <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
       </div>

@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="css/swiss.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div id="prog"></div>
 <div id="gridov"></div>
 <div id="gridhint">Grid &middot; press G</div>
@@ -53,12 +54,14 @@
   </div>
 </div>
 
+<main id="main" tabindex="-1">
+
 <header class="cs-hero">
   <div>
     <a href="index.html" class="back">← All work</a>
     <p class="eyebrow">05 · B2B SaaS · HR Tech</p>
     <h1 class="cs-title">Yuno<br><em>Juno</em></h1>
-    <p class="cs-tagline">The UK's leading freelance management platform. Hiring, contracting, and paying 100,000+ freelancers, with full IR35 compliance built in. I helped make the legally complex feel professionally simple.</p>
+    <p class="cs-tagline">The UK’s leading freelance management platform. Hiring, contracting, and paying 100,000+ freelancers, with full IR35 compliance built in. I helped make the legally complex feel professionally simple.</p>
   </div>
   <div class="meta-grid">
     <div class="meta-item"><label>Role</label><p>Product Designer</p></div>
@@ -79,10 +82,10 @@
 
   <section class="section r">
     <p class="lbl">The context</p>
-    <h2>Hiring a freelancer shouldn't<br>require a lawyer <em>on call.</em></h2>
+    <h2>Hiring a freelancer shouldn’t<br>require a lawyer <em>on call.</em></h2>
     <div class="two" style="margin-top:1.4rem">
-      <p class="prose">Managing contingent workers in the UK is administratively brutal. IR35 off-payroll working rules. Contract generation. Timesheets. Invoice management. Payment processing. Background and compliance checks. Companies managing more than a handful of contractors typically needed a dedicated operations person just to handle the paperwork.<br><br>YunoJuno's mission: collapse all of that into one platform. Source the freelancer, generate the compliant contract, manage the engagement, process the payment, and never let anyone end up on the wrong side of HMRC.</p>
-      <p class="prose">The design challenge was inherently dual-sided. Employers needed speed, confidence, and compliance coverage. Freelancers needed to feel like professionals, not admin subjects: fair contracts, fast payment, clear communication.<br><br>A marketplace only works when <strong>both sides trust it equally.</strong> That required designing for two completely different mental models simultaneously.</p>
+      <p class="prose">Managing contingent workers in the UK is administratively brutal. IR35 off-payroll working rules. Contract generation. Timesheets. Invoice management. Payment processing. Background and compliance checks. Companies managing more than a handful of contractors typically needed a dedicated operations person just to handle the paperwork.<br><br>YunoJuno’s mission: collapse all of that into one platform. Source the freelancer, generate the compliant contract, manage the engagement, process the payment, and never let anyone end up on the wrong side of HMRC.</p>
+      <p class="prose">The design challenge was inherently dual-sided. Employers needed speed, confidence, and compliance coverage. Freelancers needed to feel like professionals, not admin subjects: fair contracts, fast payment, clear communication.<br><br>A marketplace only works when both sides trust it equally. That required designing for two completely different mental models simultaneously.</p>
     </div>
   </section>
 
@@ -95,8 +98,8 @@
   <section class="section r">
     <p class="lbl">Core design principle</p>
     <h2>Confidence before complexity.<br><em>Progressive disclosure at scale.</em></h2>
-    <div class="pbox"><p>IR35 legislation is genuinely complex. Contracts have legal weight. The design job was to surface exactly what each user needed to make a decision, shield everything they didn't need to see, and <strong>never leave anyone uncertain about the consequences of an action.</strong></p></div>
-    <p class="prose" style="margin-top:1.4rem">Progressive disclosure was the dominant structural pattern across the product: show the summary, reveal detail only when needed, never front-load with complexity before earning trust. For legal concepts such as IR35 status, contract terms and compliance flags, I designed contextual education moments that explained the thing at the point of need, not in a help centre article nobody reads.<br><br>The measure of success: a hiring manager should be able to contract a freelancer compliantly without knowing what IR35 means. A freelancer should know exactly what they're agreeing to without a lawyer.</p>
+    <div class="pbox"><p>IR35 legislation is genuinely complex. Contracts have legal weight. The design job was to surface exactly what each user needed to make a decision, shield everything they didn’t need to see, and never leave anyone uncertain about the consequences of an action.</p></div>
+    <p class="prose" style="margin-top:1.4rem">Progressive disclosure was the dominant structural pattern across the product: show the summary, reveal detail only when needed, never front-load with complexity before earning trust. For legal concepts such as IR35 status, contract terms and compliance flags, I designed contextual education moments that explained the thing at the point of need, not in a help centre article nobody reads.<br><br>The measure of success: a hiring manager should be able to contract a freelancer compliantly without knowing what IR35 means. A freelancer should know exactly what they’re agreeing to without a lawyer.</p>
     <div class="two" style="margin-top:1.8rem">
       <img class="img tall" src="img/65957319458635c710e0559c_3.jpeg" alt="YunoJuno screen" loading="lazy" width="640" height="400">
       <img class="img tall" src="img/6595731a4a799af9cb53bdf6_2.jpeg" alt="YunoJuno screen" loading="lazy" width="640" height="400">
@@ -112,7 +115,7 @@
   </section>
 
   <div class="pq r">
-    <p>"B2B doesn't mean boring. When someone's livelihood depends on your product, their hiring pipeline or their income, the design stakes are actually higher than in most consumer apps."</p>
+    <p>“B2B doesn’t mean boring. When someone’s livelihood depends on your product, their hiring pipeline or their income, the design stakes are actually higher than in most consumer apps.”</p>
     <cite>James Ciclitira, on YunoJuno</cite>
   </div>
 
@@ -121,16 +124,18 @@
 <a href="quidco.html" class="next">
   <div class="next-l">
     <div><p class="next-eyebrow">Next project →</p><div class="next-title">Quidco<br><em>£101M</em></div></div>
-    <p class="next-sub">Europe's #1 Cashback · Acquired by Moneysupermarket</p>
+    <p class="next-sub">Europe’s #1 Cashback · Acquired by Moneysupermarket</p>
   </div>
   <div class="next-r"><img class="next-img" src="img/6593e7abc1726e474f87ebca_QuidcoHero.jpeg" alt="Quidco" loading="lazy" width="432" height="270"></div>
 </a>
+
+</main>
 
 <footer>
   <div class="edge">
     <div class="f-grid">
       <div class="f-col">
-        <h4>Index</h4>
+        <h2>Index</h2>
         <a href="index.html#work">Selected work</a>
         <a href="index.html#about">About</a>
         <a href="index.html#process">Process</a>
@@ -138,14 +143,14 @@
         <a href="cv.html">R&eacute;sum&eacute;</a>
       </div>
       <div class="f-col">
-        <h4>Case studies</h4>
+        <h2>Case studies</h2>
         <a href="enter.html">01 &mdash; Enter</a>
         <a href="coup.html">02 &mdash; Coup Mobility</a>
         <a href="cooler-future.html">03 &mdash; Cooler Future</a>
         <a href="vivy.html">04 &mdash; Vivy</a>
       </div>
       <div class="f-col">
-        <h4>Elsewhere</h4>
+        <h2>Elsewhere</h2>
         <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
         <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
       </div>

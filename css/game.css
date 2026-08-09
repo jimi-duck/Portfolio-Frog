@@ -11,7 +11,7 @@
    label that only unfolds once you reach for it. Pressing P works too. */
 #game-launch{
   position:fixed;right:var(--pad);bottom:1.1rem;z-index:99950;
-  display:inline-flex;align-items:center;gap:.5rem;
+  display:inline-flex;align-items:center;gap:0;
   padding:.5rem .7rem;border:1px solid var(--rule);background:var(--paper);color:var(--mute);
   font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;
   opacity:0;transform:translateY(6px);pointer-events:none;cursor:pointer;
@@ -21,7 +21,17 @@
 body.scrolled #game-launch{opacity:1;transform:none;pointer-events:auto;border-color:var(--ink);color:var(--ink)}
 body.scrolled #game-launch:hover{color:var(--paper);background:var(--ink);border-color:var(--ink)}
 #game-launch img{height:17px;width:auto;filter:none;opacity:1}
-#game-launch .gl-t{display:inline-block;white-space:nowrap}
+/* The label unfolds on approach, as the marker was always meant to. Parked open
+   it is a 86px slab pinned over the right margin, which lands on top of the
+   right-aligned project tags as they pass the foot of the viewport. */
+#game-launch .gl-t{
+  display:inline-block;white-space:nowrap;max-width:0;margin-left:0;opacity:0;overflow:hidden;
+  transition:max-width .35s var(--ez),opacity .25s var(--ez),margin-left .35s var(--ez);
+}
+#game-launch:hover .gl-t,#game-launch:focus-visible .gl-t{max-width:5rem;margin-left:.5rem;opacity:1}
+/* and it steps aside entirely at the foot of the page, where it otherwise sat
+   directly on top of the "Back to top" link */
+body.foot-in #game-launch{opacity:0;transform:translateY(6px);pointer-events:none}
 body.astro-active #game-launch{display:none}
 @media (max-width:600px){#game-launch{display:none}}
 html.coarse body:not(.astro-active) #game-launch{display:inline-flex}
