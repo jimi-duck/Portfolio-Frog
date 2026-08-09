@@ -13,9 +13,6 @@ enter.html           Case study — Enter (energy tech)
 coup.html            Case study — Coup Mobility
 cooler-future.html   Case study — Cooler Future
 vivy.html            Case study — Vivy
-crowdscores.html     Case study — CrowdScores
-yunojuno.html        Case study — YunoJuno
-quidco.html          Case study — Quidco
 
 css/swiss.css        The whole design system — every page loads this
 css/cv.css           Résumé-only screen styles + the A4 print sheet
@@ -89,12 +86,10 @@ Case study pages share one class vocabulary (`cs-hero`, `section`, `prose`,
 `two`/`three`/`four`, `stats`, `pbox`, `pq`, `cards`, `dark-band`, `warm-band`,
 `next`), so restyling them means editing `swiss.css` rather than the pages.
 
-They also form one chain, and it has to stay unbroken: the homepage links the
-first four, then each page's `.next` card carries you to the following one —
-Enter → Coup → Cooler Future → Vivy → CrowdScores → YunoJuno → Quidco → home.
-The last three are not on the homepage index, so that chain is the only way to
-reach them. Break a `.next` link and those pages become unreachable while
-staying in `sitemap.xml`.
+They also form one chain: the homepage links all four, and each page's `.next`
+card carries you to the following one — Enter → Coup → Cooler Future → Vivy,
+which ends on a card back to the portfolio. Every case study is reachable from
+the homepage index, so keep the two in step if you add another.
 
 Two easter eggs: **G** overlays the 12-column grid on any page (hinted once in
 the footer), and the homepage game opens from the corner launcher or by pressing
