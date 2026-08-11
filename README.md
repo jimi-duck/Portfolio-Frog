@@ -96,6 +96,25 @@ the footer), and the homepage game opens from the corner launcher or by pressing
 **P**. The launcher collapses to its sprite until you approach it and stands
 down entirely over the footer, where it otherwise covered "Back to top".
 
+## Before you deploy
+
+A short checklist, because these are the things that rot between releases:
+
+- `sitemap.xml` lists only the six live pages and carries a `<lastmod>` — bump
+  the dates when you publish.
+- Meta descriptions are kept under ~160 characters so search results do not
+  truncate them mid-sentence. Both `description` and `og:description` carry the
+  same string, so change them together.
+- Every `<img>` needs `width` and `height` (prevents layout shift) and
+  `loading="lazy"` — except the one hero image per page, which stays eager and
+  carries `fetchpriority="high"` on the homepage.
+- PNGs here are transparent device renders, so they cannot be converted to JPEG.
+  They have been re-encoded losslessly; if you add more, run them through
+  ImageOptim or Squoosh first — the originals were ~15% larger than necessary.
+- External links to former employers go stale. `joincoup.com` is gone and
+  `vivy.com` now redirects to a domain broker, so both are plain text rather
+  than links on the résumé.
+
 ## Running locally
 
 Serve the folder with any static file server, e.g.:
