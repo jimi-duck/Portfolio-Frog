@@ -99,7 +99,9 @@ a.job-co:hover{color:var(--red)}
 }
 .print-cv a{color:inherit;text-decoration:none}
 .print-cv ul{list-style:none;margin:0;padding:0}
-.pr-page{width:210mm;min-height:297mm;padding:34pt 42.3pt 28pt;background:#fff}
+/* 296mm, not 297: at exactly one page height a sub-pixel rounding in the print
+   layout spills the sheet onto a blank second page. */
+.pr-page{width:210mm;min-height:296mm;padding:37.5pt 42.3pt 26pt;background:#fff}
 
 /* header — name stacked left, title + contacts flush right, hairline rule under */
 .pr-head{display:grid;grid-template-columns:1fr auto;gap:24pt;align-items:end;
@@ -110,20 +112,20 @@ a.job-co:hover{color:var(--red)}
           color:var(--pr-ink);line-height:13.5pt}
 
 /* section label */
-.pr-sec{margin-top:21pt}
+.pr-sec{margin-top:16pt}
 .pr-lbl{font-size:7.4pt;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
-        color:var(--pr-label);line-height:1;margin-bottom:9pt}
+        color:var(--pr-label);line-height:1;margin-bottom:7.5pt}
 .pr-summary{font-size:9pt;line-height:12.75pt}
 
 /* experience + education entries */
-.pr-job{break-inside:avoid;margin-top:15pt}
+.pr-job{break-inside:avoid;margin-top:8.5pt}
 .pr-job:first-of-type{margin-top:0}
 .pr-jhd{display:flex;justify-content:space-between;align-items:baseline;gap:14pt}
 .pr-jco{font-size:10.2pt;font-weight:700;letter-spacing:-.015em;line-height:1.15}
 .pr-jrole{font-size:8.6pt;font-weight:400;letter-spacing:0;color:var(--pr-mid)}
 .pr-jdate{font-size:8.2pt;color:var(--pr-mid);white-space:nowrap}
 .pr-jabout{font-size:8.2pt;line-height:11.5pt;color:var(--pr-mid);margin-top:2.5pt}
-.pr-blist{margin-top:4pt}
+.pr-blist{margin-top:3pt}
 .pr-blist li{position:relative;padding-left:8.25pt;font-size:8.5pt;line-height:11.25pt;margin-top:2.5pt}
 .pr-blist li:first-child{margin-top:0}
 .pr-blist li::before{content:'·';position:absolute;left:0;top:0;font-weight:700}
@@ -131,5 +133,5 @@ a.job-co:hover{color:var(--red)}
 
 /* skills & tools — four columns */
 .pr-skills{display:grid;grid-template-columns:repeat(4,1fr);gap:0 15pt}
-.pr-skills .pr-lbl{margin-bottom:7pt}
+.pr-skills .pr-lbl{margin-bottom:5pt}
 .pr-skills li{font-size:8.4pt;line-height:13.5pt}
