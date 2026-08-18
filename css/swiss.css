@@ -673,6 +673,10 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .section>.pbox,.dark-band-inner>.pbox,.warm-band-inner>.pbox{max-width:80ch}
 .prose+.prose{margin-top:1.1em}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3vw,3.2rem)}
+/* The prototype artefact is a document, not a picture — it needs width to stay
+   legible, but a full half of the grid left it standing a head taller than the
+   column beside it. Five-sevenths is where the two columns end level. */
+.two.lean{grid-template-columns:5fr 7fr}
 .three{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap)}
 .four{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap)}
 /* Case-study artwork runs at its natural height. These are screenshots, flows
@@ -694,6 +698,19 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 /* inside a band the artwork is mostly transparent mockups — a frame just
    draws a box around empty space */
 .dark-band .img{border:0}
+/* Field-research photography. Desaturated to the same register as the hero
+   banner, so the documentary shots read as evidence gathered on site rather
+   than as art direction sitting alongside the product screens. */
+.photo.is-doc{filter:grayscale(100%) contrast(1.06)}
+[data-theme="dark"] .photo.is-doc{filter:grayscale(100%) contrast(1) brightness(.86)}
+/* A pair of square field photographs. They hold the two-up down to tablet and
+   only stack on a phone, where side-by-side squares would be too small to read
+   as documentary evidence rather than texture. */
+.doc-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap)}
+/* No crop here. One of these frames is a survey sheet rather than a photograph,
+   and a 4:3 box took the header off the top of it and the U-value off the
+   bottom. Both sources are square, so they sit level at their natural height. */
+@media(max-width:560px){.doc-row{grid-template-columns:1fr;gap:1.4rem}}
 .cap{margin-top:.6rem;font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);line-height:1.5}
 /* .tall/.wide/.short are legacy hooks in the markup — deliberately inert, so
    nothing crops. Set an aspect-ratio inline on a specific image if you want one. */
@@ -875,7 +892,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .w-d{grid-column:2/4;max-width:44ch}
   .w-y{display:none}
   .cs-hero{grid-template-columns:1fr;gap:2rem;align-items:start}
-  .two,.three,.four,.phones-trio{grid-template-columns:1fr}
+  .two,.two.lean,.three,.four,.phones-trio{grid-template-columns:1fr}
   .walk{grid-template-columns:1fr}
   .walk-media{--dev:300px}
   .mgrid{grid-template-columns:1fr}

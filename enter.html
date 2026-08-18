@@ -89,6 +89,78 @@
       <p class="prose">When I joined, advisors relied on paper forms, handwritten notes, and fragmented workflows. Data was inconsistent, difficult to digitise, and unsuitable for a scalable AI pipeline. There was no dedicated product for advisors collecting information in the field, or for homeowners trying to understand their renovation options and next steps.<br><br>I led the design of both experiences: a tablet-first field app that guides energy advisors through on-site assessments, and a digital customer report that helps homeowners understand recommendations, compare renovation scenarios, and move confidently toward funding and implementation.</p>
     </div>
   </section>
+</div>
+
+<!-- ═══ RESEARCH BEAT 1 — shadowing the work ══════════════ -->
+<div class="warm-band">
+  <div class="warm-band-inner">
+    <p class="lbl r">Understanding the work</p>
+    <h2 class="r">Two hours in the house.<br>A week to the <em>answer.</em></h2>
+    <div class="two r" style="margin-top:1.4rem">
+      <p class="prose">I rode along on appointments: several assessments start to finish, following advisors from the meter cupboard to the loft, watching what they measured, what they wrote down, and what they left until later. Then I followed the same data backwards: sitting with the team who turned those notes into an energy model, and listening to the calls where the results were finally presented to the homeowner.</p>
+      <p class="prose">The visit took around two hours in the house. The model took days at a desk. The homeowner heard the outcome on a phone call a week later, long after the advisor had left their kitchen.<br><br>Three stages, three teams, and a handover at every seam. Each seam was somewhere data could go missing or interest could cool, and none of them were visible from a desk in Berlin.</p>
+    </div>
+
+    <div class="doc-row r" style="margin-top:clamp(1.8rem,3.4vw,3rem)">
+      <div>
+        <img class="photo is-doc" src="img/enter-research-visit.jpg" alt="Energy advisor following a homeowner through the hallway of a house at the start of an assessment" loading="lazy" width="1024" height="1024">
+        <p class="cap">Ride-alongs: following the assessment through the house, room by room</p>
+      </div>
+      <div>
+        <img class="photo is-doc" src="img/enter-research-notes.jpg" alt="Handwritten building survey sheet: a floor plan marked with room areas, alongside notes on wall build-up, missing insulation and calculated U-values" loading="lazy" width="1254" height="1254">
+        <p class="cap">Page three of six: room areas, wall build-up, U-value. All of it rekeyed at a desk later</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RESEARCH BEAT 2 — the paper proof of concept ══════ -->
+<div class="body">
+  <section class="section r">
+    <p class="lbl">Rethinking data collection</p>
+    <h2>Paper first.<br>Then <em>the engineering.</em></h2>
+    <div class="two" style="margin-top:1.4rem">
+      <p class="prose">The obvious answer was a digital floor plan the advisor could draw on. But building one properly meant cadastral data, a drawing surface, live geometry and validation. Months of engineering, and I didn’t want to spend them finding out that the idea underneath didn’t survive a real house.<br><br>So I made the cheapest possible version of it. A pre-populated 2D footprint, pulled from cadastral records and dimensioned, dropped into the Files app on the advisor’s own tablet and marked up with a pencil during real appointments. No code. An afternoon to change.</p>
+      <p class="prose">It carried two ideas, and I had very different confidence in them.<br><br>The first was the footprint itself. Could an advisor work from a plan they hadn’t drawn? Was the registered geometry actually right? Did starting from it save time? I expected this to hold, but it was the expensive thing to build, which made it the thing worth proving first.<br><br>The second was speculative. Rather than specifying every window one by one, the advisor defined three or four window <em>types</em> by year, frame material and glazing, then tagged positions on the plan by colour. Far less manual effort, but a complete rethink of how the survey worked, and I had no idea whether what came back would still be good enough for the modelling team.</p>
+    </div>
+
+    <div class="two lean" style="margin-top:clamp(1.8rem,3.4vw,3rem);align-items:start;gap:clamp(1.4rem,3vw,3rem)">
+      <div class="r">
+        <a href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" aria-label="Open the full prototype sheet as a PDF">
+          <img class="img" src="img/enter-poc-plan.jpg" alt="Prototype survey sheet: a dimensioned building footprint with coloured crosses marking window positions, a question asking whether the plan matches the floor, and a table defining four window types by frame material and glazing" loading="lazy" width="1184" height="1684">
+        </a>
+        <p class="cap">One sheet per floor: the footprint, windows tagged by type, and one blunt question: does this plan match the floor you are standing on?</p>
+      </div>
+      <div class="r">
+        <img class="photo is-doc" src="img/enter-poc-tablet.jpg" alt="Energy advisor marking up the prototype floor plan on a tablet inside an unfinished house" loading="lazy" width="1306" height="816">
+        <p class="cap">Marked up in the Files app on the advisor’s own tablet. Nothing was built to run this test</p>
+        <p class="prose" style="margin-top:clamp(1.2rem,2.4vw,1.8rem)">Every completed sheet went to two audiences: the advisors who had to work this way in someone’s attic, and the modelling team who had to build an energy model out of whatever came back. A version that satisfied one and failed the other wasn’t worth building, which is the entire reason both were in the room for each round.</p>
+        <p style="margin-top:1.1rem"><a class="tlink lbl" href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" style="color:var(--red-ink)">Open the prototype sheet (PDF) &#8599;</a></p>
+      </div>
+    </div>
+
+    <div class="cards r" style="margin-top:clamp(2.2rem,4vw,3.4rem)">
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">The footprint held</div>
+        <p class="icard-d">Advisors could work from a plan they hadn’t drawn. The registered geometry was close enough to correct on site rather than re-measure from scratch, and starting from something beat starting from nothing. That was the green light to build it properly.</p>
+      </div>
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">So did the window types</div>
+        <p class="icard-d">The idea I trusted least turned out to be the bigger win. Defining three or four types and tagging positions by colour turned the most tedious stretch of the survey into something quick and almost painless. The modelling team got what they needed too. Only position and size still had to be captured opening by opening.</p>
+      </div>
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">Paper still leaked</div>
+        <p class="icard-d">Whatever the format, a field skipped in the house was a field missing at the desk. Structure on a page can invite completeness but it cannot enforce it. That was the argument for a real tool rather than a better form.</p>
+      </div>
+    </div>
+
+    <div class="pbox r" style="margin-top:clamp(1.8rem,3vw,2.6rem);max-width:80ch">
+      <p>That reframed the brief. Not “digitise the form”, but: make capture fast enough for the advisor and structured enough that the AI can turn it into findings the homeowner sees before anyone leaves the house. The compliant iSFP still needed finishing afterwards. The conversation no longer had to wait for it.</p>
+    </div>
+  </section>
 
   <!-- ═══ PIPELINE — the map, before the deep dives ═════════ -->
   <section class="section r">
@@ -172,7 +244,7 @@
     <div class="two r" style="align-items:start;gap:5rem;margin-bottom:3rem">
       <div>
         <h2>Window-level accuracy.<br>Built into the<br><em>floor plan.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">Windows are one of the most consequential variables in an energy model. Their position, dimensions, and glazing spec all affect the U-value of the surrounding wall, which directly influences which retrofit measures make financial sense and which don’t. Getting this wrong skews the whole recommendation downstream.</p>
+        <p class="prose" style="margin-bottom:1.4rem">Windows are one of the most consequential variables in an energy model, and the paper trials had already settled the shape of the answer: place each opening on the plan, but pull its specification from a handful of pre-defined types rather than re-entering it every time. Their position, dimensions, and glazing spec all affect the U-value of the surrounding wall, which directly influences which retrofit measures make financial sense and which don’t. Getting this wrong skews the whole recommendation downstream.</p>
         <div class="pbox" style="background:rgba(17,17,16,.05)">
           <p>The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors place each window directly on the plan, dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields.</p>
         </div>
