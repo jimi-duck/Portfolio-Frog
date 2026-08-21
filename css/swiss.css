@@ -18,9 +18,16 @@
   --band:#131311;
   --band-ink:#efede7;
   --ink:#131311;
-  /* 4.9:1 on paper, 5.6:1 on the dark ground — clears AA at every size the
-     muted tone is used at, including the .82rem end of --t-small. */
-  --mute:#68665f;
+  /* Body copy is no longer set in the muted grey. --ink-2 is the reading ink:
+     11:1 on paper, softer than full --ink so long passages don't glare, but
+     nowhere near the grey that body text used to run at. Every paragraph, list
+     item and description uses this; --mute is now only for labels and
+     secondary annotations. */
+  --ink-2:#33322e;
+  /* 6.4:1 on paper, 7.3:1 on the dark ground. The old #68665f measured 4.9:1 —
+     technically AA, but with no headroom at the small end of the scale where
+     this tone does most of its work. */
+  --mute:#57554f;
   /* Hairlines are alpha, not a solid tint, so they sit correctly on paper, on
      --sheet and on --warm without three separate tokens. --rule is the
      structural divider; --rule-2 is the secondary one inside a component. */
@@ -39,13 +46,21 @@
 
   /* type scale */
   --t-mega:clamp(3.1rem,11.4vw,11.5rem);
-  --t-hero:clamp(2.7rem,7.9vw,8.4rem);
+  /* --t-hero is stepped through breakpoints below, not clamped. A single clamp
+     ties the headline to one continuous curve, which either locks it too large
+     on a phone or too small on a desktop; discrete steps let each width get the
+     size that width can actually carry. */
+  --t-hero:8.4rem;
   --t-h1:clamp(2.4rem,6.6vw,6.2rem);
   --t-h2:clamp(1.85rem,4.1vw,3.5rem);
   --t-h3:clamp(1.2rem,1.9vw,1.7rem);
   --t-body:clamp(1rem,1.15vw,1.125rem);
-  --t-small:clamp(.86rem,.95vw,.95rem);
-  --t-lab:.74rem;
+  --t-small:clamp(.9rem,.95vw,.95rem);
+  --t-lab:clamp(.78rem,.85vw,.8rem);
+  /* The metadata strip and the counters (section index, case-study number,
+     process step) sit one step above the label size. They were the smallest
+     type on the page and the first thing to become unreadable on a phone. */
+  --t-meta:clamp(.84rem,1vw,.9rem);
   /* One tracking value for every uppercase micro-label on the site. The old
      system ran four (.14/.16/.17/.19em) at four different sizes; a single
      token is both calmer and the one knob to turn if it wants to be wider. */
@@ -61,13 +76,26 @@
   --band:#efede7;
   --band-ink:#131311;
   --ink:#efede7;
-  --mute:#8e8c84;
+  --ink-2:#dedcd6;
+  --mute:#a3a199;
   --rule:rgba(239,237,231,.12);
   --rule-2:rgba(239,237,231,.07);
   --red:#ff5b36;
   --red-ink:#ff5b36;
   --red-bright:#ff7a5c;
 }
+
+/* ── 2b. HERO HEADLINE STEPS ─────────────────────────────────────────────── */
+/* Six defined steps rather than one clamp. Each is chosen against the longest
+   line the headline actually sets ("Let's talk about" / "starts with"), so the
+   headline fills its column at every width instead of being sized by a formula
+   that knows nothing about the words. */
+@media (max-width:1440px){ :root{--t-hero:6.9rem} }
+@media (max-width:1200px){ :root{--t-hero:5.7rem} }
+@media (max-width:1024px){ :root{--t-hero:4.9rem} }
+@media (max-width:900px) { :root{--t-hero:4.2rem} }
+@media (max-width:640px) { :root{--t-hero:3.3rem} }
+@media (max-width:400px) { :root{--t-hero:2.7rem} }
 
 /* ── 3. BASE ─────────────────────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -83,7 +111,20 @@ img,svg,video{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
 button,input,textarea,select{font:inherit;color:inherit;letter-spacing:inherit}
 ::selection{background:var(--red);color:#fff}
-:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+/* Two-tone ring. A single orange outline measures 3.7:1 on paper — it clears
+   the 3:1 non-text minimum by a hair and disappears entirely where it lands on
+   a warm photograph or the greyscale portrait. An ink ring carries the contrast
+   (11:1 on paper) and the orange halo outside it keeps the indicator visible
+   against dark ground, so the pair reads on every surface the page has. */
+:focus-visible{
+  outline:2px solid var(--ink);outline-offset:2px;
+  box-shadow:0 0 0 5px var(--red);border-radius:1px;
+}
+/* On the ink band and in the footer the ring inverts: --ink is already the
+   paper tone there, so the inner stroke needs the band's own ink instead. */
+footer :focus-visible,.dark-band :focus-visible{
+  outline-color:var(--band-ink);box-shadow:0 0 0 5px var(--red)
+}
 main:focus{outline:none}
 /* Off-screen until focused. With a fixed header and pages this long, a keyboard
    user otherwise tabs the whole nav on every page before reaching content. */
@@ -136,7 +177,7 @@ em{font-style:italic}
 .sechd{display:flex;align-items:baseline;gap:1.25rem;padding-bottom:1.1rem;position:relative}
 .sechd .lab{white-space:nowrap}
 .sechd .fill{flex:1}
-.sechd .idx{font-size:var(--t-lab);letter-spacing:var(--tr-lab);color:var(--mute);font-variant-numeric:tabular-nums}
+.sechd .idx{font-size:var(--t-meta);letter-spacing:var(--tr-lab);color:var(--mute);font-variant-numeric:tabular-nums}
 
 /* Display type */
 .mega{font-size:var(--t-mega);font-weight:700;line-height:.83;letter-spacing:-.045em}
@@ -196,7 +237,11 @@ html.introing,html.introing body{overflow:hidden}
    and the cursor are present in every viewport, so none of them spend it —
    five simultaneous oranges is no accent at all. */
 #prog{position:fixed;top:0;left:0;height:2px;background:var(--ink);z-index:99988;width:0;pointer-events:none}
-nav{
+/* :not(#menu) — the overlay menu is a <nav> too, so that it is announced as
+   navigation rather than as an anonymous group. Without the exclusion the bar's
+   own height, background and border collapse the full-screen overlay to a 56px
+   strip across the top of the page. */
+nav:not(#menu){
   position:fixed;top:0;left:0;right:0;z-index:99980;height:var(--bar);
   display:flex;align-items:center;
   background:color-mix(in srgb,var(--paper) 86%,transparent);
@@ -235,14 +280,24 @@ nav{
 .tt:hover .tt-moon{opacity:.75}
 [data-theme="dark"] .tt:hover .tt-sun{opacity:.75}
 
-/* Mobile menu */
-.nav-mob{display:none;align-items:center;gap:1.2rem}
-.burger{display:none;width:34px;height:18px;border:0;background:none;position:relative;padding:0;cursor:pointer}
-.burger i{position:absolute;left:0;right:0;height:1.5px;background:var(--ink);transition:transform .45s var(--ez2),opacity .2s}
-.burger i:nth-child(1){top:3px}
-.burger i:nth-child(2){bottom:3px}
-body.menu-on .burger i:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
-body.menu-on .burger i:nth-child(2){transform:translateY(-5.5px) rotate(-45deg)}
+/* Compact menu control. A bare two-line burger is a guess; this one carries the
+   word, so it is a labelled control at a 44px touch target rather than an icon
+   the visitor has to recognise. The label swaps to Close when the menu is open,
+   which the button's aria-expanded also states. */
+.nav-mob{display:none;align-items:center;gap:1rem}
+.burger{
+  display:none;align-items:center;gap:.55rem;min-height:44px;padding:.5rem 0 .5rem .2rem;
+  border:0;background:none;cursor:pointer;
+  font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;
+  color:var(--ink);
+}
+.burger .bars{position:relative;width:26px;height:14px;flex:none}
+.burger .bars i{position:absolute;left:0;right:0;height:1.5px;background:var(--ink);
+  transition:transform .45s var(--ez2),opacity .2s}
+.burger .bars i:nth-child(1){top:1px}
+.burger .bars i:nth-child(2){bottom:1px}
+body.menu-on .burger .bars i:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
+body.menu-on .burger .bars i:nth-child(2){transform:translateY(-5.5px) rotate(-45deg)}
 #menu{
   position:fixed;inset:0;z-index:99970;background:var(--paper);
   display:flex;flex-direction:column;justify-content:center;
@@ -259,19 +314,25 @@ body.menu-on #menu{clip-path:inset(0 0 0 0);visibility:visible;
 body.menu-on{overflow:hidden}
 #menu a{font-size:clamp(2.2rem,10vw,4rem);font-weight:700;letter-spacing:-.04em;line-height:1.05;
   display:flex;align-items:baseline;gap:.7rem;padding:.28em 0;border-bottom:1px solid var(--rule-2)}
-#menu a .n{font-size:var(--t-lab);letter-spacing:var(--tr-lab);color:var(--mute);font-weight:400}
+#menu a .n{font-size:var(--t-meta);letter-spacing:var(--tr-lab);color:var(--mute);font-weight:400}
 #menu .foot{margin-top:auto;display:flex;gap:1.4rem;flex-wrap:wrap;padding-top:1.6rem}
 #menu .foot a{font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;border:0;padding:0}
 
 /* ── 8. HERO ─────────────────────────────────────────────────────────────── */
 .hero{padding-top:var(--bar);min-height:100svh;display:flex;flex-direction:column}
+/* The metadata strip. Four equal cells at desktop; a two-column grid on a
+   phone, where four cells in one row shrank each to about 80px and broke every
+   value across three lines. --t-meta rather than --t-lab: this strip is read,
+   not skimmed past like a heading label. */
 .hero-meta{
-  display:flex;gap:0;border-bottom:1px solid var(--rule);
-  font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
+  border-bottom:1px solid var(--rule);
+  font-size:var(--t-meta);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);
+  line-height:1.35;
 }
-.hero-meta span{padding:.85rem 0;flex:1;border-left:1px solid var(--rule-2)}
+.hero-meta span{padding:.85rem 0;border-left:1px solid var(--rule-2)}
 .hero-meta span:first-child{border-left:0;color:var(--ink);font-weight:700}
-.hero-meta span i{font-style:normal;padding-left:1rem}
+.hero-meta span i{font-style:normal;padding-left:1rem;display:block}
 .hero-meta span:first-child i{padding-left:0}
 
 /* min-height:0 on the flex children: without it a flex item refuses to shrink
@@ -290,12 +351,10 @@ body.menu-on{overflow:hidden}
 .hero-l{display:flex;flex-direction:column;justify-content:flex-start;
   padding:clamp(1.4rem,2.8vw,2.6rem) 0 clamp(1.8rem,3.4vw,3rem)}
 .hero-h{--lead:.97;font-size:var(--t-hero);font-weight:700;line-height:.97;letter-spacing:-.048em}
-.hero-h .ln{display:block;overflow:hidden}
-.hero-h .ln>i{display:block;font-style:normal}
 /* The name is the nav's job. It briefly sat here as well, which read as the
    same words twice on one screen. The margin carries the air that line used to
    provide, so the display type still has room under it. */
-.hero-sub{max-width:52ch;color:var(--mute);font-size:var(--t-small);line-height:1.62;
+.hero-sub{max-width:52ch;color:var(--ink-2);font-size:var(--t-small);line-height:1.62;
   margin-top:clamp(1.8rem,3.6vw,3rem)}
 .hero-act{display:flex;align-items:center;gap:1.1rem;margin-top:clamp(1.6rem,3vw,2.4rem)}
 .hero-act .cta-t{font-size:var(--t-lab);font-weight:700;text-transform:uppercase;letter-spacing:var(--tr-lab)}
@@ -312,40 +371,25 @@ body.menu-on{overflow:hidden}
   filter:grayscale(100%) contrast(1.08);transform:scale(1.06)}
 [data-theme="dark"] .hero-fig img{filter:grayscale(100%) contrast(1.02) brightness(.86)}
 
-/* ── 9. SKILL LINE ───────────────────────────────────────────────────────── */
-/* A stated list, not a marquee. The old track repeated the same seven skills
-   a dozen times across the full width, which turned a strong ink band into
-   wallpaper and read as motion for its own sake. Same band, same weight, one
-   pass, hairline ticks between terms. */
-.marq{background:var(--band);color:var(--band-ink);padding-block:clamp(1.5rem,3vw,2.6rem)}
-/* Space is the only separator. Sized so all five terms hold one line at desktop
-   width — the point of a stated list is that you take it in at once. */
-.skills{display:flex;flex-wrap:wrap;align-items:baseline;list-style:none;
-  gap:clamp(1.1rem,3.4vw,3.4rem);
-  font-size:clamp(1.05rem,2vw,1.7rem);font-weight:700;letter-spacing:-.032em;line-height:1.3}
-
-/* ── 10. FIGURES / STATS ─────────────────────────────────────────────────── */
-.figs{display:grid;grid-template-columns:repeat(3,1fr)}
-.fig{padding:clamp(1.8rem,3.4vw,3.2rem) 0 clamp(1.6rem,3vw,2.6rem);border-left:1px solid var(--rule-2);padding-left:var(--gap)}
-.fig:first-child{border-left:0;padding-left:0}
-/* The figure rests in ink and takes the accent on hover. Three permanently
-   orange numerals shout, and break the one-accent-per-viewport rule. */
-.fig-n{--lead:.86;font-size:clamp(3rem,7.6vw,7.4rem);font-weight:700;line-height:.82;letter-spacing:-.05em;
-  font-variant-numeric:tabular-nums;transition:color .45s var(--ez)}
-.fig:hover .fig-n{color:var(--red)}
-/* ∞ is a maths glyph, not a lining figure. Measured in Heros at the figure size:
-   its ink is 45.96px against 80.22px for a digit, and its optical centre sits
-   0.27em above the baseline where a digit's sits at 0.3575em — so untouched it
-   draws barely half the height of 08+ and floats above the line. 80.22/45.96
-   gives the scale; the translate drops the difference between those centres.
-   line-height:0 keeps the enlarged glyph from growing the row, and line-height:1
-   on the parent matches the 1em box the masked-line figures get, so all three
-   captions sit on one line. It uses the plain fade rather than .rl because a
-   glyph this much larger than its line box would be clipped by the mask. */
-.fig-inf{line-height:1}
-.fig-inf i{display:inline-block;font-style:normal;font-size:1.745em;line-height:0;
-  transform:translateY(.065em)}
-.fig-l{margin-top:.9rem;font-size:var(--t-small);color:var(--mute);line-height:1.5;max-width:22ch}
+/* ── 10. CAPABILITY LINE ─────────────────────────────────────────────────── */
+/* This replaces the figures block — "08+ products shipped", "03 taken to
+   launch", "∞ questions". Those numbers were unverifiable, said nothing a
+   client could act on, and spent three enormous numerals on the weakest content
+   on the page. What a visitor is actually trying to establish here is what I
+   do, how I can be engaged and who I do it for, so the band states exactly
+   that, at the same scale and with the same hairline cells as the metadata
+   strip in the hero. Same component, second use. */
+.capline{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  font-size:var(--t-meta);letter-spacing:var(--tr-lab);text-transform:uppercase;
+  line-height:1.45;
+}
+.capline>div{padding:clamp(1.1rem,2.2vw,1.6rem) 0;border-left:1px solid var(--rule-2);
+  padding-left:var(--gap)}
+.capline>div:first-child{border-left:0;padding-left:0}
+.capline dt{color:var(--ink);font-weight:700;margin-bottom:.5rem}
+.capline dd{color:var(--mute)}
 
 /* ── 11. CLIENT ROW ──────────────────────────────────────────────────────── */
 /* Rules above and below, not a box per logo — the row reads as one measured
@@ -383,11 +427,11 @@ body.menu-on{overflow:hidden}
 /* The top rule is a pseudo-element rather than a border so it can draw in from
    the left as the project scrolls into view — see the reveal section. */
 .wproj::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:var(--ink)}
+/* Just the index number and a hairline running out to the right margin. */
 .wproj-hd{display:flex;align-items:baseline;gap:1.25rem;
-  font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase}
+  font-size:var(--t-meta);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase}
 .wproj-hd .fill{flex:1;height:1px;background:var(--rule-2);transform:translateY(-.25em)}
 .wproj-n{color:var(--red-ink);font-variant-numeric:tabular-nums}
-.wproj-tag{color:var(--mute);font-weight:400;text-align:right}
 
 .wproj-body{display:grid;grid-template-columns:7fr 5fr;gap:clamp(1.4rem,3.4vw,3.6rem);
   align-items:start;margin-top:clamp(1.4rem,2.8vw,2.6rem)}
@@ -412,7 +456,7 @@ body.menu-on{overflow:hidden}
 .wproj-t{font-size:clamp(2rem,4.6vw,4rem);font-weight:700;letter-spacing:-.045em;line-height:.94;
   margin-top:-.06em;transition:color .35s var(--ez)}
 .wproj:hover .wproj-t{color:var(--red)}
-.wproj-d{margin-top:1.2rem;font-size:var(--t-small);line-height:1.6;color:var(--mute);max-width:46ch}
+.wproj-d{margin-top:1.2rem;font-size:var(--t-small);line-height:1.6;color:var(--ink-2);max-width:46ch}
 
 /* Meta row — the emphasis mechanism that replaces bolded runs inside the copy.
    Facts that used to be shouted mid-sentence get a column and a hairline
@@ -449,10 +493,10 @@ body.menu-on{overflow:hidden}
   transition:transform .55s var(--ez2);
 }
 .wrow>*{transition:color .35s var(--ez),transform .55s var(--ez)}
-.w-n{font-size:var(--t-lab);letter-spacing:var(--tr-lab);color:var(--mute);font-variant-numeric:tabular-nums}
+.w-n{font-size:var(--t-meta);letter-spacing:var(--tr-lab);color:var(--mute);font-variant-numeric:tabular-nums}
 .w-t{font-size:clamp(1.9rem,4.4vw,3.9rem);font-weight:700;letter-spacing:-.042em;line-height:1}
-.w-d{font-size:var(--t-small);color:var(--mute);line-height:1.45}
-.w-y{font-size:var(--t-lab);letter-spacing:var(--tr-lab);color:var(--mute);text-align:right;font-variant-numeric:tabular-nums}
+.w-d{font-size:var(--t-small);color:var(--ink-2);line-height:1.45}
+.w-y{font-size:var(--t-meta);letter-spacing:var(--tr-lab);color:var(--mute);text-align:right;font-variant-numeric:tabular-nums}
 .w-a{width:26px;height:26px;justify-self:end;color:var(--mute)}
 .w-a svg{width:100%;height:100%}
 @media (hover:hover) and (pointer:fine){
@@ -464,7 +508,7 @@ body.menu-on{overflow:hidden}
 /* ── 13. ABOUT ───────────────────────────────────────────────────────────── */
 .about{display:grid;grid-template-columns:5fr 7fr;gap:clamp(1.5rem,4vw,4.5rem);align-items:start}
 .about-h{--lead:.97;font-size:var(--t-h2);font-weight:700;letter-spacing:-.038em;line-height:.96}
-.about-body{font-size:var(--t-body);line-height:1.62;color:var(--mute);max-width:60ch}
+.about-body{font-size:var(--t-body);line-height:1.62;color:var(--ink-2);max-width:60ch}
 .about-body p+p{margin-top:1.1em}
 
 /* capability table (mirrors the CV). No column rules: the four headings and the
@@ -475,7 +519,7 @@ body.menu-on{overflow:hidden}
   border-top:1px solid var(--ink);margin-top:clamp(2.2rem,4vw,3.6rem)}
 .cap-c{padding:1.1rem var(--gap) 1.4rem 0}
 .cap-c h4{font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;font-weight:700;margin-bottom:1rem}
-.cap-c li{list-style:none;font-size:var(--t-small);color:var(--mute);padding:.34rem 0;border-bottom:1px solid var(--rule-2)}
+.cap-c li{list-style:none;font-size:var(--t-small);color:var(--ink-2);padding:.34rem 0;border-bottom:1px solid var(--rule-2)}
 .cap-c li:last-child{border-bottom:0}
 
 /* ── 14. PROCESS ─────────────────────────────────────────────────────────── */
@@ -489,11 +533,11 @@ body.menu-on{overflow:hidden}
   padding-block:clamp(1.3rem,2.6vw,2.3rem);border-bottom:1px solid var(--rule)}
 /* muted at rest: four accented numerals would all share one viewport, and the
    page allows one. The row takes the accent on hover, one at a time. */
-.proc-n{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);color:var(--mute);
+.proc-n{font-size:var(--t-meta);font-weight:700;letter-spacing:var(--tr-lab);color:var(--mute);
   font-variant-numeric:tabular-nums;padding-top:.42rem;transition:color .45s var(--ez)}
 .proc-s:hover .proc-n{color:var(--red)}
 .proc-t{font-size:var(--t-h3);font-weight:700;letter-spacing:-.025em;line-height:1.15}
-.proc-d{font-size:var(--t-small);color:var(--mute);line-height:1.6;max-width:60ch}
+.proc-d{font-size:var(--t-small);color:var(--ink-2);line-height:1.6;max-width:60ch}
 
 /* ── 15. CONTACT ─────────────────────────────────────────────────────────── */
 .contact{display:grid;grid-template-columns:5fr 7fr;gap:clamp(1.6rem,4vw,4.5rem);align-items:start}
@@ -515,30 +559,36 @@ body.menu-on{overflow:hidden}
   padding:.55rem 0;font-size:var(--t-body);color:var(--ink);width:100%;
   -webkit-appearance:none;appearance:none;transition:border-color .35s var(--ez);
 }
-.fg input::placeholder,.fg textarea::placeholder{color:color-mix(in srgb,var(--mute) 60%,transparent)}
+.fg input::placeholder,.fg textarea::placeholder{color:color-mix(in srgb,var(--mute) 78%,transparent)}
 .fg input:focus,.fg textarea:focus{outline:0;border-bottom-color:var(--red)}
 .fg textarea{resize:vertical;min-height:104px}
 .fsub{display:flex;align-items:center;gap:1.1rem;background:none;border:0;padding:0;cursor:pointer;text-align:left}
 .fsub .cta-t{font-size:var(--t-lab);font-weight:700;text-transform:uppercase;letter-spacing:var(--tr-lab)}
-.fmsg{font-size:var(--t-small);color:var(--mute)}
+.fmsg{font-size:var(--t-small);color:var(--ink-2)}
 .fmsg.err{color:var(--red)}
 
 /* ── 16. FOOTER ──────────────────────────────────────────────────────────── */
+/* Same inversion as .dark-band — the footer stands on the same ground. */
 footer{--red:#ff5b36;--red-ink:#ff5b36;
+  --ink:var(--band-ink);
+  --ink-2:color-mix(in srgb,var(--band-ink) 86%,transparent);
+  --mute:color-mix(in srgb,var(--band-ink) 70%,transparent);
+  --rule:color-mix(in srgb,var(--band-ink) 26%,transparent);
+  --rule-2:color-mix(in srgb,var(--band-ink) 14%,transparent);
   background:var(--band);color:var(--band-ink);padding-top:clamp(3rem,6vw,6rem);overflow:hidden}
 [data-theme="dark"] footer{--red:#c92f12;--red-ink:#c92f12}
 .f-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--gap);
   padding-bottom:clamp(2.5rem,5vw,4.5rem)}
 .f-col h2{font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;font-weight:700;
   padding-bottom:.9rem;margin-bottom:.9rem;border-bottom:1px solid var(--red)}
-.f-col a,.f-col p{display:block;font-size:var(--t-small);color:color-mix(in srgb,var(--band-ink) 62%,transparent);padding:.28rem 0;line-height:1.5}
+.f-col a,.f-col p{display:block;font-size:var(--t-small);color:color-mix(in srgb,var(--band-ink) 78%,transparent);padding:.28rem 0;line-height:1.5}
 .f-col a{transition:color .3s}
 .f-col a:hover{color:var(--red)}
 .f-bar:last-child{padding-bottom:clamp(1.4rem,2.6vw,2.2rem)}
 .f-bar{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:1rem 0;
   border-top:1px solid color-mix(in srgb,var(--band-ink) 26%,transparent);
   font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;
-  color:color-mix(in srgb,var(--band-ink) 62%,transparent)}
+  color:color-mix(in srgb,var(--band-ink) 78%,transparent)}
 .f-bar a:hover{color:var(--red)}
 /* The only signpost either easter egg gets. Quiet enough to miss, findable if
    you read the footer. */
@@ -546,62 +596,44 @@ footer{--red:#ff5b36;--red-ink:#ff5b36;
 .f-keys kbd{font:inherit;letter-spacing:0;padding:.15em .45em;line-height:1;
   border:1px solid color-mix(in srgb,var(--band-ink) 30%,transparent);color:var(--band-ink)}
 
-/* ── 17. REVEAL MOTION ───────────────────────────────────────────────────── */
-/* Every hidden start state is scoped to html.js, which the inline head script
-   sets, so a page with JS off renders fully rather than blank. The matching
-   .in end states carry the same html.js prefix — otherwise the start state
-   out-specifies them and nothing ever reveals. */
-/* Durations are capped deliberately. A reveal exists to introduce content, not
-   to be watched: anything past ~0.6s means a visitor scrolling at a normal pace
-   reads half-opacity text, which looks like a rendering fault rather than
-   motion. Everything here also eases out (--ez), never in — an ease-in curve
-   spends its first third doing almost nothing visible. */
-html.js .r{opacity:0;transform:translateY(16px);transition:opacity .5s var(--ez),transform .5s var(--ez)}
-html.js .r.in{opacity:1;transform:none}
+/* ── 17. ENTRANCE MOTION ─────────────────────────────────────────────────── */
+/* One treatment, and it is applied to sections — not to elements.
 
-/* Masked lines. The mask must be a full em tall or it shears the ascenders and
-   descenders, so each line runs at line-height:1 and the optical leading is
-   restored by pulling the following line up with --lead. */
-.rl .ln{display:block;overflow:hidden;line-height:1}
-.rl .ln+.ln{margin-top:calc(var(--lead,.97) * 1em - 1em)}
-.rl .ln>i{display:block;font-style:normal}
-html.js .rl .ln>i{transform:translateY(110%);transition:transform .6s var(--ez)}
-html.js .rl.in .ln>i{transform:none}
-.rl .ln:nth-child(1)>i{transition-delay:.02s}
-.rl .ln:nth-child(2)>i{transition-delay:.09s}
-.rl .ln:nth-child(3)>i{transition-delay:.16s}
-.rl .ln:nth-child(4)>i{transition-delay:.23s}
+   What was here before was four separate reveals running at once: a fade-up on
+   every individual paragraph, figure and card (.r, used 24 times on this page
+   alone), a per-line mask on display headings (.rl), a horizontal wipe on
+   rules (.rw), and a clip-path wipe on every image (.rm) — plus a staggered
+   draw-in on the section hairlines and a per-element data-delay ladder on top.
+   Scrolling the page meant watching six things animate independently in the
+   same viewport, and any element you scrolled past quickly was read mid-fade,
+   which looks like a rendering fault rather than motion.
 
-html.js .rw{transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ez)}
-html.js .rw.in{transform:scaleX(1)}
+   Now: a section arriving in the viewport rises 14px and fades in over 0.4s,
+   once, as a single object. Its contents do not animate separately, and neither
+   do its images or its rules. Nothing staggers.
 
-/* Hairline draw-in. The rules that structure the page draw themselves left to
-   right as a section arrives, which is the one piece of motion that reinforces
-   the grid rather than decorating it. The rule is a pseudo-element so the
-   element's own .r fade-up stays independent of it.
+   The start state is scoped to html.js, set by the inline head script, so with
+   JS off the page renders fully rather than blank; the .in end state carries
+   the same prefix or the start state out-specifies it. */
+html.js [data-reveal]{
+  opacity:0;transform:translateY(14px);
+  transition:opacity .4s var(--ez),transform .4s var(--ez);
+}
+html.js [data-reveal].in{opacity:1;transform:none}
 
-   Note the html.js prefix on both halves: the start state is scoped to it so a
-   page without JS renders its rules solid, and the .in state needs the same
-   prefix or the start state out-specifies it. */
+/* Deliberate line breaks in display type. This structure carried the masked
+   line reveal; the mask is gone but the breaks are typography, not motion, so
+   the markup stays and simply sets each line as a block. The optical leading is
+   restored by pulling the following line up with --lead, because each line runs
+   at line-height:1. No overflow:hidden — with the mask gone it only clipped
+   descenders. */
+.ln{display:block;line-height:1}
+.ln+.ln{margin-top:calc(var(--lead,.97) * 1em - 1em)}
+.ln>i{display:block;font-style:normal}
+
+/* The section hairline and the rule above each project are drawn, not animated.
+   Both are pseudo-elements so the section's own fade-up carries them along. */
 .sechd::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink)}
-html.js .sechd::after,html.js .wproj::before{transform:scaleX(0);transform-origin:left;
-  transition:transform .5s cubic-bezier(.22,1,.36,1)}
-html.js .sechd.in::after,html.js .wproj.in::before{transform:scaleX(1)}
-/* Staggering is the existing data-delay hook, held to 70ms steps — the sibling
-   figures and case-study numbers arrive in sequence and nothing waits longer
-   than a beat. Anything above ~80ms stops reading as one gesture. */
-
-/* The clip lives on the image, never on the observed element: a clip-path that
-   collapses an element's visual rect makes IntersectionObserver report it as
-   not intersecting, so it would never be revealed at all. */
-.rm{overflow:hidden}
-/* This one used --ez2 (an ease-in-out) over 1.05s, which meant the frame sat
-   almost entirely masked for the first third of a second — long enough to read
-   as a broken image in an empty box rather than as a wipe. Ease-out, and short
-   enough that the picture is there by the time the eye arrives. */
-.rm img{transition:clip-path .55s var(--ez),transform .7s var(--ez)}
-html.js .rm img{clip-path:inset(0 0 100% 0);transform:scale(1.06)}
-html.js .rm.in img{clip-path:inset(0 0 0 0);transform:scale(1)}
 
 /* ── 18. GRID OVERLAY (press G) ──────────────────────────────────────────── */
 #gridov{position:fixed;inset:0;z-index:99960;pointer-events:none;display:none;
@@ -633,7 +665,7 @@ body.grid-on #gridhint{display:block}
    "Mobility" was a direct p-into-l hit. 0.97 keeps it tight and safe. */
 .cs-title{font-size:var(--t-mega);font-weight:700;line-height:.97;letter-spacing:-.048em;margin-bottom:1.3rem}
 .cs-title em{font-style:normal}
-.cs-tagline{font-size:var(--t-small);line-height:1.6;color:var(--mute);max-width:52ch}
+.cs-tagline{font-size:var(--t-small);line-height:1.6;color:var(--ink-2);max-width:52ch}
 .meta-grid{display:grid;gap:0;border-top:1px solid var(--ink)}
 .meta-item{padding:.8rem 0;border-bottom:1px solid var(--rule-2)}
 .meta-item label{display:block;font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);margin-bottom:.3rem}
@@ -654,7 +686,7 @@ body.grid-on #gridhint{display:block}
 .stat{border-left:1px solid var(--rule-2);padding-left:var(--gap)}
 .stat:first-child{border-left:0;padding-left:0}
 .stat-n{font-size:clamp(2rem,4.4vw,3.6rem);font-weight:700;letter-spacing:-.045em;line-height:.9}
-.stat-l{margin-top:.7rem;font-size:var(--t-small);color:var(--mute);line-height:1.45}
+.stat-l{margin-top:.7rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.45}
 
 .body{padding-left:var(--pad);padding-right:var(--pad)}
 .section{padding-top:clamp(3rem,6.5vw,6.5rem);padding-bottom:clamp(1rem,2vw,2rem);max-width:1560px;margin:0 auto}
@@ -667,7 +699,7 @@ body.grid-on #gridhint{display:block}
 .dark-band h2,.warm-band h2{font-size:var(--t-h2);font-weight:700;letter-spacing:-.038em;line-height:.98;margin-bottom:1.2rem}
 h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .section h3{margin-top:1.6rem}
-.prose{font-size:var(--t-body);line-height:1.62;color:var(--mute)}
+.prose{font-size:var(--t-body);line-height:1.62;color:var(--ink-2)}
 /* full-width prose needs a measure; prose inside a column already has one */
 .section>.prose,.dark-band-inner>.prose,.warm-band-inner>.prose{max-width:74ch}
 .section>.pbox,.dark-band-inner>.pbox,.warm-band-inner>.pbox{max-width:80ch}
@@ -738,7 +770,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   font-variant-numeric:tabular-nums;
 }
 .icard-t{font-size:var(--t-h3);font-weight:700;letter-spacing:-.02em;margin-bottom:.5rem;line-height:1.1}
-.icard-d{font-size:var(--t-small);color:var(--mute);line-height:1.55}
+.icard-d{font-size:var(--t-small);color:var(--ink-2);line-height:1.55}
 /* Product metrics — filled panels in a two-up grid, icon beside the text.
    This is the live site's treatment carried across: same structure and spacing,
    square corners and the new type scale. An open ruled table lost the object
@@ -753,16 +785,30 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   padding:clamp(1.4rem,2.6vw,1.85rem)}
 .mcard-ico{flex:none;width:26px;height:26px;color:var(--red-ink);margin-top:.1rem}
 .mcard-ico svg{width:100%;height:100%;display:block}
-.mcard p{font-size:var(--t-small);line-height:1.72;color:var(--mute);margin:0}
+.mcard p{font-size:var(--t-small);line-height:1.72;color:var(--ink-2);margin:0}
 .mcard strong{display:block;font-size:var(--t-h3);font-weight:700;letter-spacing:-.022em;
   line-height:1.22;color:var(--ink);margin-bottom:.5rem}
 .dark-band .mcard{background:color-mix(in srgb,var(--band-ink) 8%,transparent)}
 .dark-band .mcard strong{color:var(--band-ink)}
 
 /* bands */
-.dark-band{--red:#ff5b36;--red-ink:#ff5b36;background:var(--band);color:var(--band-ink);padding:clamp(3rem,6vw,6rem) var(--pad);margin-top:clamp(3rem,6vw,6rem)}
+/* A band that inverts the ground has to invert the ink tokens with it, not just
+   set `color`. Patching one component at a time is how .walk-d, .toc-d and
+   .toc-lbl ended up rendering paper-tuned greys on a near-black band at 1.45:1
+   — .prose and .cap had been patched, and everything added afterwards inherited
+   a value tuned for the opposite background. Redefining the tokens here means
+   any component dropped into the band is correct by default, in both themes. */
+.dark-band{
+  --red:#ff5b36;--red-ink:#ff5b36;
+  --ink:var(--band-ink);
+  --ink-2:color-mix(in srgb,var(--band-ink) 86%,transparent);
+  --mute:color-mix(in srgb,var(--band-ink) 70%,transparent);
+  --rule:color-mix(in srgb,var(--band-ink) 26%,transparent);
+  --rule-2:color-mix(in srgb,var(--band-ink) 14%,transparent);
+  background:var(--band);color:var(--band-ink);
+  padding:clamp(3rem,6vw,6rem) var(--pad);margin-top:clamp(3rem,6vw,6rem)}
 .dark-band-inner{max-width:1560px;margin:0 auto}
-.dark-band .prose,.dark-band .cap{color:color-mix(in srgb,var(--band-ink) 66%,transparent)}
+.dark-band .prose,.dark-band .cap{color:color-mix(in srgb,var(--band-ink) 80%,transparent)}
 .dark-band .lbl,.dark-band h2{color:var(--band-ink)}
 .dark-band .lbl{padding-bottom:1rem;border-bottom:1px solid color-mix(in srgb,var(--band-ink) 30%,transparent);
   margin-bottom:clamp(1.6rem,3vw,2.6rem);display:block}
@@ -777,13 +823,15 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .flow-step,.day{border-top:1px solid var(--ink);padding-top:.9rem}
 .flow-n,.day-n,.walk-n{font-size:var(--t-lab);letter-spacing:var(--tr-lab);color:var(--red-ink);font-weight:700}
 .flow-t,.day-t,.walk-t{margin-top:.5rem;font-size:var(--t-h3);font-weight:700;letter-spacing:-.02em;line-height:1.1}
-.flow-d,.day-d,.walk-d{margin-top:.45rem;font-size:var(--t-small);color:var(--mute);line-height:1.5}
+.flow-d,.day-d,.walk-d{margin-top:.45rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.5}
 .pipeline{overflow-x:auto;padding-bottom:.6rem}
 .pipeline-row{display:flex;align-items:stretch;gap:var(--gap);min-width:max-content}
 .pipe-node{flex:0 0 clamp(180px,15vw,230px);border-top:1px solid var(--ink);padding-top:.9rem}
 .pipe-node-t{font-size:var(--t-h3);font-weight:700;letter-spacing:-.02em;line-height:1.1}
-.pipe-node-d{margin-top:.45rem;font-size:var(--t-small);color:var(--mute);line-height:1.5}
-.pipe-arr{align-self:center;color:var(--red);font-size:1.1rem}
+.pipe-node-d{margin-top:.45rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.5}
+/* --red-ink, not --red: the plain accent measures 3.7:1 on paper, which fails
+   AA for a glyph this size. */
+.pipe-arr{align-self:center;color:var(--red-ink);font-size:1.1rem}
 /* Report walkthrough — a 2x2 plate. Four full-width rows of a portrait
    screenshot left acres of empty column beside the short commentary. */
 .walk{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(1.8rem,3.6vw,3.4rem) var(--gap)}
@@ -837,7 +885,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .toc-n{grid-row:span 2;font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);color:var(--red-ink);
   padding-top:.25rem;font-variant-numeric:tabular-nums}
 .toc-t{font-size:var(--t-h3);font-weight:700;letter-spacing:-.022em;line-height:1.2}
-.toc-d{font-size:var(--t-small);color:var(--mute);line-height:1.55}
+.toc-d{font-size:var(--t-small);color:var(--ink-2);line-height:1.55}
 .dark-band .toc{border-top-color:var(--band-ink)}
 .dark-band .toc-t{color:var(--band-ink)}
 
@@ -846,7 +894,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   border-top:1px solid var(--rule);padding:clamp(2.4rem,5vw,5rem) var(--pad);margin-top:clamp(3rem,6vw,6rem)}
 .next-eyebrow{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);margin-bottom:1rem}
 .next-title{font-size:var(--t-h2);font-weight:700;letter-spacing:-.04em;line-height:.98}
-.next-sub{margin-top:.9rem;font-size:var(--t-small);color:var(--mute);line-height:1.5;max-width:44ch}
+.next-sub{margin-top:.9rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.5;max-width:44ch}
 .next-img{width:100%;aspect-ratio:16/10;object-fit:cover;filter:grayscale(100%) contrast(1.06);
   transition:filter .7s var(--ez)}
 .next:hover .next-img{filter:grayscale(0%) contrast(1)}
@@ -863,11 +911,16 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .cli{grid-template-columns:repeat(3,1fr)}
   .f-grid{grid-template-columns:repeat(2,1fr);row-gap:2rem}
 }
+/* The nav collapses here, not at 900px. Five links plus the theme switch were
+   still nominally fitting between 900 and 1024, but only by closing the gaps to
+   the point where the row read as one run-on string against the logo. */
+@media (max-width:1024px){
+  .nav-desk{display:none}
+  .burger{display:inline-flex}
+  .nav-mob{display:flex}
+}
 @media (max-width:900px){
   :root{--bar:52px}
-  .nav-desk{display:none}
-  .burger{display:block}
-  .nav-mob{display:flex;align-items:center;gap:1.2rem}
   .hero{min-height:auto}
   .hero-main{grid-template-columns:1fr;gap:1.8rem}
   .hero-l{padding-bottom:0}
@@ -876,12 +929,19 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
      resolved to a 364px minimum width — wider than the content box on a 375px
      phone — and dragged the hero over the right margin. */
   .hero-fig{flex:none;width:100%;min-height:0;aspect-ratio:4/5}
-  .hero-meta{flex-wrap:wrap}
-  .hero-meta span{flex:1 1 50%;border-left:0}
-  .hero-meta span:nth-child(n+3){display:none}
-  .figs{grid-template-columns:1fr;gap:0}
-  .fig{border-left:0;padding-left:0;border-top:1px solid var(--rule-2);padding-top:1.4rem;padding-bottom:1.4rem}
-  .fig:first-child{border-top:0}
+  /* Two columns, and all four cells kept. The old rule hid cells three and four
+     outright on a phone — availability and years practising, which are two of
+     the four things a visitor came to establish. A 2x2 grid carries all of it
+     at a readable width; the hairlines move to match. */
+  .hero-meta{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:0}
+  .hero-meta span{border-left:0;padding:.7rem 0}
+  .hero-meta span:nth-child(2n){border-left:1px solid var(--rule-2);padding-left:1rem}
+  .hero-meta span:nth-child(n+3){border-top:1px solid var(--rule-2)}
+  .hero-meta span i{padding-left:0}
+  .capline{grid-template-columns:1fr}
+  .capline>div{border-left:0;padding-left:0;border-top:1px solid var(--rule-2);
+    padding-top:1.1rem;padding-bottom:1.1rem}
+  .capline>div:first-child{border-top:0}
   .about,.contact{grid-template-columns:1fr;gap:1.8rem}
   .wproj-body{grid-template-columns:1fr;gap:1.2rem;align-items:start}
   .wproj:nth-child(even) .wproj-fig{order:0}
@@ -935,11 +995,10 @@ html.theme-anim,html.theme-anim *{
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
     transition-duration:.001ms !important}
-  .r,.rl .ln>i,.rw,.rm img,.sechd::after,.wproj::before{
-    opacity:1 !important;transform:none !important;clip-path:none !important}
+  [data-reveal]{opacity:1 !important;transform:none !important}
   #intro{display:none}
 }
 @media print{
-  nav,footer,#intro,#prog,#gridov,#menu,.marq{display:none !important}
+  nav,footer,#intro,#prog,#gridov,#menu{display:none !important}
   body{background:#fff;color:#000}
 }
