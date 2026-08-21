@@ -1,5 +1,6 @@
 # Local Claude Code tooling — contains machine-specific paths
 .claude/launch.json
+.claude/serve.js
 
 # macOS
 .DS_Store

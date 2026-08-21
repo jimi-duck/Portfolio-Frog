@@ -62,8 +62,9 @@ rules, one accent. All of it lives in `css/swiss.css`.
   The mobile menu is closed with `visibility:hidden`, not clip-path alone —
   clipping leaves its links in the tab order.
 - **Typography** — apostrophes and quotation marks are typographic (’ “ ”);
-  ranges take an en-dash (2016–2026), and the em-dash is for parenthetical
-  breaks. Never run a text-level find-and-replace over a whole HTML file: the
+  ranges take an en-dash (2016–2026), and body copy carries no em-dashes at
+  all. Break a sentence with a comma, a colon or a full stop instead, and use
+  the middot (`·`) where a label needs a separator (`01 · Enter`). Never run a text-level find-and-replace over a whole HTML file: the
   inline `<script>` blocks live in the body and string literals get mangled.
 - **Motion** — add `.r` (fade up), `.rl` (masked lines, needs
   `<span class="ln"><i>…</i></span>` per line), `.rw` (rule wipe) or `.rm`
