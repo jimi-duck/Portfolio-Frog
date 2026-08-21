@@ -87,20 +87,32 @@
     run();
   }
 
-  /* ── REVEALS ───────────────────────────────────────────────────────────── */
+  /* ── SECTION REVEAL ────────────────────────────────────────────────────── */
+  /* One treatment, applied to sections. Anything marked [data-reveal] fades and
+     rises once as it arrives; its contents are not observed and do not animate
+     separately. The per-element ladder this replaced observed every paragraph,
+     figure, rule and image on the page and staggered them with data-delay,
+     which meant six things moving in one viewport.
+
+     A section is a large target, so the observer fires on a low threshold: at
+     0.04 a section taller than the viewport would otherwise have to be almost
+     entirely past the fold before 4% of it counted as visible. */
+  var SEL = '[data-reveal]';
   var revealed = false;
-  // Sweep anything sitting in the viewport that the observer has not caught —
-  // covers layout shifts from late web fonts or images.
+
+  // Sweep anything already in view that the observer has not caught — covers
+  // layout shifts from late web fonts or images.
   function revealOnScreen() {
-    $$('.r:not(.in),.rl:not(.in),.rw:not(.in),.rm:not(.in)').forEach(function (e) {
+    $$(SEL + ':not(.in)').forEach(function (e) {
       var r = e.getBoundingClientRect();
       if (r.bottom > 0 && r.top < innerHeight) e.classList.add('in');
     });
   }
+
   function reveals() {
     if (revealed) return;
     revealed = true;
-    var els = $$('.r,.rl,.rw,.rm');
+    var els = $$(SEL);
     if (!els.length) return;
     if (reduced || !('IntersectionObserver' in window)) {
       els.forEach(function (e) { e.classList.add('in'); });
@@ -113,16 +125,9 @@
         en.target.classList.add('in');
         io.unobserve(en.target);
       });
-      // A small threshold plus a positive bottom margin fires the reveal just
-      // before the element crosses the fold, so it has finished by the time it
-      // is properly in view. The old -6% margin held it back until the element
-      // was already well inside the viewport, which is how headings ended up
-      // sitting at part opacity while being read.
-    }, { threshold: 0.04, rootMargin: '0px 0px 12% 0px' });
+    }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
 
     els.forEach(function (el) {
-      var d = el.getAttribute('data-delay');
-      if (d) el.style.transitionDelay = d + 'ms';
       // Anything already on screen reveals now rather than waiting on the
       // observer — above-the-fold content must never depend on a callback.
       var r = el.getBoundingClientRect();
@@ -148,9 +153,14 @@
     }
     var burger = $('.burger');
     if (!burger) return;
+    // The visible word is real text, not a CSS ::after, so it is part of the
+    // button's accessible name — and it has to stay in step with the state or
+    // the name says "Menu" while the button says "Close".
+    var burgerT = $('.b-t', burger);
     var setOpen = function (open) {
       document.body.classList.toggle('menu-on', open);
       burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (burgerT) burgerT.textContent = open ? 'Close' : 'Menu';
     };
     setOpen(false);
     var close = function (refocus) {
