@@ -37,15 +37,51 @@ body.astro-active #game-launch{display:none}
 html.coarse body:not(.astro-active) #game-launch{display:inline-flex}
 
 #astroExit{position:fixed;top:1rem;right:var(--pad);z-index:99999;display:none;align-items:center}
+/* Desktop way into upgrades: a button that doubles as the label for its own
+   keyboard shortcut. The touch pad has its own thumb-side button instead. */
+#astroShopBtn{position:fixed;right:var(--pad);bottom:1rem;z-index:99999;display:none;
+  align-items:center;gap:.55rem;border-color:rgba(57,255,20,.42);color:#efede7}
+#astroShopBtn:hover{background:rgba(57,255,20,.14);border-color:#39ff14;color:#eafce6}
+#astroShopBtn kbd{font:inherit;font-size:10px;line-height:1;padding:.28rem .42rem;
+  border:1px solid rgba(57,255,20,.5);color:#39ff14}
+body.astro-active #astroShopBtn{display:inline-flex}
+body.astro-active.astro-paused #astroShopBtn{display:none}
+html.coarse body.astro-active #astroShopBtn{display:none}
 #astroTipWrap{position:fixed;top:1rem;left:0;right:0;z-index:99998;display:none;justify-content:center;pointer-events:none}
 #astroTip{pointer-events:auto;text-align:center;line-height:1.9;letter-spacing:.12em}
 body.astro-active #astroDim,body.astro-active #astroCanvas{display:block}
 body.astro-active #astroExit{display:flex}
 body.astro-active #astroTipWrap{display:flex}
-#astroScore{position:fixed;left:var(--pad);bottom:1rem;z-index:99999;display:none;
+/* ── Pixel icons ──────────────────────────────────────────────────────────── */
+/* Both glyphs are stepped clip-paths on a 7-unit grid, so they stair-step like
+   real sprites at any size instead of going soft the way a vector icon would. */
+.px-gem,.px-heart{display:inline-block;flex:none}
+.px-gem{width:14px;height:14px;background:#ffd166;
+  filter:drop-shadow(0 0 5px rgba(255,194,51,.75));
+  clip-path:polygon(
+    42.86% 0%,57.14% 0%,57.14% 14.29%,71.43% 14.29%,71.43% 28.57%,85.71% 28.57%,
+    85.71% 42.86%,100% 42.86%,100% 57.14%,85.71% 57.14%,85.71% 71.43%,71.43% 71.43%,
+    71.43% 85.71%,57.14% 85.71%,57.14% 100%,42.86% 100%,42.86% 85.71%,28.57% 85.71%,
+    28.57% 71.43%,14.29% 71.43%,14.29% 57.14%,0% 57.14%,0% 42.86%,14.29% 42.86%,
+    14.29% 28.57%,28.57% 28.57%,28.57% 14.29%,42.86% 14.29%)}
+.px-heart{width:14px;height:12px;background:rgba(239,237,231,.15);
+  clip-path:polygon(
+    14.29% 0%,42.86% 0%,42.86% 16.67%,57.14% 16.67%,57.14% 0%,85.71% 0%,
+    85.71% 16.67%,100% 16.67%,100% 50%,85.71% 50%,85.71% 66.67%,71.43% 66.67%,
+    71.43% 83.33%,57.14% 83.33%,57.14% 100%,42.86% 100%,42.86% 83.33%,28.57% 83.33%,
+    28.57% 66.67%,14.29% 66.67%,14.29% 50%,0% 50%,0% 16.67%,14.29% 16.67%)}
+.px-heart.on{background:#ff4d6d;filter:drop-shadow(0 0 5px rgba(255,77,109,.8))}
+
+/* ── HUD: score, purse, lives, next upgrade, shield ───────────────────────── */
+#astroHud{position:fixed;left:var(--pad);bottom:1rem;z-index:99999;display:none;
+  align-items:center;gap:1.1rem;
   font-family:var(--sans);font-size:var(--t-lab);font-weight:700;letter-spacing:.16em;text-transform:uppercase;
-  color:#efede7;font-variant-numeric:tabular-nums}
-body.astro-active #astroScore{display:block}
+  color:#efede7;font-variant-numeric:tabular-nums;pointer-events:none}
+body.astro-active #astroHud{display:flex}
+#astroCoins{display:flex;align-items:center;gap:.4rem;color:#ffd166;letter-spacing:.1em}
+#astroLives{display:flex;gap:.3rem}
+#astroShield{color:#7fe3ec;letter-spacing:.1em;opacity:0;transition:opacity .2s var(--ez)}
+#astroShield.on{opacity:1}
 
 #astroOver{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;cursor:pointer}
 #astroOver.on{display:flex}
@@ -53,11 +89,19 @@ body.astro-active #astroScore{display:block}
   border:1px solid rgba(57,255,20,.42);color:#efede7;font-family:var(--sans)}
 #astroOverCard .ao-t{font-size:var(--t-lab);letter-spacing:.2em;text-transform:uppercase;color:#ff7a63;margin-bottom:.9rem;font-weight:700}
 #astroOverCard .ao-s{font-size:2.1rem;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-bottom:1rem}
+#astroOverCard .ao-m{font-size:var(--t-lab);letter-spacing:.14em;text-transform:uppercase;color:#ffd166;margin-bottom:1rem}
 #astroOverCard .ao-h{font-size:var(--t-lab);letter-spacing:.16em;text-transform:uppercase;color:rgba(239,237,231,.55)}
 
 #astroTouch{position:fixed;inset:0;z-index:99998;display:none;pointer-events:none;touch-action:none}
 html.coarse body.astro-active #astroTouch{display:block}
-#astroStick,#astroFire{position:absolute;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#astroStick,#astroFire,#astroUpgrade{position:absolute;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+/* the way into upgrades on a phone, sat above the fire button where
+   the thumb already is — the keyboard equivalent is U */
+#astroUpgrade{right:2.1rem;bottom:10.4rem;width:70px;height:70px;border-radius:50%;
+  display:grid;place-items:center;gap:3px;padding:0;cursor:pointer;
+  background:rgba(6,20,6,.55);border:1px solid rgba(57,255,20,.5);color:#39ff14;
+  font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+#astroUpgrade.on{background:rgba(57,255,20,.28);color:#eafce6}
 #astroStick{left:1.4rem;bottom:1.8rem;width:138px;height:138px;border-radius:50%;background:rgba(10,10,10,.5);border:1px solid rgba(57,255,20,.3)}
 #astroKnob{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;
   background:rgba(57,255,20,.2);border:1px solid rgba(57,255,20,.65);pointer-events:none;transition:transform .07s linear}
@@ -66,7 +110,73 @@ html.coarse body.astro-active #astroTouch{display:block}
   background:rgba(20,6,6,.55);border:1px solid rgba(255,90,70,.5);color:#ffb4a6;
   font-family:var(--sans);font-size:var(--t-lab);font-weight:700;letter-spacing:.16em}
 #astroFire.on{background:rgba(255,90,70,.3);color:#fff}
-html.coarse body.astro-active #astroScore{bottom:auto;top:1rem;left:var(--pad)}
+/* on a phone the HUD shares the top rail with the exit button, so it is capped
+   and allowed to wrap rather than running underneath it */
+html.coarse body.astro-active #astroHud{bottom:auto;top:1rem;left:var(--pad);
+  gap:.5rem .8rem;flex-wrap:wrap;max-width:46vw}
 html.coarse body.astro-active #astroTipWrap{top:4.2rem}
 body.astro-active{overscroll-behavior:none}
 html.coarse body.astro-active{touch-action:none}
+
+/* ── Upgrades ──────────────────────────────────────────────────────── */
+/* The run halts outright while this is up. The page behind it is blurred rather
+   than blacked out, so you can still see where you left the field — and the only
+   way back into it is Resume or Enter. */
+#astroShop{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;
+  padding:1.2rem;background:rgba(4,6,4,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+#astroShop.on{display:flex}
+#astroShopCard{width:min(700px,100%);max-height:100%;overflow:auto;text-align:center;
+  padding:2.1rem 1.9rem 1.7rem;background:rgba(6,10,6,.94);
+  border:2px solid #39ff14;box-shadow:0 0 0 1px rgba(57,255,20,.25),0 0 34px rgba(57,255,20,.28);
+  color:#efede7;font-family:var(--sans)}
+#astroShopCard .as-t{font-size:var(--t-lab);letter-spacing:.24em;text-transform:uppercase;
+  color:#39ff14;font-weight:700;text-shadow:0 0 12px rgba(57,255,20,.6)}
+#astroShopCard .as-bal{display:flex;align-items:center;justify-content:center;gap:.45rem;
+  margin:.6rem 0 1.5rem;font-size:var(--t-lab);letter-spacing:.18em;text-transform:uppercase;
+  color:#ffd166;font-variant-numeric:tabular-nums}
+#astroShopCard .as-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.5rem}
+
+/* square, identical panels — the cost sits on the floor of each one */
+/* flex column, not fixed grid rows: the sub-line is absent on two of the three
+   panels, and positional rows would hand the cost the flexible track */
+.as-opt{display:flex;flex-direction:column;gap:.4rem;aspect-ratio:1/1;
+  text-align:left;padding:.95rem .9rem;cursor:pointer;
+  background:rgba(255,255,255,.035);border:1px solid rgba(239,237,231,.2);color:#efede7;
+  font-family:var(--sans);transition:border-color .2s var(--ez),background .2s var(--ez),transform .12s var(--ez)}
+.as-opt:hover:not(:disabled),.as-opt:focus-visible:not(:disabled){
+  border-color:#39ff14;background:rgba(57,255,20,.1);transform:translateY(-2px);outline:none}
+.as-opt:disabled{cursor:default;opacity:.42}
+.as-opt .as-n{font-size:var(--t-lab);font-weight:700;letter-spacing:.14em;text-transform:uppercase;line-height:1.45}
+.as-opt .as-l{color:rgba(239,237,231,.5);letter-spacing:.1em}
+.as-opt .as-sub{font-size:10px;line-height:1.4;letter-spacing:.04em;color:rgba(239,237,231,.4)}
+.as-opt .as-d{display:grid;gap:.25rem;align-content:start;
+  font-size:11px;line-height:1.5;letter-spacing:.02em;color:rgba(239,237,231,.72)}
+.as-opt .as-c{display:flex;align-items:center;gap:.4rem;margin-top:auto;
+  font-size:var(--t-lab);font-weight:700;letter-spacing:.12em;color:#ffd166;font-variant-numeric:tabular-nums}
+.as-opt.poor .as-c{color:#ff7a63}
+.as-opt.poor .as-c .px-gem{background:#ff7a63;filter:none}
+.as-opt .as-c.is-max{color:rgba(239,237,231,.4)}
+.as-opt .as-c.is-max .px-gem{display:none}
+#astroShopGo{cursor:pointer;border-color:#39ff14;color:#39ff14}
+#astroShopGo:hover{background:#39ff14;color:#050805}
+#astroShopCard .as-h{margin-top:.95rem;font-size:var(--t-lab);letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(239,237,231,.45)}
+#astroShopCard .as-h kbd{font:inherit;color:#39ff14;letter-spacing:.16em}
+@media (max-width:620px){
+  #astroShopCard .as-grid{grid-template-columns:1fr;gap:.55rem}
+  .as-opt{aspect-ratio:auto}
+  #astroShopCard{padding:1.4rem 1.1rem 1.2rem}
+}
+
+/* ── Paused (tab left, window blurred) ────────────────────────────────────── */
+#astroPause{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.55);cursor:pointer}
+#astroPause.on{display:flex}
+#astroPauseCard{text-align:center;padding:1.8rem 2.4rem;background:rgba(10,10,10,.94);
+  border:1px solid rgba(57,255,20,.42);color:#efede7;font-family:var(--sans)}
+#astroPauseCard .ap-t{font-size:var(--t-lab);letter-spacing:.2em;text-transform:uppercase;color:#39ff14;
+  font-weight:700;margin-bottom:.7rem}
+#astroPauseCard .ap-h{font-size:var(--t-lab);letter-spacing:.16em;text-transform:uppercase;color:rgba(239,237,231,.55)}
+
+/* the thumbstick would sit on top of both panels on a phone */
+html.coarse body.astro-paused #astroTouch{display:none}

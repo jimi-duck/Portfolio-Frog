@@ -451,16 +451,55 @@
 <button id="game-launch" type="button" aria-label="Play a hidden game"><img src="pacman.gif" width="32" height="32" alt="" aria-hidden="true" loading="lazy"><span class="gl-t">Play</span></button>
 <div id="astroDim"></div>
 <canvas id="astroCanvas"></canvas>
-<div id="astroTipWrap"><div id="astroTip" class="g-pill">↑ thrust · ←→ rotate · space fire · esc exit</div></div>
+<div id="astroTipWrap"><div id="astroTip" class="g-pill">↑ thrust · ←→ rotate · space fire · p upgrades · esc exit</div></div>
 <button id="astroExit" class="g-pill">← Back to site</button>
-<div id="astroScore">Score: 0</div>
+<div id="astroHud">
+  <div id="astroScore">Score: 0</div>
+  <div id="astroCoins"><i class="px-gem" aria-hidden="true"></i><span>0</span></div>
+  <div id="astroLives"><i class="px-heart on"></i><i class="px-heart on"></i><i class="px-heart on"></i><i class="px-heart"></i><i class="px-heart"></i></div>
+  <div id="astroShield">Shield 0s</div>
+</div>
+<button id="astroShopBtn" class="g-pill" type="button">Upgrades <kbd>P</kbd></button>
 <div id="astroOver"><div id="astroOverCard">
   <div class="ao-t">Game over</div>
   <div class="ao-s">Score <span id="astroFinal">0</span></div>
+  <div class="ao-m" id="astroFinalSub">0s survived · 0 coins banked</div>
   <div class="ao-h" id="astroRestartHint">press any key to play again</div>
+</div></div>
+<!-- Upgrades — opened on demand: P on a keyboard, the pad button on touch -->
+<div id="astroShop"><div id="astroShopCard">
+  <div class="as-t">Upgrades</div>
+  <div class="as-bal">Balance <span id="astroShopCoins">0</span> <i class="px-gem" aria-hidden="true"></i></div>
+  <div class="as-grid">
+    <button class="as-opt" type="button" data-up="weapon">
+      <span class="as-n">Weapons <span class="as-l">Lv 0</span></span>
+      <span class="as-sub" hidden></span>
+      <span class="as-d"><span class="as-d1"></span><span class="as-d2" hidden></span></span>
+      <span class="as-c"><i class="px-gem" aria-hidden="true"></i><span class="as-cv">20</span></span>
+    </button>
+    <button class="as-opt" type="button" data-up="speed">
+      <span class="as-n">Engines <span class="as-l">Lv 0</span></span>
+      <span class="as-sub" hidden></span>
+      <span class="as-d"><span class="as-d1"></span><span class="as-d2" hidden></span></span>
+      <span class="as-c"><i class="px-gem" aria-hidden="true"></i><span class="as-cv">16</span></span>
+    </button>
+    <button class="as-opt" type="button" data-up="shield">
+      <span class="as-n">Temp Shield <span class="as-l">&times;0</span></span>
+      <span class="as-sub">(consumed after one hit)</span>
+      <span class="as-d"><span class="as-d1"></span><span class="as-d2" hidden></span></span>
+      <span class="as-c"><i class="px-gem" aria-hidden="true"></i><span class="as-cv">14</span></span>
+    </button>
+  </div>
+  <button id="astroShopGo" class="g-pill" type="button">Resume <span aria-hidden="true">&#9654;</span></button>
+  <div class="as-h" id="astroShopHint">Spend credits to upgrade. Press <kbd>Enter</kbd> to launch.</div>
+</div></div>
+<div id="astroPause"><div id="astroPauseCard">
+  <div class="ap-t">Paused</div>
+  <div class="ap-h">click or press any key to resume</div>
 </div></div>
 <div id="astroTouch">
   <div id="astroStick"><div id="astroKnob"></div></div>
+  <button id="astroUpgrade" type="button" aria-label="Open upgrades"><i class="px-gem" aria-hidden="true"></i><span>Upgrades</span></button>
   <div id="astroFire">FIRE</div>
 </div>
 
