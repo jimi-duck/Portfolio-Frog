@@ -6,13 +6,92 @@
   /* one number the whole top rail is measured from, so the exit button, the
      tip and the mobile HUD all clear the XP bar without hand-tuned offsets */
   --xp-h:clamp(20px,2.6vh,26px);
+
+  /* Neon-nexus palette. The game is the only thing on the site that goes dark
+     and holographic, so the whole scheme lives here rather than in swiss.css:
+     an indigo ground with four accents that never touch the page itself. */
+  --nx-void:#070714;      /* the ground everything else floats on */
+  --nx-teal:#00f5d4;      /* the player: hull, XP rail, every affirmative edge */
+  --nx-cyan:#00f0ff;      /* secondary chrome: gauges, affirmative edges */
+  --nx-hot:#ff2d78;       /* the frame colour: every panel edge, rule and tick */
+  --nx-violet:#7b5cff;    /* the field: rock glow, boss chrome */
+  --nx-magenta:#ff2fb9;   /* heat: danger, the far end of the title gradient */
+  --nx-blue:#00c2ff;      /* the shield, moved off cyan so it clears the hull */
+  --nx-ink:#e8ebff;
+  --nx-mute:#7c85b8;
+  --nx-mono:ui-monospace,"SFMono-Regular","JetBrains Mono",Menlo,monospace;
+  /* the corner cut every frame in here shares, so a panel, a pill and a buff
+     chip all read as parts of the same terminal rather than three widgets */
+  --nx-cut:10px;
+  --nx-notch:polygon(0 var(--nx-cut),var(--nx-cut) 0,
+    calc(100% - var(--nx-cut)) 0,100% var(--nx-cut),
+    100% calc(100% - var(--nx-cut)),calc(100% - var(--nx-cut)) 100%,
+    var(--nx-cut) 100%,0 calc(100% - var(--nx-cut)));
 }
+/* Every frame in the game is built the same way: the element itself IS the
+   neon edge, and a ::before inset by a hairline paints the dark fill. A plain
+   border would be sliced off flat by the corner cut; drawing it as a backing
+   layer means the diagonals carry the line too, which is the whole look. */
 .g-pill{
-  position:relative;background:rgba(10,10,10,.86);border:1px solid rgba(57,255,20,.42);
-  color:#efede7;font-family:var(--sans);font-size:var(--t-lab);font-weight:700;
-  letter-spacing:var(--tr-lab);text-transform:uppercase;border-radius:0;padding:.6rem 1.1rem;cursor:pointer;
+  position:relative;border:0;background:var(--nx-hot);
+  clip-path:var(--nx-notch);--nx-cut:7px;
+  color:var(--nx-ink);font-family:var(--nx-mono);font-size:clamp(9px,1.5vw,11px);font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;padding:.62rem 1.4rem;cursor:pointer;
+  filter:drop-shadow(0 0 10px rgba(255,45,120,.4));isolation:isolate;
+  transition:background .3s var(--ez),filter .3s var(--ez),color .3s var(--ez),transform .3s var(--ez);
 }
-#astroDim{position:fixed;inset:0;width:100vw;height:100vh;z-index:99996;pointer-events:none;display:none;background:rgba(0,0,0,.86)}
+/* z-index:-1 rather than a wrapper: the fill has to sit above the edge colour
+   but below the label, and the label is a bare text node with nowhere to hang
+   a z-index of its own. The clip-path keeps the -1 from escaping the button. */
+.g-pill::before{content:"";position:absolute;inset:1px;clip-path:var(--nx-notch);z-index:-1;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0 1px,transparent 1px 3px),rgba(6,3,10,.86);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.g-pill:hover,.g-pill:focus-visible{color:#fff;background:#ff5c96;outline:none;
+  filter:drop-shadow(0 0 20px rgba(255,45,120,.75));transform:translateY(-2px)}
+/* The backdrop is the theme. It has to do two things that pull against each
+   other: let the page underneath stay visible — the game is an overlay booted
+   on top of the site, not a separate screen — while still being black enough
+   for neon to read against. A flat alpha can only trade one for the other, so
+   this reprocesses the page rather than hiding it, and the vignette rather
+   than the tint is what keeps the edges dark. Because the contrast pass runs
+   first, a light page and a dark page both land on the same mid-grey ghost —
+   the overlay reads the same in either site theme. */
+#astroDim{position:fixed;inset:0;width:100vw;height:100vh;z-index:99996;pointer-events:none;display:none;
+  /* Order matters. contrast() first, while the page is still at full range,
+     flattens it toward mid-grey — that is what stops a big black headline from
+     punching through and competing with the field. saturate() keeps just
+     enough colour for the page to be recognisable as itself. brightness()
+     last drops the flattened result to something neon can sit on top of. */
+  backdrop-filter:contrast(.62) saturate(.7) brightness(.42);
+  -webkit-backdrop-filter:contrast(.62) saturate(.7) brightness(.42);
+  background:
+    radial-gradient(58% 44% at 50% 40%,rgba(255,45,120,.15),transparent 70%),
+    radial-gradient(45% 35% at 80% 80%,rgba(0,240,255,.10),transparent 70%),
+    radial-gradient(42% 40% at 16% 18%,rgba(255,45,120,.13),transparent 70%),
+    /* The vignette does the work the flat tint used to. Letting the middle of
+       the screen come up bright enough to read the page means the edges — the
+       XP rail, the HUD, the exit — need somewhere dark of their own, so the
+       falloff is steeper and starts sooner than the brightness would suggest. */
+    radial-gradient(ellipse 74% 62% at 50% 50%,transparent 26%,rgba(3,2,6,.86) 100%),
+    rgba(6,3,10,.22)}
+/* without backdrop-filter there is no way to darken the page, so fall back to
+   hiding it — a washed-out neon field is worse than an opaque one */
+@supports not ((backdrop-filter:brightness(.5)) or (-webkit-backdrop-filter:brightness(.5))){
+  #astroDim{background:
+    radial-gradient(58% 44% at 50% 40%,rgba(255,45,120,.17),transparent 70%),
+    radial-gradient(42% 40% at 16% 18%,rgba(255,45,120,.14),transparent 70%),
+    rgba(6,3,10,.93)}
+}
+#astroDim::before{content:"";position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(90deg,rgba(255,45,120,.24) 0 1px,transparent 1px 64px),
+    repeating-linear-gradient(0deg,rgba(255,45,120,.24) 0 1px,transparent 1px 64px);
+  -webkit-mask-image:radial-gradient(ellipse 92% 72% at 50% 45%,#000 18%,transparent 80%);
+          mask-image:radial-gradient(ellipse 92% 72% at 50% 45%,#000 18%,transparent 80%)}
+/* Scanlines. 3px pitch is the coarsest that still reads as a CRT rather than
+   as stripes, and it survives being halved on a 2x display. */
+#astroDim::after{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px)}
 #astroCanvas{position:fixed;inset:0;width:100vw;height:100vh;z-index:99997;pointer-events:none;display:none}
 
 /* A quiet marker that rewards noticing: hairline box, greyscale sprite, and a
@@ -55,20 +134,29 @@ body.astro-active #astroTipWrap{display:flex}
 /* Full-bleed across the very top: progress toward the next upgrade is the one
    number the player steers by, so it gets the whole width and never moves. */
 #astroXp{position:fixed;top:0;left:0;right:0;height:var(--xp-h);z-index:99999;display:none;
-  background:rgba(6,10,6,.82);border-bottom:1px solid rgba(57,255,20,.35);
+  background:rgba(6,3,10,.9);border-bottom:1px solid var(--nx-hot);
+  box-shadow:0 0 22px rgba(255,45,120,.35);
   overflow:hidden;pointer-events:none}
+/* the empty rail is not empty: it is a ladder of unlit cells, so how much is
+   left to fill reads at a glance instead of only how much is already done */
+#astroXp::before{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,rgba(255,45,120,.16) 0 2px,transparent 2px 13px)}
 body.astro-active #astroXp{display:block}
 #astroXpFill{position:absolute;inset:0 auto 0 0;width:0;
-  background:linear-gradient(90deg,rgba(57,255,20,.30),rgba(57,255,20,.62));
-  border-right:1px solid rgba(57,255,20,.9);box-shadow:0 0 18px rgba(57,255,20,.55);
+  background:
+    /* the unlit ladder shows through the lit run, so the gauge reads as filled
+       segments rather than a poured liquid */
+    repeating-linear-gradient(90deg,transparent 0 2px,rgba(4,2,8,.9) 2px 3px,transparent 3px 13px),
+    linear-gradient(90deg,var(--nx-hot),#ff5c96 60%,var(--nx-cyan));
+  border-right:2px solid #fff;box-shadow:0 0 22px rgba(255,45,120,.85);
   transition:width .16s linear}
 /* the bar flares on the frame a level lands, so the reward registers even when
    the player's eyes are still on the field */
-#astroXp.pop #astroXpFill{transition:none;background:rgba(57,255,20,.85)}
+#astroXp.pop #astroXpFill{transition:none;background:#fff}
 #astroXpText{position:relative;height:100%;display:flex;align-items:center;gap:.6rem;
-  padding:0 var(--pad);font-family:var(--sans);font-size:clamp(9px,1.5vw,11px);font-weight:700;
-  letter-spacing:.18em;text-transform:uppercase;color:#efede7;font-variant-numeric:tabular-nums}
-#astroXpText b{color:#39ff14;text-shadow:0 0 10px rgba(57,255,20,.7)}
+  padding:0 var(--pad);font-family:var(--nx-mono);font-size:clamp(9px,1.5vw,11px);font-weight:600;
+  letter-spacing:.26em;text-transform:uppercase;color:var(--nx-mute);font-variant-numeric:tabular-nums}
+#astroXpText b{color:var(--nx-cyan);text-shadow:0 0 10px rgba(0,240,255,.8)}
 #astroXpText .xp-v{margin-left:auto;display:flex;align-items:center;gap:.35rem;color:#ffd166;letter-spacing:.12em}
 
 /* ── Pixel icons ──────────────────────────────────────────────────────────── */
@@ -83,7 +171,7 @@ body.astro-active #astroXp{display:block}
     71.43% 85.71%,57.14% 85.71%,57.14% 100%,42.86% 100%,42.86% 85.71%,28.57% 85.71%,
     28.57% 71.43%,14.29% 71.43%,14.29% 57.14%,0% 57.14%,0% 42.86%,14.29% 42.86%,
     14.29% 28.57%,28.57% 28.57%,28.57% 14.29%,42.86% 14.29%)}
-.px-heart{width:14px;height:12px;background:rgba(239,237,231,.15);
+.px-heart{width:14px;height:12px;background:rgba(232,235,255,.15);
   clip-path:polygon(
     14.29% 0%,42.86% 0%,42.86% 16.67%,57.14% 16.67%,57.14% 0%,85.71% 0%,
     85.71% 16.67%,100% 16.67%,100% 50%,85.71% 50%,85.71% 66.67%,71.43% 66.67%,
@@ -94,17 +182,18 @@ body.astro-active #astroXp{display:block}
 /* ── HUD: score, lives, live power-up timers ──────────────────────────────── */
 #astroHud{position:fixed;left:var(--pad);bottom:1rem;z-index:99999;display:none;
   align-items:center;gap:clamp(.6rem,2vw,1.1rem);
-  font-family:var(--sans);font-size:var(--t-lab);font-weight:700;letter-spacing:.16em;text-transform:uppercase;
-  color:#efede7;font-variant-numeric:tabular-nums;pointer-events:none}
+  font-family:var(--nx-mono);font-size:clamp(9px,1.5vw,11px);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--nx-ink);font-variant-numeric:tabular-nums;pointer-events:none}
 body.astro-active #astroHud{display:flex}
 #astroLives{display:flex;gap:.3rem}
 /* the timed drops announce themselves here and nowhere else, so a glance at the
    bottom rail is enough to know how long the run stays easy */
 #astroBuffs{display:flex;align-items:center;gap:.5rem}
-#astroBuffs span{display:none;align-items:center;padding:.24rem .5rem;
-  border:1px solid currentColor;letter-spacing:.12em;font-size:clamp(9px,1.4vw,11px)}
+#astroBuffs span{display:none;align-items:center;padding:.26rem .66rem;
+  border:1px solid currentColor;clip-path:var(--nx-notch);--nx-cut:5px;
+  background:rgba(6,3,10,.7);letter-spacing:.18em;font-size:clamp(9px,1.4vw,11px)}
 #astroBuffs span.on{display:flex}
-#astroShieldBuff{color:#7fe3ec;box-shadow:0 0 12px rgba(127,227,236,.35)}
+#astroShieldBuff{color:var(--nx-blue);box-shadow:0 0 12px rgba(0,194,255,.35)}
 #astroRapidBuff{color:#ffb347;box-shadow:0 0 12px rgba(255,179,71,.35)}
 
 /* ═══ BOSS — hull bar and the inbound warning ═════════════════════════════ */
@@ -114,34 +203,67 @@ body.astro-active #astroHud{display:flex}
   z-index:99998;display:none;flex-direction:column;align-items:center;gap:.4rem;
   width:min(420px,62vw);pointer-events:none}
 #astroBoss.on{display:flex}
-#astroBossName{font-size:var(--t-lab);letter-spacing:.22em;text-transform:uppercase;
-  font-weight:700;color:#c77dff;text-shadow:0 0 10px rgba(168,85,247,.7)}
-#astroBossBar{position:relative;width:100%;height:7px;background:rgba(10,10,10,.8);
-  border:1px solid rgba(199,125,255,.45);overflow:hidden}
+#astroBossName{font-family:var(--nx-mono);font-size:clamp(10px,1.7vw,12px);letter-spacing:.3em;
+  text-transform:uppercase;font-weight:600;color:#c77dff;text-shadow:0 0 14px rgba(123,92,255,.85)}
+/* the refs label everything in brackets; doing it in CSS keeps the markup a
+   plain readable name for anything that isn't looking at a screen */
+#astroBossName::before{content:"[ "}
+#astroBossName::after{content:" ]"}
+#astroBossBar{position:relative;width:100%;height:8px;background:rgba(6,3,10,.85);
+  border:1px solid rgba(199,125,255,.55);overflow:hidden}
 #astroBossFill{position:absolute;inset:0 auto 0 0;width:100%;
-  background:#c77dff;box-shadow:0 0 12px rgba(168,85,247,.85);
+  background:
+    repeating-linear-gradient(90deg,transparent 0 6px,rgba(4,2,8,.9) 6px 7px),
+    linear-gradient(90deg,#7b5cff,#c77dff);
+  box-shadow:0 0 14px rgba(123,92,255,.9);
   transition:width .12s linear}
 /* half hull: the bar turns over to the same red the hull does */
-#astroBossFill.rage{background:#ff4d6d;box-shadow:0 0 14px rgba(255,77,109,.9)}
+#astroBossFill.rage{background:linear-gradient(90deg,#ff2fb9,#ff4d6d);box-shadow:0 0 16px rgba(255,47,185,.9)}
 #astroWarn{position:fixed;top:38%;left:0;right:0;z-index:99998;display:none;
   text-align:center;font-size:clamp(13px,3.4vw,1.5rem);font-weight:700;
-  letter-spacing:.28em;text-transform:uppercase;color:#ff4d6d;
-  text-shadow:0 0 18px rgba(255,77,109,.8);pointer-events:none}
+  font-family:var(--nx-mono);letter-spacing:.34em;text-transform:uppercase;color:var(--nx-hot);
+  text-shadow:0 0 22px rgba(255,45,120,.95);pointer-events:none}
 #astroWarn.on{display:block;animation:bossWarn .62s steps(2,end) infinite}
 @keyframes bossWarn{0%,100%{opacity:1}50%{opacity:.15}}
 @media (prefers-reduced-motion:reduce){
   #astroWarn.on{animation:none}
   #astroBossFill{transition:none}
+  #astroOverCard .ao-s span{animation:none}
 }
 
 #astroOver{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;cursor:pointer}
 #astroOver.on{display:flex}
-#astroOverCard{text-align:center;padding:2.2rem 2.8rem;background:rgba(10,10,10,.92);
-  border:1px solid rgba(57,255,20,.42);color:#efede7;font-family:var(--sans)}
-#astroOverCard .ao-t{font-size:var(--t-lab);letter-spacing:.2em;text-transform:uppercase;color:#ff7a63;margin-bottom:.9rem;font-weight:700}
-#astroOverCard .ao-s{font-size:2.1rem;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-bottom:1rem}
-#astroOverCard .ao-m{font-size:var(--t-lab);letter-spacing:.14em;text-transform:uppercase;color:#ffd166;margin-bottom:1rem}
-#astroOverCard .ao-h{font-size:var(--t-lab);letter-spacing:.16em;text-transform:uppercase;color:rgba(239,237,231,.55)}
+/* Every frame in here is built the same way: the element itself IS the neon
+   edge, and a ::before inset by a hairline paints the dark fill. A plain
+   border would be sliced off flat by the corner cut; drawing it as a backing
+   layer means the diagonals carry the line too, which is the whole look. The
+   fill carries the scanlines, so a panel reads as rendered on the same tube
+   as the field behind it. */
+#astroOverCard{position:relative;isolation:isolate;text-align:center;padding:2.4rem 3rem;
+  --nx-cut:14px;clip-path:var(--nx-notch);background:var(--nx-hot);
+  color:var(--nx-ink);font-family:var(--sans);filter:drop-shadow(0 0 26px rgba(255,45,120,.5))}
+#astroOverCard::before{content:"";position:absolute;inset:1.5px;clip-path:var(--nx-notch);z-index:-1;
+  background:
+    repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0 1px,transparent 1px 3px),
+    radial-gradient(120% 90% at 50% 0%,rgba(255,45,120,.16),transparent 70%),
+    rgba(6,3,10,.93);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+#astroOverCard .ao-t{font-family:var(--nx-mono);font-size:clamp(10px,1.7vw,12px);letter-spacing:.32em;
+  text-transform:uppercase;color:var(--nx-hot);margin-bottom:1rem;font-weight:600;
+  text-shadow:0 0 16px rgba(255,45,120,.8)}
+#astroOverCard .ao-t::before{content:":: "}
+#astroOverCard .ao-t::after{content:" ::"}
+/* the one number worth reading gets the hero treatment from the mockup */
+#astroOverCard .ao-s{font-size:2.4rem;font-weight:800;letter-spacing:-.035em;
+  font-variant-numeric:tabular-nums;margin-bottom:1rem}
+#astroOverCard .ao-s span{background:linear-gradient(100deg,#ff2d78,#ff8ab5 24%,#00f0ff 52%,#7b5cff 76%,#ff2d78);
+  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;animation:nxHue 9s linear infinite}
+@keyframes nxHue{to{background-position:300% 0}}
+#astroOverCard .ao-m{font-family:var(--nx-mono);font-size:clamp(9px,1.5vw,11px);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--nx-cyan);margin-bottom:1.1rem}
+#astroOverCard .ao-h{font-family:var(--nx-mono);font-size:clamp(9px,1.5vw,11px);letter-spacing:.24em;
+  text-transform:uppercase;color:var(--nx-mute)}
 
 /* ── Touch: one floating thumbstick, no fire button ───────────────────────── */
 /* The ship fires itself, so the whole screen belongs to steering: press down
@@ -151,18 +273,18 @@ body.astro-active #astroHud{display:flex}
 html.coarse body.astro-active #astroTouch{display:block}
 #astroStick{position:absolute;left:clamp(1rem,5vw,2rem);bottom:clamp(1.4rem,7vh,3rem);
   width:clamp(118px,34vw,168px);aspect-ratio:1/1;border-radius:50%;
-  background:rgba(10,10,10,.4);border:1px solid rgba(57,255,20,.24);
+  background:rgba(6,3,10,.42);border:1px solid rgba(255,45,120,.3);
   pointer-events:none;touch-action:none;-webkit-tap-highlight-color:transparent;
   user-select:none;-webkit-user-select:none;opacity:.6;
   transition:opacity .18s var(--ez),background .18s var(--ez)}
 /* while a thumb is down the stick is re-anchored to the touch point, so left
    and bottom are handed over to inline styles and must stop applying */
 #astroStick.free{left:0;bottom:auto;top:0;transform:translate(-50%,-50%)}
-#astroStick.on{opacity:1;background:rgba(10,10,10,.55);border-color:rgba(57,255,20,.5)}
+#astroStick.on{opacity:1;background:rgba(6,3,10,.6);border-color:rgba(255,45,120,.65)}
 #astroKnob{position:absolute;left:50%;top:50%;width:44%;height:44%;margin:0;transform:translate(-50%,-50%);
-  border-radius:50%;background:rgba(57,255,20,.2);border:1px solid rgba(57,255,20,.65);
+  border-radius:50%;background:rgba(255,45,120,.24);border:1px solid rgba(255,45,120,.75);
   pointer-events:none;transition:transform .07s linear}
-#astroStick.on #astroKnob{background:rgba(57,255,20,.34)}
+#astroStick.on #astroKnob{background:rgba(255,45,120,.42)}
 /* on a phone the HUD shares the row under the XP rail with the exit button, so
    it is capped and allowed to wrap rather than running underneath it */
 html.coarse body.astro-active #astroHud{bottom:auto;top:calc(var(--xp-h) + .7rem);left:var(--pad);
@@ -176,38 +298,58 @@ html.coarse body.astro-active{touch-action:none}
    straight back into the field — there is no confirm step and no resume button,
    because the choice itself is the resume. */
 #astroLevel{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;
-  padding:1.2rem;background:rgba(4,6,4,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+  padding:1.2rem;background:rgba(6,6,18,.74);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
 #astroLevel.on{display:flex;animation:auFade .18s var(--ez)}
 @keyframes auFade{from{opacity:0}to{opacity:1}}
 #astroLevelCard{width:min(760px,100%);max-height:100%;overflow:auto;text-align:center;
   padding:clamp(1.2rem,4vw,2.1rem) clamp(1rem,3.5vw,1.9rem) clamp(1rem,3vw,1.7rem);
-  background:rgba(6,10,6,.94);
-  border:2px solid #39ff14;box-shadow:0 0 0 1px rgba(57,255,20,.25),0 0 34px rgba(57,255,20,.28);
-  color:#efede7;font-family:var(--sans)}
-#astroLevelCard .al-t{font-size:clamp(11px,2.4vw,var(--t-lab));letter-spacing:.24em;text-transform:uppercase;
-  color:#39ff14;font-weight:700;text-shadow:0 0 12px rgba(57,255,20,.6)}
-#astroLevelCard .al-s{margin:.55rem 0 1.4rem;font-size:clamp(10px,2vw,var(--t-lab));letter-spacing:.18em;
-  text-transform:uppercase;color:rgba(239,237,231,.6);font-variant-numeric:tabular-nums}
-#astroLevelCard .al-s b{color:#ffd166}
+  position:relative;isolation:isolate;--nx-cut:16px;clip-path:var(--nx-notch);
+  background:var(--nx-hot);filter:drop-shadow(0 0 28px rgba(255,45,120,.5));
+  color:var(--nx-ink);font-family:var(--sans)}
+#astroLevelCard::before{content:"";position:absolute;inset:1.5px;clip-path:var(--nx-notch);z-index:-1;
+  background:
+    repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0 1px,transparent 1px 3px),
+    radial-gradient(120% 90% at 50% 0%,rgba(255,45,120,.15),transparent 70%),
+    rgba(6,3,10,.95);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+#astroLevelCard .al-t{font-family:var(--nx-mono);font-size:clamp(10px,2.2vw,12px);letter-spacing:.34em;
+  text-transform:uppercase;color:var(--nx-hot);font-weight:600;text-shadow:0 0 16px rgba(255,45,120,.8)}
+#astroLevelCard .al-t::before{content:":: "}
+#astroLevelCard .al-t::after{content:" ::"}
+#astroLevelCard .al-s{position:relative;margin:.6rem 0 1.4rem;padding-bottom:1rem;
+  font-family:var(--nx-mono);font-size:clamp(9px,1.9vw,11px);
+  letter-spacing:.22em;text-transform:uppercase;color:var(--nx-mute);font-variant-numeric:tabular-nums}
+/* a tick rule under the header — the one piece of chrome that says
+   "instrument panel" without adding another box */
+#astroLevelCard .al-s::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;
+  background:repeating-linear-gradient(90deg,rgba(255,45,120,.6) 0 1px,transparent 1px 7px)}
+#astroLevelCard .al-s b{color:var(--nx-cyan)}
 .al-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.3rem}
 
 /* square, identical panels — the shortcut key sits on the floor of each one */
 .au-opt{display:flex;flex-direction:column;gap:.45rem;aspect-ratio:1/1;
   text-align:left;padding:clamp(.7rem,2.4vw,.95rem) clamp(.65rem,2.2vw,.9rem);cursor:pointer;
-  background:rgba(255,255,255,.035);border:1px solid rgba(239,237,231,.2);color:#efede7;
-  font-family:var(--sans);transition:border-color .2s var(--ez),background .2s var(--ez),transform .12s var(--ez)}
-.au-opt:hover,.au-opt:focus-visible{border-color:#39ff14;background:rgba(57,255,20,.1);transform:translateY(-2px);outline:none}
-.au-opt:active{transform:translateY(0);background:rgba(57,255,20,.2)}
+  position:relative;isolation:isolate;--nx-cut:9px;clip-path:var(--nx-notch);border:0;
+  background:rgba(255,45,120,.42);color:var(--nx-ink);
+  font-family:var(--sans);transition:background .2s var(--ez),filter .2s var(--ez),transform .12s var(--ez)}
+.au-opt::before{content:"";position:absolute;inset:1px;clip-path:var(--nx-notch);z-index:-1;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0 1px,transparent 1px 3px),rgba(12,7,17,.95)}
+.au-opt:hover,.au-opt:focus-visible{background:var(--nx-hot);outline:none;transform:translateY(-2px);
+  filter:drop-shadow(0 0 18px rgba(255,45,120,.65))}
+.au-opt:hover::before,.au-opt:focus-visible::before{
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0 1px,transparent 1px 3px),
+    linear-gradient(rgba(255,45,120,.16),rgba(255,45,120,.16)),rgba(12,7,17,.95)}
+.au-opt:active{transform:translateY(0)}
 .au-opt .au-n{font-size:clamp(10px,2vw,var(--t-lab));font-weight:700;letter-spacing:.14em;text-transform:uppercase;line-height:1.45}
-.au-opt .au-l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#39ff14}
-.au-opt .au-l.is-new{color:#ffd166}
+.au-opt .au-l{font-family:var(--nx-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--nx-cyan)}
+.au-opt .au-l.is-new{color:var(--nx-hot)}
 .au-opt .au-d{display:grid;gap:.25rem;align-content:start;
-  font-size:clamp(10px,1.8vw,11px);line-height:1.5;letter-spacing:.02em;color:rgba(239,237,231,.72)}
-.au-opt .au-k{margin-top:auto;font-size:10px;font-weight:700;letter-spacing:.12em;
-  color:rgba(239,237,231,.42);text-transform:uppercase}
-#astroLevelCard .al-h{font-size:var(--t-lab);letter-spacing:.16em;text-transform:uppercase;
-  color:rgba(239,237,231,.45)}
-#astroLevelCard .al-h kbd{font:inherit;color:#39ff14;letter-spacing:.16em}
+  font-size:clamp(10px,1.8vw,11px);line-height:1.5;letter-spacing:.02em;color:rgba(232,235,255,.72)}
+.au-opt .au-k{margin-top:auto;font-family:var(--nx-mono);font-size:10px;font-weight:600;letter-spacing:.18em;
+  color:var(--nx-mute);text-transform:uppercase}
+#astroLevelCard .al-h{font-family:var(--nx-mono);font-size:clamp(9px,1.5vw,11px);letter-spacing:.22em;
+  text-transform:uppercase;color:var(--nx-mute)}
+#astroLevelCard .al-h kbd{font:inherit;color:var(--nx-cyan);letter-spacing:.16em}
 @media (max-width:620px){
   .al-grid{grid-template-columns:1fr;gap:.5rem;margin-bottom:1rem}
   .au-opt{aspect-ratio:auto;min-height:64px}
@@ -219,13 +361,21 @@ html.coarse #astroLevelCard .al-h{display:none}
 
 /* ── Paused (tab left, window blurred) ────────────────────────────────────── */
 #astroPause{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.55);cursor:pointer}
+  background:rgba(6,6,18,.62);cursor:pointer}
 #astroPause.on{display:flex}
-#astroPauseCard{text-align:center;padding:1.8rem 2.4rem;background:rgba(10,10,10,.94);
-  border:1px solid rgba(57,255,20,.42);color:#efede7;font-family:var(--sans)}
-#astroPauseCard .ap-t{font-size:var(--t-lab);letter-spacing:.2em;text-transform:uppercase;color:#39ff14;
-  font-weight:700;margin-bottom:.7rem}
-#astroPauseCard .ap-h{font-size:var(--t-lab);letter-spacing:.16em;text-transform:uppercase;color:rgba(239,237,231,.55)}
+#astroPauseCard{position:relative;isolation:isolate;text-align:center;padding:1.9rem 2.8rem;
+  --nx-cut:12px;clip-path:var(--nx-notch);background:var(--nx-hot);
+  color:var(--nx-ink);font-family:var(--sans);filter:drop-shadow(0 0 22px rgba(255,45,120,.45))}
+#astroPauseCard::before{content:"";position:absolute;inset:1.5px;clip-path:var(--nx-notch);z-index:-1;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0 1px,transparent 1px 3px),rgba(6,3,10,.95);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+#astroPauseCard .ap-t{font-family:var(--nx-mono);font-size:clamp(10px,1.7vw,12px);letter-spacing:.32em;
+  text-transform:uppercase;color:var(--nx-hot);font-weight:600;margin-bottom:.8rem;
+  text-shadow:0 0 14px rgba(255,45,120,.8)}
+#astroPauseCard .ap-t::before{content:":: "}
+#astroPauseCard .ap-t::after{content:" ::"}
+#astroPauseCard .ap-h{font-family:var(--nx-mono);font-size:clamp(9px,1.5vw,11px);letter-spacing:.24em;
+  text-transform:uppercase;color:var(--nx-mute)}
 
 /* the thumbstick would sit on top of both panels on a phone */
 html.coarse body.astro-paused #astroTouch{display:none}
