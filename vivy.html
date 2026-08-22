@@ -19,39 +19,41 @@
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<div id="prog"></div>
-<div id="gridov"></div>
-<div id="gridhint">Grid &middot; press G</div>
-<nav>
+<div id="prog" aria-hidden="true"></div>
+<div id="gridov" aria-hidden="true"></div>
+<div id="gridhint" aria-hidden="true">Grid &middot; press G</div>
+<nav aria-label="Primary">
   <div class="nav-in edge">
     <a href="index.html" class="nav-logo">James Ciclitira</a>
     <div class="nav-desk">
       <ol class="nav-links">
         <li><a href="index.html#work"><span class="num">01</span>Work</a></li>
         <li><a href="index.html#about"><span class="num">02</span>About</a></li>
-        <li><a href="index.html#contact"><span class="num">03</span>Contact</a></li>
+        <li><a href="index.html#process"><span class="num">03</span>Process</a></li>
+        <li><a href="index.html#contact"><span class="num">04</span>Contact</a></li>
         <li><a href="cv.html">R&eacute;sum&eacute; &#8599;</a></li>
       </ol>
       <button class="tt" id="theme-toggle" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
     </div>
     <div class="nav-mob">
       <button class="tt" id="theme-toggle-m" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
-      <button class="burger" type="button" aria-label="Menu" aria-controls="menu"><i></i><i></i></button>
+      <button class="burger" type="button" aria-controls="menu" aria-expanded="false"><span class="bars" aria-hidden="true"><i></i><i></i></span><span class="b-t">Menu</span></button>
     </div>
   </div>
 </nav>
 
-<div id="menu">
+<nav id="menu" aria-label="Site menu">
   <a href="index.html#work"><span class="n">01</span>Work</a>
   <a href="index.html#about"><span class="n">02</span>About</a>
-  <a href="index.html#contact"><span class="n">03</span>Contact</a>
-  <a href="cv.html"><span class="n">04</span>R&eacute;sum&eacute;</a>
+  <a href="index.html#process"><span class="n">03</span>Process</a>
+  <a href="index.html#contact"><span class="n">04</span>Contact</a>
+  <a href="cv.html"><span class="n">05</span>R&eacute;sum&eacute;</a>
   <div class="foot">
     <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
     <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
     <span class="lab lab-mute">Berlin, DE</span>
   </div>
-</div>
+</nav>
 
 <main id="main" tabindex="-1">
 
@@ -69,12 +71,12 @@
   </div>
 </header>
 
-<img class="hero-img" src="img/vivy-hero.jpg" width="1600" height="1024" alt="Vivy app showing medication details, vaccination record and X-ray viewer">
+<img fetchpriority="high" class="hero-img" src="img/vivy-hero.jpg" width="1600" height="1024" alt="Vivy app showing medication details, vaccination record and X-ray viewer">
 
 <div class="stats">
   <div class="stat r"><div class="stat-n">E2E</div><div class="stat-l">End-to-end encryption,<br>security users could trust</div></div>
   <div class="stat r"><div class="stat-n">4 days</div><div class="stat-l">Design sprint in Munich<br>with Allianz to define invoicing</div></div>
-  <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Surfaces designed: patient app,<br>practitioner portal, invoice flow</div></div>
+  <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Sides of one record: patient,<br>practitioner and insurer</div></div>
 </div>
 
 <div class="body">
@@ -88,37 +90,37 @@
     </div>
   </section>
 
-  <img class="img device" src="img/659405f82052fcd4fd187216_onboarding.png" alt="Onboarding" loading="lazy" width="1600" height="925">
+  <img class="img device" src="img/659405f82052fcd4fd187216_onboarding.png" alt="Vivy onboarding screens introducing the encrypted health record before sign-up" loading="lazy" width="1600" height="925">
   <p class="cap" style="margin-bottom:5rem">First run: setting the tone before a single document is added</p>
 
   <section class="section r">
-    <p class="lbl">Document request & sharing</p>
+    <p class="lbl">Document request &amp; sharing</p>
     <h2>The core flow: request a<br>document, receive it, share it.<br><em>Encrypted throughout.</em></h2>
     <p class="prose">A patient opens the app, sends a request to their GP for last month’s blood results, and receives them directly to their phone, with no phone calls, no waiting rooms and no paper. Once there, files can be shared with any other practitioner in seconds, with access controlled entirely by the patient.</p>
-    <img class="img device" src="img/659416107fe0b1cbed80711f_request.png" alt="Document request" loading="lazy" width="1600" height="905">
+    <img class="img device" src="img/659416107fe0b1cbed80711f_request.png" alt="Three entry points to the same flow: request a document, upload one, or find a doctor" loading="lazy" width="1600" height="905">
     <p class="cap">Requesting, uploading and finding a doctor: three entry points into the same flow</p>
     <div class="artifact r" style="margin-top:2rem">
-      <img src="img/659416107f9e54b4050a80a7_request_flow.png" alt="Request flow exploration diagram" loading="lazy" width="1600" height="482">
+      <img src="img/659416107f9e54b4050a80a7_request_flow.png" alt="Early flow map tracing a document request from patient to practice and back, with the points where it could stall" loading="lazy" width="1600" height="482">
     </div>
     <p class="cap">An early flow map, sketching how a request could reach a doctor, and where it could quietly break down. That risk turned out to be the real story (next).</p>
   </section>
 
   <section class="section r">
-    <p class="lbl">The trickiest UX challenge: expectation management</p>
+    <p class="lbl">Expectation management</p>
     <h2>Better to be honest with people<br>than <em>reassuring.</em></h2>
     <div class="pbox"><p>When we launched, many document requests went unanswered, because most doctors had never heard of Vivy. The technology worked. The ecosystem wasn’t ready yet. Patients felt the app was broken. The problem wasn’t the product; it was that we’d set expectations we couldn’t yet meet.</p></div>
     <p class="prose" style="margin-top:1.4rem">So rather than hiding the uncertainty behind a progress spinner, I made it visible. The request-status system kept people informed: what was pending, why it might be delayed, and what their options were, with small explanatory moments along the way so patients understood the process, not just the interface.<br><br>It was one of the better decisions I made at Vivy: trust people with honest information rather than paper over a messy reality with reassuring-looking UI. Patients coped far better with honesty than with false confidence.</p>
     <div class="two device-pair" style="margin-top:1.8rem">
-      <img class="img device device-1up" src="img/6594171c0766f1d5452648f9_expectation2.png" alt="Expectation states" loading="lazy" width="799" height="1415">
-      <img class="img device device-1up" src="img/6594178a73954868b9e34622_expectation1.png" alt="Status communication" loading="lazy" width="816" height="1415">
+      <img class="img device device-1up" src="img/6594171c0766f1d5452648f9_expectation2.png" alt="Request status screen naming what is pending and why it may be delayed" loading="lazy" width="799" height="1415">
+      <img class="img device device-1up" src="img/6594178a73954868b9e34622_expectation1.png" alt="Explanatory screen setting out what happens next and what the patient can do meanwhile" loading="lazy" width="816" height="1415">
     </div>
     <p class="cap">Replacing a progress spinner with a specific status, a reason, and a next step</p>
   </section>
 
-  <div class="pq r">
+  <blockquote class="pq r">
     <p>“Building a product that’s ahead of its supporting infrastructure teaches you something most UX courses don’t: how to manage the gap between vision and reality with dignity.”</p>
     <cite>James Ciclitira, on Vivy</cite>
-  </div>
+  </blockquote>
 
   <section class="section r">
     <p class="lbl">The Munich sprint: invoice management</p>
@@ -128,19 +130,19 @@
       <div class="day"><p class="day-n">Day 01</p><p class="day-t">Stakeholder mapping</p><p class="day-d">Unpacking Allianz’s internal workflows and the legal requirements for invoice processing.</p></div>
       <div class="day"><p class="day-n">Day 02</p><p class="day-t">Patient pain journey</p><p class="day-d">Mapping every frustration, every piece of confusion, every moment of delay in the current process.</p></div>
       <div class="day"><p class="day-n">Day 03</p><p class="day-t">Rapid prototyping</p><p class="day-d">Multiple invoice submission flows, tested on-the-spot with real patients and Allianz staff.</p></div>
-      <div class="day"><p class="day-n">Day 04</p><p class="day-t">Validation & sign-off</p><p class="day-d">Working prototype. Feature requirements aligned. A shared language between design, tech, and insurer.</p></div>
+      <div class="day"><p class="day-n">Day 04</p><p class="day-t">Validation &amp; sign-off</p><p class="day-d">Working prototype. Feature requirements aligned. A shared language between design, tech, and insurer.</p></div>
     </div>
-    <img class="img device" src="img/6594171e826c9de511445a4c_viewing.png" alt="Invoice management" loading="lazy" width="1600" height="921">
+    <img class="img device" src="img/6594171e826c9de511445a4c_viewing.png" alt="Invoice management: submitting a private healthcare bill and tracking the reimbursement claim" loading="lazy" width="1600" height="921">
     <p class="cap">The invoice flow that came out of the sprint, validated with Allianz and real patients</p>
   </section>
 
   <section class="section r">
-    <p class="lbl">File sharing & the practitioner interface</p>
+    <p class="lbl">File sharing &amp; the practitioner interface</p>
     <h2>The patient experience only<br>works if doctors <em>trust it too.</em></h2>
     <p class="prose" style="margin-bottom:1.8rem">I also designed the practitioner-facing side: a secure, direct connection that made file sharing feel professional and trustworthy for both clinician and patient. The key design challenge was building enough trust signals that a doctor would be willing to integrate it into their workflow.</p>
     <div class="shots r">
-      <img class="device s-phone" src="img/65953db7535215a416bf2af0_share1.png" alt="File sharing" loading="lazy" width="799" height="1415">
-      <img class="device s-desk" src="img/6594171ddb2f3e1ef7c7923a_dr.png" alt="Doctor interface" loading="lazy" width="1314" height="820">
+      <img class="device s-phone" src="img/65953db7535215a416bf2af0_share1.png" alt="Patient sharing a document from their phone, choosing who gets access" loading="lazy" width="799" height="1415">
+      <img class="device s-desk" src="img/6594171ddb2f3e1ef7c7923a_dr.png" alt="Practitioner portal: documents a patient has shared, opened on a clinic desktop" loading="lazy" width="1314" height="820">
     </div>
     <p class="cap">The patient’s phone (left) and the practitioner’s portal (right): two contexts, one trust model</p>
     <div class="r" style="margin-top:1.8rem">
@@ -155,7 +157,7 @@
 <div class="body" style="padding-top:0">
   <section class="section r">
     <p class="lbl">Product metrics</p>
-    <h2>How success was <em>defined.</em></h2>
+    <h2>How success was <em>measured.</em></h2>
     <div class="mgrid">
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.4 3.2h5.9L18.6 7.5V20.8H8.4z"/><path d="M14.3 3.2v4.3h4.3"/><path d="M13.5 11.4v5.2"/><path d="M11.3 14.4l2.2 2.2 2.2-2.2"/></svg></span>
@@ -181,6 +183,14 @@
 </a>
 
 </main>
+
+<!-- Fixed return control. The footer already carries a "Back to top" link; this
+     is the same control brought forward for a page this long, and it stands
+     down again once the footer is on screen rather than covering it. -->
+<button id="totop" type="button" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.2V5.4"/><path d="M5.6 11.8 12 5.4l6.4 6.4"/></svg>
+  <span>Top</span>
+</button>
 
 <footer>
   <div class="edge">

@@ -19,39 +19,41 @@
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<div id="prog"></div>
-<div id="gridov"></div>
-<div id="gridhint">Grid &middot; press G</div>
-<nav>
+<div id="prog" aria-hidden="true"></div>
+<div id="gridov" aria-hidden="true"></div>
+<div id="gridhint" aria-hidden="true">Grid &middot; press G</div>
+<nav aria-label="Primary">
   <div class="nav-in edge">
     <a href="index.html" class="nav-logo">James Ciclitira</a>
     <div class="nav-desk">
       <ol class="nav-links">
         <li><a href="index.html#work"><span class="num">01</span>Work</a></li>
         <li><a href="index.html#about"><span class="num">02</span>About</a></li>
-        <li><a href="index.html#contact"><span class="num">03</span>Contact</a></li>
+        <li><a href="index.html#process"><span class="num">03</span>Process</a></li>
+        <li><a href="index.html#contact"><span class="num">04</span>Contact</a></li>
         <li><a href="cv.html">R&eacute;sum&eacute; &#8599;</a></li>
       </ol>
       <button class="tt" id="theme-toggle" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
     </div>
     <div class="nav-mob">
       <button class="tt" id="theme-toggle-m" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
-      <button class="burger" type="button" aria-label="Menu" aria-controls="menu"><i></i><i></i></button>
+      <button class="burger" type="button" aria-controls="menu" aria-expanded="false"><span class="bars" aria-hidden="true"><i></i><i></i></span><span class="b-t">Menu</span></button>
     </div>
   </div>
 </nav>
 
-<div id="menu">
+<nav id="menu" aria-label="Site menu">
   <a href="index.html#work"><span class="n">01</span>Work</a>
   <a href="index.html#about"><span class="n">02</span>About</a>
-  <a href="index.html#contact"><span class="n">03</span>Contact</a>
-  <a href="cv.html"><span class="n">04</span>R&eacute;sum&eacute;</a>
+  <a href="index.html#process"><span class="n">03</span>Process</a>
+  <a href="index.html#contact"><span class="n">04</span>Contact</a>
+  <a href="cv.html"><span class="n">05</span>R&eacute;sum&eacute;</a>
   <div class="foot">
     <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
     <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
     <span class="lab lab-mute">Berlin, DE</span>
   </div>
-</div>
+</nav>
 
 <main id="main" tabindex="-1">
 
@@ -63,19 +65,18 @@
     <p class="cs-tagline">A Bosch-owned e-moped fleet operating across three European cities. I led the redesign of the rider app and designed new fleet management tools, including a dispatcher dashboard and worker app, to support the daily operations behind 5,000 scooters on the road.</p>
   </div>
   <div class="meta-grid">
-    <div class="meta-item"><label>Role</label><p>Product Designer</p></div>
+    <div class="meta-item"><label>Role</label><p>Senior Product Designer</p></div>
     <div class="meta-item"><label>Markets</label><p>Berlin · Paris · Madrid</p></div>
     <div class="meta-item"><label>Scope</label><p>Consumer ride app · Dispatcher dashboard · Field worker app</p></div>
   </div>
 </header>
 
-<img class="hero-img" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="Coup Mobility" width="700" height="448">
+<img fetchpriority="high" class="hero-img" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="Two riders on Coup’s red shared e-mopeds waiting at a Berlin intersection" width="700" height="448">
 
-<div class="stats four">
-  <div class="stat r"><div class="stat-n">5,000</div><div class="stat-l">Electric mopeds across<br>three European cities</div></div>
-  <div class="stat r"><div class="stat-n">2</div><div class="stat-l">Distinct products designed:<br>consumer app &amp; ops platform</div></div>
-  <div class="stat r"><div class="stat-n">Built</div><div class="stat-l">Field ops tool created from<br>scratch, nothing existed before</div></div>
-  <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Cities. One platform.<br>Hundreds of field workers.</div></div>
+<div class="stats">
+  <div class="stat r"><div class="stat-n">5,000</div><div class="stat-l">Electric mopeds across<br>Berlin, Paris and Madrid</div></div>
+  <div class="stat r"><div class="stat-n">1 in 8</div><div class="stat-l">Rides cancelled before the engine<br>started, with the reason unrecorded</div></div>
+  <div class="stat r"><div class="stat-n">Zero</div><div class="stat-l">Tools built for the field team<br>before this project</div></div>
 </div>
 
 <!-- ═══ CONTEXT ════════════════════════════════════════════ -->
@@ -109,7 +110,7 @@
       </div>
       <div>
         <img class="img is-cutout device" src="img/coup-scooter.png" width="840" height="840" alt="The Coup e-moped" loading="lazy">
-        <p class="cap">Ride UX redesign, before state: mapping friction points across the existing ride flow before redesign</p>
+        <p class="cap">The object the whole service turns on: one moped, three cities, thousands of daily decisions</p>
         <img class="img device" style="margin-top:1rem" src="img/coup-ride-flow.png" alt="Redesigned ride experience: route to scooter, reservation, unlock and cancellation" loading="lazy" width="1256" height="656">
         <p class="cap">Redesigned ride experience: a clearer flow built around confidence, transparency and keeping riders in control</p>
       </div>
@@ -127,7 +128,7 @@
       <div>
         <p class="lbl">Passive intelligence</p>
         <h2>One in eight rides was<br>cancelled. Nobody knew <em>why.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">Around one in eight rides was cancelled before the engine even started. It was costly, but more importantly, impossible to improve because the reasons behind cancellations were invisible. Was the scooter damaged? Was the battery too low? Had the rider selected the wrong vehicle? Was a required item missing? Without reliable data, every improvement was based on assumptions.</p>
+        <p class="prose" style="margin-bottom:1.4rem">Around one in eight rides was cancelled before the engine even started. It was costly, and worse, impossible to improve: the reasons behind cancellations were invisible. Was the scooter damaged? Was the battery too low? Had the rider selected the wrong vehicle? Was a required item missing? Without reliable data, every improvement was based on assumptions.</p>
         <p class="prose" style="margin-bottom:1.4rem">We added a lightweight feedback step directly into the cancellation flow: a small set of predefined reasons that riders could select in a single tap before leaving. The experience stayed quick for the rider while creating a structured, timestamped source of operational insight.</p>
         <p class="prose">For the first time the team could see why rides were failing, and target the issues causing the most friction instead of guessing at them across thousands of scooters.</p>
       </div>
@@ -141,7 +142,7 @@
 
 <!-- ═══ PART 2: RESEARCH — PAPER SECTION ═══════════════════ -->
 <div class="body">
-  <span class="section-num r" style="color:var(--border)">02</span>
+  <span class="section-num r">02</span>
   <!-- Battery swap research -->
   <section class="section r">
     <p class="lbl">Research before commitment</p>
@@ -156,7 +157,7 @@
   </section>
 
   <!-- ═══ PART 3: FIELD OPS ═════════════════════════════════ -->
-  <span class="section-num r" style="color:var(--border)">03</span>
+  <span class="section-num r">03</span>
   <section class="section r">
     <p class="lbl">The field operations platform</p>
     <h2>Nothing existed.<br>We built the <em>whole thing.</em></h2>
@@ -169,17 +170,17 @@
   <!-- Three capability cards -->
   <div class="cards r">
     <div class="icard">
-      <div class="icard-icon">🗺</div>
+      <div class="icard-icon"></div>
       <div class="icard-t">Fleet status at a glance</div>
       <p class="icard-d">A live view of every scooter in the fleet, showing availability, issues, and maintenance status. Dispatchers could understand the health of the operation without relying on manual updates.</p>
     </div>
     <div class="icard">
-      <div class="icard-icon">🔧</div>
+      <div class="icard-icon"></div>
       <div class="icard-t">Structured maintenance logging</div>
       <p class="icard-d">Field workers received clear assignments, completed tasks through guided workflows, and recorded outcomes in a consistent format. Every action created a traceable operational history.</p>
     </div>
     <div class="icard">
-      <div class="icard-icon">📋</div>
+      <div class="icard-icon"></div>
       <div class="icard-t">Assignment management</div>
       <p class="icard-d">Dispatchers could create, assign, and reprioritise tasks based on fleet conditions. Field workers received jobs directly on their phones, replacing calls and WhatsApp chains with a clear, reliable workflow.</p>
     </div>
@@ -197,9 +198,9 @@
       </div>
     </div>
     <div class="three r" style="margin-top:1.1rem">
-      <img class="img device" src="img/659543545af362c4b4662b56_login.png" alt="Login screen" loading="lazy" width="860" height="598">
-      <img class="img device" src="img/65954355e9514696adfb303b_status.png" alt="Scooter status view" loading="lazy" width="860" height="598">
-      <img class="img device" src="img/65954353e77443ea49ac576d_overview.png" alt="Dispatcher overview" loading="lazy" width="860" height="598">
+      <img class="img device" src="img/659543545af362c4b4662b56_login.png" alt="Field worker app sign-in screen" loading="lazy" width="860" height="598">
+      <img class="img device" src="img/65954355e9514696adfb303b_status.png" alt="Scooter status view: battery level, location and open faults for one vehicle" loading="lazy" width="860" height="598">
+      <img class="img device" src="img/65954353e77443ea49ac576d_overview.png" alt="Dispatcher overview: the live fleet map with vehicles grouped by status" loading="lazy" width="860" height="598">
     </div>
     <div class="r" style="margin-top:1.1rem">
       <img class="img device" src="img/coup-tickets.png" alt="Dispatcher ticket queue with battery swaps queued, in progress and completed" loading="lazy" width="1600" height="1113">
@@ -211,7 +212,7 @@
   <!-- ═══ HOW SUCCESS WAS MEASURED ═════════════════════════ -->
   <section class="section r">
     <p class="lbl">Product metrics</p>
-    <h2>How success was <em>defined.</em></h2>
+    <h2>How success was <em>measured.</em></h2>
     <div class="mgrid">
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.4" cy="17.6" r="3.1"/><circle cx="18.6" cy="17.6" r="3.1"/><path d="M8.5 17.6h7"/><path d="M5.4 14.5V9.8h4.9l3.4 4.7"/><path d="M10.3 9.8h3.9"/><path d="M17.4 6.2h4"/><path d="M19.4 4.2v4"/></svg></span>
@@ -238,10 +239,18 @@
     <div><p class="next-eyebrow">Next project →</p><div class="next-title">Cooler<br><em>Future</em></div></div>
     <p class="next-sub">Lead Designer · Climate Fintech · Full launch</p>
   </div>
-  <div class="next-r"><img class="next-img" src="img/65940ab6bcaf577124a4acb9_CoolerHero.jpg" alt="Cooler Future" loading="lazy" width="700" height="448"></div>
+  <div class="next-r"><img class="next-img" src="img/65940ab6bcaf577124a4acb9_CoolerHero.jpg" alt="" loading="lazy" width="700" height="448"></div>
 </a>
 
 </main>
+
+<!-- Fixed return control. The footer already carries a "Back to top" link; this
+     is the same control brought forward for a page this long, and it stands
+     down again once the footer is on screen rather than covering it. -->
+<button id="totop" type="button" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.2V5.4"/><path d="M5.6 11.8 12 5.4l6.4 6.4"/></svg>
+  <span>Top</span>
+</button>
 
 <footer>
   <div class="edge">

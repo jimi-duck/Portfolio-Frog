@@ -189,6 +189,33 @@
     }, { rootMargin: '0px 0px -12% 0px' }).observe(foot);
   }
 
+  /* ── BACK TO TOP ───────────────────────────────────────────────────────── */
+  /* Only present on the long pages. It shows once the reader is past the first
+     screen and stands down again as the footer arrives, since the footer
+     carries the same link. Focus follows the scroll: without it a
+     keyboard user is returned to the top visually while their tab position is
+     still several thousand pixels down the page. */
+  function toTop() {
+    var btn = $('#totop');
+    if (!btn) return;
+    var foot = $('footer');
+    var run = function () {
+      var on = scrollY > innerHeight * 1.1;
+      // one measurement per scroll, same cost as the progress bar above
+      if (on && foot) on = foot.getBoundingClientRect().top > innerHeight * 0.88;
+      document.body.classList.toggle('totop-on', on);
+    };
+    addEventListener('scroll', run, { passive: true });
+    addEventListener('resize', run);
+    run();
+
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+      var m = $('#main');
+      if (m) m.focus({ preventScroll: true });
+    });
+  }
+
   /* ── GRID OVERLAY (press G) ────────────────────────────────────────────── */
   function gridOverlay() {
     var ov = $('#gridov');
@@ -216,7 +243,7 @@
   /* ── BOOT ──────────────────────────────────────────────────────────────── */
   function boot() {
     document.documentElement.dataset.swiss = '1';
-    theme(); progress(); nav(); gridOverlay(); launcher();
+    theme(); progress(); nav(); gridOverlay(); launcher(); toTop();
     intro(reveals);
     addEventListener('load', revealOnScreen);
     // failsafe: never let the curtain trap the page, and never leave content hidden

@@ -19,39 +19,41 @@
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<div id="prog"></div>
-<div id="gridov"></div>
-<div id="gridhint">Grid &middot; press G</div>
-<nav>
+<div id="prog" aria-hidden="true"></div>
+<div id="gridov" aria-hidden="true"></div>
+<div id="gridhint" aria-hidden="true">Grid &middot; press G</div>
+<nav aria-label="Primary">
   <div class="nav-in edge">
     <a href="index.html" class="nav-logo">James Ciclitira</a>
     <div class="nav-desk">
       <ol class="nav-links">
         <li><a href="index.html#work"><span class="num">01</span>Work</a></li>
         <li><a href="index.html#about"><span class="num">02</span>About</a></li>
-        <li><a href="index.html#contact"><span class="num">03</span>Contact</a></li>
+        <li><a href="index.html#process"><span class="num">03</span>Process</a></li>
+        <li><a href="index.html#contact"><span class="num">04</span>Contact</a></li>
         <li><a href="cv.html">R&eacute;sum&eacute; &#8599;</a></li>
       </ol>
       <button class="tt" id="theme-toggle" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
     </div>
     <div class="nav-mob">
       <button class="tt" id="theme-toggle-m" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
-      <button class="burger" type="button" aria-label="Menu" aria-controls="menu"><i></i><i></i></button>
+      <button class="burger" type="button" aria-controls="menu" aria-expanded="false"><span class="bars" aria-hidden="true"><i></i><i></i></span><span class="b-t">Menu</span></button>
     </div>
   </div>
 </nav>
 
-<div id="menu">
+<nav id="menu" aria-label="Site menu">
   <a href="index.html#work"><span class="n">01</span>Work</a>
   <a href="index.html#about"><span class="n">02</span>About</a>
-  <a href="index.html#contact"><span class="n">03</span>Contact</a>
-  <a href="cv.html"><span class="n">04</span>R&eacute;sum&eacute;</a>
+  <a href="index.html#process"><span class="n">03</span>Process</a>
+  <a href="index.html#contact"><span class="n">04</span>Contact</a>
+  <a href="cv.html"><span class="n">05</span>R&eacute;sum&eacute;</a>
   <div class="foot">
     <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
     <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
     <span class="lab lab-mute">Berlin, DE</span>
   </div>
-</div>
+</nav>
 
 <main id="main" tabindex="-1">
 
@@ -71,12 +73,12 @@
 </header>
 
 <!-- Full marketing hero shot — natural dimensions, no crop -->
-<img class="hero-img is-art" src="cf-hero-2.jpg" width="1600" height="896" alt="Cooler Future key visual: an aerial view of a turquoise glacial lake, captioned &quot;The footprint of money: reshaping sustainable investing&quot;">
+<img fetchpriority="high" class="hero-img is-art" src="cf-hero-2.jpg" width="1600" height="896" alt="Cooler Future key visual: an aerial view of a turquoise glacial lake, captioned &quot;The footprint of money: reshaping sustainable investing&quot;">
 
 <div class="stats">
   <div class="stat r"><div class="stat-n">€20</div><div class="stat-l">Minimum investment,<br>open to almost anyone</div></div>
   <div class="stat r"><div class="stat-n">2</div><div class="stat-l">Distinct user types with<br>fundamentally different needs</div></div>
-  <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Surfaces designed: app,<br>website, design system</div></div>
+  <div class="stat r"><div class="stat-n">0 &rarr; 1</div><div class="stat-l">Joined before a screen existed,<br>stayed through to public launch</div></div>
 </div>
 
 <!-- CONTEXT -->
@@ -101,7 +103,7 @@
         <p class="prose" style="margin-bottom:1.8rem">Interviews, diary studies and card sorting across both segments revealed something the original brief had overlooked: this was not one audience with one set of needs. It was two groups approaching the same product with completely different questions.</p>
         <p class="prose">Understanding what each group already knew, what they doubted, and what would build or break trust became the foundation for the product strategy. Research did more than inform the interface; it changed how the product itself needed to communicate.</p>
       </div>
-      <div style="display:flex;flex-direction:column;gap:1rem">
+      <div style="display:flex;flex-direction:column;gap:clamp(1.6rem,3vw,2.4rem)">
         <div class="utype">
           <p class="utype-tag">First-time investors</p>
           <h3>Curious but overwhelmed</h3>
@@ -109,7 +111,7 @@
         </div>
         <div class="utype">
           <p class="utype-tag">Existing investors</p>
-          <h3>Skeptical and evidence-driven</h3>
+          <h3>Sceptical and evidence-driven</h3>
           <p>Already investing and familiar with the promises of sustainable finance. They had seen vague claims before and wanted proof: <em>“How is this actually different from what I already have?”</em> For this audience, transparency was not just a brand value. It was the reason to trust the product.</p>
         </div>
       </div>
@@ -120,12 +122,12 @@
 <!-- ONBOARDING -->
 <div class="body">
   <section class="section r">
-    <p class="lbl">Onboarding: removing friction without removing rigour</p>
+    <p class="lbl">Onboarding</p>
     <h2>Opening a regulated investment<br>account is legally complex.<br><em>It doesn’t have to feel that way.</em></h2>
     <div class="two" style="margin-top:1.8rem;gap:4rem;align-items:start">
       <div>
         <div class="pbox">
-          <p>New users had to open a German depot account as part of signup, including identity verification, tax information, KYC checks, and regulatory disclosures. These steps were mandatory. The challenge was making them feel like the minimum necessary effort, not a barrier to getting started.</p>
+          <p>New users had to open a German depot account as part of sign-up, including identity verification, tax information, KYC checks, and regulatory disclosures. These steps were mandatory. The challenge was making them feel like the minimum necessary effort, not a barrier to getting started.</p>
         </div>
         <p class="prose" style="margin-top:1.4rem">Anything that could be postponed was postponed, and anything not legally required was removed. Every step was introduced with clear context, users knew what information they needed before reaching it, and progress remained visible throughout.</p>
         <p class="prose" style="margin-top:1rem">After registration, users moved straight into fund selection, choosing themes aligned with their values before committing any money: Smart Energy, Clean Water, Circular Economy, and Forestry &amp; Timber. The investment journey started with personal conviction, not financial complexity.</p>
@@ -231,12 +233,12 @@
     <h2>Two surfaces.<br><em>One world.</em></h2>
     <p class="prose" style="margin-bottom:1.8rem">Alongside the mobile app, I designed the marketing website, often the first touchpoint for potential users. It needed to establish the same sense of transparency and credibility people would later experience inside the product.<br><br>The visual language, messaging and trust signals were designed as a single system across both experiences. For a product built on trust, any disconnect between the website and the app would have undermined the promise before users had even opened an account. The shared design system was what held the two together, from first impression through to first investment.</p>
     <div class="two">
-      <img class="img tall" src="img/659fe3b4a3376c60d9512ab4_web.1.png" alt="Website homepage" loading="lazy" width="1008" height="635">
-      <img class="img tall" src="img/659fe3b377c40374a3cf5191_web.4.png" alt="Website funds page" loading="lazy" width="1008" height="635">
+      <img class="img tall" src="img/659fe3b4a3376c60d9512ab4_web.1.png" alt="Marketing site homepage: the product promise above a view of the app" loading="lazy" width="1008" height="635">
+      <img class="img tall" src="img/659fe3b377c40374a3cf5191_web.4.png" alt="Marketing site funds page: each theme with its holdings and exclusions" loading="lazy" width="1008" height="635">
     </div>
     <div class="two" style="margin-top:1.1rem">
-      <img class="img tall" src="img/659fe3b347f145b2260583c4_web.2.png" alt="Website about" loading="lazy" width="1008" height="635">
-      <img class="img tall" src="img/659fe3b443099ebeffe6fc1a_web.3.png" alt="Website invest" loading="lazy" width="1008" height="635">
+      <img class="img tall" src="img/659fe3b347f145b2260583c4_web.2.png" alt="Marketing site about page: the team and the methodology behind the ratings" loading="lazy" width="1008" height="635">
+      <img class="img tall" src="img/659fe3b443099ebeffe6fc1a_web.3.png" alt="Marketing site invest page: how to open an account and what it costs" loading="lazy" width="1008" height="635">
     </div>
   </section>
 
@@ -246,7 +248,7 @@
 <div class="body" style="padding-top:0">
   <section class="section r">
     <p class="lbl">Product metrics</p>
-    <h2>How success was <em>defined.</em></h2>
+    <h2>How success was <em>measured.</em></h2>
     <div class="mgrid">
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.4 17.6a9.4 9.4 0 1 1 17.2 0"/><path d="M12 13.6l4-4.2"/><circle cx="12" cy="14.4" r="1.1"/></svg></span>
@@ -269,10 +271,18 @@
     <div><p class="next-eyebrow">Next project →</p><div class="next-title">Vivy<br><em>Health</em></div></div>
     <p class="next-sub">Founding Designer · Allianz-backed · Digital health</p>
   </div>
-  <div class="next-r"><img class="next-img" src="img/6593e7ac7fe0b1cbed638346_VivyHero.jpeg" alt="Vivy" loading="lazy" width="700" height="448"></div>
+  <div class="next-r"><img class="next-img" src="img/6593e7ac7fe0b1cbed638346_VivyHero.jpeg" alt="" loading="lazy" width="700" height="448"></div>
 </a>
 
 </main>
+
+<!-- Fixed return control. The footer already carries a "Back to top" link; this
+     is the same control brought forward for a page this long, and it stands
+     down again once the footer is on screen rather than covering it. -->
+<button id="totop" type="button" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.2V5.4"/><path d="M5.6 11.8 12 5.4l6.4 6.4"/></svg>
+  <span>Top</span>
+</button>
 
 <footer>
   <div class="edge">
