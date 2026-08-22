@@ -107,6 +107,33 @@ body.astro-active #astroHud{display:flex}
 #astroShieldBuff{color:#7fe3ec;box-shadow:0 0 12px rgba(127,227,236,.35)}
 #astroRapidBuff{color:#ffb347;box-shadow:0 0 12px rgba(255,179,71,.35)}
 
+/* ═══ BOSS — hull bar and the inbound warning ═════════════════════════════ */
+/* Both sit under the XP rail and are shown by JS adding .on, the same way the
+   buff pills work, so nothing here is visible outside a boss fight. */
+#astroBoss{position:fixed;top:calc(var(--xp-h) + .7rem);left:50%;transform:translateX(-50%);
+  z-index:99998;display:none;flex-direction:column;align-items:center;gap:.4rem;
+  width:min(420px,62vw);pointer-events:none}
+#astroBoss.on{display:flex}
+#astroBossName{font-size:var(--t-lab);letter-spacing:.22em;text-transform:uppercase;
+  font-weight:700;color:#c77dff;text-shadow:0 0 10px rgba(168,85,247,.7)}
+#astroBossBar{position:relative;width:100%;height:7px;background:rgba(10,10,10,.8);
+  border:1px solid rgba(199,125,255,.45);overflow:hidden}
+#astroBossFill{position:absolute;inset:0 auto 0 0;width:100%;
+  background:#c77dff;box-shadow:0 0 12px rgba(168,85,247,.85);
+  transition:width .12s linear}
+/* half hull: the bar turns over to the same red the hull does */
+#astroBossFill.rage{background:#ff4d6d;box-shadow:0 0 14px rgba(255,77,109,.9)}
+#astroWarn{position:fixed;top:38%;left:0;right:0;z-index:99998;display:none;
+  text-align:center;font-size:clamp(13px,3.4vw,1.5rem);font-weight:700;
+  letter-spacing:.28em;text-transform:uppercase;color:#ff4d6d;
+  text-shadow:0 0 18px rgba(255,77,109,.8);pointer-events:none}
+#astroWarn.on{display:block;animation:bossWarn .62s steps(2,end) infinite}
+@keyframes bossWarn{0%,100%{opacity:1}50%{opacity:.15}}
+@media (prefers-reduced-motion:reduce){
+  #astroWarn.on{animation:none}
+  #astroBossFill{transition:none}
+}
+
 #astroOver{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;cursor:pointer}
 #astroOver.on{display:flex}
 #astroOverCard{text-align:center;padding:2.2rem 2.8rem;background:rgba(10,10,10,.92);
