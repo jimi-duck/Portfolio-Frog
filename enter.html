@@ -19,39 +19,41 @@
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<div id="prog"></div>
-<div id="gridov"></div>
-<div id="gridhint">Grid &middot; press G</div>
-<nav>
+<div id="prog" aria-hidden="true"></div>
+<div id="gridov" aria-hidden="true"></div>
+<div id="gridhint" aria-hidden="true">Grid &middot; press G</div>
+<nav aria-label="Primary">
   <div class="nav-in edge">
     <a href="index.html" class="nav-logo">James Ciclitira</a>
     <div class="nav-desk">
       <ol class="nav-links">
         <li><a href="index.html#work"><span class="num">01</span>Work</a></li>
         <li><a href="index.html#about"><span class="num">02</span>About</a></li>
-        <li><a href="index.html#contact"><span class="num">03</span>Contact</a></li>
+        <li><a href="index.html#process"><span class="num">03</span>Process</a></li>
+        <li><a href="index.html#contact"><span class="num">04</span>Contact</a></li>
         <li><a href="cv.html">R&eacute;sum&eacute; &#8599;</a></li>
       </ol>
       <button class="tt" id="theme-toggle" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
     </div>
     <div class="nav-mob">
       <button class="tt" id="theme-toggle-m" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
-      <button class="burger" type="button" aria-label="Menu" aria-controls="menu"><i></i><i></i></button>
+      <button class="burger" type="button" aria-controls="menu" aria-expanded="false"><span class="bars" aria-hidden="true"><i></i><i></i></span><span class="b-t">Menu</span></button>
     </div>
   </div>
 </nav>
 
-<div id="menu">
+<nav id="menu" aria-label="Site menu">
   <a href="index.html#work"><span class="n">01</span>Work</a>
   <a href="index.html#about"><span class="n">02</span>About</a>
-  <a href="index.html#contact"><span class="n">03</span>Contact</a>
-  <a href="cv.html"><span class="n">04</span>R&eacute;sum&eacute;</a>
+  <a href="index.html#process"><span class="n">03</span>Process</a>
+  <a href="index.html#contact"><span class="n">04</span>Contact</a>
+  <a href="cv.html"><span class="n">05</span>R&eacute;sum&eacute;</a>
   <div class="foot">
     <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
     <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
     <span class="lab lab-mute">Berlin, DE</span>
   </div>
-</div>
+</nav>
 
 <main id="main" tabindex="-1">
 
@@ -71,12 +73,12 @@
 </header>
 
 <!-- Hero photo: advisor in garden selecting building footprint on map -->
-<img class="hero-img" src="Man_selecting_the_footprint.jpg" alt="Energy advisor selecting building footprint on map" width="1333" height="2000">
+<img fetchpriority="high" class="hero-img" src="Man_selecting_the_footprint.jpg" alt="An Enter energy advisor tracing a building’s footprint on a tablet during an on-site survey" width="1333" height="2000">
 
 <div class="stats">
-  <div class="stat r"><div class="stat-n">iSFP</div><div class="stat-l">Official govt. document<br>generated from field data</div></div>
+  <div class="stat r"><div class="stat-n">iSFP</div><div class="stat-l">Official government document<br>generated from field data</div></div>
   <div class="stat r"><div class="stat-n">2D</div><div class="stat-l">Live floor plans with<br>window-level precision</div></div>
-  <div class="stat r"><div class="stat-n">Built</div><div class="stat-l">Field tool &amp; customer journey<br>designed from scratch</div></div>
+  <div class="stat r"><div class="stat-n">1 visit</div><div class="stat-l">Survey, energy model and findings,<br>before anyone leaves the house</div></div>
 </div>
 
 <!-- ═══ CONTEXT ═══════════════════════════════════════════ -->
@@ -85,7 +87,7 @@
     <p class="lbl">The context</p>
     <h2>Billions in renovation funding.<br>The data to unlock it<br><em>didn’t yet exist.</em></h2>
     <div class="two" style="margin-top:1.6rem">
-      <p class="prose">Enter helps German homeowners navigate energy-efficient renovations, from insulation and heat pumps to new windows and the government funding that can cover much of the cost. Through the Bundesförderung für effiziente Gebäude (BEG), homeowners can receive subsidies of up to 70% for certain measures. To qualify, they need an Individual Renovation Roadmap (iSFP) prepared by a certified energy advisor following an on-site assessment.<br><br>That visit is the foundation of everything that follows: the energy model, the retrofit recommendations it generates, and the official report homeowners need to claim funding.</p>
+      <p class="prose">Enter helps German homeowners navigate energy-efficient renovations, from insulation and heat pumps to new windows and the government funding that can cover much of the cost. Through the <span lang="de">Bundesförderung für effiziente Gebäude</span> (BEG), homeowners can receive subsidies of up to 70% for certain measures. To qualify, they need an Individual Renovation Roadmap (iSFP) prepared by a certified energy advisor following an on-site assessment.<br><br>That visit is the foundation of everything that follows: the energy model, the retrofit recommendations it generates, and the official report homeowners need to claim funding.</p>
       <p class="prose">When I joined, advisors relied on paper forms, handwritten notes, and fragmented workflows. Data was inconsistent, difficult to digitise, and unsuitable for a scalable AI pipeline. There was no dedicated product for advisors collecting information in the field, or for homeowners trying to understand their renovation options and next steps.<br><br>I led the design of both experiences: a tablet-first field app that guides energy advisors through on-site assessments, and a digital customer report that helps homeowners understand recommendations, compare renovation scenarios, and move confidently toward funding and implementation.</p>
     </div>
   </section>
@@ -179,6 +181,19 @@
         <div class="pipe-node"><div class="pipe-node-t">Final iSFP</div><div class="pipe-node-d">The agreed measures are compiled into the official Individual Renovation Roadmap, ready to support government funding applications</div></div>
       </div>
     </div>
+
+    <!-- The AI step is fast enough to need no waiting state; the design question
+         was what the advisor could do with the numbers coming back. -->
+    <div class="two r" style="margin-top:clamp(1.8rem,3.4vw,3rem);align-items:start;gap:clamp(1.4rem,3vw,3rem)">
+      <div>
+        <h3 style="margin-top:0">Fast processing.<br>The advisor still <em>decides.</em></h3>
+        <p class="prose" style="margin-top:1rem">Processing was quick enough that there was no waiting state to design. The real question was what the advisor could do with the numbers coming back. Chief among them is the U-value: how much heat escapes through a square metre of wall, roof or window. The lower the figure, the better insulated the element, and the whole energy model rests on it.</p>
+      </div>
+      <div>
+        <p class="prose">So rather than returning U-values at the end, we calculated them live and showed them updating as construction details were entered. Every value stayed editable. An advisor standing in front of an opened-up wall could override the calculated figure with their own, and the model took their number instead. The AI set the default. The person in the building had the last word.</p>
+        <div class="pbox" style="margin-top:1.2rem"><p>An override was a signal, not an error. Where advisors corrected the same assumption repeatedly, that was a defect in the model worth feeding back.</p></div>
+      </div>
+    </div>
   </section>
 </div>
 
@@ -196,7 +211,7 @@
       <div class="phones-pair">
         <div class="phone-col">
           <img class="device-img" src="Pre-data_capture.png" alt="Pre-appointment briefing screen" loading="lazy" width="606" height="1006">
-          <p class="cap">Before: data locked, “Termin starten” visible</p>
+          <p class="cap">Before: data locked, “<span lang="de">Termin starten</span>” visible</p>
         </div>
         <div class="phone-col">
           <img class="device-img" src="Post_data_capture.png" alt="Post-completion appointment screen" loading="lazy" width="606" height="1136">
@@ -246,9 +261,9 @@
         <h2>Window-level accuracy.<br>Built into the<br><em>floor plan.</em></h2>
         <p class="prose" style="margin-bottom:1.4rem">Windows are one of the most consequential variables in an energy model, and the paper trials had already settled the shape of the answer: place each opening on the plan, but pull its specification from a handful of pre-defined types rather than re-entering it every time. Their position, dimensions, and glazing spec all affect the U-value of the surrounding wall, which directly influences which retrofit measures make financial sense and which don’t. Getting this wrong skews the whole recommendation downstream.</p>
         <div class="pbox" style="background:rgba(17,17,16,.05)">
-          <p>The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors place each window directly on the plan, dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields.</p>
+          <p>The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors place each window directly on the plan, dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields. Across a full survey, that took around 25% off the time spent on site: enough for an advisor to fit an extra appointment into the day.</p>
         </div>
-        <p class="prose">The building footprint also served a second purpose: advisors could flag discrepancies between the registered data and what they observed on site, feeding corrections back into the dataset for future visits. Over time, the pre-populated data became more reliable.</p>
+        <p class="prose">The building footprint also served a second purpose: advisors could flag discrepancies between the registered data and what they observed on site, feeding corrections back into the dataset for future visits. Over time, the pre-populated data became more reliable, and surveys arrived at the desk far more complete: data completeness rose from 80% to 95%.</p>
       </div>
       <div style="padding-top:1rem">
         <img class="photo" src="Man_adding_windows_on_tablet.jpg" alt="Advisor placing window on 2D floor plan" style="aspect-ratio:4/5;object-fit:cover;object-position:center top" loading="lazy" width="1600" height="1200">
@@ -340,7 +355,7 @@
 <div class="body" style="padding-top:0">
   <section class="section r">
     <p class="lbl">Product metrics</p>
-    <h2>How success was <em>defined.</em></h2>
+    <h2>How success was <em>measured.</em></h2>
     <div class="mgrid">
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="9.5" cy="5.2" rx="6" ry="2.4"/><path d="M3.5 5.2v5.6c0 1.33 2.69 2.4 6 2.4"/><path d="M3.5 10.8v5.6c0 1.33 2.69 2.4 6 2.4h.4"/><path d="M15.5 5.2v3"/><path d="M13.4 17.6l2 2 4-4.4"/></svg></span>
@@ -359,18 +374,32 @@
         <p><strong>Retrofit sales</strong>Helping more homeowners move forward with recommended measures.</p>
       </article>
     </div>
+
+    <!-- Two figures the field tool moved, in the hero's stat vocabulary -->
+    <div class="stats is-out r">
+      <div class="stat"><div class="stat-n">25%</div><div class="stat-l">Less time per on-site survey,<br>enough for one more appointment a day</div></div>
+      <div class="stat"><div class="stat-n">80 &rarr; 95%</div><div class="stat-l">Data completeness on<br>surveys reaching the energy model</div></div>
+    </div>
   </section>
 </div>
 
 <a href="coup.html" class="next">
   <div class="next-l">
     <div><p class="next-eyebrow">Next project →</p><div class="next-title">Coup<br><em>Mobility</em></div></div>
-    <p class="next-sub">Product Designer · Bosch · Fleet Operations</p>
+    <p class="next-sub">Senior Product Designer · Bosch · Fleet Operations</p>
   </div>
-  <div class="next-r"><img class="next-img" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="Coup Mobility" loading="lazy" width="700" height="448"></div>
+  <div class="next-r"><img class="next-img" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="" loading="lazy" width="700" height="448"></div>
 </a>
 
 </main>
+
+<!-- Fixed return control. The footer already carries a "Back to top" link; this
+     is the same control brought forward for a page this long, and it stands
+     down again once the footer is on screen rather than covering it. -->
+<button id="totop" type="button" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.2V5.4"/><path d="M5.6 11.8 12 5.4l6.4 6.4"/></svg>
+  <span>Top</span>
+</button>
 
 <footer>
   <div class="edge">
