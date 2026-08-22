@@ -19,7 +19,7 @@
   // Base handling. All timings are in SECONDS and all motion is scaled by a
   // per-frame step factor, so the run plays the same on a 60Hz and a 120Hz
   // screen — and a stalled frame can never teleport the field.
-  var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.22, BOUNCE = 0.4;
+  var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.255, BOUNCE = 0.4;
   // A hard floor on the automatic gun, applied after every multiplier rather
   // than before one. Rapid fire used to be a x0.4 on top of an already-clamped
   // cooldown, which is how a maxed ship reached 180 bullets a second and simply
@@ -197,7 +197,7 @@
   // armoured, lit in their drop's own colour, and carrying a timed power-up
   // instead of gems. Capped at two on the field so they stay an event.
   var SPECIALS = {
-    shield: { stroke:'#7fe3ec', glow:'#7fe3ec', rgb:'127,227,236' },
+    shield: { stroke:'#00c2ff', glow:'#00c2ff', rgb:'0,194,255' },
     rapid:  { stroke:'#ffb347', glow:'#ffa726', rgb:'255,179,71' }
   };
   var SPECIAL_CHANCE = 0.055, MAX_SPECIAL = 2;
@@ -950,7 +950,7 @@
       // a shield turns the ram into a shove and a broken shield, not a free kill
       if(shieldTime > 0){
         shieldTime = 0;
-        burst(ship.x, ship.y, 22, '127,227,236');
+        burst(ship.x, ship.y, 22, '0,194,255');
         var rdx = ship.x - b.x, rdy = ship.y - b.y, rd = Math.hypot(rdx, rdy) || 1;
         ship.vx += rdx / rd * 7; ship.vy += rdy / rd * 7;
         ship.invuln = Math.max(ship.invuln, 0.8);
@@ -1012,7 +1012,7 @@
     if(up.guard > 0 && t >= nextGuard){
       nextGuard = t + guardEvery(up.guard);
       shieldTime = Math.max(shieldTime, GUARD_TIME);
-      burst(ship.x, ship.y, 14, '127,227,236');
+      burst(ship.x, ship.y, 14, '0,194,255');
     }
     syncHud();
 
@@ -1212,7 +1212,7 @@
         // shoved clear, so a live shield is no longer a licence to fly at
         // everything on the screen.
         if(shieldTime > 0){
-          burst(al.x, al.y, 14, '127,227,236');
+          burst(al.x, al.y, 14, '0,194,255');
           al.hp -= 4; al.hitT = 0.12;
           if(al.hp <= 0){ killAlien(ai); continue; }
           var kdx = al.x - ship.x, kdy = al.y - ship.y, kd = Math.hypot(kdx, kdy) || 1;
@@ -1252,7 +1252,7 @@
       ab.x += ab.vx * sf; ab.y += ab.vy * sf; ab.life -= dt;
       if(ab.life<=0 || ab.x<0 || ab.x>window.innerWidth || ab.y<0 || ab.y>docH){ alienBullets.splice(q,1); continue; }
       if(Math.hypot(ab.x-ship.x, ab.y-ship.y) < SHIP_RADIUS + (ab.r || 3)){
-        if(shieldTime > 0){ alienBullets.splice(q,1); burst(ab.x, ab.y, 6, '127,227,236'); continue; }
+        if(shieldTime > 0){ alienBullets.splice(q,1); burst(ab.x, ab.y, 6, '0,194,255'); continue; }
         alienBullets.splice(q,1); hitShip();
       }
     }
@@ -1343,8 +1343,8 @@
     // are worth crossing the screen for and should look like it
     shield: {
       cell: 4,
-      pal: { o:'#0d5a63', h:'#e6feff', c:'#7fe3ec' },
-      glow: '127,227,236',
+      pal: { o:'#06456e', h:'#dcf4ff', c:'#00c2ff' },
+      glow: '0,194,255',
       rows: ['.ooooo.',
              'ohhhhho',
              'ohcccco',
@@ -1437,11 +1437,11 @@
       ctx.beginPath();
       ax.pts.forEach(function(p,i){ if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); });
       ctx.closePath();
-      ctx.strokeStyle = 'rgba(10,4,20,.6)';
+      ctx.strokeStyle = 'rgba(4,2,8,.66)';
       ctx.lineWidth = 3.4;
       ctx.stroke();
       ctx.strokeStyle = ax.hitT > 0 ? '#ffffff' : (sp ? sp.stroke : '#c77dff');
-      ctx.shadowColor = sp ? sp.glow : '#a855f7';
+      ctx.shadowColor = sp ? sp.glow : '#7b5cff';
       // rare rocks breathe rather than sit still, so they pick themselves out
       // of a field of forty at a glance
       ctx.shadowBlur = sp ? 14 + Math.sin(gameTime * 5 + ax.pulse) * 9 : 12;
@@ -1466,7 +1466,7 @@
       var winding = b.phase === 'charge' && !b.charged;
       var flash = winding ? 0.5 + 0.5 * Math.abs(Math.sin(gameTime * 18)) : 0;
       var col = b.hitT > 0 || flash > 0.6 ? '#ffffff' : (b.enraged ? '#ff4d6d' : '#c77dff');
-      var glow = b.enraged ? '#ff4d6d' : '#a855f7';
+      var glow = b.enraged ? '#ff2fb9' : '#7b5cff';
       ctx.save();
       ctx.translate(b.x, b.y - camY);
       ctx.scale(1 + flash * 0.06, 1 + flash * 0.06);
@@ -1475,7 +1475,7 @@
       // eight-sided hull, drawn dark then neon
       var i, a;
       for(var pass=0; pass<2; pass++){
-        ctx.strokeStyle = pass ? col : 'rgba(6,2,14,.65)';
+        ctx.strokeStyle = pass ? col : 'rgba(4,2,8,.7)';
         ctx.lineWidth = pass ? 2.4 : 4.6;
         ctx.shadowColor = pass ? glow : 'transparent';
         ctx.shadowBlur = pass ? 18 : 0;
@@ -1513,7 +1513,7 @@
       ctx.save();
       ctx.translate(al.x, al.y - camY);
       if(al.kind === 'stalker') ctx.rotate(Math.atan2(al.vy, al.vx));
-      ctx.strokeStyle = 'rgba(2,16,18,.6)';
+      ctx.strokeStyle = 'rgba(4,2,8,.66)';
       ctx.lineWidth = 3.4;
       alienShape(al, AT);
       ctx.strokeStyle = al.hitT > 0 ? '#ffffff' : AT.stroke;
@@ -1560,8 +1560,8 @@
       ctx.lineTo(-11, 9);
       ctx.closePath();
       // rapid fire runs the hull hot, which is the only tell the player needs
-      ctx.strokeStyle = rapidTime > 0 ? '#ffb347' : '#39ff14';
-      ctx.shadowColor = rapidTime > 0 ? '#ffa726' : '#39ff14';
+      ctx.strokeStyle = rapidTime > 0 ? '#ffb347' : '#00f5d4';
+      ctx.shadowColor = rapidTime > 0 ? '#ffa726' : '#00f5d4';
       ctx.shadowBlur = 12;
       ctx.lineWidth = 2;
       ctx.stroke();
@@ -1573,8 +1573,8 @@
       // the ring thins out as the shield runs down, so it reads without the HUD
       var pulse = shieldTime < 3.5 ? (0.35 + 0.4 * Math.abs(Math.sin(gameTime * 7))) : 0.75;
       ctx.save();
-      ctx.strokeStyle = 'rgba(127,227,236,' + pulse.toFixed(2) + ')';
-      ctx.shadowColor = '#7fe3ec';
+      ctx.strokeStyle = 'rgba(0,194,255,' + pulse.toFixed(2) + ')';
+      ctx.shadowColor = '#00c2ff';
       ctx.shadowBlur = 14;
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -1584,9 +1584,9 @@
       ctx.restore();
     }
 
-    ctx.shadowColor = rapidTime > 0 ? '#ffa726' : '#ff4d6d';
-    ctx.shadowBlur = 9;
-    ctx.fillStyle = rapidTime > 0 ? '#ffc978' : '#ff7a90';
+    ctx.shadowColor = rapidTime > 0 ? '#ffa726' : '#ff2d78';
+    ctx.shadowBlur = 11;
+    ctx.fillStyle = rapidTime > 0 ? '#ffc978' : '#ff8ab5';
     bullets.forEach(function(b){
       ctx.beginPath();
       ctx.arc(b.x, b.y - camY, 4.5, 0, Math.PI*2);
