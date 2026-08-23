@@ -19,7 +19,11 @@
   // Base handling. All timings are in SECONDS and all motion is scaled by a
   // per-frame step factor, so the run plays the same on a 60Hz and a 120Hz
   // screen — and a stalled frame can never teleport the field.
-  var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.255, BOUNCE = 0.4;
+  // SHOT_COOLDOWN was 0.22 before Aug 2026 and briefly 0.255, which is a 16% cut
+// to the base rate — not "slight", and it compounds because every cannon level
+// and the rapid drop all multiply this one number. 0.235 is ~7% off the
+// original: a real reduction that does not quietly rescale the whole run.
+var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, BOUNCE = 0.4;
   // A hard floor on the automatic gun, applied after every multiplier rather
   // than before one. Rapid fire used to be a x0.4 on top of an already-clamped
   // cooldown, which is how a maxed ship reached 180 bullets a second and simply
@@ -28,6 +32,14 @@
   // Extra barrels are no longer free. Each level of Spread Shot multiplies the
   // cooldown, so the fan trades rate for coverage instead of adding both.
   var SPREAD_DRAG = 1.22, RAPID_MULT = 0.55;
+  // ── Photon torpedoes ─────────────────────────────────────────────────────
+  // The second weapon, and deliberately the opposite of the phaser in every
+  // respect: slow to travel, slow to reload, and it does its damage in a
+  // radius rather than at a point. Phasers are the answer to one target on the
+  // nose; torpedoes are the answer to a wall of rock, which is the situation
+  // the phaser handles worst. The bay stays cold until the upgrade is taken.
+  var TORP_SPEED = 5.4, TORP_LIFE = 2.6, TORP_R = 5;
+  var TORP_COOLDOWN = 3.4, TORP_BLAST = 78, TORP_DMG = 4;
   var SHIP_RADIUS = 9, INVULN = 1.1, RESPAWN_INVULN = 2.2;
   var START_LIVES = 3, MAX_LIVES = 5;
   var START_ROCKS = 20, MAX_ROCKS = 54;
@@ -42,7 +54,23 @@
   // touch vocabulary now — the guns look after themselves
   var pad = { angle: 0, mag: 0 };
   var isCoarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+  // Reduced motion is honoured on the canvas, not only in the stylesheet. Four
+  // things in here strobe, and two of them sit in the band that actually
+  // matters: the respawn blink runs at ~6.5Hz and the boss charge telegraph at
+  // ~2.9Hz. A CSS media query cannot reach any of them, so the flag is read
+  // here and each effect resolves to a steady state instead of being switched
+  // off — the information they carry (invulnerable, winding up, low hull) still
+  // has to reach the player.
+  var motionQ = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+  var reduceMotion = !!(motionQ && motionQ.matches);
+  if(motionQ && motionQ.addEventListener){
+    motionQ.addEventListener('change', function(e){ reduceMotion = e.matches; });
+  }
   var ship, bullets, particles, destroyed, asteroids, pickups;
+  // torpedoes fly in their own list because they are the only projectile that
+  // survives its first contact long enough to detonate, and shockwaves are
+  // pure decoration with a damage pass already applied when they were born
+  var torpedoes = [], shockwaves = [];
 
   // ── the run clock ────────────────────────────────────────────────────────
   // gameTime only advances on frames we actually simulate, so switching tabs,
@@ -50,6 +78,23 @@
   // nothing. Everything — score, difficulty, cooldowns, drop timers — reads it.
   var gameTime = 0, lastFrame = 0, autoPaused = false, levelOpen = false;
   function isPaused(){ return autoPaused || levelOpen; }
+
+  // ── Red Alert ────────────────────────────────────────────────────────────
+  // Below a third of the hull the ship goes to red alert: the screen edges
+  // pulse and the sector gets busier. It is a real risk multiplier, not just a
+  // light — but it only ever fires when the run is already going badly, and it
+  // clears the moment a repair lands, so it reads as a comeback state rather
+  // than a death spiral. RED_ALERT_AT is a fraction of MAX_LIVES so it tracks
+  // the hull the player actually has rather than a hard-coded life count.
+  // The pressure is deliberately mild. Red alert only ever fires from a losing
+  // position, so anything heavier stops being an adrenaline spike and becomes a
+  // trapdoor — the run is already at one hull and cannot answer more traffic.
+  // Measured hull loss inside the alert runs ~2.8x the rate outside it even
+  // with these multipliers set to nothing, so the drama can come from the
+  // presentation and the spawn table can stay close to neutral.
+  var RED_ALERT_AT = 0.3, RED_ALERT_SPAWN = 0.85, RED_ALERT_ROCKS = 2;
+  var redAlert = false;
+  function redAlertActive(){ return lives > 0 && lives <= Math.floor(MAX_LIVES * RED_ALERT_AT + 0.001); }
 
   // ── continuous progression ───────────────────────────────────────────────
   // The field's pressure is a smooth function of gameTime, so it rises every
@@ -62,7 +107,7 @@
   function alienCooldown(t){ return Math.max(0.62, 1.7 - t * 0.009); }
   function alienSpread(t){   return Math.max(0.07, 0.26 - t * 0.0014); }
   function alienBulletSpeed(t){ return Math.min(5.6, 3.1 + t * 0.012); }
-  // The saucer count is the one curve with no ceiling. Everything else flattens
+  // The warbird count is the one curve with no ceiling. Everything else flattens
   // out inside five minutes, and a run whose pressure stops climbing is a run
   // you can settle into and hold forever — which is what this one was doing.
   function alienMax(t){ return Math.min(6, 1 + Math.floor(t / 60)); }
@@ -73,7 +118,7 @@
     return r >= 22 ? Math.min(5, 2 + Math.floor(t / 95)) : (t > 150 ? 2 : 1);
   }
 
-  // ── the saucer roster ───────────────────────────────────────────────
+  // ── the warbird roster ───────────────────────────────────────────────
   // Three hulls, unlocked on the clock, so the sky stops being one encounter
   // repeated for the whole run. Scouts strafe past and take pot shots; lancers
   // are slow gun platforms that fire in fans; stalkers steer at the ship and
@@ -94,9 +139,9 @@
   // The one fight in the run that does not drift past. It holds station on the
   // ship, cycles three attacks, calls in escorts, and turns nastier at half
   // hull. It is also where a late run finds the XP for its next upgrade, so
-  // the answer to a dreadnought is never simply to run away from it.
+  // the answer to a capital ship is never simply to run away from it.
   var BOSS_FIRST = 110, BOSS_GAP = 68, BOSS_WARN = 2.6, BOSS_R = 44;
-  var BOSS_NAMES = ['Dreadnought', 'Leviathan', 'Behemoth', 'Warlord'];
+  var BOSS_NAMES = ['I.K.S. Vor\u2019cha', 'I.K.S. Negh\u2019Var', 'I.K.S. K\u2019tinga', 'I.K.S. Qu\u2019Vat'];
   var boss = null, bossWarn = 0, bossCount = 0, bossKills = 0, nextBossAt = BOSS_FIRST;
   var speedMult = 1.35, rockSpawnAcc = 0;
   var gameOver = false;
@@ -111,15 +156,15 @@
 
   // ── drops ────────────────────────────────────────────────────────────────
   // XP that evaporates before it can be reached punishes the player for the
-  // fight that produced it, so gems outlive the old coins and the collection
+  // fight that produced it, so crystals outlive the old coins and the collection
   // radius is generous by default — hoovering loot up is the loop, not a skill
-  // check. Gem Magnet then widens what is already a comfortable baseline.
+  // check. the Tractor Beam then widens what is already a comfortable baseline.
   var COIN_TTL = 10, HEART_TTL = 9, POWER_TTL = 10;
   var MAGNET_R = 165, PICKUP_R = SHIP_RADIUS + 13;
   var lives = START_LIVES;
 
   // ── XP and levels ────────────────────────────────────────────────────────
-  // Gems are the only currency now and they buy exactly one thing: the next
+  // Dilithium is the only currency now and they buy exactly one thing: the next
   // upgrade card. The curve is deliberately shallow at the front so the first
   // level lands inside ten seconds and teaches the loop before it can bite.
   var xp = 0, level = 1, pendingLevels = 0;
@@ -136,8 +181,8 @@
   var shieldTime = 0, rapidTime = 0;
 
   // ── permanent upgrades ───────────────────────────────────────────────────
-  var up = { fire:0, thrust:0, spread:0, pierce:0, dmg:0, magnet:0, range:0, guard:0 };
-  var nextGuard = 0;
+  var up = { fire:0, thrust:0, spread:0, pierce:0, dmg:0, magnet:0, range:0, guard:0, torp:0 };
+  var nextGuard = 0, nextTorp = 0;
 
   // Cooldown is assembled in one place, in one order — cannon levels, then the
   // weight of the extra barrels, then the rapid-fire drop, then the clamp — so
@@ -163,6 +208,12 @@
   function thrustPower(){ return THRUST * (1 + 0.14 * up.thrust); }
   function rotPower(){ return ROT_SPEED * (1 + 0.10 * up.thrust); }
   function magnetRange(){ return MAGNET_R * (1 + 0.35 * up.magnet); }
+  // The torpedo bay reloads faster and hits harder with every level, but the
+  // travel time never changes — the weapon is supposed to be something you
+  // fire into where the field is *going* to be, not where it is.
+  function torpCooldown(){ return TORP_COOLDOWN * Math.pow(0.82, Math.max(0, up.torp - 1)); }
+  function torpDamage(){ return TORP_DMG + (up.torp - 1) + up.dmg; }
+  function torpBlast(){ return TORP_BLAST * (1 + 0.12 * (up.torp - 1)); }
   function guardEvery(l){ return 40 - l * 7; }        // 33s → 26s → 19s
   var GUARD_TIME = 5;
 
@@ -360,7 +411,7 @@
 
   function heartMarkup(){
     var s = '';
-    for(var i=0;i<MAX_LIVES;i++) s += '<i class="px-heart' + (i < lives ? ' on' : '') + '"></i>';
+    for(var i=0;i<MAX_LIVES;i++) s += '<i class="px-hull' + (i < lives ? ' on' : '') + '"></i>';
     return s;
   }
 
@@ -369,9 +420,21 @@
   // times a second for a value that changes twice a run is pure layout churn.
   var hudLast = { score:-1, lives:-1, xp:-1, need:-1, level:-1, shield:-1, rapid:-1, boss:-1 };
 
+  // Red alert is derived, never set: anything that moves `lives` — a hit, a
+  // repair, a run reset — lands here on the next frame and the class follows.
+  // Storing it as a flag that each of those sites had to remember to update is
+  // exactly how a screen ends up stuck flashing red after a repair.
+  function syncRedAlert(){
+    var on = redAlertActive();
+    if(on === redAlert) return;
+    redAlert = on;
+    document.body.classList.toggle('astro-red-alert', on);
+  }
+
   function syncHud(){
     var sc = currentScore();
-    if(scoreEl && sc !== hudLast.score){ scoreEl.textContent = 'Score: ' + sc; hudLast.score = sc; }
+    syncRedAlert();
+    if(scoreEl && sc !== hudLast.score){ scoreEl.textContent = 'Stardate ' + sc; hudLast.score = sc; }
     if(livesEl && lives !== hudLast.lives){ livesEl.innerHTML = heartMarkup(); hudLast.lives = lives; }
 
     var need = xpNeed(level);
@@ -380,18 +443,18 @@
       if(xpNumEl) xpNumEl.textContent = xp + ' / ' + need;
       hudLast.xp = xp; hudLast.need = need;
     }
-    if(lvlNumEl && level !== hudLast.level){ lvlNumEl.textContent = 'LV ' + level; hudLast.level = level; }
+    if(lvlNumEl && level !== hudLast.level){ lvlNumEl.textContent = 'REFIT ' + level; hudLast.level = level; }
 
     // the timers only ever need whole seconds, so they are only touched when
     // that whole second actually ticks over
     var sSec = Math.ceil(shieldTime), rSec = Math.ceil(rapidTime);
     if(shieldEl && sSec !== hudLast.shield){
-      shieldEl.textContent = 'Shield ' + sSec + 's';
+      shieldEl.textContent = 'Deflector ' + sSec + 's';
       shieldEl.classList.toggle('on', shieldTime > 0);
       hudLast.shield = sSec;
     }
     if(rapidEl && rSec !== hudLast.rapid){
-      rapidEl.textContent = 'Rapid ' + rSec + 's';
+      rapidEl.textContent = 'Phasers ' + rSec + 's';
       rapidEl.classList.toggle('on', rapidTime > 0);
       hudLast.rapid = rSec;
     }
@@ -425,8 +488,8 @@
     gameOver = true;                    // loop() paints this frame, then stops
     if(finalEl) finalEl.textContent = currentScore();
     if(finalSubEl) finalSubEl.textContent =
-      Math.floor(gameTime) + 's survived · level ' + level +
-      (bossKills ? ' · ' + bossKills + ' boss' + (bossKills > 1 ? 'es' : '') + ' downed' : '');
+      Math.floor(gameTime) + 's adrift · refit ' + level +
+      (bossKills ? ' · ' + bossKills + ' warbird' + (bossKills > 1 ? 's' : '') + ' destroyed' : '');
     if(hintEl) hintEl.textContent = isCoarse ? 'tap to play again' : 'press any key to play again';
     if(overEl) overEl.classList.add('on');
     // dying mid-fight left the hull bar and the inbound warning stranded on top
@@ -437,7 +500,7 @@
     syncHud();
   }
 
-  // wipe the run back to zero — clock, XP, upgrades, buffs, rocks and saucers
+  // wipe the run back to zero — clock, XP, upgrades, buffs, rocks and warbirds
   function resetRun(){
     bullets = []; particles = []; aliens = []; alienBullets = []; pickups = [];
     bonus = 0; nextAlienAt = ALIEN_FIRST;
@@ -451,6 +514,10 @@
     shieldTime = 0; rapidTime = 0; nextGuard = 0;
     for(var k in up) up[k] = 0;
     autoPaused = false;
+    torpedoes = []; shockwaves = [];
+    nextTorp = 0;
+    redAlert = true;                 // force syncRedAlert to re-evaluate
+    syncRedAlert();
     closeLevel(true);
     resetShip(INVULN);
     spawnAsteroids();
@@ -478,42 +545,90 @@
   function rateLine(fireL, spreadL){
     var a = 1 / shotCooldown(), b = 1 / cooldownWith(fireL, spreadL, rapidTime > 0);
     var dp = Math.round(a) === Math.round(b) ? 1 : 0;
-    return 'Fire rate ' + a.toFixed(dp) + '/s \u2794 ' + b.toFixed(dp) + '/s';
+    return a.toFixed(dp) + ' \u2794 ' + b.toFixed(dp) + ' shots/sec';
   }
+  function pct(from, to){ return '+' + Math.round((to / from - 1) * 100) + '%'; }
 
+  // ── the subsystem roster ─────────────────────────────────────────────────
+  // Every card carries three things, in this order, because a name alone was
+  // never enough: a ROLE so the card can be sorted at a glance against the
+  // other two on offer, a plain sentence saying what it actually does in
+  // ordinary words, and the figures. The Star Trek naming is the flavour on
+  // top — it should never be the only thing telling you what you are picking.
+  //
+  // The figures are still computed from the live stat functions rather than
+  // written out, so a card can never promise a value the ship does not get,
+  // and they are quoted in units a player can feel: shots per second, targets
+  // hit, seconds of cover. No pixel counts — nobody can see 165px.
   var UPGRADES = [
-    { id:'fire', name:'Rapid Cannon', max:6,
+    { id:'fire', name:'Phaser Array', role:'Rate', max:6,
+      what:'Your main gun cycles faster.',
       lines:function(){ return [rateLine(up.fire + 1, up.spread)]; } },
-    { id:'thrust', name:'Ion Thrusters', max:6,
-      lines:function(){ return ['+14% thrust', '+10% turn rate']; } },
-    // The one card that costs something. It reads the loss out loud on the
-    // second line rather than burying it, because a hidden downside on the
-    // strongest card in the deck is just a trap.
-    { id:'spread', name:'Spread Shot', max:3,
-      lines:function(){ return [barrels(up.spread) + ' shot' + (up.spread ? 's' : '') +
-                                ' \u2794 ' + barrels(up.spread + 1) + ' shots',
-                                rateLine(up.fire, up.spread + 1)]; } },
-    { id:'pierce', name:'Piercing Laser', max:3,
-      lines:function(){ return ['Shots punch through ' + (up.pierce + 1) +
-                                ' target' + (up.pierce ? 's' : '')]; } },
-    { id:'dmg', name:'Heavy Rounds', max:4,
-      lines:function(){ return ['Damage ' + bulletDamage() + ' \u2794 ' + (bulletDamage() + 1)]; } },
-    { id:'range', name:'Long Barrel', max:3,
-      lines:function(){ return ['+12% shot speed', '+15% shot range']; } },
-    { id:'magnet', name:'Gem Magnet', max:4,
-      lines:function(){ return ['Pickup pull ' + Math.round(magnetRange()) + 'px \u2794 ' +
-                                Math.round(MAGNET_R * (1 + 0.35 * (up.magnet + 1))) + 'px']; } },
-    { id:'guard', name:'Auto Aegis', max:3,
+
+    { id:'thrust', name:'Impulse Drive', role:'Handling', max:6,
+      what:'Accelerate harder and come about quicker.',
+      lines:function(){ return ['+14% thrust \u00b7 +10% turn rate']; } },
+
+    // The one card that costs something. The downside goes in the sentence
+    // rather than being buried in the second figure, because a hidden cost on
+    // the strongest card in the deck is just a trap.
+    { id:'spread', name:'Phaser Array Cone', role:'Coverage', max:3,
+      what:'Fires a fan instead of one beam. Covers more sky, cycles slower.',
+      lines:function(){ return [barrels(up.spread) + ' \u2794 ' + barrels(up.spread + 1) +
+                                ' beams', rateLine(up.fire, up.spread + 1)]; } },
+
+    // The only card that adds a whole weapon rather than moving a number, so
+    // it is worth a level of its own before it starts scaling.
+    { id:'torp', name:'Photon Torpedo Bay', role:'Crowds', max:4,
+      what:'Adds a slow torpedo that detonates on impact, damaging everything ' +
+           'caught in the blast. The answer to packed rock.',
+      lines:function(){
+        return up.torp
+          ? [torpDamage() + ' \u2794 ' + (torpDamage() + 1) + ' blast damage',
+             'Reloads every ' + torpCooldown().toFixed(1) + 's \u2794 ' +
+             (TORP_COOLDOWN * Math.pow(0.82, up.torp)).toFixed(1) + 's']
+          : [TORP_DMG + ' blast damage, every ' + TORP_COOLDOWN.toFixed(1) + 's'];
+      },
+      apply:function(){ up.torp++; nextTorp = gameTime + 0.8; } },
+
+    { id:'pierce', name:'Polarised Emitters', role:'Pierce', max:3,
+      what:'Beams carry on through whatever they hit instead of stopping dead.',
+      lines:function(){ return ['Hits ' + (up.pierce + 1) + ' \u2794 ' + (up.pierce + 2) +
+                                ' targets per shot']; } },
+
+    { id:'dmg', name:'Warp Core Output', role:'Damage', max:4,
+      what:'Every weapon on the ship hits harder.',
+      lines:function(){ return ['Beam damage ' + bulletDamage() + ' \u2794 ' + (bulletDamage() + 1),
+                                'Torpedoes scale with it']; } },
+
+    { id:'range', name:'Long-Range Emitters', role:'Reach', max:3,
+      what:'Beams travel faster and stay alive longer before they fade.',
+      lines:function(){ return ['+12% beam speed \u00b7 +15% range']; } },
+
+    // The collector. It was always a magnet; as a tractor beam it finally
+    // looks like the thing it has been doing all along, and the draw is drawn
+    // on the field, so the range is visible rather than a figure on a card.
+    { id:'magnet', name:'Tractor Beam', role:'Collect', max:4,
+      what:'Hauls dilithium in to you, so you need not fly through the rocks to ' +
+           'collect it.',
+      lines:function(){ return [pct(magnetRange(), MAGNET_R * (1 + 0.35 * (up.magnet + 1))) +
+                                ' pull range']; } },
+
+    { id:'guard', name:'Deflector Overcharge', role:'Defence', max:3,
+      what:'Raises a shield by itself, over and over, for the rest of the run.',
       lines:function(){
         return up.guard
-          ? ['Shield every ' + guardEvery(up.guard) + 's \u2794 ' + guardEvery(up.guard + 1) + 's']
-          : ['A ' + GUARD_TIME + 's shield, free, every ' + guardEvery(1) + 's'];
+          ? [GUARD_TIME + 's untouchable, every ' + guardEvery(up.guard) +
+             's \u2794 ' + guardEvery(up.guard + 1) + 's']
+          : [GUARD_TIME + 's untouchable, every ' + guardEvery(1) + 's'];
       },
       // the first one should land while the choice is still fresh in mind
       apply:function(){ up.guard++; nextGuard = gameTime + 2; } },
-    { id:'life', name:'Repair Kit', max:99,
+
+    { id:'life', name:'Damage Control', role:'Repair', max:99,
       avail:function(){ return lives < MAX_LIVES; },
-      lines:function(){ return ['Lives ' + lives + ' \u2794 ' + (lives + 1), 'Applied at once']; },
+      what:'Patches a hull plate back on, the moment you take it.',
+      lines:function(){ return ['Hull ' + lives + ' \u2794 ' + (lives + 1)]; },
       apply:function(){ lives = Math.min(MAX_LIVES, lives + 1); } }
   ];
 
@@ -551,9 +666,13 @@
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'au-opt';
+      // role and level share one row; the sentence and the figures are separate
+      // tiers below the name, so the eye can stop at whichever it needs
       btn.innerHTML =
+        '<span class="au-l"><em>' + u.role + '</em>' +
+          '<b' + (lvl === 0 && stacked ? ' class="is-new"' : '') + '>' + badge + '</b></span>' +
         '<span class="au-n">' + u.name + '</span>' +
-        '<span class="au-l' + (lvl === 0 ? ' is-new' : '') + '">' + badge + '</span>' +
+        '<span class="au-w">' + u.what + '</span>' +
         '<span class="au-d">' + u.lines().map(function(s){ return '<span>' + s + '</span>'; }).join('') + '</span>' +
         '<span class="au-k">Press ' + (i + 1) + '</span>';
       // pointerdown, not click: on a phone the 300ms a synthetic click can cost
@@ -575,6 +694,13 @@
     renderChoices();
     if(levelEl) levelEl.classList.add('on');
     document.body.classList.add('astro-paused');
+    // Move focus into the panel. Without this the cards are tabbable but never
+    // reached — focus is still parked on whatever launched the game, so a
+    // keyboard user gets a modal they cannot see the edges of. preventScroll is
+    // required: the run drives window.scrollY every frame and a focus-induced
+    // scroll would fight the camera.
+    var first = levelGridEl && levelGridEl.querySelector('.au-opt');
+    if(first) try { first.focus({ preventScroll:true }); } catch(e){ first.focus(); }
   }
 
   function choose(i){
@@ -604,6 +730,11 @@
     }
     levelOpen = false;
     if(!autoPaused) document.body.classList.remove('astro-paused');
+    // drop focus off the card that is about to be removed, or the browser
+    // scrolls the page hunting for whatever inherits it
+    if(levelGridEl && levelGridEl.contains(document.activeElement)){
+      document.activeElement.blur();
+    }
     lastFrame = performance.now();
     // a beat of grace so you aren't dropped straight back onto a rock
     if(!silent && ship) ship.invuln = Math.max(ship.invuln, 1.4);
@@ -776,17 +907,17 @@
     var al = aliens[m];
     var T = ALIEN_TYPES[al.kind];
     burst(al.x, al.y, 18, T.rgb);
-    // A saucer used to be a guaranteed extra life, and with three of them in
+    // A warbird used to be a guaranteed extra life, and with three of them in
     // the sky that was more health than the field could ever take back — most
     // of the reason a careless run never actually ended. Health is a roll now;
-    // gems are the reliable prize, which keeps saucers worth hunting.
+    // crystals are the reliable prize, which keeps warbirds worth hunting.
     if(Math.random() < T.heart) dropPickup(al.x, al.y, 'heart');
     else for(var g=0; g<T.gems; g++) dropPickup(al.x, al.y, 'gem');
     aliens.splice(m, 1);
     bonus += T.bonus;
   }
 
-  // ── the dreadnought ──────────────────────────────────────────────────────
+  // ── the capital ships ────────────────────────────────────────────────
   // Hull and cadence both scale with how many have already been beaten, so the
   // fourth one is a genuinely different fight from the first rather than the
   // same fight with a longer bar.
@@ -794,7 +925,7 @@
   // Shots land on the armoured core rather than the full silhouette, so a wide
   // fan no longer connects with every barrel at once.
   function bossHitR(){ return BOSS_R * 0.82; }
-  // If a build cannot break the hull inside this, the dreadnought breaks off
+  // If a build cannot break the hull inside this, the capital ship breaks off
   // instead: no reward, no death spiral, and the next one arrives sooner.
   var BOSS_FUSE = 42;
   function bossGapFor(n){ return Math.max(44, BOSS_GAP - n * 4); }
@@ -866,7 +997,7 @@
     burst(b.x, b.y, 60, '255,209,102');
     burst(b.x, b.y, 34, '255,77,109');
     // The payout is the point: a late run cannot reach the next upgrade off
-    // rocks alone under the new XP curve, so the dreadnought is the way back
+    // rocks alone under the new XP curve, so the capital ship is the way back
     // into the level economy. Standing off and ignoring it costs you the run.
     for(var i=0; i<4 + Math.min(4, b.index); i++) dropPickup(b.x, b.y, 'gem');
     dropPickup(b.x, b.y, 'heart');
@@ -972,7 +1103,7 @@
       bonus += 50;
       syncHud();
     } else {
-      // gems are XP now, and XP is the only thing that opens an upgrade card
+      // dilithium is XP, and XP is the only thing that opens a refit card
       burst(p.x, p.y, p.value > 1 ? 10 : 5, '255,209,102');
       addXp(p.value);
     }
@@ -1001,6 +1132,86 @@
     }
   }
 
+  function fireTorpedo(){
+    var a = ship.angle, sp = TORP_SPEED;
+    torpedoes.push({
+      x: ship.x + Math.cos(a)*NOSE_OFFSET, y: ship.y + Math.sin(a)*NOSE_OFFSET,
+      // a torpedo inherits the ship's velocity for the same reason a phaser
+      // does — at full impulse the hull outruns a 5.4px shell otherwise
+      vx: Math.cos(a)*sp + ship.vx, vy: Math.sin(a)*sp + ship.vy,
+      life: TORP_LIFE, r: TORP_R, t: 0
+    });
+  }
+
+  // The detonation is the weapon. One damage pass over everything inside the
+  // blast, then a shockwave ring that is pure decoration — the ring expands
+  // after the fact and never touches anything, so what the player sees can be
+  // generous without the hitbox following it outward.
+  function detonate(x, y){
+    var R = torpBlast(), dmg = torpDamage(), R2 = R * R;
+    shockwaves.push({ x:x, y:y, r: R * 0.18, max: R, life: 1 });
+    burst(x, y, 26, '255,45,120');
+    burst(x, y, 12, '255,209,102');
+
+    for(var k=asteroids.length-1;k>=0;k--){
+      var rk = asteroids[k];
+      var dx = rk.x - x, dy = rk.y - y;
+      if(dx*dx + dy*dy > R2) continue;
+      rk.hp -= dmg; rk.hitT = 0.14;
+      if(rk.hp <= 0) killAsteroid(k);
+    }
+    for(var m=aliens.length-1;m>=0;m--){
+      var al = aliens[m];
+      var ax = al.x - x, ay = al.y - y;
+      if(ax*ax + ay*ay > R2) continue;
+      al.hp -= dmg; al.hitT = 0.14;
+      if(al.hp <= 0) killAlien(m);
+    }
+    if(boss && !boss.leaving){
+      var bx = boss.x - x, by = boss.y - y;
+      if(bx*bx + by*by <= R2){
+        boss.hp -= dmg; boss.hitT = 0.14;
+        if(boss.hp <= 0) killBoss();
+      }
+    }
+    // the blast clears incoming plasma, which is most of why flying into a
+    // crowd behind a torpedo is survivable at all
+    for(var q=alienBullets.length-1;q>=0;q--){
+      var ab = alienBullets[q];
+      var qx = ab.x - x, qy = ab.y - y;
+      if(qx*qx + qy*qy <= R2) alienBullets.splice(q,1);
+    }
+  }
+
+  function updateTorpedoes(dt, sf){
+    for(var i=torpedoes.length-1;i>=0;i--){
+      var tp = torpedoes[i];
+      tp.x += tp.vx * sf; tp.y += tp.vy * sf; tp.life -= dt; tp.t += dt;
+      if(tp.x < 0 || tp.x > window.innerWidth || tp.y < 0 || tp.y > docH){
+        torpedoes.splice(i,1); continue;
+      }
+      if(tp.life <= 0){ detonate(tp.x, tp.y); torpedoes.splice(i,1); continue; }
+
+      var hit = false, j;
+      for(j=0;j<asteroids.length;j++){
+        if(Math.hypot(tp.x-asteroids[j].x, tp.y-asteroids[j].y) < asteroids[j].r + tp.r){ hit = true; break; }
+      }
+      if(!hit) for(j=0;j<aliens.length;j++){
+        if(Math.hypot(tp.x-aliens[j].x, tp.y-aliens[j].y) < aliens[j].r + tp.r){ hit = true; break; }
+      }
+      if(!hit && boss && !boss.leaving &&
+         Math.hypot(tp.x-boss.x, tp.y-boss.y) < bossHitR() + tp.r) hit = true;
+      if(hit){ detonate(tp.x, tp.y); torpedoes.splice(i,1); }
+    }
+
+    for(var w=shockwaves.length-1;w>=0;w--){
+      var sw = shockwaves[w];
+      sw.r += (sw.max - sw.r) * (1 - Math.pow(0.82, sf));
+      sw.life -= 2.6 * dt;
+      if(sw.life <= 0) shockwaves.splice(w,1);
+    }
+  }
+
   function update(dt){
     var t = gameTime;
     var sf = dt * 60; if(sf > MAX_STEP) sf = MAX_STEP;
@@ -1018,7 +1229,12 @@
 
     // the field thickens continuously, and kills are topped back up on a short
     // stagger rather than instantly, so a cleared pocket stays cleared a moment
-    var target = rockTargetAt(t);
+    // red alert is a real risk multiplier, not just a light: the field carries
+    // more rock and the warbirds come in closer together. Both are folded in
+    // here rather than into the curves themselves, so the underlying
+    // escalation stays readable and the alert stays a modifier on top of it.
+    var target = rockTargetAt(t) + (redAlert ? RED_ALERT_ROCKS : 0);
+    if(target > MAX_ROCKS + RED_ALERT_ROCKS) target = MAX_ROCKS + RED_ALERT_ROCKS;
     rockSpawnAcc += dt;
     if(asteroids.length < target && rockSpawnAcc > (boss ? 1.5 : 0.35)){
       rockSpawnAcc = 0;
@@ -1097,11 +1313,18 @@
       window.scrollTo(window.scrollX, window.scrollY + (camTarget - window.scrollY) * ease);
     }
 
-    // the guns run themselves — there is no fire input on any device
+    // both weapons run themselves — there is no fire input on any device.
+    // They are on separate clocks on purpose: the phaser's chatter and the
+    // torpedo's slow thump are meant to be heard as two different weapons.
     if(t - ship.lastShot > shotCooldown()){
       ship.lastShot = t;
       fireShot();
     }
+    if(up.torp > 0 && t >= nextTorp){
+      nextTorp = t + torpCooldown();
+      fireTorpedo();
+    }
+    updateTorpedoes(dt, sf);
 
     for(var i=bullets.length-1;i>=0;i--){
       var b = bullets[i];
@@ -1144,12 +1367,12 @@
       // bullets pass over the page — the game no longer affects content
     }
 
-    // A dreadnought is announced before it arrives, and while one is inbound or
-    // alive the ordinary saucer timer holds — the boss brings its own escorts,
+    // A capital ship is announced before it decloaks, and while one is inbound
+    // or alive the ordinary warbird timer holds — it brings its own escorts,
     // and the fight should be legible rather than buried under traffic.
     if(!boss && bossWarn <= 0 && t >= nextBossAt){
       bossWarn = BOSS_WARN;
-      if(warnEl){ warnEl.textContent = bossName(bossCount) + ' inbound'; warnEl.classList.add('on'); }
+      if(warnEl){ warnEl.textContent = bossName(bossCount) + ' decloaking'; warnEl.classList.add('on'); }
     }
     if(bossWarn > 0){
       bossWarn -= dt;
@@ -1161,7 +1384,7 @@
     if(boss) updateBoss(dt, sf, t);
     else if(bossWarn <= 0 && t >= nextAlienAt && aliens.length < alienMax(t)){
       spawnAlien();
-      nextAlienAt = t + alienInterval(t);
+      nextAlienAt = t + alienInterval(t) * (redAlert ? RED_ALERT_SPAWN : 1);
     }
 
     for(var ai=aliens.length-1; ai>=0; ai--){
@@ -1304,43 +1527,53 @@
   // the drops read as 2D sprites against the vector rocks rather than blending
   // into them. A soft radial glow sits behind so they still carry on a dark page.
   var SPR = {
+    // Dilithium. Both grades are the same bipyramid cut so they read as one
+    // substance at a glance — the rich one is simply drawn a cell larger and
+    // with a brighter core, which is the only difference the player needs.
     coin: {
       cell: 2,
-      pal: { o:'#a06614', h:'#fff3c4', g:'#ffd166', d:'#c9942f' },
-      glow: '255,209,102',
-      rows: ['..ooo..',
-             '.ohhgo.',
-             'ohhgggo',
-             'ohgggdo',
-             'ohgggdo',
-             '.oggdo.',
-             '..ooo..']
-    },
-    gem: {
-      cell: 3,
-      pal: { o:'#a06614', h:'#fff3c4', g:'#ffd166', d:'#c9942f' },
-      glow: '255,209,102',
+      pal: { o:'#1b4a7a', h:'#e9fbff', c:'#6fe8ff', d:'#2f8fc7' },
+      glow: '111,232,255',
       rows: ['...o...',
              '..oho..',
-             '.ohggo.',
-             'ohgggdo',
-             '.oggdo.',
+             '.ohcco.',
+             'ohccddo',
+             '.occdo.',
              '..odo..',
              '...o...']
     },
+    gem: {
+      cell: 3,
+      pal: { o:'#3b1b7a', h:'#ffffff', c:'#9d7bff', d:'#5b3fd6' },
+      glow: '157,123,255',
+      rows: ['...o...',
+             '..oho..',
+             '.ohhco.',
+             'ohhccdo',
+             'ohccddo',
+             '.occdo.',
+             '..odo..']
+    },
+    // Hull repair. A cross, not a heart: the row it tops up is a hull-integrity
+    // readout drawn as damaged plating, and a heart there would be the same
+    // borrowed-from-another-game vocabulary the HUD icons were changed to shed.
+    // (The pickup key stays 'heart' — it is internal, and renaming it would
+    // touch nine call sites for nothing the player can see.)
     heart: {
       cell: 3,
       pal: { o:'#c01a41', h:'#ffb3c1', r:'#ff4d6d' },
       glow: '255,77,109',
-      rows: ['.oo.oo.',
-             'orhrrro',
-             'orhrrro',
-             '.orrro.',
-             '..oro..',
-             '...o...']
+      rows: ['..ooo..',
+             '.ohrho.',
+             'oohrhoo',
+             'ohrrrho',
+             'oohrhoo',
+             '.ohrho.',
+             '..ooo..']
     },
     // the two timed drops are drawn a cell larger than the gems, because they
     // are worth crossing the screen for and should look like it
+    // deflector: a dish seen edge-on
     shield: {
       cell: 4,
       pal: { o:'#06456e', h:'#dcf4ff', c:'#00c2ff' },
@@ -1353,6 +1586,7 @@
              '..oco..',
              '...o...']
     },
+    // overload: a charged emitter bolt
     rapid: {
       cell: 4,
       pal: { o:'#8a4a05', h:'#fff0cf', b:'#ffb347' },
@@ -1393,41 +1627,159 @@
   function drawPickup(p, camY){
     // last stretch of the timer is spent blinking, so nothing vanishes unwarned
     var fading = p.life < 1.6;
-    if(fading && Math.floor(p.life * 9) % 2 === 0) return;
+    if(fading){
+      if(reduceMotion) ctx.globalAlpha = 0.4;        // dim rather than strobe
+      else if(Math.floor(p.life * 9) % 2 === 0) return;
+    }
     var spr = SPR[p.kind] || SPR.coin;
     drawSprite(spr, p.x, p.y - camY + Math.round(Math.sin(p.t) * 2));
+    ctx.globalAlpha = 1;
   }
 
-  // The three hulls get three silhouettes, not three tints: at speed, in a
-  // field of forty rocks, shape is the only thing that reads. Each is drawn
-  // twice — a dark outline, then the neon pass — the same treatment the
-  // asteroids get, so they sit in the same world.
+  // ── the flagship ─────────────────────────────────────────────────────────
+  // Saucer, neck, engineering hull and two nacelles, drawn nose-along-+x so
+  // the whole thing rotates with ship.angle. It is a silhouette rather than a
+  // detailed hull on purpose: at this size, on a moving field, the only thing
+  // that survives is the outline — a disc up front and two bars out back is
+  // legible at a glance and unmistakably not an asteroid.
+  // The hull is drawn a little larger than SHIP_RADIUS, which is deliberate
+  // and the usual way round for this genre: the silhouette needs the room to
+  // be legible, and a hitbox tighter than the art always reads as generous
+  // rather than as a cheat.
+  function shipShape(){
+    // primary hull: the saucer, slightly wider across the beam than it is long
+    ctx.beginPath(); ctx.ellipse(8.5, 0, 7.4, 8.8, 0, 0, Math.PI*2); ctx.stroke();
+    // dorsal neck back to the secondary hull
+    ctx.beginPath();
+    ctx.moveTo(3.6, -2.6); ctx.lineTo(-3.4, -3.0);
+    ctx.moveTo(3.6,  2.6); ctx.lineTo(-3.4,  3.0);
+    ctx.stroke();
+    // secondary hull, kept narrow so it does not crowd the nacelles
+    ctx.beginPath(); ctx.ellipse(-8.5, 0, 5.8, 2.9, 0, 0, Math.PI*2); ctx.stroke();
+    // pylons: the one part that has to stay visible for the hull to read as
+    // three bodies rather than one mass, so they are long and well separated
+    ctx.beginPath();
+    ctx.moveTo(-8.2, -2.3); ctx.lineTo(-5.2, -9.6);
+    ctx.moveTo(-8.2,  2.3); ctx.lineTo(-5.2,  9.6);
+    ctx.stroke();
+    // warp nacelles
+    ctx.beginPath(); ctx.ellipse(-4.2, -11.2, 8.6, 2.0, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(-4.2,  11.2, 8.6, 2.0, 0, 0, Math.PI*2); ctx.stroke();
+  }
+
+  // ── the warbirds ─────────────────────────────────────────────────────────
+  // Three hulls, three silhouettes, not three tints: at speed, in a field of
+  // forty rocks, shape is the only thing that reads. Each is drawn twice — a
+  // dark outline, then the neon pass — the same treatment the asteroids get,
+  // so they sit in the same world.
   function alienShape(al, AT){
     var R = al.r;
+    // Wings are closed planes, never open polylines. An unclosed V reads as a
+    // scribble at this size — the shape only becomes a wing once it has an
+    // outline the eye can fill in.
     if(al.kind === 'lancer'){
-      // a gun platform: broad hull with a barrel pod out either side
-      ctx.beginPath(); ctx.ellipse(0, 2, R, R*0.40, 0, 0, Math.PI*2); ctx.stroke();
-      ctx.beginPath(); ctx.arc(0, -1, R*0.42, Math.PI, 0); ctx.stroke();
+      // battlecruiser: a command pod thrown forward on a boom, main hull aft,
+      // and two broad wings carrying the pods it fires its fans from
+      ctx.beginPath(); ctx.ellipse(R*0.82, 0, R*0.40, R*0.29, 0, 0, Math.PI*2); ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(-R*0.95, 2); ctx.lineTo(-R*1.35, -5); ctx.lineTo(-R*1.35, 7);
-      ctx.moveTo( R*0.95, 2); ctx.lineTo( R*1.35, -5); ctx.lineTo( R*1.35, 7);
+      ctx.moveTo(R*0.45, -1.5); ctx.lineTo(-R*0.3, -2.1);
+      ctx.moveTo(R*0.45,  1.5); ctx.lineTo(-R*0.3,  2.1);
+      ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(-R*0.7, 0, R*0.52, R*0.3, 0, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-R*0.25, -R*0.2); ctx.lineTo(-R*0.35, -R*1.0);
+      ctx.lineTo(-R*1.2, -R*0.85); ctx.lineTo(-R*1.0, -R*0.18); ctx.closePath();
+      ctx.moveTo(-R*0.25,  R*0.2); ctx.lineTo(-R*0.35,  R*1.0);
+      ctx.lineTo(-R*1.2,  R*0.85); ctx.lineTo(-R*1.0,  R*0.18); ctx.closePath();
       ctx.stroke();
     } else if(al.kind === 'stalker'){
-      // an arrowhead, nose along its own heading, so you can see where it
-      // is committed to before it gets there
+      // bird-of-prey with the wings dropped into attack position: they rake
+      // forward rather than back, which is the tell that this is the hull that
+      // chases — readable a second before it arrives
       ctx.beginPath();
-      ctx.moveTo(R, 0); ctx.lineTo(-R*0.6, -R*0.75);
-      ctx.lineTo(-R*0.2, 0); ctx.lineTo(-R*0.6, R*0.75);
-      ctx.closePath(); ctx.stroke();
+      ctx.moveTo(R, 0); ctx.lineTo(R*0.3, -R*0.24);
+      ctx.lineTo(-R*0.55, -R*0.26); ctx.lineTo(-R*0.55, R*0.26);
+      ctx.lineTo(R*0.3, R*0.24); ctx.closePath(); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(R*0.18, -R*0.26); ctx.lineTo(R*0.02, -R*1.15);
+      ctx.lineTo(-R*0.85, -R*0.92); ctx.lineTo(-R*0.55, -R*0.24); ctx.closePath();
+      ctx.moveTo(R*0.18,  R*0.26); ctx.lineTo(R*0.02,  R*1.15);
+      ctx.lineTo(-R*0.85,  R*0.92); ctx.lineTo(-R*0.55,  R*0.24); ctx.closePath();
+      ctx.stroke();
     } else {
-      ctx.beginPath(); ctx.ellipse(0, 2, R, R*0.42, 0, 0, Math.PI*2); ctx.stroke();
-      ctx.beginPath(); ctx.arc(0, -1, R*0.5, Math.PI, 0); ctx.stroke();
+      // scout bird-of-prey, wings level for cruise
+      ctx.beginPath();
+      ctx.moveTo(R*0.95, 0); ctx.lineTo(R*0.28, -R*0.22);
+      ctx.lineTo(-R*0.55, -R*0.24); ctx.lineTo(-R*0.55, R*0.24);
+      ctx.lineTo(R*0.28, R*0.22); ctx.closePath(); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(R*0.05, -R*0.24); ctx.lineTo(-R*0.18, -R*0.92);
+      ctx.lineTo(-R*0.95, -R*0.86); ctx.lineTo(-R*0.58, -R*0.22); ctx.closePath();
+      ctx.moveTo(R*0.05,  R*0.24); ctx.lineTo(-R*0.18,  R*0.92);
+      ctx.lineTo(-R*0.95,  R*0.86); ctx.lineTo(-R*0.58,  R*0.22); ctx.closePath();
+      ctx.stroke();
     }
+  }
+
+  // The tractor beam is the one upgrade whose effect was previously invisible
+  // — loot simply drifted and you had to take it on trust. Drawing the lock
+  // makes the range legible on the field, so the card's px figure stops being
+  // the only way to know what you bought. Beams are drawn first, under the
+  // whole field, so they never compete with a rock for attention.
+  function drawTractor(camY){
+    if(up.magnet <= 0 || !pickups.length) return;
+    var mag = magnetRange(), pulse = 0.5 + 0.5 * Math.sin(gameTime * 5);
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 5]);
+    ctx.lineDashOffset = -gameTime * 34;
+    for(var i=0;i<pickups.length;i++){
+      var pk = pickups[i];
+      var d = Math.hypot(ship.x - pk.x, ship.y - pk.y);
+      if(d >= mag || d < PICKUP_R) continue;
+      // fades in as the lock tightens, so the beam is strongest on the crystal
+      // that is actually about to arrive
+      var a = (1 - d / mag) * 0.5 * (0.6 + 0.4 * pulse);
+      ctx.strokeStyle = 'rgba(111,232,255,' + a.toFixed(3) + ')';
+      ctx.beginPath();
+      ctx.moveTo(ship.x, ship.y - camY);
+      ctx.lineTo(pk.x, pk.y - camY);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    // the emitter ring itself, so the radius reads even with nothing in range
+    ctx.strokeStyle = 'rgba(111,232,255,' + (0.05 + 0.04 * pulse).toFixed(3) + ')';
+    ctx.beginPath(); ctx.arc(ship.x, ship.y - camY, mag, 0, Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+
+  // Red alert. Drawn on the canvas rather than in CSS because it has to sit
+  // under the HUD but over the field, and because the pulse has to run off the
+  // same clock as everything else — a CSS animation would keep flashing while
+  // the run is paused on an upgrade card.
+  function drawRedAlert(){
+    var W = window.innerWidth, H = window.innerHeight;
+    var pulse = reduceMotion ? 0.5 : 0.5 + 0.5 * Math.sin(gameTime * 4.4);
+    var a = 0.16 + pulse * 0.20;
+    var g = ctx.createRadialGradient(W/2, H/2, Math.min(W,H) * 0.34,
+                                     W/2, H/2, Math.max(W,H) * 0.72);
+    g.addColorStop(0, 'rgba(255,45,120,0)');
+    g.addColorStop(1, 'rgba(255,45,120,' + a.toFixed(3) + ')');
+    ctx.save();
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    // a hard hairline right on the bezel, which is what makes it read as an
+    // alert condition rather than a wash
+    ctx.strokeStyle = 'rgba(255,45,120,' + (0.3 + pulse * 0.45).toFixed(3) + ')';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1, 1, W - 2, H - 2);
+    ctx.restore();
   }
 
   function draw(){
     var camY = window.scrollY;
     ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    drawTractor(camY);
 
     asteroids.forEach(function(ax){
       var sp = ax.special ? SPECIALS[ax.special] : null;
@@ -1464,7 +1816,9 @@
       // the telegraph: the hull whites out and swells for the beat before a
       // charge commits, which is the whole reason a charge is survivable
       var winding = b.phase === 'charge' && !b.charged;
-      var flash = winding ? 0.5 + 0.5 * Math.abs(Math.sin(gameTime * 18)) : 0;
+      // the telegraph is the only warning a charge is survivable at all, so
+      // under reduced motion it holds at full rather than disappearing
+      var flash = winding ? (reduceMotion ? 1 : 0.5 + 0.5 * Math.abs(Math.sin(gameTime * 18))) : 0;
       var col = b.hitT > 0 || flash > 0.6 ? '#ffffff' : (b.enraged ? '#ff4d6d' : '#c77dff');
       var glow = b.enraged ? '#ff2fb9' : '#7b5cff';
       ctx.save();
@@ -1512,7 +1866,9 @@
       var AT = ALIEN_TYPES[al.kind];
       ctx.save();
       ctx.translate(al.x, al.y - camY);
-      if(al.kind === 'stalker') ctx.rotate(Math.atan2(al.vy, al.vx));
+      // every hull is directional now, so all three point along their heading
+      // rather than only the one that chases
+      ctx.rotate(al.kind === 'stalker' ? Math.atan2(al.vy, al.vx) : (al.vx < 0 ? Math.PI : 0));
       ctx.strokeStyle = 'rgba(4,2,8,.66)';
       ctx.lineWidth = 3.4;
       alienShape(al, AT);
@@ -1538,40 +1894,56 @@
 
     pickups.forEach(function(p){ drawPickup(p, camY); });
 
-    if(ship.invuln <= 0 || Math.floor(ship.invuln*13)%2===0){
+    // invulnerable frames blink the hull; under reduced motion the hull is
+    // drawn every frame and the ghosting is carried by alpha instead
+    var invBlink = ship.invuln > 0 && !reduceMotion && Math.floor(ship.invuln*13)%2 !== 0;
+    if(!invBlink){
+      if(reduceMotion && ship.invuln > 0) ctx.globalAlpha = 0.45;
       ctx.save();
       ctx.translate(ship.x, ship.y - camY);
       ctx.rotate(ship.angle);
+      // impulse wash off both nacelles rather than one exhaust, so thrust
+      // reads on a hull whose engines are out on the wingtips
       if(ship.thrusting){
-        var flameLen = 8 + Math.random()*10;
-        ctx.strokeStyle = '#f4a13e';
-        ctx.lineWidth = 1.5;
+        var flameLen = 7 + Math.random()*9;
+        ctx.strokeStyle = '#7fd4ff';
+        ctx.lineWidth = 1.6;
         ctx.beginPath();
-        ctx.moveTo(-6, -3);
-        ctx.lineTo(-6 - flameLen, 0);
-        ctx.lineTo(-6, 3);
+        ctx.moveTo(-12.6, -11.2); ctx.lineTo(-12.6 - flameLen, -11.2);
+        ctx.moveTo(-12.6,  11.2); ctx.lineTo(-12.6 - flameLen,  11.2);
         ctx.stroke();
       }
       ctx.lineJoin = 'round';
-      ctx.beginPath();
-      ctx.moveTo(15, 0);
-      ctx.lineTo(-11, -9);
-      ctx.lineTo(-6, 0);
-      ctx.lineTo(-11, 9);
-      ctx.closePath();
-      // rapid fire runs the hull hot, which is the only tell the player needs
-      ctx.strokeStyle = rapidTime > 0 ? '#ffb347' : '#00f5d4';
-      ctx.shadowColor = rapidTime > 0 ? '#ffa726' : '#00f5d4';
-      ctx.shadowBlur = 12;
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      // dark underpass first, so the hull holds together against a bright rock
+      ctx.strokeStyle = 'rgba(4,2,8,.7)';
+      ctx.lineWidth = 3.6;
+      shipShape();
+      // an overloaded phaser array runs the hull hot, which is the only tell
+      // the player needs that the drop is still live
+      var hullCol = rapidTime > 0 ? '#ffb347' : '#00f0ff';
+      ctx.strokeStyle = hullCol;
+      ctx.shadowColor = hullCol;
+      // a tight glow: at 1.6px line weight anything above ~9 fills the gaps
+      // between saucer, pylons and nacelles and the hull reads as one blob
+      ctx.shadowBlur = 8;
+      ctx.lineWidth = 1.5;
+      shipShape();
+      // bussard collectors: the one warm accent on an otherwise cold hull
+      ctx.shadowColor = '#ff4d6d';
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = '#ff7a90';
+      ctx.beginPath(); ctx.arc(3.6, -11.2, 1.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(3.6,  11.2, 1.5, 0, Math.PI*2); ctx.fill();
       ctx.shadowBlur = 0;
       ctx.restore();
+      ctx.globalAlpha = 1;
     }
 
     if(shieldTime > 0){
       // the ring thins out as the shield runs down, so it reads without the HUD
-      var pulse = shieldTime < 3.5 ? (0.35 + 0.4 * Math.abs(Math.sin(gameTime * 7))) : 0.75;
+      var pulse = (shieldTime < 3.5 && !reduceMotion)
+        ? (0.35 + 0.4 * Math.abs(Math.sin(gameTime * 7)))
+        : (shieldTime < 3.5 ? 0.5 : 0.75);
       ctx.save();
       ctx.strokeStyle = 'rgba(0,194,255,' + pulse.toFixed(2) + ')';
       ctx.shadowColor = '#00c2ff';
@@ -1584,20 +1956,72 @@
       ctx.restore();
     }
 
-    ctx.shadowColor = rapidTime > 0 ? '#ffa726' : '#ff2d78';
-    ctx.shadowBlur = 11;
-    ctx.fillStyle = rapidTime > 0 ? '#ffc978' : '#ff8ab5';
+    // Phasers draw as short beam segments along their own heading rather than
+    // as dots. It costs nothing — the velocity is already there — and it is
+    // the single clearest signal that this weapon is a beam and the slow
+    // orange thing beside it is not.
+    var beamCol = rapidTime > 0 ? '#ffc978' : '#7df9ff';
+    ctx.strokeStyle = beamCol;
+    ctx.shadowColor = rapidTime > 0 ? '#ffa726' : '#00f0ff';
+    ctx.shadowBlur = 12;
+    ctx.lineWidth = 2.6;
+    ctx.lineCap = 'round';
     bullets.forEach(function(b){
+      var L = Math.hypot(b.vx, b.vy) || 1;
+      var ux = b.vx / L, uy = b.vy / L, len = 9;
       ctx.beginPath();
-      ctx.arc(b.x, b.y - camY, 4.5, 0, Math.PI*2);
-      ctx.fill();
+      ctx.moveTo(b.x - ux*len, b.y - camY - uy*len);
+      ctx.lineTo(b.x, b.y - camY);
+      ctx.stroke();
     });
+    ctx.lineCap = 'butt';
     ctx.shadowBlur = 0;
+
+    // Photon torpedoes: a slow orange core with a tail, so they are never
+    // mistaken for a phaser even in a crowded frame.
+    torpedoes.forEach(function(tp){
+      var y = tp.y - camY;
+      var L = Math.hypot(tp.vx, tp.vy) || 1;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,140,60,.45)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(tp.x - tp.vx/L*16, y - tp.vy/L*16);
+      ctx.lineTo(tp.x, y);
+      ctx.stroke();
+      var pulse = 1 + Math.sin(tp.t * 22) * 0.18;
+      ctx.shadowColor = '#ff8c3c';
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = '#ffd9a8';
+      ctx.beginPath(); ctx.arc(tp.x, y, tp.r * pulse, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(tp.x, y, tp.r * 0.45, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+
+    // Detonation shockwaves: two rings, the outer one lagging, which is what
+    // sells the blast as a pressure front rather than a circle appearing.
+    shockwaves.forEach(function(sw){
+      var y = sw.y - camY, a = Math.max(0, sw.life);
+      ctx.save();
+      ctx.shadowColor = '#ff2d78';
+      ctx.shadowBlur = 16;
+      ctx.strokeStyle = 'rgba(255,45,120,' + (a * 0.85).toFixed(2) + ')';
+      ctx.lineWidth = 2.4 * a + 0.6;
+      ctx.beginPath(); ctx.arc(sw.x, y, sw.r, 0, Math.PI*2); ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(255,217,168,' + (a * 0.5).toFixed(2) + ')';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(sw.x, y, sw.r * 0.72, 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+    });
 
     particles.forEach(function(p){
       ctx.fillStyle = 'rgba(' + (p.col || '184,65,42') + ',' + p.life.toFixed(2) + ')';
       ctx.fillRect(p.x-1.5, p.y - camY - 1.5, 3, 3);
     });
+
+    if(redAlert) drawRedAlert();
   }
 
   function loop(now){
@@ -1643,7 +2067,7 @@
     document.body.classList.add('astro-active');
     document.documentElement.style.scrollBehavior = 'auto';
     homeStick();
-    if(isCoarse && tipEl) tipEl.textContent = 'drag anywhere to steer · guns are automatic · ← back to site';
+    if(isCoarse && tipEl) tipEl.textContent = 'drag to steer · phasers fire themselves · ← leave the bridge';
     window.addEventListener('resize', resize);
     window.addEventListener('orientationchange', resize);
     window.addEventListener('keydown', onKeyDown);
@@ -1666,6 +2090,8 @@
     levelOpen = false; autoPaused = false;
     document.body.classList.remove('astro-active');
     document.body.classList.remove('astro-paused');
+    document.body.classList.remove('astro-red-alert');
+    redAlert = false;
     document.documentElement.style.scrollBehavior = '';
     window.removeEventListener('resize', resize);
     window.removeEventListener('orientationchange', resize);
