@@ -436,48 +436,49 @@
 <div id="astroXp" aria-hidden="true">
   <div id="astroXpFill"></div>
   <div id="astroXpText">
-    <b id="astroLevelNum">LV 1</b>
+    <b id="astroLevelNum">REFIT 1</b>
     <span class="xp-v"><i class="px-gem" aria-hidden="true"></i><span id="astroXpVal">0 / 4</span></span>
   </div>
 </div>
-<!-- Boss chrome. The hull bar only exists while a dreadnought is alive, and the
-     warning only while one is inbound — neither is part of the standing HUD. -->
+<!-- Warbird chrome. The hull bar only exists while a capital ship is alive, and
+     the warning only while one is decloaking — neither is part of the standing
+     HUD. Both strings are overwritten by JS from the warbird roster. -->
 <div id="astroBoss" aria-hidden="true">
-  <div id="astroBossName">Dreadnought</div>
+  <div id="astroBossName">I.K.S. Vor’cha</div>
   <div id="astroBossBar"><div id="astroBossFill"></div></div>
 </div>
-<div id="astroWarn" aria-hidden="true">Dreadnought inbound</div>
-<div id="astroTipWrap" aria-hidden="true"><div id="astroTip" class="g-pill">↑ thrust · ←→ rotate · guns are automatic · esc exit</div></div>
-<button id="astroExit" class="g-pill">← Back to site</button>
+<div id="astroWarn" aria-hidden="true">Warbird decloaking</div>
+<div id="astroTipWrap" aria-hidden="true"><div id="astroTip" class="g-pill">↑ impulse · ←→ helm · phasers fire themselves · esc leave the bridge</div></div>
+<button id="astroExit" class="g-pill">← Leave the bridge</button>
 <div id="astroHud" aria-hidden="true">
-  <div id="astroScore">Score: 0</div>
-  <div id="astroLives"><i class="px-heart on"></i><i class="px-heart on"></i><i class="px-heart on"></i><i class="px-heart"></i><i class="px-heart"></i></div>
+  <div id="astroScore">Stardate 0</div>
+  <div id="astroLives"><i class="px-hull on"></i><i class="px-hull on"></i><i class="px-hull on"></i><i class="px-hull"></i><i class="px-hull"></i></div>
   <div id="astroBuffs">
-    <span id="astroShieldBuff">Shield 0s</span>
-    <span id="astroRapidBuff">Rapid 0s</span>
+    <span id="astroShieldBuff">Deflector 0s</span>
+    <span id="astroRapidBuff">Phasers 0s</span>
   </div>
 </div>
 <div id="astroOver" aria-hidden="true"><div id="astroOverCard">
-  <div class="ao-t">Game over</div>
-  <div class="ao-s">Score <span id="astroFinal">0</span></div>
-  <div class="ao-m" id="astroFinalSub">0s survived · level 1</div>
-  <div class="ao-h" id="astroRestartHint">press any key to play again</div>
+  <div class="ao-t">Hull breach</div>
+  <div class="ao-s">Stardate <span id="astroFinal">0</span></div>
+  <div class="ao-m" id="astroFinalSub">0s adrift · refit 1</div>
+  <div class="ao-h" id="astroRestartHint">press any key to launch again</div>
 </div></div>
 <!-- Level up — opens the instant the XP rail fills, and the cards inside it are
      rolled fresh in JS every time, so nothing here is authored by hand. It is
      not aria-hidden: the cards are the one part of the game you actually pick. -->
 <div id="astroLevel"><div id="astroLevelCard">
-  <div class="al-t">Level up</div>
-  <div class="al-s">Level <b id="astroLevelVal">2</b> · choose one</div>
+  <div class="al-t">Field refit</div>
+  <div class="al-s">Refit <b id="astroLevelVal">2</b> · authorise one subsystem</div>
   <div class="al-grid" id="astroLevelGrid"></div>
-  <div class="al-h" id="astroLevelHint">Click a card, or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></div>
+  <div class="al-h" id="astroLevelHint">Select a subsystem, or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></div>
 </div></div>
 <div id="astroPause" aria-hidden="true"><div id="astroPauseCard">
-  <div class="ap-t">Paused</div>
+  <div class="ap-t">All stop</div>
   <div class="ap-h">click or press any key to resume</div>
 </div></div>
-<!-- Steering only. The guns fire themselves, so there is no fire button and the
-     stick comes to wherever the thumb lands. -->
+<!-- Helm only. Phasers and torpedoes fire themselves, so there is no fire
+     button and the stick comes to wherever the thumb lands. -->
 <div id="astroTouch" aria-hidden="true">
   <div id="astroStick"><div id="astroKnob"></div></div>
 </div>
