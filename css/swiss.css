@@ -351,6 +351,16 @@ body.menu-on{overflow:hidden}
 .hero-l{display:flex;flex-direction:column;justify-content:flex-start;
   padding:clamp(1.4rem,2.8vw,2.6rem) 0 clamp(1.8rem,3.4vw,3rem)}
 .hero-h{--lead:.97;font-size:var(--t-hero);font-weight:700;line-height:.97;letter-spacing:-.048em}
+/* The index headline is a full sentence, not the three short words the hero step was
+   drawn for, and its longest line is close to twice the width of the ones it replaced.
+   At the full step it overflows the 1.12fr column and breaks itself at whatever word
+   happens to fall on the edge. Backing the display type off keeps the four hand-set
+   lines intact everywhere. The size is set by the worst case, which is a viewport just
+   past a --t-hero step — at 1441px the type has jumped to 8.4rem while the column has
+   barely grown, leaving it only 5.46 hero-ems wide. Four lines at this step land at
+   roughly the mass the three full-size ones did. Scoped to the id, so the 404 hero —
+   short lines, full page width — keeps the undiminished step. */
+#hero-h{font-size:calc(var(--t-hero) * .78)}
 /* The name is the nav's job. It briefly sat here as well, which read as the
    same words twice on one screen. The margin carries the air that line used to
    provide, so the display type still has room under it. */
