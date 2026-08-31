@@ -357,11 +357,12 @@ body.menu-on{overflow:hidden}
    happens to fall on the edge. Backing the display type off keeps the four hand-set
    lines intact everywhere. The size is set by the worst case, which is a viewport just
    past a --t-hero step — at 1441px the type has jumped to 8.4rem while the column has
-   barely grown, leaving it only 5.46 hero-ems wide, against a longest line of 7.25.
-   Four lines at this step land at roughly the mass the three full-size ones did; five
-   would push the column past a 800px-tall viewport. Scoped to the id, so the 404 hero —
-   short lines, full page width — keeps the undiminished step. */
-#hero-h{font-size:calc(var(--t-hero) * .73)}
+   barely grown, leaving it only 5.46 hero-ems wide, against a longest line of 5.7. The
+   step down is now small; what stops it shrinking further is the other end — four lines
+   of display type plus the paragraph and the link have to clear a 720px-tall viewport.
+   Scoped to the id, so the 404 hero — short lines, full page width — keeps the
+   undiminished step. */
+#hero-h{font-size:calc(var(--t-hero) * .85)}
 /* The name is the nav's job. It briefly sat here as well, which read as the
    same words twice on one screen. The margin carries the air that line used to
    provide, so the display type still has room under it. */
