@@ -57,9 +57,10 @@
   --t-body:clamp(1rem,1.15vw,1.125rem);
   --t-small:clamp(.9rem,.95vw,.95rem);
   --t-lab:clamp(.78rem,.85vw,.8rem);
-  /* The metadata strip and the counters (section index, case-study number,
-     process step) sit one step above the label size. They were the smallest
-     type on the page and the first thing to become unreadable on a phone. */
+  /* The metadata strip and the counters (section index, case-study number)
+     sit one step above the label size. They were the smallest type on the
+     page and the first thing to become unreadable on a phone. Word labels
+     (.cap-c h4, .ctab .k, .proc-k) stay at --t-lab: they read as words. */
   --t-meta:clamp(.84rem,1vw,.9rem);
   /* One tracking value for every uppercase micro-label on the site. The old
      system ran four (.14/.16/.17/.19em) at four different sizes; a single
@@ -553,7 +554,7 @@ body.menu-on{overflow:hidden}
 .cap-c li:last-child{border-bottom:0}
 
 /* ── 14. PROCESS ─────────────────────────────────────────────────────────── */
-/* An index, not a rail. Number, title and description share a row and between
+/* An index, not a rail. Key, title and description share a row and between
    them use the whole measure. The previous version ran a big numeral down a
    left rail with the prose beside it, which left the right ~40% of every row
    empty — the rule spanned full width while the text stopped at 58ch. */
@@ -561,11 +562,19 @@ body.menu-on{overflow:hidden}
 .proc-s{display:grid;grid-template-columns:auto minmax(0,4fr) minmax(0,6fr);
   gap:.5rem var(--gap);align-items:start;
   padding-block:clamp(1.3rem,2.6vw,2.3rem);border-bottom:1px solid var(--rule)}
-/* muted at rest: four accented numerals would all share one viewport, and the
-   page allows one. The row takes the accent on hover, one at a time. */
-.proc-n{font-size:var(--t-meta);font-weight:700;letter-spacing:var(--tr-lab);color:var(--mute);
-  font-variant-numeric:tabular-nums;padding-top:.42rem;transition:color .45s var(--ez)}
-.proc-s:hover .proc-n{color:var(--red)}
+/* Where / How / When, not 01–03. Numerals promised a sequence the work doesn't
+   follow; these are three questions, and the section answers them in order.
+   Same label type as .cap-c h4 and .ctab .k, so the column reads as a key.
+   Muted at rest: three accented labels would share one viewport and the page
+   allows one — the row takes the accent on hover, one at a time. */
+/* Each row is its own grid, so an `auto` key column resolves per row: the
+   numerals aligned only because they were tabular, and Where/How/When are not
+   the same width. The min-width is what holds the title column on one axis
+   down the section — don't drop it. */
+.proc-k{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);
+  text-transform:uppercase;color:var(--mute);min-width:4rem;white-space:nowrap;
+  padding-top:.5rem;transition:color .45s var(--ez)}
+.proc-s:hover .proc-k{color:var(--red)}
 .proc-t{font-size:var(--t-h3);font-weight:700;letter-spacing:-.025em;line-height:1.15}
 .proc-d{font-size:var(--t-small);color:var(--ink-2);line-height:1.6;max-width:60ch}
 
@@ -1013,7 +1022,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   /* three columns of ~110px shred "Senior Product Designer" into three lines,
      so the meta row becomes label-left / value-right rows like the contact
      table — the same Swiss device at a width that can carry it */
-  /* number keeps its column; title and description stack beside it */
+  /* key keeps its column; title and description stack beside it */
   .proc-s{grid-template-columns:auto minmax(0,1fr);gap:.35rem var(--gap)}
   .proc-d{grid-column:2}
   .wmeta{grid-template-columns:1fr}
