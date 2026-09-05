@@ -77,7 +77,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // sleeping the laptop or opening an upgrade card costs nothing and gains
   // nothing. Everything — score, difficulty, cooldowns, drop timers — reads it.
   var gameTime = 0, lastFrame = 0, autoPaused = false, levelOpen = false;
-  function isPaused(){ return autoPaused || levelOpen; }
+  function isPaused(){ return autoPaused || levelOpen || hailOpen; }
 
   // ── Red Alert ────────────────────────────────────────────────────────────
   // Below a third of the hull the ship goes to red alert: the screen edges
@@ -143,6 +143,26 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var BOSS_FIRST = 110, BOSS_GAP = 68, BOSS_WARN = 2.6, BOSS_R = 44;
   var BOSS_NAMES = ['I.K.S. Vor\u2019cha', 'I.K.S. Negh\u2019Var', 'I.K.S. K\u2019tinga', 'I.K.S. Qu\u2019Vat'];
   var boss = null, bossWarn = 0, bossCount = 0, bossKills = 0, nextBossAt = BOSS_FIRST;
+  // ── the engagement hail ──────────────────────────────────────────────
+  // A capital ship no longer simply arrives. It is announced, and then the run
+  // halts on a two-way choice: hold the sector, or break off. That turns the
+  // one scripted event in the run into the only real decision in it — every
+  // other panel asks which upgrade, this one asks whether to take the fight at
+  // all — and it gives the answer at one hull a name other than "die here".
+  //
+  // The two sides have to stay genuinely uneven in opposite directions or the
+  // choice collapses into a default. Standing pays the biggest bounty on the
+  // board, a guaranteed refit and two hull; running costs nothing in damage and
+  // everything in tempo — no loot, no XP, and the next contact comes at a
+  // little over half the usual gap. What a withdrawal really spends is the
+  // level economy: under the current XP curve a late run cannot reach its next
+  // refit off rocks alone, so a run that flees every hail slowly stops growing
+  // while the field keeps escalating.
+  var BOSS_FLEE_GAP = 0.55;      // fraction of a normal gap before the next hail
+  var BOSS_FLEE_GRACE = 2.6;     // the evasive burn, in seconds of invulnerability
+  var BOSS_KILL_HEARTS = 2;
+  function bossBounty(n){ return 1800 + n * 700; }
+  var hailOpen = false, bossFled = 0;
   var speedMult = 1.35, rockSpawnAcc = 0;
   var gameOver = false;
   var overEl = document.getElementById('astroOver');
@@ -150,6 +170,12 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var bossFillEl = document.getElementById('astroBossFill');
   var bossNameEl = document.getElementById('astroBossName');
   var warnEl     = document.getElementById('astroWarn');
+  var hailEl       = document.getElementById('astroHail');
+  var hailNameEl   = document.getElementById('astroHailName');
+  var hailBountyEl = document.getElementById('astroHailBounty');
+  var hailAgainEl  = document.getElementById('astroHailAgain');
+  var hailFightEl  = document.getElementById('astroHailFight');
+  var hailFleeEl   = document.getElementById('astroHailFlee');
   var finalEl = document.getElementById('astroFinal');
   var finalSubEl = document.getElementById('astroFinalSub');
   var hintEl = document.getElementById('astroRestartHint');
@@ -489,13 +515,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(finalEl) finalEl.textContent = currentScore();
     if(finalSubEl) finalSubEl.textContent =
       Math.floor(gameTime) + 's adrift · refit ' + level +
-      (bossKills ? ' · ' + bossKills + ' warbird' + (bossKills > 1 ? 's' : '') + ' destroyed' : '');
+      (bossKills ? ' · ' + bossKills + ' capital ship' + (bossKills > 1 ? 's' : '') + ' destroyed' : '') +
+      (bossFled ? ' · ' + bossFled + ' evaded' : '');
     if(hintEl) hintEl.textContent = isCoarse ? 'tap to play again' : 'press any key to play again';
     if(overEl) overEl.classList.add('on');
     // dying mid-fight left the hull bar and the inbound warning stranded on top
     // of the game-over card until the next run reset them
     if(bossBarEl) bossBarEl.classList.remove('on');
     if(warnEl) warnEl.classList.remove('on');
+    hailOpen = false;
+    if(hailEl) hailEl.classList.remove('on');
     closeLevel(true);
     syncHud();
   }
@@ -504,8 +533,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   function resetRun(){
     bullets = []; particles = []; aliens = []; alienBullets = []; pickups = [];
     bonus = 0; nextAlienAt = ALIEN_FIRST;
-    boss = null; bossWarn = 0; bossCount = 0; bossKills = 0; nextBossAt = BOSS_FIRST;
+    boss = null; bossWarn = 0; bossCount = 0; bossKills = 0; bossFled = 0; nextBossAt = BOSS_FIRST;
+    hailOpen = false;
     if(bossBarEl) bossBarEl.classList.remove('on');
+    if(hailEl) hailEl.classList.remove('on');
     if(warnEl) warnEl.classList.remove('on');
     gameTime = 0; lastFrame = performance.now();
     speedMult = speedMultAt(0); rockSpawnAcc = 0;
@@ -652,8 +683,23 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // ── level up overlay ─────────────────────────────────────────────────────
   var levelEl     = document.getElementById('astroLevel');
   var levelGridEl = document.getElementById('astroLevelGrid');
-  var levelValEl  = document.getElementById('astroLevelVal');
+  var levelKindEl = document.getElementById('astroLevelKind');
+  var levelSubEl  = document.getElementById('astroLevelSub');
   var levelChoices = [];
+  // Where this card came from. A card the XP rail paid for is a refit and is
+  // numbered; a card a capital ship paid for is salvage and is not, because
+  // beating a boss does not move `level` — the XP curve owns that number, and
+  // quietly bumping it would make the *next* refit dearer, which is a hidden
+  // penalty dressed as a reward. So the header tells the truth instead.
+  var levelKind = '';
+
+  function renderLevelHeader(){
+    var salvage = levelKind === 'salvage';
+    if(levelKindEl) levelKindEl.textContent = salvage ? 'Battle salvage' : 'Field refit';
+    if(levelSubEl) levelSubEl.innerHTML = salvage
+      ? 'Hull broken \u00b7 authorise one subsystem'
+      : 'Refit <b>' + level + '</b> \u00b7 authorise one subsystem';
+  }
 
   function renderChoices(){
     if(!levelGridEl) return;
@@ -682,15 +728,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     });
   }
 
-  function openLevelUp(){
+  function openLevelUp(kind){
     if(!active || gameOver || levelOpen) return;
+    levelKind = kind || '';
     // everything is maxed and health is full: there is nothing to offer, so
     // bank the level as score instead of showing an empty card
     if(rollChoices().length === 0){ pendingLevels = 0; bonus += 400; return; }
     levelOpen = true;
     keys = {}; pad.mag = 0;
     homeStick();
-    if(levelValEl) levelValEl.textContent = level;
+    renderLevelHeader();
     renderChoices();
     if(levelEl) levelEl.classList.add('on');
     document.body.classList.add('astro-paused');
@@ -712,12 +759,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // enough gems can arrive in one frame to clear two bars; deal them out one
     // card at a time rather than silently dropping the second level
     if(pendingLevels > 0 && rollChoices().length > 0){
-      if(levelValEl) levelValEl.textContent = level;
+      // the salvage card is spent; anything stacked behind it is an ordinary
+      // refit and has to be labelled as one
+      levelKind = '';
+      renderLevelHeader();
       renderChoices();
       syncHud();
       return;
     }
     pendingLevels = 0;
+    levelKind = '';
     closeLevel();
     syncHud();
   }
@@ -739,6 +790,74 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // a beat of grace so you aren't dropped straight back onto a rock
     if(!silent && ship) ship.invuln = Math.max(ship.invuln, 1.4);
   }
+
+  // ── the engagement hail ──────────────────────────────────────────────────
+  // Opens where the capital ship used to simply appear: the inbound warning
+  // flashes for its full beat, and then this takes the screen instead of a
+  // warbird taking the sector. It halts the field exactly the way a refit card
+  // does — same pause, same focus handling, same digit keys — because the
+  // player has already learned that a panel means the run has stopped and a
+  // decision is owed.
+  function openHail(){
+    // a dead or dismissed run gets nothing at all; a live run with no panel
+    // to show falls back to the old behaviour and lets her decloak
+    if(!active || gameOver) return;
+    if(!hailEl || !hailFightEl){ spawnBoss(); return; }
+    hailOpen = true;
+    keys = {}; pad.mag = 0;
+    homeStick();
+    // the figures on the cards are the real ones for *this* contact — a panel
+    // that quotes a round number the run does not actually pay is worse than a
+    // panel with no numbers on it
+    if(hailNameEl) hailNameEl.textContent = bossName(bossCount);
+    if(hailBountyEl) hailBountyEl.textContent = '+' + bossBounty(bossCount) + ' stardate';
+    if(hailAgainEl) hailAgainEl.textContent =
+      'Next contact in ' + Math.round(bossGapFor(bossCount) * BOSS_FLEE_GAP) + 's';
+    hailEl.classList.add('on');
+    document.body.classList.add('astro-paused');
+    // focus lands on Engage, not because it is the recommended answer but
+    // because it is the first card; preventScroll for the same reason the refit
+    // card needs it — the run drives window.scrollY every frame
+    try { hailFightEl.focus({ preventScroll:true }); } catch(e){ hailFightEl.focus(); }
+  }
+
+  function closeHail(fight){
+    if(!hailOpen) return;
+    hailOpen = false;
+    if(hailEl) hailEl.classList.remove('on');
+    if(!autoPaused) document.body.classList.remove('astro-paused');
+    // drop focus off the card that is about to be hidden, or the browser goes
+    // hunting for whatever inherits it and scrolls the page doing it
+    if(hailEl && hailEl.contains(document.activeElement)) document.activeElement.blur();
+    lastFrame = performance.now();
+    if(fight){
+      spawnBoss();
+      // a beat of grace on the way back in, the same one the refit card gives:
+      // the field is exactly where it was when the panel opened
+      if(ship) ship.invuln = Math.max(ship.invuln, 1.4);
+    } else {
+      fleeBoss();
+    }
+  }
+
+  // Breaking off is free of damage and expensive in everything else. The
+  // contact keeps its index, so running never makes the next one stronger —
+  // only sooner. The cost is the whole of what was in it: the bounty, the
+  // dilithium, the refit and the hull.
+  function fleeBoss(){
+    bossFled++;
+    nextBossAt = gameTime + bossGapFor(bossCount) * BOSS_FLEE_GAP;
+    // the sector does not go quiet just because the capital ship broke off
+    nextAlienAt = gameTime + alienInterval(gameTime) * 0.5;
+    if(ship){
+      ship.invuln = Math.max(ship.invuln, BOSS_FLEE_GRACE);
+      burst(ship.x, ship.y, 26, '0,240,255');
+    }
+    if(warnEl) warnEl.classList.remove('on');
+  }
+
+  if(hailFightEl) hailFightEl.addEventListener('pointerdown', function(e){ e.preventDefault(); closeHail(true); });
+  if(hailFleeEl)  hailFleeEl.addEventListener('pointerdown', function(e){ e.preventDefault(); closeHail(false); });
 
   function addXp(n){
     xp += n;
@@ -771,7 +890,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   function autoPause(){
     // a level-up card is already a halt of its own — stacking a second pause
     // under it would leave the choice closing into a still-frozen field
-    if(!active || gameOver || autoPaused || levelOpen) return;
+    if(!active || gameOver || autoPaused || levelOpen || hailOpen) return;
     autoPaused = true;
     keys = {}; pad.mag = 0;
     homeStick();
@@ -783,7 +902,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(!autoPaused) return;
     autoPaused = false;
     if(pauseEl) pauseEl.classList.remove('on');
-    if(!levelOpen) document.body.classList.remove('astro-paused');
+    if(!levelOpen && !hailOpen) document.body.classList.remove('astro-paused');
     lastFrame = performance.now();
     if(ship) ship.invuln = Math.max(ship.invuln, 0.9);
     if(!raf) raf = requestAnimationFrame(loop);
@@ -796,13 +915,24 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
   function blockClicks(e){
     if(e.target.closest('#astroExit') || e.target.closest('#astroOver') ||
-       e.target.closest('#astroLevel') || e.target.closest('#astroPause')) return;
+       e.target.closest('#astroLevel') || e.target.closest('#astroPause') ||
+       e.target.closest('#astroHail')) return;
     e.preventDefault(); e.stopPropagation();
   }
 
   function onKeyDown(e){
     if(e.code === 'Escape'){ stop(); return; }
     if(gameOver){ e.preventDefault(); restart(); return; }
+    if(hailOpen){
+      // like the refit card this is a decision rather than a dialog, so only
+      // the keys that answer it mean anything — nothing here can dismiss it.
+      // F and E are here because they are what the two cards are actually
+      // called, and a player reading "Engage" should not have to count.
+      e.preventDefault();
+      if(e.code === 'Digit1' || e.code === 'Numpad1' || e.code === 'KeyF') closeHail(true);
+      else if(e.code === 'Digit2' || e.code === 'Numpad2' || e.code === 'KeyE') closeHail(false);
+      return;
+    }
     if(levelOpen){
       // the card is a decision, not a dialog: the only keys that mean anything
       // are the three that pick, so nothing else can dismiss it
@@ -858,7 +988,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   function stickDown(e){
     if(gameOver){ e.preventDefault(); restart(); return; }
     if(autoPaused){ e.preventDefault(); autoResume(); return; }
-    if(levelOpen) return;
+    if(levelOpen || hailOpen) return;
     if(stickId !== null) return;
     stickId = e.pointerId;
     e.preventDefault();
@@ -996,18 +1126,27 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     var b = boss;
     burst(b.x, b.y, 60, '255,209,102');
     burst(b.x, b.y, 34, '255,77,109');
-    // The payout is the point: a late run cannot reach the next upgrade off
-    // rocks alone under the new XP curve, so the capital ship is the way back
-    // into the level economy. Standing off and ignoring it costs you the run.
-    for(var i=0; i<4 + Math.min(4, b.index); i++) dropPickup(b.x, b.y, 'gem');
-    dropPickup(b.x, b.y, 'heart');
+    // The payout is the point, and since the hail it is the payout for a
+    // decision rather than for an event: the player was offered a way out of
+    // this fight and turned it down, so beating it has to be the best thing
+    // that can happen in a run. A late run cannot reach its next refit off
+    // rocks alone under the current XP curve, and this is the way back into the
+    // level economy — which is exactly what a withdrawal gives up.
+    for(var i=0; i<5 + Math.min(5, b.index); i++) dropPickup(b.x, b.y, 'gem');
+    for(var h=0; h<BOSS_KILL_HEARTS; h++) dropPickup(b.x, b.y, 'heart');
     dropPickup(b.x, b.y, Math.random() < 0.5 ? 'shield' : 'rapid');
-    bonus += 900 + b.index * 350;
+    bonus += bossBounty(b.index);
     bossKills++;
     boss = null;
     nextBossAt = gameTime + bossGapFor(bossCount);
     nextAlienAt = gameTime + alienInterval(gameTime) * 0.6;
     if(bossBarEl) bossBarEl.classList.remove('on');
+    // The refit is granted, not dropped. It is the half of the bounty that was
+    // promised on the card, and a promised reward must not be something a stray
+    // rock can take off you in the two seconds between the kill and the
+    // crystals landing. The dilithium on the floor is the bonus on top.
+    pendingLevels++;
+    openLevelUp('salvage');
   }
 
   function updateBoss(dt, sf, t){
@@ -1372,13 +1511,18 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // and the fight should be legible rather than buried under traffic.
     if(!boss && bossWarn <= 0 && t >= nextBossAt){
       bossWarn = BOSS_WARN;
-      if(warnEl){ warnEl.textContent = bossName(bossCount) + ' decloaking'; warnEl.classList.add('on'); }
+      // "closing", not "decloaking": since the hail she might never decloak at
+      // all, and a warning that announces something the player can still
+      // prevent is a warning that lies about half the time
+      if(warnEl){ warnEl.textContent = bossName(bossCount) + ' closing'; warnEl.classList.add('on'); }
     }
     if(bossWarn > 0){
       bossWarn -= dt;
       if(bossWarn <= 0){
         if(warnEl) warnEl.classList.remove('on');
-        spawnBoss();
+        // the warning runs its full beat and then hands over to the hail — the
+        // capital ship only decloaks if the answer is to let her
+        openHail();
       }
     }
     if(boss) updateBoss(dt, sf, t);
@@ -2058,10 +2202,11 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     active = true;
     destroyed = [];
     gameOver = false;
-    levelOpen = false;
+    levelOpen = false; hailOpen = false;
     if(overEl) overEl.classList.remove('on');
     if(levelEl) levelEl.classList.remove('on');
     if(pauseEl) pauseEl.classList.remove('on');
+    if(hailEl) hailEl.classList.remove('on');
     resize();
     resetRun();
     document.body.classList.add('astro-active');
@@ -2087,7 +2232,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(raf) cancelAnimationFrame(raf);
     raf = null;
     clearTimeout(tipTimer);
-    levelOpen = false; autoPaused = false;
+    levelOpen = false; autoPaused = false; hailOpen = false;
     document.body.classList.remove('astro-active');
     document.body.classList.remove('astro-paused');
     document.body.classList.remove('astro-red-alert');
@@ -2105,6 +2250,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(overEl) overEl.classList.remove('on');
     if(levelEl) levelEl.classList.remove('on');
     if(pauseEl) pauseEl.classList.remove('on');
+    if(hailEl) hailEl.classList.remove('on');
     if(bossBarEl) bossBarEl.classList.remove('on');
     if(warnEl) warnEl.classList.remove('on');
     boss = null; bossWarn = 0;
