@@ -192,12 +192,11 @@ Logo alt text: `Enter logo` · `Bosch logo` · `Allianz logo` · `Cooler Future 
 | `proc.h` | The process |
 | `proc.idx` | 03 / 04 _(fixed)_ |
 
-| # | Title | Description |
+| Key | Title | Description |
 |---|---|---|
-| 01 | Listen first | Interviews, diary studies, ride-alongs. No sketching until there's a clear picture of what's going wrong. |
-| 02 | Make it concrete early | Storyboards and rough wireframes before anything polished. It's easier to change direction while the work still looks unfinished. |
-| 03 | Test with real people | Prototypes realistic enough to get honest reactions, then keep iterating until it holds up. |
-| 04 | Stay until it ships | Working closely with engineers through the build. If a design doesn't hold up once it's coded, it wasn't done. |
+| Where | Go where the work happens | What breaks a product is rarely visible from a desk. It's on the tablet in someone's basement, in the fax machine at the clinic, in the spreadsheet the ops team actually runs on. |
+| How | Keep it rough while it's still wrong | Storyboards and grey boxes get argued with; polished screens get approved. I keep the work unfinished-looking while the direction is still in question, then make prototypes real enough to earn honest reactions. |
+| When | Stay until it ships | Working alongside engineers through the build, on real devices, with real data. If a design doesn't hold up once it's coded, it wasn't done. |
 
 ---
 
