@@ -348,25 +348,44 @@ body.menu-on{overflow:hidden}
    put a viewport-sized hole between the headline and the paragraph — the taller
    the screen, the worse it got. The column now reads as one block and the air
    collects underneath it, where air belongs. */
+/* The vertical rhythm is capped against svh as well as vw. Sized on width alone it
+   spends the same 48px of padding on a 1000px-tall display and a 700px laptop, and on
+   the short one that is the difference between the hero fitting the fold and running
+   23px past it. The min() only bites when the viewport is short — at 900px and up the
+   width clamp is still what wins, so the full-height composition is untouched. */
 .hero-l{display:flex;flex-direction:column;justify-content:flex-start;
-  padding:clamp(1.4rem,2.8vw,2.6rem) 0 clamp(1.8rem,3.4vw,3rem)}
+  container-type:inline-size;
+  padding:min(clamp(1.4rem,2.8vw,2.6rem),4.4svh) 0 min(clamp(1.8rem,3.4vw,3rem),5svh)}
 .hero-h{--lead:.97;font-size:var(--t-hero);font-weight:700;line-height:.97;letter-spacing:-.048em}
-/* The index headline is a full sentence, not the three short words the hero step was
-   drawn for, and its longest line is close to twice the width of the ones it replaced.
-   At the full step it overflows the 1.12fr column and breaks itself at whatever word
-   happens to fall on the edge. Backing the display type off keeps the four hand-set
-   lines intact everywhere. The size is set by the worst case, which is a viewport just
-   past a --t-hero step — at 1441px the type has jumped to 8.4rem while the column has
-   barely grown, leaving it only 5.46 hero-ems wide, against a longest line of 7.25.
-   Four lines at this step land at roughly the mass the three full-size ones did; five
-   would push the column past a 800px-tall viewport. Scoped to the id, so the 404 hero —
-   short lines, full page width — keeps the undiminished step. */
-#hero-h{font-size:calc(var(--t-hero) * .73)}
+/* The index headline is hand-set into lines, so the size that is safe is the one where
+   the longest line still fits the column — and a viewport-stepped size cannot know the
+   column's width. A fixed fraction of --t-hero breaks at every step boundary, because
+   the step jumps while the column does not: at 1441px the type goes to 8.4rem while the
+   column stays at 734px, and the line wraps itself in two.
+   Short hand-set lines are what let the display type run big, so the headline is set
+   three lines deep and the longest is "made usable." at 5.53 ems. That clears the column
+   at up to 18.1cqw; 17.2 keeps a margin for the fallback face, which sets wider than
+   Heros. --t-hero caps it, and on most widths the cap is what wins — the headline runs
+   at the undiminished step, which is the mass the hero is drawn around. The cap does not
+   win everywhere: at 1441px the full step needs 743px against a 734px column, and at
+   1201px it clears by 2px. Those two are why the column-relative size stays.
+   The fallback is for engines without container queries, where cq units resolve against
+   the viewport and would oversize the headline badly.
+   Scoped to the id, so the 404 hero — short lines, full page width — keeps the
+   undiminished step. */
+#hero-h{font-size:calc(var(--t-hero) * .95)}
+@supports (container-type:inline-size){
+  #hero-h{font-size:min(var(--t-hero), 17.2cqw)}
+}
 /* The name is the nav's job. It briefly sat here as well, which read as the
    same words twice on one screen. The margin carries the air that line used to
    provide, so the display type still has room under it. */
-.hero-sub{max-width:52ch;color:var(--ink-2);font-size:var(--t-small);line-height:1.62;
-  margin-top:clamp(1.8rem,3.6vw,3rem)}
+/* A standfirst, not body copy. It sat on --t-small, a step *below* the body scale,
+   which left the whole hero leaning on the display type to carry the column. One step
+   above --t-body gives the paragraph enough presence to hold its own share, and the
+   measure is pulled to 46ch so the larger type does not run to a longer line. */
+.hero-sub{max-width:46ch;color:var(--ink-2);font-size:clamp(1.02rem,1.2vw,1.18rem);line-height:1.6;
+  margin-top:min(clamp(1.8rem,3.6vw,3rem),5.2svh)}
 .hero-act{display:flex;align-items:center;gap:1.1rem;margin-top:clamp(1.6rem,3vw,2.4rem)}
 .hero-act .cta-t{font-size:var(--t-lab);font-weight:700;text-transform:uppercase;letter-spacing:var(--tr-lab)}
 

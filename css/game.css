@@ -466,6 +466,112 @@ html.coarse body.astro-active{touch-action:none}
 }
 html.coarse #astroLevelCard .al-h{display:none}
 
+/* ── Engagement hail ───────────────────────────────────────────────────────── */
+/* The refit card's twin, in the alert palette rather than the LCARS green,
+   because this panel is the one place in the run where the answer might be to
+   leave. It reuses the refit card's geometry — left rail, header bar capped
+   round on the right, blocks docked to the rail — so a player who has learned
+   to read one already knows how to read this. Only the colour changes, and it
+   changes to `--nx-hot`, which is rationed to alerts and means exactly that.
+   Both cards carry their own accent so the choice is legible at a glance:
+   engage is the alert pink, evade is the cyan the player's own hull is drawn
+   in — you are choosing between her and you. */
+#astroHail{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;
+  padding:1.2rem;background:rgba(18,2,12,.76);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+#astroHail.on{display:flex;animation:auFade .18s var(--ez)}
+#astroHailCard{width:min(700px,100%);max-height:100%;overflow:auto;
+  padding:clamp(1.2rem,4vw,2.1rem) clamp(1rem,3.5vw,1.9rem) clamp(1rem,3vw,1.7rem);
+  position:relative;isolation:isolate;
+  padding-left:calc(var(--lc-rail) + clamp(1rem,3vw,1.6rem));
+  border-radius:0 12px 12px 0;
+  background:transparent;filter:drop-shadow(0 0 26px rgba(255,45,120,.36));
+  color:var(--nx-ink);font-family:var(--sans)}
+#astroHailCard::before{content:"";position:absolute;inset:0;z-index:-1;
+  border-radius:0 12px 12px 0;
+  background:
+    repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0 1px,transparent 1px 3px),
+    radial-gradient(120% 90% at 30% 0%,rgba(255,45,120,.15),transparent 70%),
+    rgba(8,2,7,.96);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+/* the rail runs the alert rotation — pink, amber, pink — rather than the
+   green one, so the panel is identifiable from the corner of the eye */
+#astroHailCard::after{content:"";position:absolute;left:0;top:0;bottom:0;
+  width:var(--lc-rail);z-index:-1;
+  border-radius:var(--lc-rail) 0 0 var(--lc-rail);
+  background:
+    repeating-linear-gradient(180deg,
+      transparent 0 calc(38px - var(--lc-gap)),rgba(8,2,7,.96) calc(38px - var(--lc-gap)) 38px),
+    linear-gradient(180deg,var(--nx-hot) 0 34%,var(--lc-amber) 34% 46%,
+      var(--nx-hot) 46% 78%,var(--lc-amber) 78% 88%,var(--nx-hot) 88%)}
+/* the header is the flashing part, and it is the same flash the decloak
+   warning uses — two steps a beat, not a fade — so the hail reads as the same
+   event escalating rather than as a different piece of furniture */
+#astroHailCard .ah-t{font-family:var(--nx-mono);font-size:clamp(10px,2.2vw,12px);letter-spacing:.34em;
+  text-transform:uppercase;color:var(--nx-hot);font-weight:600;text-align:right;
+  padding-right:.9rem;text-shadow:0 0 18px rgba(255,45,120,.95);
+  animation:bossWarn .62s steps(2,end) infinite}
+#astroHailCard .ah-t::before{content:"\26a0  "}
+#astroHailCard .ah-s{position:relative;margin:.5rem 0 1.4rem;padding:0 .9rem .95rem 0;
+  text-align:right;font-family:var(--nx-mono);font-size:clamp(9px,1.9vw,11px);
+  letter-spacing:.22em;text-transform:uppercase;color:var(--nx-mute)}
+#astroHailCard .ah-s b{color:var(--lc-violet);font-weight:600}
+#astroHailCard .ah-s::after{content:"";position:absolute;left:0;right:0;bottom:0;height:7px;
+  border-radius:0 7px 7px 0;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 26px,rgba(8,2,7,.96) 26px 31px) 0 0/140px 100% no-repeat,
+    linear-gradient(90deg,var(--lc-amber) 0 42px,var(--nx-hot) 42px)}
+.ah-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;margin-bottom:1.3rem}
+.ah-opt{display:flex;flex-direction:column;gap:.4rem;min-height:210px;
+  text-align:left;padding:clamp(.7rem,2.4vw,.95rem) clamp(.65rem,2.2vw,.9rem);cursor:pointer;
+  padding-left:clamp(.9rem,2.6vw,1.15rem);
+  position:relative;isolation:isolate;border:0;border-radius:0 14px 14px 0;
+  color:var(--nx-ink);font-family:var(--sans);
+  transition:background .2s var(--ez),filter .2s var(--ez),transform .12s var(--ez)}
+.ah-opt::before{content:"";position:absolute;inset:1px 1px 1px 5px;border-radius:0 13px 13px 0;z-index:-1;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0 1px,transparent 1px 3px),rgba(12,5,12,.95)}
+.ah-opt.is-fight{background:rgba(255,45,120,.42)}
+.ah-opt.is-flee{background:rgba(0,240,255,.38)}
+.ah-opt.is-fight:hover,.ah-opt.is-fight:focus-visible{background:var(--nx-hot);outline:none;
+  transform:translateY(-2px);filter:drop-shadow(0 0 18px rgba(255,45,120,.7))}
+.ah-opt.is-flee:hover,.ah-opt.is-flee:focus-visible{background:var(--nx-cyan);outline:none;
+  transform:translateY(-2px);filter:drop-shadow(0 0 18px rgba(0,240,255,.6))}
+.ah-opt.is-fight:hover::before,.ah-opt.is-fight:focus-visible::before{
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0 1px,transparent 1px 3px),
+    linear-gradient(rgba(255,45,120,.16),rgba(255,45,120,.16)),rgba(12,5,12,.95)}
+.ah-opt.is-flee:hover::before,.ah-opt.is-flee:focus-visible::before{
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0 1px,transparent 1px 3px),
+    linear-gradient(rgba(0,240,255,.14),rgba(0,240,255,.14)),rgba(12,5,12,.95)}
+.ah-opt:active{transform:translateY(0)}
+.ah-opt .ah-l{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;
+  font-family:var(--nx-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+.ah-opt .ah-l em{font-style:normal}
+.ah-opt.is-fight .ah-l em{color:var(--nx-hot)}
+.ah-opt.is-flee  .ah-l em{color:var(--nx-cyan)}
+.ah-opt .ah-l b{font-weight:600;color:var(--nx-mute);white-space:nowrap}
+.ah-opt .ah-n{font-size:clamp(11px,2.2vw,var(--t-lab));font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;line-height:1.4}
+.ah-opt .ah-w{font-size:clamp(10px,1.85vw,11.5px);line-height:1.5;letter-spacing:.005em;
+  text-transform:none;color:rgba(232,235,255,.82)}
+.ah-opt .ah-d{display:grid;gap:.2rem;align-content:start;margin-top:auto;padding-top:.5rem;
+  font-family:var(--nx-mono);font-size:clamp(9px,1.6vw,10.5px);line-height:1.45;
+  letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.ah-opt.is-fight .ah-d{border-top:1px solid rgba(255,45,120,.28);color:var(--lc-amber)}
+.ah-opt.is-flee  .ah-d{border-top:1px solid rgba(0,240,255,.24);color:var(--nx-cyan)}
+#astroHailCard .ah-h{font-family:var(--nx-mono);font-size:clamp(9px,1.5vw,11px);letter-spacing:.22em;
+  text-transform:uppercase;color:var(--nx-mute);text-align:center}
+#astroHailCard .ah-h kbd{font:inherit;color:var(--nx-hot);letter-spacing:.16em}
+@media (max-width:620px){
+  .ah-grid{grid-template-columns:1fr;gap:.5rem;margin-bottom:1rem}
+  .ah-opt{min-height:0}
+  .ah-opt .ah-l b{display:none}
+}
+html.coarse #astroHailCard .ah-h{display:none}
+/* the flash is information — an alert is on — so with reduced motion it
+   resolves to the lit state rather than being switched off */
+@media (prefers-reduced-motion:reduce){
+  #astroHailCard .ah-t{animation:none}
+}
+
 /* ── Paused (tab left, window blurred) ────────────────────────────────────── */
 #astroPause{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;
   background:rgba(6,6,18,.62);cursor:pointer}
