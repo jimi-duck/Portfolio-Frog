@@ -60,7 +60,7 @@
   /* The metadata strip and the counters (section index, case-study number)
      sit one step above the label size. They were the smallest type on the
      page and the first thing to become unreadable on a phone. Word labels
-     (.cap-c h4, .ctab .k, .proc-k) stay at --t-lab: they read as words. */
+     (.ctab .k, .proc-k) stay at --t-lab: they read as words. */
   --t-meta:clamp(.84rem,1vw,.9rem);
   /* One tracking value for every uppercase micro-label on the site. The old
      system ran four (.14/.16/.17/.19em) at four different sizes; a single
@@ -542,17 +542,6 @@ body.menu-on{overflow:hidden}
 .about-body{font-size:var(--t-body);line-height:1.62;color:var(--ink-2);max-width:60ch}
 .about-body p+p{margin-top:1.1em}
 
-/* capability table (mirrors the CV). No column rules: the four headings and the
-   gutter already separate the columns, and the verticals ran the full height of
-   the tallest one — so they hung past the shorter columns into open space. The
-   single ink rule above the headings is what holds the block together. */
-.caps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;
-  border-top:1px solid var(--ink);margin-top:clamp(2.2rem,4vw,3.6rem)}
-.cap-c{padding:1.1rem var(--gap) 1.4rem 0}
-.cap-c h4{font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;font-weight:700;margin-bottom:1rem}
-.cap-c li{list-style:none;font-size:var(--t-small);color:var(--ink-2);padding:.34rem 0;border-bottom:1px solid var(--rule-2)}
-.cap-c li:last-child{border-bottom:0}
-
 /* ── 14. PROCESS ─────────────────────────────────────────────────────────── */
 /* An index, not a rail. Key, title and description share a row and between
    them use the whole measure. The previous version ran a big numeral down a
@@ -564,7 +553,7 @@ body.menu-on{overflow:hidden}
   padding-block:clamp(1.3rem,2.6vw,2.3rem);border-bottom:1px solid var(--rule)}
 /* Where / How / When, not 01–03. Numerals promised a sequence the work doesn't
    follow; these are three questions, and the section answers them in order.
-   Same label type as .cap-c h4 and .ctab .k, so the column reads as a key.
+   Same label type as .ctab .k, so the column reads as a key.
    Muted at rest: three accented labels would share one viewport and the page
    allows one — the row takes the accent on hover, one at a time. */
 /* Each row is its own grid, so an `auto` key column resolves per row: the
@@ -963,8 +952,6 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 
 /* ── 20. RESPONSIVE ──────────────────────────────────────────────────────── */
 @media (max-width:1080px){
-  .caps{grid-template-columns:repeat(2,1fr)}
-  .cap-c:nth-child(1),.cap-c:nth-child(2){border-bottom:1px solid var(--rule-2);margin-bottom:1rem}
   .cli{grid-template-columns:repeat(3,1fr)}
   .f-grid{grid-template-columns:repeat(2,1fr);row-gap:2rem}
 }
@@ -1036,9 +1023,6 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .cli{grid-template-columns:repeat(2,1fr)}
   .f-grid{grid-template-columns:1fr}
   .cols-4,.phones-pair{grid-template-columns:1fr}
-  .caps{grid-template-columns:1fr}
-  .cap-c{border-bottom:1px solid var(--rule-2);padding-right:0;margin-bottom:1rem}
-  .cap-c:last-child{border-bottom:0;margin-bottom:0}
   /* the numeral stops being a rail and becomes a marker above the step */
 }
 

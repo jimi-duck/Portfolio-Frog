@@ -91,9 +91,9 @@ Identical across all seven pages. Change it here and it changes everywhere.
 | ID | Field | Copy |
 |---|---|---|
 | `meta.title` | Page title | James Ciclitira · Product Designer, Berlin |
-| `meta.description` | Meta description | Senior Product Designer in Berlin. Ten years designing digital products end to end, across research, strategy and delivery, for companies working on things that matter. |
+| `meta.description` | Meta description | Senior Product Designer in Berlin. Eleven years designing digital products end to end for companies working on things that matter. |
 | `meta.og.title` | Social share title | James Ciclitira · Product Designer, Berlin |
-| `meta.og.description` | Social share description | Senior Product Designer in Berlin. Ten years designing digital products end to end, across research, strategy and delivery, for companies working on things that matter. |
+| `meta.og.description` | Social share description | Senior Product Designer in Berlin. Eleven years designing digital products end to end for companies working on things that matter. |
 
 ## Intro curtain
 
@@ -132,7 +132,7 @@ Landmark label: _How I work_
 
 | ID | Term | Definition |
 |---|---|---|
-| `disc.1` | Disciplines | UX Research · Service Design · Information Architecture · Interaction Design |
+| `disc.1` | Disciplines | UX Research · Service Design · Product Strategy · Information Architecture · Interaction Design |
 | `disc.2` | Specialties | Digital-to-Physical Integration · Operational Tooling · Automation |
 | `disc.3` | Domains | Climate Tech · Digital Health · Urban Mobility · Regulated Products |
 
@@ -204,22 +204,15 @@ Landmark label: _How I work_
 |---|---|---|
 | `about.t.1` | Based in | Berlin, Germany |
 | `about.t.2` | Working since | 2015 |
-| `about.t.3` | Currently | Open to full-time & part-time |
+| `about.t.3` | Languages | English · German (B2) |
+| `about.t.4` | Currently | Open to full-time & part-time |
 
 ### Body
 > **P1:** Most of that time has been spent in complex domains: digital health, sustainable investing, urban mobility, and now home energy. The common thread is products people depend on to do something that matters to them, increasingly at companies working on environmental impact.
 
-> **P2:** Research comes first. It's far cheaper to learn before you build than after you launch. Time with real users usually reveals the right direction; the job is to ask the right questions, reduce complexity, and turn insight into products that are clear and usable.
+> **P2:** Research comes first. It’s far cheaper to learn before you build than after you launch. Time with real users usually reveals the right direction; the job is to ask the right questions, reduce complexity, and turn insight into products that are clear and usable.
 
 > **P3:** My experience ranges from being the sole designer in an early-stage startup to working inside large cross-functional teams, leading projects from research through to delivery.
-
-### Capability columns
-| Strategy | Execution | Languages |
-|---|---|---|
-| Product strategy | UX research | English (native) |
-| Service design | Interaction design | German (B2, working proficiency) |
-| Customer journeys | Prototyping | |
-| Design systems | Design QA | |
 
 ## The process
 
@@ -292,7 +285,7 @@ keep it on the closing phrase.
 |---|---|
 | `hero.eyebrow` | Climate Tech · Field Operations · Customer Journey |
 | `hero.title` | _Enter_ |
-| `hero.intro` | A climate-tech startup helping German homeowners plan energy-efficient renovations. I designed the advisor tool used in the field and the customer journey, from the first on-site visit to the official retrofit report. |
+| `hero.intro` | A climate-tech startup helping German homeowners plan energy-efficient renovations. I designed the advisor’s field tool and the customer journey, from the first on-site visit to the official retrofit report. |
 | `hero.alt` | An Enter energy advisor tracing a building’s footprint on a tablet during an on-site survey |
 
 | Role | Company | Products |
@@ -311,21 +304,21 @@ keep it on the closing phrase.
 > Billions in renovation funding.
 > The data to unlock it _didn’t yet exist._
 
-> **P1:** Enter helps German homeowners navigate energy-efficient renovations, from insulation and heat pumps to new windows and the government funding that can cover much of the cost. Through the **Bundesförderung für effiziente Gebäude** (BEG), homeowners can receive subsidies of up to 70% for certain measures. To qualify, they need an Individual Renovation Roadmap (iSFP) prepared by a certified energy advisor following an on-site assessment.
-> That visit is the foundation of everything that follows: the energy model, the retrofit recommendations it generates, and the official report homeowners need to claim funding.
+> **P1:** Enter helps German homeowners plan energy-efficient renovations: insulation, heat pumps, new windows, and the government funding that covers much of the cost. The **Bundesförderung für effiziente Gebäude** (BEG) pays up to 70% on certain measures. To qualify, a homeowner needs an Individual Renovation Roadmap (iSFP), prepared by a certified energy advisor after an on-site assessment.
+> That visit is the foundation of everything after it: the energy model, the recommendations it produces, and the report needed to claim the funding.
 
-> **P2:** When I joined, advisors relied on paper forms, handwritten notes, and fragmented workflows. Data was inconsistent, difficult to digitise, and unsuitable for a scalable AI pipeline. There was no dedicated product for advisors collecting information in the field, or for homeowners trying to understand their renovation options and next steps.
-> I led the design of both experiences: a tablet-first field app that guides energy advisors through on-site assessments, and a digital customer report that helps homeowners understand recommendations, compare renovation scenarios, and move confidently toward funding and implementation.
+> **P2:** When I joined, advisors worked from paper forms and handwritten notes. The data was inconsistent, hard to digitise and unfit for an AI pipeline. Nothing existed for advisors collecting information in the field, or for homeowners trying to understand their options.
+> I led the design of both: a tablet-first field app that guides advisors through the on-site assessment, and a digital customer report that helps homeowners compare renovation scenarios and decide what to do next.
 
 ## Understanding the work
 
 > Two hours in the house.
 > A week to the _answer._
 
-> **P1:** I rode along on appointments: several assessments start to finish, following advisors from the meter cupboard to the loft, watching what they measured, what they wrote down, and what they left until later. Then I followed the same data backwards: sitting with the team who turned those notes into an energy model, and listening to the calls where the results were finally presented to the homeowner.
+> **P1:** I rode along on several assessments, start to finish, from the meter cupboard to the loft: what advisors measured, what they wrote down, what they left until later. Then I followed the data backwards, sitting with the team who turned those notes into an energy model and listening to the calls where the homeowner finally heard the results.
 
 > **P2:** The visit took around two hours in the house. The model took days at a desk. The homeowner heard the outcome on a phone call a week later, long after the advisor had left their kitchen.
-> Three stages, three teams, and a handover at every seam. Each seam was somewhere data could go missing or interest could cool, and none of them were visible from a desk in Berlin.
+> Three stages, three teams, a handover at every seam. Every seam was somewhere data could go missing or interest could cool, and none of it was visible from a desk in Berlin.
 
 | Caption | Alt text |
 |---|---|
@@ -344,7 +337,7 @@ keep it on the closing phrase.
 > The first was the footprint itself. Could an advisor work from a plan they hadn’t drawn? Was the registered geometry actually right? Did starting from it save time? I expected this to hold, but it was the expensive thing to build, which made it the thing worth proving first.
 > The second was speculative. Rather than specifying every window one by one, the advisor defined three or four window _types_ by year, frame material and glazing, then tagged positions on the plan by colour. Far less manual effort, but a complete rethink of how the survey worked, and I had no idea whether what came back would still be good enough for the modelling team.
 
-> **P3:** Every completed sheet went to two audiences: the advisors who had to work this way in someone’s attic, and the modelling team who had to build an energy model out of whatever came back. A version that satisfied one and failed the other wasn’t worth building, which is the entire reason both were in the room for each round.
+> **P3:** Every completed sheet went to two audiences: the advisors who had to work this way in someone’s attic, and the modelling team who had to build an energy model out of whatever came back. A version that satisfied one and failed the other wasn’t worth building, which is why both were in the room for every round.
 
 | ID | Copy |
 |---|---|
@@ -375,13 +368,13 @@ keep it on the closing phrase.
 |---|---|
 | Field Visit | Advisor conducts the assessment on site using a tablet |
 | Building Survey | Rooms, floors, construction materials, windows, heating systems and a detailed floor plan are captured |
-| AI Processing | The assessment data is analysed to generate the building’s energy model and recommended retrofit measures |
+| AI Processing | Assessment data becomes the building’s energy model and its recommended measures |
 | Customer Report | The advisor reviews the results with the homeowner: assessment, recommended measures, expected savings and available subsidies |
-| Final iSFP | The agreed measures are compiled into the official Individual Renovation Roadmap, ready to support government funding applications |
+| Final iSFP | Agreed measures are compiled into the official Individual Renovation Roadmap, ready for the funding application |
 
 > **Sub-heading:** Fast processing. The advisor still _decides._
 
-> **P1:** Processing was quick enough that there was no waiting state to design. The real question was what the advisor could do with the numbers coming back. Chief among them is the U-value: how much heat escapes through a square metre of wall, roof or window. The lower the figure, the better insulated the element, and the whole energy model rests on it.
+> **P1:** Processing was quick enough that there was no waiting state to design. The question was what the advisor could do with the numbers coming back. Chief among them is the U-value: how much heat escapes through a square metre of wall, roof or window. The lower the figure, the better insulated the element, and the whole model rests on it.
 
 > **P2:** So rather than returning U-values at the end, we calculated them live and showed them updating as construction details were entered. Every value stayed editable. An advisor standing in front of an opened-up wall could override the calculated figure with their own, and the model took their number instead. The AI set the default. The person in the building had the last word.
 
@@ -392,9 +385,9 @@ keep it on the closing phrase.
 > Everything the advisor needs
 > before they _knock on the door._
 
-> **P1:** The appointment screen was the starting point for every property visit. Before tapping “Start appointment”, advisors could review the homeowner’s details, view the property on a map, check the estimated building size, and quickly call the client or open navigation. The iSFP assessment remained intentionally locked. Starting the appointment marked the beginning of the official assessment and unlocked the data collection flow.
+> **P1:** The appointment screen was the starting point for every visit. Before tapping “Start appointment”, advisors could check the homeowner’s details, see the property on a map and its estimated size, call the client or open navigation. The assessment itself stayed locked: starting the appointment marked the official beginning and opened the data collection flow.
 
-> **P2:** Once the assessment data had been uploaded, the same screen reflected the appointment’s completion and unlocked the customer report. It could only be generated after every required section of the survey had been completed and submitted, so every recommendation rested on a complete, validated dataset.
+> **P2:** Once the data was uploaded, the same screen showed the appointment complete and unlocked the customer report. The report could only be generated once every required section had been submitted, so every recommendation rested on a complete survey.
 
 | Caption | Alt text |
 |---|---|
@@ -406,7 +399,7 @@ keep it on the closing phrase.
 > Every house is different.
 > Every detail _matters._
 
-> **P1:** The field tool was structured around the iSFP format: house data, systems, floors and rooms, and construction. Advisors navigated between tabs, drilling into each floor and room in turn. Nothing was free-text where it could be structured: dropdowns, toggles, and preconfigured options kept data clean and consistent for the AI model downstream.
+> **P1:** The field tool was structured around the iSFP format: house data, systems, floors and rooms, and construction. Advisors navigated between tabs, drilling into each floor and room in turn. Nothing was free text where it could be structured: dropdowns, toggles and preset options kept the data clean for the model downstream.
 
 > **P2:** Each section followed the same pattern: enter data, take photos if relevant, move on. The advisor always knew where they were in the survey and exactly what was left. On a 186m² detached house, that mattered.
 
@@ -427,11 +420,11 @@ keep it on the closing phrase.
 > Window-level accuracy.
 > Built into the _floor plan._
 
-> **P1:** Windows are one of the most consequential variables in an energy model, and the paper trials had already settled the shape of the answer: place each opening on the plan, but pull its specification from a handful of pre-defined types rather than re-entering it every time. Their position, dimensions, and glazing spec all affect the U-value of the surrounding wall, which directly influences which retrofit measures make financial sense and which don’t. Getting this wrong skews the whole recommendation downstream.
+> **P1:** Windows are one of the most consequential variables in an energy model, and the paper trials had already settled the shape of the answer: place each opening on the plan, but pull its specification from a handful of pre-defined types. Position, dimensions and glazing all affect the U-value of the surrounding wall, which decides which retrofit measures make financial sense. Get it wrong and the whole recommendation skews.
 
-> **P2:** The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors place each window directly on the plan, dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields. Across a full survey, that took around 25% off the time spent on site: enough for an advisor to fit an extra appointment into the day.
+> **P2:** The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors place each window directly on the plan, dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields. Across a survey that took around 25% off the time on site, enough for one more appointment a day.
 
-> **P3:** The building footprint also served a second purpose: advisors could flag discrepancies between the registered data and what they observed on site, feeding corrections back into the dataset for future visits. Over time, the pre-populated data became more reliable, and surveys arrived at the desk far more complete: data completeness rose from 80% to 95%.
+> **P3:** The footprint served a second purpose: advisors could flag differences between the registered data and what they saw on site, feeding corrections back for future visits. The pre-populated data got more reliable, and surveys arrived at the desk far more complete, with completeness rising from 80% to 95%.
 
 | Caption | Alt text |
 |---|---|
@@ -444,7 +437,7 @@ keep it on the closing phrase.
 
 > **P1:** Once the field survey was submitted, the AI processed the assessment data and generated a draft report within seconds. Rather than returning for a second visit, the advisor stayed with the homeowner and used the report immediately to review the findings together.
 
-> **P2:** I designed this part of the product from the ground up: a structured digital report that guided the conversation and helped the homeowner choose between the available retrofit options. Together they confirmed which measures went into the final Individual Renovation Roadmap (iSFP), the document behind the funding application.
+> **P2:** I designed this part of the product from scratch: a structured report that guided the conversation and helped the homeowner choose between the options. Together they confirmed which measures went into the final iSFP, the document behind the funding application.
 
 ### Report contents
 | # | Title | Description |
@@ -518,7 +511,7 @@ keep it on the closing phrase.
 |---|---|
 | `hero.eyebrow` | Mobility · Consumer UX · Field Operations |
 | `hero.title` | Coup _Mobility_ |
-| `hero.intro` | A Bosch-owned e-moped fleet operating across three European cities. I led the redesign of the rider app and designed new fleet management tools, including a dispatcher dashboard and worker app, to support the daily operations behind 5,000 scooters on the road. |
+| `hero.intro` | A Bosch-owned e-moped fleet across three European cities. I led the redesign of the rider app and designed the tools behind it: a dispatcher dashboard and a field worker app for the operation keeping 5,000 scooters on the road. |
 | `hero.alt` | Two riders on Coup’s red shared e-mopeds waiting at a Berlin intersection |
 
 | Role | Markets | Products |
@@ -538,10 +531,10 @@ keep it on the closing phrase.
 > An app that kept _letting them down._
 
 > **P1:** Coup was ahead of its time: fully electric, free-floating mopeds across Berlin, Paris and Madrid, before the category had really taken shape. Backed by Bosch and growing quickly, the service had real momentum. But the app was the weak link.
-> It had been built for speed: get the fleet live, prove the concept. And it showed. Riders were left without the information they needed at the points they needed it, and the service broke down in exactly the places a service has to hold. The first job was to rebuild every interaction around the ride itself, from finding a scooter to ending a trip.
+> It had been built for speed: get the fleet live, prove the concept. And it showed. Riders were missing the information they needed at the moments they needed it, and the service broke down in the places a service has to hold. The first job was to rebuild every interaction around the ride itself, from finding a scooter to ending a trip.
 
-> **P2:** The second challenge was behind the scenes. Coup’s field operations ran on WhatsApp groups and spreadsheets, with no reliable way to assign work, track maintenance or report issues. Every scooter unavailable for longer than necessary meant lost revenue, multiplied across thousands of vehicles and three cities.
-> There was no dedicated system supporting this operational layer. The opportunity was to design one from the ground up. The dispatcher dashboard and field worker app started with understanding the reality of the work: people maintaining vehicles on the street, in all weather conditions, with limited time and constant pressure to keep the fleet moving.
+> **P2:** The second challenge was behind the scenes. Coup’s field operations ran on WhatsApp groups and spreadsheets, with no reliable way to assign work, track maintenance or report issues. Every scooter off the road longer than necessary was lost revenue, multiplied across thousands of vehicles and three cities.
+> Nothing supported that layer, so we designed it. The dispatcher dashboard and field worker app started with the reality of the work: people fixing vehicles on the street, in all weathers, with little time and constant pressure to keep the fleet moving.
 
 ## 01 · The consumer ride app
 
@@ -550,11 +543,11 @@ keep it on the closing phrase.
 
 > **P1:** On paper the old app worked: riders could find a scooter, unlock it and end a ride. In practice it failed them. The information a rider needed in order to decide was missing at the moment they needed it, and the app rarely said what was happening or what to do next. Cancellations and support tickets were the symptoms. The cause was a service that had never been designed as one.
 
-> **P2:** So we did not reskin it. We rebuilt the journey against the basics: does the rider always know what state they are in, what happens next, and what to do when something goes wrong? Interviews across all three cities kept returning the same word: confidence. Riders wanted to know they had picked the right scooter, to understand what the service was doing on their behalf, and to stay in control from start to finish.
+> **P2:** So we did not reskin it. We rebuilt the journey against the basics: does the rider always know what state they are in, what happens next, and what to do when something goes wrong? Interviews across all three cities kept returning the same word: confidence. Riders wanted to know they had picked the right scooter, to see what the service was doing on their behalf, and to stay in control from start to finish.
 
 > **P3:** We rebuilt every step of the ride: discovery and maps, scooter selection, reservations, pre-ride checks, the ride itself and trip completion. The work was in what the app said and when it said it: which information belonged at each moment, how prompts were timed, and whether a rider could always answer the question “what now?”
 
-> **P4:** Reliability was the other half of the failure. Bluetooth connections between the app and the scooter could drop and unlock attempts could break down, and when they did the app left riders guessing. Experienced users had learned the quirks; new riders were simply stuck. We mapped every moment that caused hesitation, confusion or failure, then rebuilt those flows around clear guidance, honest error states and the fastest route back to moving.
+> **P4:** Reliability was the other half of the failure. Bluetooth dropped, unlocks failed, and when they did the app left riders guessing. Experienced users had learned the quirks; new riders were simply stuck. We mapped every moment that caused hesitation or failure, then rebuilt those flows around clear guidance, honest error states and the fastest route back to moving.
 
 > **P5:** Rebuilding the flow also turned the rider app into a source of operational insight. Rather than relying on riders to report problems, we captured the signal at the moment a problem occurred. A three-tap cancellation flow told the operations team more than a dedicated reporting feature would have, because it matched what riders already did.
 
@@ -571,11 +564,11 @@ keep it on the closing phrase.
 > One in eight rides was
 > cancelled. Nobody knew _why._
 
-> **P1:** Around one in eight rides was cancelled before the engine even started. It was costly, and worse, impossible to improve: the reasons behind cancellations were invisible. Was the scooter damaged? Was the battery too low? Had the rider selected the wrong vehicle? Was a required item missing? Without reliable data, every improvement was based on assumptions.
+> **P1:** Around one in eight rides was cancelled before the engine started. Costly, and worse, impossible to fix: the reasons were invisible. Damaged scooter? Battery too low? Wrong vehicle? Missing helmet? Without data, every improvement was a guess.
 
-> **P2:** We added a lightweight feedback step directly into the cancellation flow: a small set of predefined reasons that riders could select in a single tap before leaving. The experience stayed quick for the rider while creating a structured, timestamped source of operational insight.
+> **P2:** We added one step to the cancellation flow: a short list of reasons, one tap, then out. Quick for the rider, and a structured, timestamped record for the ops team.
 
-> **P3:** For the first time the team could see why rides were failing, and target the issues causing the most friction instead of guessing at them across thousands of scooters.
+> **P3:** For the first time the team could see why rides were failing and fix the biggest causes, rather than guess across thousands of scooters.
 
 | Caption | Alt text |
 |---|---|
@@ -587,7 +580,7 @@ keep it on the closing phrase.
 > _before building anything._
 
 > **P1:** The idea on the table: let engaged riders earn credits by swapping flat batteries themselves, cutting ops costs and reliance on field workers. The appeal was obvious, but validating it properly would have meant building charging infrastructure that didn’t yet exist. An expensive bet to place on a hunch.
-> Instead we designed a lightweight in-app pilot: small, targeted changes to the existing flow that let us watch how real riders behaved. It produced useful data quickly and cheaply, and gave the business what it needed to decide whether the infrastructure was worth committing to. Design used to answer a question, not to ship a feature.
+> Instead we ran a small in-app pilot: targeted changes to the existing flow that let us watch what riders actually did. Cheap, quick, and enough for the business to decide whether the infrastructure was worth building. Design used to answer a question, not to ship a feature.
 
 | Caption | Alt text |
 |---|---|
@@ -598,18 +591,18 @@ keep it on the closing phrase.
 > Nothing existed.
 > We built the _whole thing._
 
-> **P1:** Before this existed, ground operations ran on WhatsApp, spreadsheets, and memory. Assignments came through group chats. Maintenance was logged inconsistently, if it was logged at all. Dispatchers had no live view of the fleet, field workers had no reliable way to receive and complete jobs, and there was no central record of what had been done across thousands of scooters.
-> Every gap had a cost. A scooter with an unresolved fault stayed offline. A field worker without clear priorities wasted time. A dispatcher without accurate information had to make decisions based on assumptions rather than data.
+> **P1:** Ground operations ran on WhatsApp, spreadsheets and memory. Assignments came through group chats. Maintenance was logged inconsistently, if at all. Dispatchers had no live view of the fleet, field workers had no reliable way to receive jobs, and nothing recorded what had been done across thousands of scooters.
+> Every gap cost money. A scooter with an unresolved fault stayed offline. A field worker without priorities wasted time. A dispatcher without accurate information decided on assumptions.
 
-> **P2:** There was no detailed brief, just a blank page. We started by understanding the reality of the work: riding along with field workers, observing dispatchers, and mapping the informal systems teams had created to keep the fleet running.
-> Two distinct needs emerged. Dispatchers needed visibility and control over the entire fleet. Field workers needed clear instructions and a simple way to complete tasks while working on the street. That became two connected products: a web-based fleet management dashboard for dispatchers and a mobile-first app for field workers.
+> **P2:** There was no brief, just a blank page. We started with the work itself: riding along with field workers, sitting with dispatchers, mapping the informal systems teams had built to keep the fleet running.
+> Two needs emerged. Dispatchers needed visibility and control over the whole fleet. Field workers needed clear instructions and a fast way to close jobs on the street. That became two connected products: a fleet dashboard on the web and a mobile-first app for the field.
 
 ### Platform capabilities
 | Title | Body |
 |---|---|
-| Fleet status at a glance | A live view of every scooter in the fleet, showing availability, issues, and maintenance status. Dispatchers could understand the health of the operation without relying on manual updates. |
-| Structured maintenance logging | Field workers received clear assignments, completed tasks through guided workflows, and recorded outcomes in a consistent format. Every action created a traceable operational history. |
-| Assignment management | Dispatchers could create, assign, and reprioritise tasks based on fleet conditions. Field workers received jobs directly on their phones, replacing calls and WhatsApp chains with a clear, reliable workflow. |
+| Fleet status at a glance | A live view of every scooter: availability, open issues, maintenance status. Dispatchers could read the health of the operation without chasing manual updates. |
+| Structured maintenance logging | Workers received clear assignments, worked through guided steps and recorded outcomes in a consistent format. Every action left a traceable history. |
+| Assignment management | Dispatchers created, assigned and reprioritised tasks as conditions changed. Jobs arrived on the worker’s phone, replacing calls and WhatsApp chains. |
 
 | Caption | Alt text |
 |---|---|
@@ -660,7 +653,7 @@ keep it on the closing phrase.
 |---|---|
 | `hero.eyebrow` | Climate Fintech · Lead Design · Full Launch |
 | `hero.title` | Cooler _Future_ |
-| `hero.intro` | Sustainable investing was crowded with greenwashing and confusing financial jargon. Cooler Future set out to build a more transparent alternative. I led design from day one, shaping the research, product experience, website and launch. |
+| `hero.intro` | Sustainable investing was crowded with greenwashing and jargon. Cooler Future set out to build a more transparent alternative. I led design from day one: research, product, website and launch. |
 | `hero.alt` | Cooler Future key visual: an aerial view of a turquoise glacial lake, captioned "The footprint of money: reshaping sustainable investing" |
 
 | Role | Stage | Products |
@@ -678,20 +671,20 @@ keep it on the closing phrase.
 
 > Green investing had a _credibility problem._
 
-> **P1:** It is easy to label a fund as sustainable. It is much harder to stand behind that claim when someone looks closer. Many products relied on financial jargon and vague impact statements that were difficult for people to verify.
-> Cooler Future took the opposite approach, making transparency the foundation of the product. The goal was to show people exactly what was in their portfolio, what was excluded, how sustainability credentials were verified, and what their money was actually supporting, including the complexity and trade-offs behind those decisions.
+> **P1:** It is easy to label a fund sustainable. It is much harder to stand behind that label when someone looks closer. Most products leaned on jargon and vague impact claims nobody could check.
+> Cooler Future built the product around transparency instead: what is in the portfolio, what is excluded, how the credentials were verified, and what the money actually supports, trade-offs included.
 
-> **P2:** I joined before anything had been designed. The scope covered the mobile app, marketing website, and the design system connecting both experiences. The first challenge was understanding who we were building for, what they needed to trust the product, and what information would help them make confident investment decisions.
-> Research came first, and it shaped everything that followed.
+> **P2:** I joined before anything had been designed. The scope was the mobile app, the marketing site and the design system holding both together. The first question was who we were building for and what they needed in order to trust it.
+> Research came first, and it shaped everything after.
 
 ## Research
 
 > Two very different users,
 > looking at the _same screen._
 
-> **P1:** Interviews, diary studies and card sorting across both segments revealed something the original brief had overlooked: this was not one audience with one set of needs. It was two groups approaching the same product with completely different questions.
+> **P1:** Interviews, diary studies and card sorting turned up something the brief had missed: this was not one audience. It was two groups arriving at the same product with different questions.
 
-> **P2:** Understanding what each group already knew, what they doubted, and what would build or break trust became the foundation for the product strategy. Research did more than inform the interface; it changed how the product itself needed to communicate.
+> **P2:** What each group knew, doubted, and needed in order to trust us became the basis of the strategy. Research did not just shape the interface; it changed how the product had to talk.
 
 **First-time investors — Curious but overwhelmed**
 > Interested in making better choices, but unsure where to start. They arrived with questions like _“Is this actually better than leaving my money in the bank?”_ The product needed to answer that through the experience itself, rather than relying on separate education pages.
@@ -705,11 +698,11 @@ keep it on the closing phrase.
 > account is legally complex.
 > _It doesn’t have to feel that way._
 
-> **P1:** New users had to open a German depot account as part of sign-up, including identity verification, tax information, KYC checks, and regulatory disclosures. These steps were mandatory. The challenge was making them feel like the minimum necessary effort, not a barrier to getting started.
+> **P1:** Signing up meant opening a German depot account: identity verification, tax details, KYC and regulatory disclosures. All of it mandatory. The job was to make it feel like the minimum, not a wall.
 
 > **P2:** Anything that could be postponed was postponed, and anything not legally required was removed. Every step was introduced with clear context, users knew what information they needed before reaching it, and progress remained visible throughout.
 
-> **P3:** After registration, users moved straight into fund selection, choosing themes aligned with their values before committing any money: Smart Energy, Clean Water, Circular Economy, and Forestry & Timber. The investment journey started with personal conviction, not financial complexity.
+> **P3:** After registration, users went straight to the themes: Smart Energy, Clean Water, Circular Economy, Forestry & Timber. Choosing what to back came before committing any money.
 
 | Caption | Alt text |
 |---|---|
@@ -723,9 +716,9 @@ keep it on the closing phrase.
 > at a glance. Deep enough
 > _to explore._
 
-> **P1:** The portfolio screen became the product’s home, the place users returned to most often. Its first job was simple: show how an investment was performing. Its second was more important: connect that performance to the environmental impact behind it, with transparency rather than marketing.
+> **P1:** The portfolio screen became the product’s home, the place users returned to most often. Its first job was simple: show how an investment was performing. Its second was more important: connect that performance to the environmental impact behind it, with evidence rather than marketing.
 
-> **P2:** For first-time investors, the portfolio made sustainable investing feel tangible by showing both financial returns and measurable impact in one place. For experienced investors, it provided the evidence they expected: fund performance, sector allocation, exclusion criteria, and clear explanations of how each fund’s sustainability credentials were assessed.
+> **P2:** For first-time investors, it put returns and measurable impact in one place. For experienced ones, it carried the evidence they expected: performance, sector allocation, exclusion criteria, and how each fund’s credentials were assessed.
 
 > **P3:** Every layer of the experience was designed to answer the same question: why should I trust this investment?
 
@@ -739,11 +732,11 @@ keep it on the closing phrase.
 > Designing for honesty,
 > _not certainty._
 
-> **P1:** Communicating the environmental impact of an investment was the hardest design challenge on the product. Regulators, data providers and sustainability frameworks all measured impact differently, making it difficult to present information that was both meaningful and defensible.
+> **P1:** Communicating the environmental impact of an investment was the hardest problem on the product. Regulators, data providers and frameworks all measured impact differently, which made it hard to say anything both meaningful and defensible.
 
-> **P2:** The link between a €500 investment and a real-world outcome is rarely direct. Capital moves through funds, asset managers and underlying holdings, making precise attribution almost impossible. Rather than oversimplifying that complexity, I explored several approaches, including goal-based impact summaries, supported project feeds, and carbon dashboards with real-world comparisons.
+> **P2:** The link between a €500 investment and a real-world outcome is rarely direct. Capital moves through funds, asset managers and underlying holdings, making precise attribution almost impossible. Rather than flatten that, I explored goal-based impact summaries, supported-project feeds and carbon dashboards with real-world comparisons.
 
-> **P3:** The work remained exploratory, but it established an important design principle that influenced the product: show only what the data can genuinely support, provide the context needed to interpret it, and never overstate the impact.
+> **P3:** The work stayed exploratory, but it set a principle the product kept: show only what the data supports, give the context to read it, and never overstate the impact.
 
 | Caption | Alt text |
 |---|---|
@@ -755,9 +748,9 @@ keep it on the closing phrase.
 > Trust was the barrier.
 > Understanding was _how we got past it._
 
-> **P1:** Trust was the biggest barrier for both user groups, but for very different reasons. First-time investors lacked confidence in the subject. Experienced investors lacked confidence in the industry. The Learn section was designed to meet both needs, introducing the fundamentals of sustainable investing for newcomers while providing deeper explanations of fund methodology, sustainability ratings and portfolio construction for more experienced investors.
+> **P1:** Trust was the biggest barrier for both groups, for opposite reasons. First-time investors doubted themselves. Experienced investors doubted the industry. The Learn section covered both: the fundamentals of sustainable investing for newcomers, and fund methodology, ratings and portfolio construction for everyone else.
 
-> **P2:** Content was organised into self-paced courses, with progress tracking and the ability for users to suggest topics they wanted to explore next. Rather than treating education as a marketing tool, it became part of the product experience itself, helping people understand not only where their money was invested, but why. The goal was simple: give users enough confidence to move from learning to making their first investment.
+> **P2:** Content sat in self-paced courses with progress tracking, and users could suggest what to cover next. Education was part of the product, not a marketing channel: it explained not just where the money went, but why. Enough confidence to move from reading to a first investment.
 
 | Caption | Alt text |
 |---|---|
@@ -769,8 +762,8 @@ keep it on the closing phrase.
 > Two surfaces.
 > _One world._
 
-> **P1:** Alongside the mobile app, I designed the marketing website, often the first touchpoint for potential users. It needed to establish the same sense of transparency and credibility people would later experience inside the product.
-> The visual language, messaging and trust signals were designed as a single system across both experiences. For a product built on trust, any disconnect between the website and the app would have undermined the promise before users had even opened an account. The shared design system was what held the two together, from first impression through to first investment.
+> **P1:** Alongside the app, I designed the marketing site, usually the first thing anyone saw. It had to carry the same transparency people would meet inside the product.
+> Visual language, messaging and trust signals ran as one system across both. For a product built on trust, a gap between site and app would have broken the promise before anyone opened an account.
 
 **Alt text:** Marketing site homepage: the product promise above a view of the app · Marketing site funds page: each theme with its holdings and exclusions · Marketing site about page: the team and the methodology behind the ratings · Marketing site invest page: how to open an account and what it costs
 
@@ -811,7 +804,7 @@ keep it on the closing phrase.
 |---|---|
 | `hero.eyebrow` | Digital Health · Allianz-backed |
 | `hero.title` | Vivy |
-| `hero.intro` | Your medical history, from lab results and prescriptions to X-rays and discharge letters, is often spread across hospitals, clinics and paper records. Vivy set out to bring it together in one secure, encrypted place under the patient’s control. I joined as one of the first product designers, helping shape the experience from the ground up as the product evolved into a digital health record backed by Allianz. |
+| `hero.intro` | Your medical history, from lab results and prescriptions to X-rays and discharge letters, is usually spread across hospitals, clinics and paper files. Vivy set out to bring it into one encrypted place under the patient’s control. I joined as one of the first product designers and helped shape the product from the ground up. |
 | `hero.alt` | Vivy app showing medication details, vaccination record and X-ray viewer |
 
 | Role | Backed by | Products |
@@ -831,10 +824,10 @@ keep it on the closing phrase.
 > They just don’t exist
 > _anywhere useful._
 
-> **P1:** In Germany, a patient’s medical history is often fragmented. Lab results sit with one provider, X-rays with another, prescriptions arrive on paper, and discharge letters end up in a folder at home. Sharing that information between healthcare providers still relies on phone calls, faxes and in-person requests, introducing unnecessary delays and administrative overhead.
-> Vivy set out to change that by giving patients a secure, encrypted place to store their health records, request medical documents digitally, and share them directly with healthcare professionals whenever they chose.
+> **P1:** In Germany, a patient’s medical history is scattered. Lab results with one provider, X-rays with another, prescriptions on paper, discharge letters in a folder at home. Moving any of it between providers still means phone calls, faxes and in-person requests.
+> Vivy gave patients one encrypted place to keep their records, request documents digitally, and share them with a practitioner whenever they chose.
 
-> **P2:** As one of the first product designers, my role went well beyond designing screens. We were building a new kind of product in a heavily regulated industry, so design meant establishing research practices, defining product principles, and creating a shared approach to decision-making. Every feature had to balance usability, security and trust, while staying honest about what the product could and couldn’t yet do.
+> **P2:** As one of the first designers, the role went well beyond screens. A new kind of product in a heavily regulated industry: design meant setting up research practice, defining principles and building a shared way of deciding. Every feature had to balance usability, security and trust, and stay honest about what the product could not yet do.
 
 | Caption | Alt text |
 |---|---|
@@ -878,7 +871,7 @@ keep it on the closing phrase.
 > One major feature,
 > _defined properly._
 
-> **P1:** Private healthcare in Germany carries a specific burden: patients pay out-of-pocket and file reimbursement claims with their insurer. It is a time-consuming, paper-heavy process that causes real anxiety. I travelled to Munich to run a four-day design sprint with Allianz, to understand both patient and insurer needs before building a single screen.
+> **P1:** Private healthcare in Germany puts the bill on the patient first: pay up front, then claim it back from the insurer. It is slow, paper-heavy and genuinely stressful. I went to Munich to run a four-day sprint with Allianz, to understand both sides before anyone designed a screen.
 
 | Day | Title | Description |
 |---|---|---|
@@ -897,7 +890,7 @@ keep it on the closing phrase.
 > works if doctors
 > _trust it too._
 
-> **P1:** I also designed the practitioner-facing side: a secure, direct connection that made file sharing feel professional and trustworthy for both clinician and patient. The key design challenge was building enough trust signals that a doctor would be willing to integrate it into their workflow.
+> **P1:** I also designed the practitioner side: a secure, direct connection that felt professional to clinician and patient alike. The challenge was carrying enough trust signals that a doctor would put it into their workflow.
 
 | Caption | Alt text |
 |---|---|
@@ -961,41 +954,41 @@ on screen they use an en dash (Jul 2024 – Feb 2026), in print the word “to�
 ### Enter · baupal GmbH — Senior Product Designer · Jul 2024 – Feb 2026
 > Energy advisory platform for home retrofitting.
 >
-> - **Operational Software:** Redesigned and rebuilt the advisory workflow, integrating structured data capture and 2D spatial modelling to optimise AI readability.
-> - **Consumer Product:** Owned the end-to-end homeowner experience, transforming captured data into a user-friendly report utilised by on-site advisors.
+> - **Operational Software:** Rebuilt the advisory workflow around structured data capture and 2D floor plans, so the output could feed an AI model.
+> - **Consumer Product:** Owned the homeowner experience end to end, turning survey data into a report advisors used on site.
 
 ### Cooler Future GmbH — Lead Product Designer · Jul 2021 – May 2023
 > Sustainable investing app for retail investors.
 >
 > - **Product Strategy:** Led product design from 0 to 1 launch across iOS, Android and web platforms. _(print version adds an Oxford comma: “iOS, Android, and web”)_
-> - **Product Discovery:** Defined two key target audiences through extensive user research and designed a streamlined, compliant onboarding experience tailored to them.
+> - **Product Discovery:** Defined two target audiences through user research and designed a compliant onboarding flow for both.
 
 ### Something Creative — Senior Product Designer · Feb 2021 – Jul 2021
 > Digital product agency.
 >
-> - **Discovery & Delivery:** Led product discovery and delivery phases for multiple client projects, guiding products from initial UX research to final shipped designs.
+> - **Discovery & Delivery:** Led discovery and delivery on multiple client projects, from UX research to shipped design.
 
 ### Bosch · Coup Mobility — Senior Product Designer · Mar 2019 – Dec 2020
 > Shared e-moped service operating 5,000 vehicles across Berlin, Paris and Madrid. _(print version: “Berlin, Paris, and Madrid”)_
 >
-> - **Consumer Product:** Rebuilt the rider app from the ground up, effectively aligning the user experience with complex operational realities.
-> - **Operational Software:** Designed and built the internal operations platform managing the fleet, including a dispatcher dashboard and field operations app.
+> - **Consumer Product:** Rebuilt the rider app from the ground up, aligning the ride experience with how the operation actually ran.
+> - **Operational Software:** Designed the internal fleet operations platform: dispatcher dashboard and field worker app.
 
 ### Vivy GmbH — Product Designer · Oct 2017 – Mar 2019
 > Encrypted digital health records platform.
 >
 > - **Patient Experience:** Designed the core feature set for the patient-facing mobile application.
-> - **Partnerships:** Facilitated and led design sprints with strategic partners to shape and integrate new services onto the platform.
+> - **Partnerships:** Ran design sprints with partners to shape and integrate new services on the platform.
 
 ### YunoJuno, Quidco, Suggestv — Freelance Product Designer · Oct 2016 – Oct 2017
 > Independent consultancy for startups and scaling platforms.
 >
-> - **Research & Design:** Led end-to-end product design engagements across both B2B software and consumer-facing platforms.
+> - **Research & Design:** Led end-to-end design engagements across B2B software and consumer platforms.
 
 ### CrowdScores — Product Designer · Aug 2015 – Jan 2017
 > Live football scores app.
 >
-> - **Mobile Apps:** Led iOS and Android UX/UI design, significantly restructuring and optimising the platform’s information architecture.
+> - **Mobile Apps:** Led iOS and Android UX/UI design, and restructured the platform’s information architecture.
 
 ## Education
 
@@ -1013,8 +1006,9 @@ _The print version groups these under one heading, **Skills & Tools**._
 | Service Design | UI / Interaction Design | Digital Health |
 | Customer Journeys | Prototyping | Mobility |
 | Product Discovery | Design Systems | Fintech |
-| | Information Architecture | B2B SaaS |
-| | Accessibility | Consumer |
+| | Design QA | B2B SaaS |
+| | Information Architecture | Consumer |
+| | Accessibility | |
 
 _The **Industries** column appears on screen only, not in the print version._
 
