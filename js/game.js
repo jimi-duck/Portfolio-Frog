@@ -40,6 +40,101 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // the phaser handles worst. The bay stays cold until the upgrade is taken.
   var TORP_SPEED = 5.4, TORP_LIFE = 2.6, TORP_R = 5;
   var TORP_COOLDOWN = 3.4, TORP_BLAST = 78, TORP_DMG = 4;
+  // Torpedoes seek *ships*. A rock is never a target, only an obstacle, and a
+  // torpedo that has a lock flies straight through the field to reach it —
+  // which is the whole point: a three-and-a-half second reload spent cracking
+  // a rock that the phaser was going to clear anyway is a wasted torpedo, and
+  // the bay's real job is the warbird sitting behind the rock.
+  //
+  // With nothing to lock onto it behaves exactly as it always did: straight
+  // line, detonates on the first thing it touches. So it is still the answer
+  // to a wall of rock when there is no better answer to be had.
+  //
+  // TORP_TURN is in radians per second. What it really sets is the turn
+  // *circle*: at 324px/s, 2.2 rad/s is a 147px radius, which measured as a
+  // torpedo that curves onto a stationary warbird and then sails past it 4px
+  // wide. 4.2 gives a 77px circle — it comes round onto a target that holds
+  // still, and still loses one that keeps turning, which is the trade the
+  // weapon is supposed to have.
+  //
+  // TORP_FUSE is a proximity fuse in pixels on top of the contact radius. A
+  // guided warhead that has to physically touch a 15px saucer is a warhead
+  // that misses for reasons the player cannot see.
+  // TORP_LEAD is a cap, in frames, on how far ahead of a target a torpedo is
+  // allowed to aim. Pure pursuit — steering at where the target *is* — tracks
+  // a stationary hull perfectly and tail-chases a moving one forever: measured
+  // against a bobbing scout it closed to 35px and then trailed it. Leading by
+  // the flight time turns the chase into an intercept. The cap matters because
+  // at 400px the raw flight time is 80 frames, and leading a bobbing target by
+  // eighty frames aims at somewhere it is never going to be.
+  var TORP_SEEK_R = 520, TORP_TURN = 4.2, TORP_FUSE = 13, TORP_LEAD = 30;
+  // ── Navigational deflector ───────────────────────────────────────────────
+  // Rock is ~70% of all damage taken, and every other defensive card answers
+  // it indirectly — this one answers it by name. It is a shove, not a wall:
+  // late-run rocks are fast enough to punch through the field, so it lowers
+  // the rate you get hit rather than making you immune to the thing.
+  var DEFLECT_R = 74, DEFLECT_PUSH = 4.0;
+  // ── warp plasma vent ─────────────────────────────────────────────────────
+  // Venting drive plasma into the wake behind a pursuer is a real trick out of
+  // the shows, and it is the only card in the deck that turns running away
+  // into an attack — which is the one thing this ship could not do. It only
+  // lays while the impulse engines are actually lit, so the trail is drawn by
+  // flying, not by existing: a tight turn under power writes a wall, and
+  // coasting writes nothing.
+  //
+  // Plasma burns *ships*. Rock is inert and sails straight through it, which
+  // keeps the card off the 70% of the damage that the deflector answers and
+  // stops it quietly becoming a second field-clearer.
+  var WAKE_LIFE = 2.4, WAKE_R = 11, WAKE_GAP = 0.055, WAKE_TICK = 0.35;
+  var wake = [];
+  // ── hull arc ─────────────────────────────────────────────────────────────
+  // Every other weapon on this ship rewards standing off. The arc is the one
+  // that pays for the opposite, and the price is set by the radius: at 43px a
+  // 21px rock is inside the field about thirteen pixels before it is inside
+  // the hull, so using this card at all means flying close enough that a
+  // mistake is a hull plate. It burns rock as readily as Klingons — the risk
+  // is the same either way and the fantasy does not survive an arc that
+  // politely ignores the thing about to kill you.
+  var ARC_STANDOFF = 34, ARC_DPS = 2.6;
+  // ── ramming speed ────────────────────────────────────────────────────────
+  // The one card that changes what a collision *is*. Two things keep it from
+  // being flat immunity to the field, which is the single most dangerous thing
+  // you can hand a player in this game:
+  //
+  //  · it only arms at nearly full impulse, with the engines lit, against
+  //    something you are actually driving at — a rock that clips your flank at
+  //    a standstill still takes a hull plate;
+  //  · every ram costs you most of your momentum, which disarms it. You cannot
+  //    bulldoze a line through the field, because the first rock stops you
+  //    dead in the middle of it and you have to build speed again.
+  //
+  // Capital ships are exempt. A dreadnought is not something you shunt.
+  var RAM_BLEED = 0.45, RAM_ARC = 0.95;
+  function ramThreshold(){ return 0.86 - 0.06 * (up.ram - 1); }
+  function ramDamage(){ return 1 + 3 * up.ram + up.dmg; }
+  // terminal speed falls out of thrust against a 0.98-per-frame drag
+  function terminalSpeed(){ return thrustPower() / 0.02; }
+  function ramArmed(tx, ty){
+    if(up.ram <= 0 || !ship.thrusting) return false;
+    var sp = Math.hypot(ship.vx, ship.vy);
+    if(sp < terminalSpeed() * ramThreshold()) return false;
+    // it has to be in front of where you are going, not where you are pointing:
+    // a ram is a thing your momentum does
+    return Math.abs(angDiff(Math.atan2(ty - ship.y, tx - ship.x),
+                            Math.atan2(ship.vy, ship.vx))) < RAM_ARC;
+  }
+  // 0 to 1, for the renderer: a bow shield that fades in as the speed builds
+  // tells the player where the threshold is. A shield that simply appears at
+  // 86% tells them nothing until they have already guessed wrong once.
+  function ramCharge(){
+    if(up.ram <= 0 || !ship.thrusting) return 0;
+    var need = terminalSpeed() * ramThreshold();
+    return Math.max(0, Math.min(1, Math.hypot(ship.vx, ship.vy) / need));
+  }
+  function ramBleed(){
+    ship.vx *= RAM_BLEED; ship.vy *= RAM_BLEED;
+    burst(ship.x, ship.y, 12, '111,232,255');
+  }
   var SHIP_RADIUS = 9, INVULN = 1.1, RESPAWN_INVULN = 2.2;
   var START_LIVES = 3, MAX_LIVES = 5;
   var START_ROCKS = 20, MAX_ROCKS = 54;
@@ -207,8 +302,15 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var shieldTime = 0, rapidTime = 0;
 
   // ── permanent upgrades ───────────────────────────────────────────────────
-  var up = { fire:0, thrust:0, spread:0, pierce:0, dmg:0, magnet:0, range:0, guard:0, torp:0 };
+  var up = { fire:0, thrust:0, spread:0, pierce:0, dmg:0, magnet:0, range:0, guard:0,
+             torp:0, seek:0, deflector:0, armour:0, wake:0, arc:0, ram:0 };
   var nextGuard = 0, nextTorp = 0;
+  // Ablative armour is a single charge that regrows on a clock, not a pool —
+  // one plate, taken off you by the next hit and back a while later. It is
+  // stored as a boolean plus the time it returns so nothing has to be
+  // decremented every frame.
+  var armourReady = false, armourAt = 0;
+  var nextWake = 0;
 
   // Cooldown is assembled in one place, in one order — cannon levels, then the
   // weight of the extra barrels, then the rapid-fire drop, then the clamp — so
@@ -240,6 +342,22 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   function torpCooldown(){ return TORP_COOLDOWN * Math.pow(0.82, Math.max(0, up.torp - 1)); }
   function torpDamage(){ return TORP_DMG + (up.torp - 1) + up.dmg; }
   function torpBlast(){ return TORP_BLAST * (1 + 0.12 * (up.torp - 1)); }
+  // Targeting sensors sharpen the lock rather than the warhead: further to see
+  // a target, faster to come round onto one. They cannot make a torpedo hit
+  // harder — that is the warhead's card, and this one has to stay the pick you
+  // take because your torpedoes keep missing.
+  function torpSeekRange(){ return TORP_SEEK_R * (1 + 0.30 * up.seek); }
+  function torpTurnRate(){  return TORP_TURN   * (1 + 0.45 * up.seek); }
+  function deflectRange(){ return up.deflector ? DEFLECT_R * (1 + 0.30 * (up.deflector - 1)) : 0; }
+  function armourEvery(l){ return 44 - l * 7; }      // 37s → 30s → 23s
+  // levels buy how long the trail hangs and how hard it burns, not how wide it
+  // is — a wider trail would start catching things you never flew near
+  function wakeLife(){ return WAKE_LIFE * (1 + 0.35 * (up.wake - 1)); }
+  function wakeDamageAt(l){ return l + Math.floor(up.dmg / 2); }
+  function wakeDamage(){ return wakeDamageAt(up.wake); }
+  function arcRangeAt(l){ return l ? SHIP_RADIUS + ARC_STANDOFF + 8 * (l - 1) : 0; }
+  function arcRange(){ return arcRangeAt(up.arc); }
+  function arcDps(){ return ARC_DPS * up.arc + up.dmg * 0.8; }
   function guardEvery(l){ return 40 - l * 7; }        // 33s → 26s → 19s
   var GUARD_TIME = 5;
 
@@ -499,10 +617,24 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     }
   }
 
-  function hitShip(){
+  // `src` is 'rock' or 'fire' — a rock you flew into, or something a Klingon
+  // did to you. Nothing else in here cares, but ablative armour does: it is
+  // the plating that vaporises under a disruptor and does nothing at all about
+  // a lump of nickel-iron closing at forty metres a second.
+  function hitShip(src){
     // a live shield is flat invincibility for its whole ten seconds — it does
     // not burn out on contact, which is the entire point of chasing the rock
     if(gameOver || ship.invuln > 0 || shieldTime > 0) return;
+    // Ablative armour is spent before the hull is. It buys a plate and a beat
+    // of grace — enough to get clear of whatever just hit you, since taking a
+    // free hit and then immediately taking a real one is not a save.
+    if(armourReady && src !== 'rock'){
+      armourReady = false;
+      armourAt = gameTime + armourEvery(up.armour);
+      ship.invuln = Math.max(ship.invuln, 1.0);
+      burst(ship.x, ship.y, 20, '111,232,255');
+      return;
+    }
     lives--;
     burst(ship.x, ship.y, 26);
     if(lives > 0){
@@ -543,10 +675,11 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     lives = START_LIVES;
     xp = 0; level = 1; pendingLevels = 0;
     shieldTime = 0; rapidTime = 0; nextGuard = 0;
+    armourReady = false; armourAt = 0;
     for(var k in up) up[k] = 0;
     autoPaused = false;
-    torpedoes = []; shockwaves = [];
-    nextTorp = 0;
+    torpedoes = []; shockwaves = []; wake = []; arcOn = [];
+    nextTorp = 0; nextWake = 0;
     redAlert = true;                 // force syncRedAlert to re-evaluate
     syncRedAlert();
     closeLevel(true);
@@ -565,9 +698,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   }
 
   // ── the upgrade pool ─────────────────────────────────────────────────────
-  // Nine entries, three offered per level. Every line a card prints is computed
-  // from the live stat functions rather than written out, so a card can never
-  // promise a number the ship does not actually get.
+  // Sixteen entries, three offered per level. Every line a card prints is
+  // computed from the live stat functions rather than written out, so a card
+  // can never promise a number the ship does not actually get.
+  //
+  // The pool grew from nine in Sep 2026 and that has a cost worth knowing: a
+  // specific card now shows up in roughly a fifth of drafts rather than a
+  // third. That is the trade a bigger deck makes — more builds, less control
+  // over reaching one — and it is why the two most situational additions are
+  // gated rather than always on offer (Targeting Sensors needs a torpedo bay;
+  // Damage Control needs a missing hull plate).
 
   // Both weapon cards move the same underlying number, and Spread Shot moves it
   // the wrong way, so they quote it through one helper. Whole figures read
@@ -596,6 +736,22 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       what:'Your main gun cycles faster.',
       lines:function(){ return [rateLine(up.fire + 1, up.spread)]; } },
 
+    { id:'ram', name:'Ramming Speed', role:'Impact', max:3,
+      // the capital-ship exemption has to be on the card. It is not a detail:
+      // without it the only way to learn the rule is to ram a dreadnought at
+      // full impulse and lose a hull plate finding out.
+      what:'At full impulse the bow shield holds. Fly flat out into rock or a ' +
+           'warbird and it breaks, not you \u2014 but the impact kills your speed, ' +
+           'and a capital ship is too big to shunt.',
+      lines:function(){
+        return up.ram
+          ? [ramDamage() + ' \u2794 ' + (ramDamage() + 3) + ' impact damage',
+             'Arms at ' + Math.round(ramThreshold() * 100) + '% \u2794 ' +
+             Math.round((0.86 - 0.06 * up.ram) * 100) + '% of top speed']
+          : [ramDamage() + 3 + ' impact damage, at ' +
+             Math.round(0.86 * 100) + '% of top speed'];
+      } },
+
     { id:'thrust', name:'Impulse Drive', role:'Handling', max:6,
       what:'Accelerate harder and come about quicker.',
       lines:function(){ return ['+14% thrust \u00b7 +10% turn rate']; } },
@@ -610,9 +766,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
     // The only card that adds a whole weapon rather than moving a number, so
     // it is worth a level of its own before it starts scaling.
-    { id:'torp', name:'Photon Torpedo Bay', role:'Crowds', max:4,
-      what:'Adds a slow torpedo that detonates on impact, damaging everything ' +
-           'caught in the blast. The answer to packed rock.',
+    { id:'torp', name:'Photon Torpedo Bay', role:'Warheads', max:4,
+      what:'Adds a slow torpedo that hunts the nearest warbird, flying through ' +
+           'rock to reach it, and detonates on everything caught in the blast. ' +
+           'With no ship in range it flies straight and cracks the field.',
       lines:function(){
         return up.torp
           ? [torpDamage() + ' \u2794 ' + (torpDamage() + 1) + ' blast damage',
@@ -621,6 +778,19 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
           : [TORP_DMG + ' blast damage, every ' + TORP_COOLDOWN.toFixed(1) + 's'];
       },
       apply:function(){ up.torp++; nextTorp = gameTime + 0.8; } },
+
+    { id:'wake', name:'Warp Plasma Vent', role:'Wake', max:4,
+      what:'Lays burning drive plasma behind you whenever the engines are lit. ' +
+           'Klingons that fly through it cook; rock ignores it. Turning tight ' +
+           'under power draws a wall.',
+      lines:function(){
+        return up.wake
+          ? [wakeDamage() + ' \u2794 ' + wakeDamageAt(up.wake + 1) + ' burn damage',
+             'Trail lasts ' + wakeLife().toFixed(1) + 's \u2794 ' +
+             (WAKE_LIFE * (1 + 0.35 * up.wake)).toFixed(1) + 's']
+          : [wakeDamageAt(1) + ' burn damage \u00b7 trail lasts ' +
+             WAKE_LIFE.toFixed(1) + 's'];
+      } },
 
     { id:'pierce', name:'Polarised Emitters', role:'Pierce', max:3,
       what:'Beams carry on through whatever they hit instead of stopping dead.',
@@ -631,6 +801,17 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       what:'Every weapon on the ship hits harder.',
       lines:function(){ return ['Beam damage ' + bulletDamage() + ' \u2794 ' + (bulletDamage() + 1),
                                 'Torpedoes scale with it']; } },
+
+    { id:'arc', name:'Hull Arc Coils', role:'Close', max:3,
+      what:'The hull sheds a burning field a few metres out. Anything that gets ' +
+           'that close cooks \u2014 rock included \u2014 but so does the ship, if ' +
+           'you misjudge it.',
+      lines:function(){
+        return up.arc
+          ? [arcDps().toFixed(1) + ' \u2794 ' + (ARC_DPS * (up.arc + 1) + up.dmg * 0.8).toFixed(1) +
+             ' damage/sec', pct(arcRange(), arcRangeAt(up.arc + 1)) + ' reach']
+          : [ARC_DPS.toFixed(1) + ' damage/sec, at arm\u2019s length'];
+      } },
 
     { id:'range', name:'Long-Range Emitters', role:'Reach', max:3,
       what:'Beams travel faster and stay alive longer before they fade.',
@@ -655,6 +836,42 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       },
       // the first one should land while the choice is still fresh in mind
       apply:function(){ up.guard++; nextGuard = gameTime + 2; } },
+
+    // Only on offer once there is a bay to point. A tracking card in a deck
+    // where the player has no torpedoes is a wasted third of a draft.
+    { id:'seek', name:'Targeting Sensors', role:'Tracking', max:3,
+      avail:function(){ return up.torp > 0; },
+      what:'Torpedoes come round harder and pick up a target from further out, ' +
+           'so fewer of them sail past a warbird that turned.',
+      lines:function(){ return ['+45% turn rate \u00b7 +30% lock range']; } },
+
+    // The card that answers rock directly. Everything else defensive in this
+    // deck answers "getting hit"; this one answers the thing doing ~70% of it.
+    { id:'deflector', name:'Navigational Deflector', role:'Screen', max:3,
+      what:'Pushes rock off the bow before it reaches you. It does nothing to a ' +
+           'warbird, and a fast enough rock still gets through.',
+      lines:function(){
+        return up.deflector
+          ? [pct(deflectRange(), DEFLECT_R * (1 + 0.30 * up.deflector)) + ' wider field']
+          : ['Rock slides off the hull instead of hitting it'];
+      } },
+
+    // Deliberately the other half of the Navigational Deflector: that card
+    // answers rock, which is ~70% of the damage in this game, and this one
+    // answers the Klingons, which is the rest. Measured as a plate that
+    // stopped *everything* it was worth a whole extra hull — +22s on a 73s
+    // baseline, against +10s for a maxed Deflector Overcharge — because a life
+    // in this run is worth about 24 seconds and a free hit is a whole life.
+    { id:'armour', name:'Ablative Armour', role:'Armour', max:3,
+      what:'Plating that vaporises under one disruptor hit and then grows back. ' +
+           'It does nothing about rock \u2014 that is the deflector\u2019s job.',
+      lines:function(){
+        return up.armour
+          ? ['Regrows every ' + armourEvery(up.armour) + 's \u2794 ' +
+             armourEvery(up.armour + 1) + 's']
+          : ['Absorbs one hit \u00b7 regrows every ' + armourEvery(1) + 's'];
+      },
+      apply:function(){ up.armour++; armourReady = true; } },
 
     { id:'life', name:'Damage Control', role:'Repair', max:99,
       avail:function(){ return lives < MAX_LIVES; },
@@ -1224,7 +1441,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         var rdx = ship.x - b.x, rdy = ship.y - b.y, rd = Math.hypot(rdx, rdy) || 1;
         ship.vx += rdx / rd * 7; ship.vy += rdy / rd * 7;
         ship.invuln = Math.max(ship.invuln, 0.8);
-      } else hitShip();
+      } else hitShip('fire');
     }
   }
 
@@ -1271,6 +1488,42 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     }
   }
 
+  // shortest signed angle from b to a, in (-PI, PI]
+  function angDiff(a, b){
+    var d = (a - b) % (Math.PI*2);
+    if(d > Math.PI) d -= Math.PI*2;
+    if(d < -Math.PI) d += Math.PI*2;
+    return d;
+  }
+
+  // A lock is only ever held on something that is still there to be hit. The
+  // boss is checked by identity because it is a single slot rather than a list,
+  // and `leaving` means she has broken off and is no longer a legal target.
+  function torpTargetLive(o){
+    if(!o) return false;
+    if(o === boss) return !!boss && !boss.leaving && boss.hp > 0;
+    return o.hp > 0 && aliens.indexOf(o) !== -1;
+  }
+
+  // Nearest ship, with a penalty for how far off the nose it sits — a target
+  // directly behind the launcher costs the torpedo most of its fuel in the
+  // turn, so it is scored as if it were further away rather than ruled out.
+  // A capital ship is worth going after even from further out, because that is
+  // the fight where a torpedo is worth the most.
+  function acquireTorpTarget(x, y, ang){
+    var best = null, bestScore = Infinity, R = torpSeekRange();
+    function consider(o, bias){
+      var dx = o.x - x, dy = o.y - y, d = Math.hypot(dx, dy);
+      if(d > R) return;
+      var off = Math.abs(angDiff(Math.atan2(dy, dx), ang));
+      var score = d * (1 + off * 0.55) * bias;
+      if(score < bestScore){ bestScore = score; best = o; }
+    }
+    for(var i=0;i<aliens.length;i++) consider(aliens[i], 1);
+    if(boss && !boss.leaving) consider(boss, 0.6);
+    return best;
+  }
+
   function fireTorpedo(){
     var a = ship.angle, sp = TORP_SPEED;
     torpedoes.push({
@@ -1278,7 +1531,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       // a torpedo inherits the ship's velocity for the same reason a phaser
       // does — at full impulse the hull outruns a 5.4px shell otherwise
       vx: Math.cos(a)*sp + ship.vx, vy: Math.sin(a)*sp + ship.vy,
-      life: TORP_LIFE, r: TORP_R, t: 0
+      life: TORP_LIFE, r: TORP_R, t: 0,
+      // launched on the nose either way; the lock is what it does afterwards
+      target: acquireTorpTarget(ship.x, ship.y, a)
     });
   }
 
@@ -1322,9 +1577,110 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     }
   }
 
+  // The trail is a string of overlapping blobs dropped on a fixed interval, so
+  // its density is the same at any speed — dropping one per frame would make a
+  // fast ship's wall thinner than a slow one's, which is exactly backwards.
+  // Each blob damages a given ship at most every WAKE_TICK, tracked on the
+  // blob rather than the ship, so flying a long trail across a warbird burns
+  // it repeatedly and clipping one corner of it does not.
+  function updateWake(dt, t){
+    if(up.wake > 0 && ship.thrusting && t >= nextWake){
+      nextWake = t + WAKE_GAP;
+      wake.push({ x: ship.x - Math.cos(ship.angle) * NOSE_OFFSET * 0.8,
+                  y: ship.y - Math.sin(ship.angle) * NOSE_OFFSET * 0.8,
+                  life: wakeLife(), max: wakeLife(), hits: {} });
+    }
+    var dmg = wakeDamage();
+    for(var i=wake.length-1;i>=0;i--){
+      var w = wake[i];
+      w.life -= dt;
+      if(w.life <= 0){ wake.splice(i,1); continue; }
+      if(!up.wake) continue;
+      for(var a=aliens.length-1;a>=0;a--){
+        var al = aliens[a];
+        if(Math.hypot(al.x-w.x, al.y-w.y) > al.r + WAKE_R) continue;
+        if(w.hits[al.id] > t) continue;
+        w.hits[al.id] = t + WAKE_TICK;
+        al.hp -= dmg; al.hitT = 0.12;
+        burst(al.x, al.y, 3, '255,140,60');
+        if(al.hp <= 0) killAlien(a);
+      }
+      if(boss && !boss.leaving && Math.hypot(boss.x-w.x, boss.y-w.y) < bossHitR() + WAKE_R &&
+         !(w.hits[boss.id] > t)){
+        w.hits[boss.id] = t + WAKE_TICK;
+        boss.hp -= dmg; boss.hitT = 0.12;
+        if(boss.hp <= 0) killBoss();
+      }
+    }
+  }
+
+  // Damage per second rather than per hit, so it does not care about the frame
+  // rate and a rock that clips the field for a tenth of a second takes a tenth
+  // of a second's worth. `arcOn` is what the renderer draws, collected here so
+  // the burn and the lightning can never disagree about what is being hit.
+  var arcOn = [];
+  function updateArc(dt){
+    arcOn.length = 0;
+    if(up.arc <= 0) return;
+    var R = arcRange(), hit = arcDps() * dt;
+    for(var k=asteroids.length-1;k>=0;k--){
+      var rk = asteroids[k];
+      if(Math.hypot(rk.x-ship.x, rk.y-ship.y) > R + rk.r) continue;
+      rk.hp -= hit; rk.hitT = 0.1;
+      arcOn.push(rk);
+      if(rk.hp <= 0) killAsteroid(k);
+    }
+    for(var m=aliens.length-1;m>=0;m--){
+      var al = aliens[m];
+      if(Math.hypot(al.x-ship.x, al.y-ship.y) > R + al.r) continue;
+      al.hp -= hit; al.hitT = 0.1;
+      arcOn.push(al);
+      if(al.hp <= 0) killAlien(m);
+    }
+    if(boss && !boss.leaving && Math.hypot(boss.x-ship.x, boss.y-ship.y) < R + bossHitR()){
+      boss.hp -= hit; boss.hitT = 0.1;
+      arcOn.push(boss);
+      if(boss.hp <= 0) killBoss();
+    }
+  }
+
   function updateTorpedoes(dt, sf){
     for(var i=torpedoes.length-1;i>=0;i--){
       var tp = torpedoes[i];
+
+      // A dead target frees the lock and the torpedo goes looking for another
+      // rather than sailing on into empty space — a warbird killed by phaser
+      // fire mid-flight used to strand its torpedo.
+      if(!torpTargetLive(tp.target)) tp.target = acquireTorpTarget(tp.x, tp.y, Math.atan2(tp.vy, tp.vx));
+
+      if(tp.target){
+        // Where to aim: the target's own position, pushed forward along
+        // whatever it did last frame. The velocity is measured here rather
+        // than read off the target because a bobbing warbird's `vy` is zero —
+        // its y comes from a sine on baseY — so the field would lie.
+        var tx = tp.target.x, ty = tp.target.y;
+        if(tp.tid === tp.target && sf > 0.001){
+          var tvx = (tx - tp.tpx) / sf, tvy = (ty - tp.tpy) / sf;
+          var td = Math.hypot(tx - tp.x, ty - tp.y);
+          var lead = Math.min(TORP_LEAD, td / TORP_SPEED);
+          tx += tvx * lead; ty += tvy * lead;
+        }
+        // remembered against the target itself, so a re-lock starts clean
+        tp.tid = tp.target; tp.tpx = tp.target.x; tp.tpy = tp.target.y;
+
+        // Steer by turning the velocity, not by re-pointing it: the turn is
+        // rate-limited, so the track curves and a target that keeps moving can
+        // still get outside the arc. Speed eases back to the bay's own figure
+        // at the same time, which sheds whatever the hull lent it at launch.
+        var aim = Math.atan2(ty - tp.y, tx - tp.x);
+        var cur = Math.atan2(tp.vy, tp.vx);
+        var turn = torpTurnRate() * dt, d = angDiff(aim, cur);
+        cur += Math.max(-turn, Math.min(turn, d));
+        var sp = Math.hypot(tp.vx, tp.vy) || TORP_SPEED;
+        sp += (TORP_SPEED - sp) * (1 - Math.pow(0.90, sf));
+        tp.vx = Math.cos(cur) * sp; tp.vy = Math.sin(cur) * sp;
+      }
+
       tp.x += tp.vx * sf; tp.y += tp.vy * sf; tp.life -= dt; tp.t += dt;
       if(tp.x < 0 || tp.x > window.innerWidth || tp.y < 0 || tp.y > docH){
         torpedoes.splice(i,1); continue;
@@ -1332,14 +1688,23 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       if(tp.life <= 0){ detonate(tp.x, tp.y); torpedoes.splice(i,1); continue; }
 
       var hit = false, j;
-      for(j=0;j<asteroids.length;j++){
+      // Rock only arms the fuse when there is nothing better to hit. This is
+      // the line that stops a torpedo being spent on the first pebble between
+      // it and the warbird it was launched at; the blast still catches the rock
+      // on the way past when it goes off at the target.
+      if(!tp.target) for(j=0;j<asteroids.length;j++){
         if(Math.hypot(tp.x-asteroids[j].x, tp.y-asteroids[j].y) < asteroids[j].r + tp.r){ hit = true; break; }
       }
+      // the fuse is only generous toward the thing it is actually chasing;
+      // everything else still has to be touched
+      if(!hit && tp.target && tp.target !== boss &&
+         Math.hypot(tp.x-tp.target.x, tp.y-tp.target.y) < tp.target.r + tp.r + TORP_FUSE) hit = true;
       if(!hit) for(j=0;j<aliens.length;j++){
         if(Math.hypot(tp.x-aliens[j].x, tp.y-aliens[j].y) < aliens[j].r + tp.r){ hit = true; break; }
       }
       if(!hit && boss && !boss.leaving &&
-         Math.hypot(tp.x-boss.x, tp.y-boss.y) < bossHitR() + tp.r) hit = true;
+         Math.hypot(tp.x-boss.x, tp.y-boss.y) <
+           bossHitR() + tp.r + (tp.target === boss ? TORP_FUSE : 0)) hit = true;
       if(hit){ detonate(tp.x, tp.y); torpedoes.splice(i,1); }
     }
 
@@ -1358,6 +1723,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
     if(shieldTime > 0) shieldTime = Math.max(0, shieldTime - dt);
     if(rapidTime > 0)  rapidTime  = Math.max(0, rapidTime  - dt);
+    if(up.armour > 0 && !armourReady && t >= armourAt) armourReady = true;
     // Auto Aegis: a free shield on a fixed cadence once it has been picked
     if(up.guard > 0 && t >= nextGuard){
       nextGuard = t + guardEvery(up.guard);
@@ -1436,7 +1802,25 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         if(ax.y < bTop) ax.y = bBot;
         else if(ax.y > bBot) ax.y = bTop;
       }
-      if(Math.hypot(ship.x-ax.x, ship.y-ax.y) < ax.r + SHIP_RADIUS) hitShip();
+      // The deflector shoves rock aside by moving it, not by pushing on its
+      // velocity: vx/vy are re-derived from ax.ang at the top of this loop
+      // every frame, so any impulse written to them is gone before it is read.
+      if(up.deflector > 0){
+        var ddx = ax.x - ship.x, ddy = ax.y - ship.y;
+        var dd = Math.hypot(ddx, ddy) || 1, dR = deflectRange() + ax.r;
+        if(dd < dR){
+          var push = DEFLECT_PUSH * (1 - dd / dR) * sf;
+          ax.x += ddx / dd * push; ax.y += ddy / dd * push;
+        }
+      }
+      if(Math.hypot(ship.x-ax.x, ship.y-ax.y) < ax.r + SHIP_RADIUS){
+        if(ramArmed(ax.x, ax.y)){
+          ax.hp -= ramDamage(); ax.hitT = 0.14;
+          burst(ax.x, ax.y, 14, '111,232,255');
+          if(ax.hp <= 0) killAsteroid(r);
+          ramBleed();
+        } else hitShip('rock');
+      }
     }
 
     // camera follow — keep the ship near the middle; start scrolling well before it reaches an edge
@@ -1464,6 +1848,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       fireTorpedo();
     }
     updateTorpedoes(dt, sf);
+    updateWake(dt, t);
+    updateArc(dt);
 
     for(var i=bullets.length-1;i>=0;i--){
       var b = bullets[i];
@@ -1589,7 +1975,19 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
           continue;
         }
         if(ship.invuln > 0) continue;
-        burst(al.x, al.y, 14, AT.rgb); aliens.splice(ai,1); hitShip(); continue;
+        if(ramArmed(al.x, al.y)){
+          al.hp -= ramDamage(); al.hitT = 0.14;
+          burst(al.x, al.y, 16, '111,232,255');
+          ramBleed();
+          if(al.hp <= 0){ killAlien(ai); continue; }
+          // survived the shunt: shoved clear so it is not still inside you
+          var sdx = al.x - ship.x, sdy = al.y - ship.y, sd = Math.hypot(sdx, sdy) || 1;
+          al.x += sdx / sd * (al.r + SHIP_RADIUS + 6);
+          al.y += sdy / sd * (al.r + SHIP_RADIUS + 6);
+          al.baseY = al.y;
+          continue;
+        }
+        burst(al.x, al.y, 14, AT.rgb); aliens.splice(ai,1); hitShip('fire'); continue;
       }
 
       if(t > al.nextShot){
@@ -1620,7 +2018,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       if(ab.life<=0 || ab.x<0 || ab.x>window.innerWidth || ab.y<0 || ab.y>docH){ alienBullets.splice(q,1); continue; }
       if(Math.hypot(ab.x-ship.x, ab.y-ship.y) < SHIP_RADIUS + (ab.r || 3)){
         if(shieldTime > 0){ alienBullets.splice(q,1); burst(ab.x, ab.y, 6, '0,194,255'); continue; }
-        alienBullets.splice(q,1); hitShip();
+        alienBullets.splice(q,1); hitShip('fire');
       }
     }
 
@@ -1897,6 +2295,89 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     ctx.restore();
   }
 
+  // The trail is drawn oldest-first as overlapping soft blobs that shrink and
+  // fade together, which is what makes a string of circles read as one cooling
+  // ribbon of plasma rather than as a row of dots. Orange, the torpedo's
+  // colour: both of them are ordnance, and neither is the pink that means
+  // alert or the cyan that means you.
+  // One gradient, baked into an offscreen sprite the first time it is needed
+  // and then blitted per blob. A maxed vent holds ~90 blobs, and building 90
+  // radial gradients every frame is real work on a phone — the sprite turns
+  // the whole trail into 90 drawImage calls, which is not.
+  // null = not built yet, false = this environment cannot build one. Nothing
+  // in here may throw: it runs inside draw(), and an exception there takes the
+  // whole frame loop down with it.
+  var wakeSprite = null;
+  function getWakeSprite(){
+    if(wakeSprite !== null) return wakeSprite;
+    wakeSprite = false;
+    try {
+      var S = 64, c = document.createElement('canvas');
+      if(!c || !c.getContext) return wakeSprite;
+      c.width = c.height = S;
+      var g2 = c.getContext('2d');
+      if(!g2 || !g2.createRadialGradient) return wakeSprite;
+      var grd = g2.createRadialGradient(S/2, S/2, 0, S/2, S/2, S/2);
+      grd.addColorStop(0,    'rgba(255,209,168,0.50)');
+      grd.addColorStop(0.55, 'rgba(255,140,60,0.32)');
+      grd.addColorStop(1,    'rgba(255,80,20,0)');
+      g2.fillStyle = grd;
+      g2.fillRect(0, 0, S, S);
+      wakeSprite = c;
+    } catch(e){ /* falls back to flat blobs below */ }
+    return wakeSprite;
+  }
+
+  function drawWake(camY){
+    if(!wake.length) return;
+    var spr = getWakeSprite(), vh = window.innerHeight;
+    ctx.save();
+    for(var i=0;i<wake.length;i++){
+      var w = wake[i], y = w.y - camY;
+      // the trail runs off behind the camera on a long burn; skipping what is
+      // not on screen is most of the cost on a maxed vent
+      if(y < -WAKE_R * 2 || y > vh + WAKE_R * 2) continue;
+      var f = w.life / w.max;
+      var r = WAKE_R * (0.45 + 0.55 * f);
+      ctx.globalAlpha = f;
+      if(spr){
+        ctx.drawImage(spr, w.x - r, y - r, r * 2, r * 2);
+      } else {
+        ctx.fillStyle = 'rgba(255,140,60,.28)';
+        ctx.beginPath(); ctx.arc(w.x, y, r, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  // The deflector has the same problem the tractor beam had: an upgrade whose
+  // whole effect is that something did not happen to you is invisible. Drawing
+  // the field, and lighting the arc that is actually doing the shoving, makes
+  // it legible without a HUD chip. Cyan, because it is the player's own hull.
+  function drawDeflector(camY){
+    if(up.deflector <= 0) return;
+    var R = deflectRange(), y = ship.y - camY;
+    var pulse = reduceMotion ? 0.5 : 0.5 + 0.5 * Math.sin(gameTime * 3.2);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(111,232,255,' + (0.07 + 0.05 * pulse).toFixed(3) + ')';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(ship.x, y, R, 0, Math.PI*2); ctx.stroke();
+    // the arc facing whatever is currently inside the field brightens, so the
+    // push reads as a contact rather than as a decorative circle
+    for(var i=0;i<asteroids.length;i++){
+      var ax = asteroids[i];
+      var dx = ax.x - ship.x, dy = ax.y - ship.y, d = Math.hypot(dx, dy);
+      var dR = R + ax.r;
+      if(d >= dR) continue;
+      var a = Math.atan2(dy, dx), w = 0.45;
+      ctx.strokeStyle = 'rgba(125,249,255,' + ((1 - d / dR) * 0.55).toFixed(3) + ')';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(ship.x, y, R, a - w, a + w); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   // Red alert. Drawn on the canvas rather than in CSS because it has to sit
   // under the HUD but over the field, and because the pulse has to run off the
   // same clock as everything else — a CSS animation would keep flashing while
@@ -1924,6 +2405,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     var camY = window.scrollY;
     ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     drawTractor(camY);
+    drawWake(camY);
+    drawDeflector(camY);
 
     asteroids.forEach(function(ax){
       var sp = ax.special ? SPECIALS[ax.special] : null;
@@ -2083,6 +2566,98 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       ctx.globalAlpha = 1;
     }
 
+    // The bow shield. Drawn around the heading the ship is *travelling*, not
+    // the way it is pointing, because that is what ramArmed() tests — a shield
+    // painted on the nose while the hull drifts sideways would be a lie.
+    var rc = ramCharge();
+    if(rc > 0.25){
+      var rHead = Math.atan2(ship.vy, ship.vx);
+      var full = rc >= 1;
+      ctx.save();
+      ctx.translate(ship.x, ship.y - camY);
+      ctx.rotate(rHead);
+      ctx.strokeStyle = full ? 'rgba(125,249,255,.95)'
+                             : 'rgba(111,232,255,' + (0.12 + 0.5 * (rc - 0.25) / 0.75).toFixed(3) + ')';
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = full ? 12 : 4;
+      ctx.lineWidth = full ? 3 : 1.8;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(0, 0, SHIP_RADIUS + 8, -RAM_ARC, RAM_ARC);
+      ctx.stroke();
+      ctx.lineCap = 'butt';
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+
+    // The arc: a ring at the exact radius that burns, plus a jagged bolt to
+    // everything currently inside it. The ring has to be honest to the pixel —
+    // this is a card whose whole risk is knowing where the edge is — so it is
+    // drawn from arcRange() rather than from anything eyeballed. Cyan, because
+    // it is the ship's own field.
+    if(up.arc > 0){
+      var aR = arcRange(), aY = ship.y - camY;
+      var aPulse = reduceMotion ? 0.6 : 0.6 + 0.4 * Math.sin(gameTime * 9);
+      ctx.save();
+      ctx.strokeStyle = 'rgba(0,240,255,' + (0.16 + 0.14 * aPulse).toFixed(3) + ')';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(ship.x, aY, aR, 0, Math.PI*2); ctx.stroke();
+      if(arcOn.length){
+        ctx.strokeStyle = 'rgba(125,249,255,.9)';
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 10;
+        ctx.lineWidth = 1.6;
+        for(var q=0;q<arcOn.length;q++){
+          var o = arcOn[q];
+          // arcOn is last frame's burn list, and a frame can pass without the
+          // sim running — a refit card, a blurred tab — so re-check the range
+          // here rather than drawing a bolt at something that has since moved,
+          // died, or was never there. Cheap, and it is the only thing that
+          // keeps the lightning honest to the ring it comes out of.
+          var bx = o.x - ship.x, by = o.y - ship.y;
+          if(Math.hypot(bx, by) > aR + (o.r || 0) + 6) continue;
+          var bd = Math.hypot(bx, by) || 1;
+          // three kinked segments along the line, jittered off it — a straight
+          // line reads as a tractor beam, and that is a different upgrade
+          ctx.beginPath();
+          ctx.moveTo(ship.x, aY);
+          for(var seg=1; seg<=3; seg++){
+            var f = seg / 3;
+            var jit = seg === 3 ? 0 : (Math.random() - 0.5) * bd * 0.22;
+            ctx.lineTo(ship.x + bx * f - by / bd * jit,
+                       aY + by * f + bx / bd * jit);
+          }
+          ctx.stroke();
+        }
+        ctx.shadowBlur = 0;
+      }
+      ctx.restore();
+    }
+
+    // Ablative armour reads as two plates on the hull rather than a ring,
+    // because a ring is what the shield drop already is and the two have to be
+    // told apart at a glance: the ring means untouchable, the plates mean one
+    // hit in hand. They vanish the moment the plate is spent.
+    if(armourReady){
+      ctx.save();
+      ctx.translate(ship.x, ship.y - camY);
+      ctx.rotate(ship.angle);
+      ctx.strokeStyle = 'rgba(125,249,255,.7)';
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 6;
+      ctx.lineWidth = 2.4;
+      ctx.lineCap = 'round';
+      // On the flanks, not the bow. Ramming Speed draws its own shield across
+      // the nose at almost exactly this radius, and a build carrying both put
+      // two cyan arcs on top of each other — one overlay that reads as neither.
+      var pr = SHIP_RADIUS + 6;
+      ctx.beginPath(); ctx.arc(0, 0, pr,  1.05,  2.2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, 0, pr, -2.2,  -1.05); ctx.stroke();
+      ctx.lineCap = 'butt';
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+
     if(shieldTime > 0){
       // the ring thins out as the shield runs down, so it reads without the HUD
       var pulse = (shieldTime < 3.5 && !reduceMotion)
@@ -2142,6 +2717,39 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       ctx.beginPath(); ctx.arc(tp.x, y, tp.r * 0.45, 0, Math.PI*2); ctx.fill();
       ctx.restore();
     });
+
+    // The lock. A torpedo that ignores the rock in front of it looks broken
+    // unless you can see what it is going for instead, so every held target
+    // wears a bracket in the torpedo's own orange. Deduped, because two
+    // torpedoes on one warbird should not draw two brackets at double opacity.
+    if(torpedoes.length){
+      var locked = [];
+      for(var li=0;li<torpedoes.length;li++){
+        var lt = torpedoes[li].target;
+        if(lt && locked.indexOf(lt) === -1) locked.push(lt);
+      }
+      if(locked.length){
+        var spin = reduceMotion ? 0 : gameTime * 1.6;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,140,60,.85)';
+        ctx.shadowColor = '#ff8c3c';
+        ctx.shadowBlur = 8;
+        ctx.lineWidth = 2;
+        for(var lk=0;lk<locked.length;lk++){
+          var o = locked[lk];
+          var lr = (o === boss ? bossHitR() : o.r) + 9;
+          // one path per corner: arcs sharing a path get joined by a chord
+          for(var c=0;c<4;c++){
+            var a0 = spin + c * Math.PI/2 - 0.34;
+            ctx.beginPath();
+            ctx.arc(o.x, o.y - camY, lr, a0, a0 + 0.68);
+            ctx.stroke();
+          }
+        }
+        ctx.shadowBlur = 0;
+        ctx.restore();
+      }
+    }
 
     // Detonation shockwaves: two rings, the outer one lagging, which is what
     // sells the blast as a pressure front rather than a circle appearing.

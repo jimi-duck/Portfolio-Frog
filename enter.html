@@ -5,10 +5,10 @@
 <title>Enter · James Ciclitira</title>
 <script>(function(){var r=document.documentElement;r.className+=' js';try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}r.setAttribute('data-theme',t);}catch(e){}if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)r.className+=' coarse';setTimeout(function(){if(!r.dataset.swiss)r.className=r.className.replace(/\bjs\b/,'').replace(/\bintroing\b/,'');},4000);})();</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27%23131311%27%2F%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2726%27%20fill%3D%27%23e23a16%27%2F%3E%3C%2Fsvg%3E">
-<meta name="description" content="A field tool for energy advisors: capture a building survey on site, feed it to an AI model, and produce the report German homeowners need for retrofit funding.">
+<meta name="description" content="A field tool that let tradespeople capture a building survey good enough for an AI energy model, and the report homeowners saw before anyone left the house.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Enter · James Ciclitira">
-<meta property="og:description" content="A field tool for energy advisors: capture a building survey on site, feed it to an AI model, and produce the report German homeowners need for retrofit funding.">
+<meta property="og:description" content="A field tool that let tradespeople capture a building survey good enough for an AI energy model, and the report homeowners saw before anyone left the house.">
 <meta property="og:image" content="https://www.jciclitira.com/Man_selecting_the_footprint.jpg">
 <meta property="og:url" content="https://www.jciclitira.com/enter.html">
 <link rel="canonical" href="https://www.jciclitira.com/enter.html">
@@ -63,17 +63,17 @@
     <a href="index.html" class="back">← All work</a>
     <p class="eyebrow">Climate Tech · Field Operations · Customer Journey</p>
     <h1 class="cs-title"><em>Enter</em></h1>
-    <p class="cs-tagline">A climate-tech startup helping German homeowners plan energy-efficient renovations. I designed the advisor’s field tool and the customer journey, from the first on-site visit to the official retrofit report.</p>
+    <p class="cs-tagline">German homeowners get up to 70% back on a retrofit, but only against a survey a compliance model will accept. Enter sent tradespeople to collect it. I designed the tool that made their data good enough.</p>
   </div>
   <div class="meta-grid">
     <div class="meta-item"><label>Role</label><p>Senior Product Designer</p></div>
     <div class="meta-item"><label>Company</label><p>Enter, Berlin</p></div>
-    <div class="meta-item"><label>Products</label><p>Advisor field app · Customer report · iSFP flow</p></div>
+    <div class="meta-item"><label>Products</label><p>Field survey app · Customer report · iSFP flow</p></div>
   </div>
 </header>
 
-<!-- Hero photo: advisor in garden selecting building footprint on map -->
-<img fetchpriority="high" class="hero-img" src="Man_selecting_the_footprint.jpg" alt="An Enter energy advisor tracing a building’s footprint on a tablet during an on-site survey" width="1333" height="2000">
+<!-- Hero photo: field worker in a garden selecting the building footprint on a map -->
+<img fetchpriority="high" class="hero-img" src="Man_selecting_the_footprint.jpg" alt="An Enter field worker tracing a building’s footprint on a tablet during an on-site survey" width="1333" height="2000">
 
 <div class="stats">
   <div class="stat r"><div class="stat-n">iSFP</div><div class="stat-l">Official government document<br>generated from field data</div></div>
@@ -86,26 +86,41 @@
   <section class="section r">
     <p class="lbl">The context</p>
     <h2>Billions in renovation funding.<br>The data to unlock it<br><em>didn’t yet exist.</em></h2>
-    <div class="two" style="margin-top:1.6rem">
-      <p class="prose">Enter helps German homeowners plan energy-efficient renovations: insulation, heat pumps, new windows, and the government funding that covers much of the cost. The <span lang="de">Bundesförderung für effiziente Gebäude</span> (BEG) pays up to 70% on certain measures. To qualify, a homeowner needs an Individual Renovation Roadmap (iSFP), prepared by a certified energy advisor after an on-site assessment.<br><br>That visit is the foundation of everything after it: the energy model, the recommendations it produces, and the report needed to claim the funding.</p>
-      <p class="prose">When I joined, advisors worked from paper forms and handwritten notes. The data was inconsistent, hard to digitise and unfit for an AI pipeline. Nothing existed for advisors collecting information in the field, or for homeowners trying to understand their options.<br><br>I led the design of both: a tablet-first field app that guides advisors through the on-site assessment, and a digital customer report that helps homeowners compare renovation scenarios and decide what to do next.</p>
+    <div class="two sp-s">
+      <p class="prose">Germany pays up to 70% towards insulation, heat pumps and new windows. The condition is an Individual Renovation Roadmap, the iSFP, built from a survey of the actual building. Traditionally a certified energy consultant does that survey in person, which is slow, expensive, and most of the reason a house never gets one.</p>
+      <p class="prose">Enter split the job. Somebody goes to the house and captures it; the energy model and the certified document are made from that data afterwards. Which only works if what comes back is good enough to build on, and the person who went is usually a <span lang="de">Handwerker</span>: a tradesperson who has spent their working life inside buildings, and has never opened a modelling tool.<br><br>When I joined, they were doing it on paper.</p>
     </div>
   </section>
 </div>
 
-<!-- ═══ RESEARCH BEAT 1 — shadowing the work ══════════════ -->
+<!-- ═══ RESEARCH — shadowing the work ═════════════════════ -->
 <div class="warm-band">
   <div class="warm-band-inner">
     <p class="lbl r">Understanding the work</p>
     <h2 class="r">Two hours in the house.<br>A week to the <em>answer.</em></h2>
-    <div class="two r" style="margin-top:1.4rem">
-      <p class="prose">I rode along on several assessments, start to finish, from the meter cupboard to the loft: what advisors measured, what they wrote down, what they left until later. Then I followed the data backwards, sitting with the team who turned those notes into an energy model and listening to the calls where the homeowner finally heard the results.</p>
-      <p class="prose">The visit took around two hours in the house. The model took days at a desk. The homeowner heard the outcome on a phone call a week later, long after the advisor had left their kitchen.<br><br>Three stages, three teams, a handover at every seam. Every seam was somewhere data could go missing or interest could cool, and none of it was visible from a desk in Berlin.</p>
+    <p class="prose r sp-s">I rode along on assessments, meter cupboard to loft, then followed the data backwards: to the desk where somebody rekeyed it into the energy model, and onto the call where a colleague finally presented the result. Three stages, two handovers, and data leaked at both.</p>
+
+    <div class="flow three r sp-m">
+      <div class="flow-step">
+        <div class="flow-n">Stage 01 · The visit</div>
+        <div class="flow-t">2 hrs</div>
+        <div class="flow-d">Measuring, sketching, writing. Everything that matters ends up on one handwritten sheet.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-n">Stage 02 · The desk</div>
+        <div class="flow-t">8 hrs</div>
+        <div class="flow-d">Somebody else rekeys that sheet into the model, then chases whoever wrote it for what is missing or unreadable.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-n">Stage 03 · The presentation</div>
+        <div class="flow-t">1 week</div>
+        <div class="flow-d">A third colleague walks the homeowner through the finished report and the iSFP on a scheduled call, having never seen the house.</div>
+      </div>
     </div>
 
-    <div class="doc-row r" style="margin-top:clamp(1.8rem,3.4vw,3rem)">
+    <div class="doc-row r sp-l">
       <div>
-        <img class="photo is-doc" src="img/enter-research-visit.jpg" alt="Energy advisor following a homeowner through the hallway of a house at the start of an assessment" loading="lazy" width="1024" height="1024">
+        <img class="photo is-doc" src="img/enter-research-visit.jpg" alt="A field worker following a homeowner through the hallway of a house at the start of an assessment" loading="lazy" width="1024" height="1024">
         <p class="cap">Ride-alongs: following the assessment through the house, room by room</p>
       </div>
       <div>
@@ -116,96 +131,108 @@
   </div>
 </div>
 
-<!-- ═══ RESEARCH BEAT 2 — the paper proof of concept ══════ -->
+<!-- ═══ FIELD FRICTION — why we built at all ══════════════ -->
+<!-- The pivot. Without this the tooling reads as a preference rather than the
+     answer to two problems the business could put a number against. -->
 <div class="body">
   <section class="section r">
-    <p class="lbl">Rethinking data collection</p>
-    <h2>Paper first.<br>Then <em>the engineering.</em></h2>
-    <div class="two" style="margin-top:1.4rem">
-      <p class="prose">The obvious answer was a digital floor plan the advisor could draw on. But building one properly meant cadastral data, a drawing surface, live geometry and validation. Months of engineering, and I didn’t want to spend them finding out that the idea underneath didn’t survive a real house.<br><br>So I made the cheapest possible version of it. A pre-populated 2D footprint, pulled from cadastral records and dimensioned, dropped into the Files app on the advisor’s own tablet and marked up with a pencil during real appointments. No code. An afternoon to change.</p>
-      <p class="prose">It carried two ideas, and I had very different confidence in them.<br><br>The first was the footprint itself. Could an advisor work from a plan they hadn’t drawn? Was the registered geometry actually right? Did starting from it save time? I expected this to hold, but it was the expensive thing to build, which made it the thing worth proving first.<br><br>The second was speculative. Rather than specifying every window one by one, the advisor defined three or four window <em>types</em> by year, frame material and glazing, then tagged positions on the plan by colour. Far less manual effort, but a complete rethink of how the survey worked, and I had no idea whether what came back would still be good enough for the modelling team.</p>
+    <p class="lbl">The business case</p>
+    <h2>Collect the data.<br>Automate <em>everything after it.</em></h2>
+
+    <div class="two sp-s">
+      <p class="prose">Everything downstream of the visit was work a machine could do. The energy model, the calculations behind it, the ranked measures, the findings report, the compliant iSFP at the end. None of that needed a person. It needed inputs it could trust.</p>
+      <p class="prose">The visit was the exception, and it was the part still running on paper. So the shape of the project was settled before a single screen was designed: shrink the human step down to one job, and make what it produces good enough to carry everything after it.<br><br>Which put the whole business case on the quality of one survey.</p>
     </div>
 
-    <div class="two lean" style="margin-top:clamp(1.8rem,3.4vw,3rem);align-items:start;gap:clamp(1.4rem,3vw,3rem)">
-      <div class="r">
-        <a href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" aria-label="Open the full prototype sheet as a PDF">
-          <img class="img" src="img/enter-poc-plan.jpg" alt="Prototype survey sheet: a dimensioned building footprint with coloured crosses marking window positions, a question asking whether the plan matches the floor, and a table defining four window types by frame material and glazing" loading="lazy" width="1184" height="1684">
-        </a>
-        <p class="cap">One sheet per floor: the footprint, windows tagged by type, and one blunt question: does this plan match the floor you are standing on?</p>
+    <!-- The friction the objective had to remove. Evidence under the claim,
+         rather than the claim buried under evidence. -->
+    <div class="two sp-l">
+      <div class="flow-step">
+        <div class="flow-n">Pain 01 · Data collection</div>
+        <div class="flow-t">Nothing arrived clean</div>
+        <div class="flow-d">Paper forms and handwritten notes moving through a workflow whose parts did not know about each other. Expensive to collect, hard to share, frequently incomplete. Little reached the desk without a phone call to finish it, and nothing incomplete can be handed to a model.</div>
       </div>
-      <div class="r">
-        <img class="photo is-doc" src="img/enter-poc-tablet.jpg" alt="Energy advisor marking up the prototype floor plan on a tablet inside an unfinished house" loading="lazy" width="1306" height="816">
-        <p class="cap">Marked up in the Files app on the advisor’s own tablet. Nothing was built to run this test</p>
-        <p class="prose" style="margin-top:clamp(1.2rem,2.4vw,1.8rem)">Every completed sheet went to two audiences: the advisors who had to work this way in someone’s attic, and the modelling team who had to build an energy model out of whatever came back. A version that satisfied one and failed the other wasn’t worth building, which is why both were in the room for every round.</p>
-        <p style="margin-top:1.1rem"><a class="tlink lbl" href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" style="color:var(--red-ink)">Open the prototype sheet (PDF) &#8599;</a></p>
-      </div>
-    </div>
-
-    <div class="cards r" style="margin-top:clamp(2.2rem,4vw,3.4rem)">
-      <div class="icard">
-        <div class="icard-icon"></div>
-        <div class="icard-t">The footprint held</div>
-        <p class="icard-d">Advisors could work from a plan they hadn’t drawn. The registered geometry was close enough to correct on site rather than re-measure from scratch, and starting from something beat starting from nothing. That was the green light to build it properly.</p>
-      </div>
-      <div class="icard">
-        <div class="icard-icon"></div>
-        <div class="icard-t">So did the window types</div>
-        <p class="icard-d">The idea I trusted least turned out to be the bigger win. Defining three or four types and tagging positions by colour turned the most tedious stretch of the survey into something quick and almost painless. The modelling team got what they needed too. Only position and size still had to be captured opening by opening.</p>
-      </div>
-      <div class="icard">
-        <div class="icard-icon"></div>
-        <div class="icard-t">Paper still leaked</div>
-        <p class="icard-d">Whatever the format, a field skipped in the house was a field missing at the desk. Structure on a page can invite completeness but it cannot enforce it. That was the argument for a real tool rather than a better form.</p>
-      </div>
-    </div>
-
-    <div class="pbox r" style="margin-top:clamp(1.8rem,3vw,2.6rem);max-width:80ch">
-      <p>That reframed the brief. Not “digitise the form”, but: make capture fast enough for the advisor and structured enough that the AI can turn it into findings the homeowner sees before anyone leaves the house. The compliant iSFP still needed finishing afterwards. The conversation no longer had to wait for it.</p>
-    </div>
-  </section>
-
-  <!-- ═══ PIPELINE — the map, before the deep dives ═════════ -->
-  <section class="section r">
-    <p class="lbl">End to end</p>
-    <h2>Field data. AI model.<br>Government document.<br><em>One continuous flow.</em></h2>
-    <div class="pipeline">
-      <div class="pipeline-row">
-        <div class="pipe-node"><div class="pipe-node-t">Field Visit</div><div class="pipe-node-d">Advisor conducts the assessment on site using a tablet</div></div>
-        <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">Building Survey</div><div class="pipe-node-d">Rooms, floors, construction materials, windows, heating systems and a detailed floor plan are captured</div></div>
-        <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">AI Processing</div><div class="pipe-node-d">Assessment data becomes the building’s energy model and its recommended measures</div></div>
-        <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">Customer Report</div><div class="pipe-node-d">The advisor reviews the results with the homeowner: assessment, recommended measures, expected savings and available subsidies</div></div>
-        <div class="pipe-arr">→</div>
-        <div class="pipe-node"><div class="pipe-node-t">Final iSFP</div><div class="pipe-node-d">Agreed measures are compiled into the official Individual Renovation Roadmap, ready for the funding application</div></div>
-      </div>
-    </div>
-
-    <!-- The AI step is fast enough to need no waiting state; the design question
-         was what the advisor could do with the numbers coming back. -->
-    <div class="two r" style="margin-top:clamp(1.8rem,3.4vw,3rem);align-items:start;gap:clamp(1.4rem,3vw,3rem)">
-      <div>
-        <h3 style="margin-top:0">Fast processing.<br>The advisor still <em>decides.</em></h3>
-        <p class="prose" style="margin-top:1rem">Processing was quick enough that there was no waiting state to design. The question was what the advisor could do with the numbers coming back. Chief among them is the U-value: how much heat escapes through a square metre of wall, roof or window. The lower the figure, the better insulated the element, and the whole model rests on it.</p>
-      </div>
-      <div>
-        <p class="prose">So rather than returning U-values at the end, we calculated them live and showed them updating as construction details were entered. Every value stayed editable. An advisor standing in front of an opened-up wall could override the calculated figure with their own, and the model took their number instead. The AI set the default. The person in the building had the last word.</p>
-        <div class="pbox" style="margin-top:1.2rem"><p>An override was a signal, not an error. Where advisors corrected the same assumption repeatedly, that was a defect in the model worth feeding back.</p></div>
+      <div class="flow-step">
+        <div class="flow-n">Pain 02 · The homeowner</div>
+        <div class="flow-t">The answer came too late</div>
+        <div class="flow-d">Results landed days later, on a call, from somebody the homeowner had never met. The visit built all the trust and spent none of it. By the time the numbers arrived, a competitor’s quote often had too.</div>
       </div>
     </div>
   </section>
 </div>
 
-<!-- ═══ APPOINTMENT — DARK BAND ════════════════════════════ -->
+<!-- ═══ THE FIRST ATTEMPT — the one that didn't work ══════ -->
+<div class="body">
+  <section class="section r">
+    <p class="lbl">The first attempt</p>
+    <h2>We rebuilt the paper form.<br>On a screen. <em>It changed nothing.</em></h2>
+    <div class="two sp-s">
+      <p class="prose">The cheap move was to build nothing ourselves. We put the survey into Fastfield, an off-the-shelf forms tool, and had it in the field inside a few weeks. It did what it promised. Typed, legible, no more deciphering handwriting at the desk.</p>
+      <p class="prose">It also changed nothing about the job. A window belongs to a floor plan, not to a list of fields, and describing one as form data meant a row of dropdowns for every opening in the house: which floor, which wall, which orientation, what size. Accurate, and miserable. Forty openings into a survey, people were moving fast and rounding things, and that is where the errors came from.</p>
+    </div>
+
+    <div class="pbox r">
+      <p>The data wasn’t poor because anyone was careless. It was poor because we had made the accurate answer the slowest one to give.</p>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ THE PAPER PROOF OF CONCEPT ════════════════════════ -->
+<div class="body">
+  <section class="section r">
+    <p class="lbl">Rethinking data collection</p>
+    <h2>Paper first.<br>Then <em>the engineering.</em></h2>
+    <div class="two sp-s">
+      <p class="prose">A plan you could work on directly meant cadastral data, a drawing surface, live geometry and validation. Months of engineering, and I didn’t want to spend them finding out the idea underneath didn’t survive a real house.<br><br>So I made the cheapest possible version. A dimensioned 2D footprint pulled from cadastral records, dropped into the Files app on the tablet already in the van, marked up with a pencil during real appointments. No code. An afternoon to change.</p>
+      <p class="prose">Two ideas were riding on it, and I trusted them very differently.<br><br>The footprint I expected to hold, and it was the expensive thing to build, which made it worth proving first. The second was a gamble: rather than specifying every window, define three or four window <em>types</em> by year, frame and glazing, then tag their positions on the plan by colour. Far less work in the house. No idea whether the modelling team would accept what came back.</p>
+    </div>
+
+    <div class="two lean is-wide is-top sp-l">
+      <div class="r">
+        <a href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" aria-label="Open the full prototype sheet as a PDF">
+          <img class="img" src="img/enter-poc-plan.jpg" alt="Prototype survey sheet: a dimensioned building footprint with coloured crosses marking window positions, a question asking whether the plan matches the floor, and a table defining four window types by frame material and glazing" loading="lazy" width="1184" height="1684">
+        </a>
+        <p class="cap">One sheet per floor, and one blunt question: does this plan match the floor you are standing on?</p>
+      </div>
+      <div class="r">
+        <img class="photo is-doc" src="img/enter-poc-tablet.jpg" alt="A field worker marking up the prototype floor plan on a tablet inside an unfinished house" loading="lazy" width="1306" height="816">
+        <p class="cap">Marked up in the Files app on a tablet they already carried. Nothing was built to run this test</p>
+        <p class="prose sp-s">Every sheet went to two audiences: the people working this way in somebody’s attic, and the modelling team building a model from whatever came back. Both were in the room for every round.</p>
+        <p class="sp-s"><a class="tlink lbl" href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" style="color:var(--red-ink)">Open the prototype sheet (PDF) &#8599;</a></p>
+      </div>
+    </div>
+
+    <div class="cards r sp-l">
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">The footprint held</div>
+        <p class="icard-d">Registered geometry was close enough to correct on site rather than measure from scratch. Starting from something beat starting from nothing.</p>
+      </div>
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">The window types exceeded</div>
+        <p class="icard-d">The idea I trusted least was the bigger win. Define the type once, mark where it occurs, and the most tedious stretch of the survey nearly disappears.</p>
+      </div>
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">Completeness didn’t</div>
+        <p class="icard-d">A field skipped in the house was still a field missing at the desk. Paper can invite completeness. It cannot enforce it, and that was the argument for building something real.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ GROUNDWORK — DARK BAND ═════════════════════════════ -->
+<!-- The bridge from research to build. Mostly information architecture, which
+     is why there is almost nothing here worth screenshotting. -->
 <div class="dark-band">
   <div class="dark-band-inner">
-    <p class="lbl r">Appointment management</p>
-    <div class="two r" style="align-items:start;gap:5rem">
+    <p class="lbl r">Laying the groundwork</p>
+    <div class="two is-wide is-top r">
       <div>
-        <h2>Everything the advisor needs<br>before they<br><em>knock on the door.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">The appointment screen was the starting point for every visit. Before tapping “Start appointment”, advisors could check the homeowner’s details, see the property on a map and its estimated size, call the client or open navigation. The assessment itself stayed locked: starting the appointment marked the official beginning and opened the data collection flow.</p>
-        <p class="prose">Once the data was uploaded, the same screen showed the appointment complete and unlocked the customer report. The report could only be generated once every required section had been submitted, so every recommendation rested on a complete survey.</p>
+        <h2>Before the survey tool,<br>the <em>plumbing.</em></h2>
+        <p class="prose">Building in house meant more than a capture screen. Field operations were running appointments, tickets and documents across tools that knew nothing about each other, and none of it hung off the customer it belonged to.</p>
+        <p class="prose">Most of that work never shows up in a screenshot: an information architecture with the customer project as the spine, and the appointment, survey, photos, tickets and finished iSFP all attached to it. The visit screen is the part you can see.<br><br>It also held the boundaries. The survey stayed locked until the appointment was started, and the report stayed locked until every section came back.</p>
       </div>
       <!-- Pre-framed phone images — black backgrounds blend into dark band -->
       <div class="phones-pair">
@@ -226,28 +253,45 @@
 <div class="body">
   <section class="section r">
     <p class="lbl">Building data capture</p>
-    <h2>Every house is different.<br>Every detail <em>matters.</em></h2>
-    <div class="two" style="margin-top:1.4rem">
-      <p class="prose">The field tool was structured around the iSFP format: house data, systems, floors and rooms, and construction. Advisors navigated between tabs, drilling into each floor and room in turn. Nothing was free text where it could be structured: dropdowns, toggles and preset options kept the data clean for the model downstream.</p>
-      <p class="prose">Each section followed the same pattern: enter data, take photos if relevant, move on. The advisor always knew where they were in the survey and exactly what was left. On a 186m² detached house, that mattered.</p>
+    <h2>One handwritten sheet<br>became four <em>sections.</em></h2>
+    <div class="two sp-s">
+      <p class="prose">The paper survey ran in one direction. Nobody works a house that way. You go down to the boiler, up to the loft, back through the two rooms you skipped because someone was asleep in them, so the sheet became four tabs you could leave and come back to.</p>
+      <p class="prose">Almost nothing stayed free text. Heat sources, wall build-ups, glazing: preset options, because the person answering knows buildings, not energy modelling. What reached the model was already a value it recognised, and the submit control stayed dead until all four sections were done.</p>
     </div>
 
-    <div class="flow cols-4" style="margin-top:2.5rem">
-      <div class="flow-step"><div class="flow-n">01</div><div class="flow-t">House Data</div><div class="flow-d">Year built, footprint, energy costs, living area</div></div>
-      <div class="flow-step"><div class="flow-n">02</div><div class="flow-t">Systems</div><div class="flow-d">Heating, hot water, ventilation, renewables</div></div>
-      <div class="flow-step"><div class="flow-n">03</div><div class="flow-t">Floors &amp; Rooms</div><div class="flow-d">Each storey: room count, area, windows, heating status</div></div>
-      <div class="flow-step"><div class="flow-n">04</div><div class="flow-t">Construction</div><div class="flow-d">Walls, insulation, roof, basement: materials &amp; U-values</div></div>
-    </div>
-
-    <div class="two r" style="margin-top:2.5rem;gap:1.5rem;align-items:start">
-      <div>
-        <img class="photo" src="Adding_room_elements.jpg" alt="Advisor navigating floor list on tablet" style="width:100%;display:block;object-fit:cover;aspect-ratio:3/4;object-position:center top" loading="lazy" width="1500" height="2000">
-        <p class="cap">Floor and room structure: each storey drilled into in sequence</p>
-      </div>
-      <div>
-        <img class="photo" src="Male_hand_pointing_on_tablet_mockup__Mockuuups_Studio_.jpg" alt="Data review screen" style="width:100%;display:block" loading="lazy" width="1500" height="2000">
-        <p class="cap">Data confirmation: all building data reviewed before submitting to AI processing</p>
-      </div>
+    <div class="appshots n4 r sp-l" data-delay="70">
+      <figure class="appshot">
+        <img class="device-img" src="img/Enter-collection-mobile/enter-app-house-data.png" alt="House data tab: a card confirming the digital building form has been created, with an edit button, above address and year built fields" loading="lazy" width="660" height="1288">
+        <figcaption class="appshot-c">
+          <div class="flow-n">01 · Hausdaten</div>
+          <div class="flow-t">House data</div>
+          <div class="flow-d">Address, year built, living area, occupants, and the building form once it exists.</div>
+        </figcaption>
+      </figure>
+      <figure class="appshot">
+        <img class="device-img" src="img/Enter-collection-mobile/enter-app-heat-sources.png" alt="Systems tab, step one of four: selecting which heat sources the building uses from preset options including gas, oil, heat pump and district heating" loading="lazy" width="660" height="1288">
+        <figcaption class="appshot-c">
+          <div class="flow-n">02 · Technik</div>
+          <div class="flow-t">Systems</div>
+          <div class="flow-d">Heating, hot water, ventilation, renewables. Picked from the set the model can read.</div>
+        </figcaption>
+      </figure>
+      <figure class="appshot">
+        <img class="device-img" src="img/Enter-collection-mobile/enter-app-floors.png" alt="Floors tab: a list of storeys from loft to basement, each showing its heating status, room count, floor area and window count" loading="lazy" width="660" height="1288">
+        <figcaption class="appshot-c">
+          <div class="flow-n">03 · Geschoss</div>
+          <div class="flow-t">Floors &amp; rooms</div>
+          <div class="flow-d">Every storey, with whether it is heated. Heated area is what the model divides by.</div>
+        </figcaption>
+      </figure>
+      <figure class="appshot">
+        <img class="device-img" src="img/Enter-collection-mobile/enter-app-construction.png" alt="Construction tab: roof, top floor ceiling, base slab, basement, external walls and elevations, with a red badge marking the basement as incomplete" loading="lazy" width="660" height="1288">
+        <figcaption class="appshot-c">
+          <div class="flow-n">04 · Bauteile</div>
+          <div class="flow-t">Construction</div>
+          <div class="flow-d">Roof, ceilings, slab, walls, elevations. The badge counts what is still open.</div>
+        </figcaption>
+      </figure>
     </div>
   </section>
 </div>
@@ -256,32 +300,167 @@
 <div class="warm-band">
   <div class="warm-band-inner">
     <p class="lbl r">The floor plan feature</p>
-    <div class="two r" style="align-items:start;gap:5rem;margin-bottom:3rem">
+    <div class="two is-wide is-top r sp-mb">
       <div>
         <h2>Window-level accuracy.<br>Built into the<br><em>floor plan.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">Windows are one of the most consequential variables in an energy model, and the paper trials had already settled the shape of the answer: place each opening on the plan, but pull its specification from a handful of pre-defined types. Position, dimensions and glazing all affect the U-value of the surrounding wall, which decides which retrofit measures make financial sense. Get it wrong and the whole recommendation skews.</p>
-        <div class="pbox" style="background:rgba(17,17,16,.05)">
-          <p>The floor plan feature pulled in a pre-populated 2D footprint from cadastral and satellite sources, then let advisors place each window directly on the plan, dragging it to the correct wall, entering dimensions, confirming glazing type. One spatial interaction replaced three separate form fields. Across a survey that took around 25% off the time on site, enough for one more appointment a day.</p>
+        <p class="prose">This is the part the paper trials bought. Windows move the model more than almost anything else: position, size and glazing all feed the U-value of the wall around them, which decides which measures pay for themselves.</p>
+        <div class="pbox is-fill">
+          <p>Drag each opening onto the wall it sits in, enter its dimensions, confirm the type it was defined as earlier. The row of dropdowns became a gesture, and the answer stopped depending on somebody having the patience to give it properly.</p>
         </div>
-        <p class="prose">The footprint served a second purpose: advisors could flag differences between the registered data and what they saw on site, feeding corrections back for future visits. The pre-populated data got more reliable, and surveys arrived at the desk far more complete, with completeness rising from 80% to 95%.</p>
+        <p class="prose">Where the registered geometry disagreed with the building in front of them, they reported the deviation from the plan itself. Those corrections fed the next visit, and completeness on surveys reaching the model went from 80% to 95%.</p>
       </div>
       <div style="padding-top:1rem">
-        <img class="photo" src="Man_adding_windows_on_tablet.jpg" alt="Advisor placing window on 2D floor plan" style="aspect-ratio:4/5;object-fit:cover;object-position:center top" loading="lazy" width="1600" height="1200">
-        <p class="cap" style="margin-top:.6rem">Placing a window on the 2D floor plan: position, size and glazing confirmed in one step</p>
+        <img class="photo" src="img/enter-floorplan-window.jpg" alt="A field worker holding a tablet showing the dimensioned floor plan, with a window panel open on it giving the room, its width and height, and its type details of 1972, double glazing and an aluminium frame" loading="lazy" width="1800" height="1350">
+        <p class="cap">One window, on the wall it sits in: room, dimensions and the type it inherits, in one step</p>
+      </div>
+    </div>
+
+    <!-- Where the plan came from, and what happens when it doesn't arrive. -->
+    <div class="two is-wide is-top r">
+      <div>
+        <h3 class="sp-0">The plan arrived<br>before <em>they did.</em></h3>
+        <p class="prose sp-s">Nobody drew the building. You found it on a map and traced the thermal envelope, the heated volume the model is actually about. An attached garage sits on the same footprint and outside that envelope, and only the person standing there can tell you which is which.</p>
+        <p class="prose">Cadastral coverage is not a promise, though, and a missing plan cannot stop a survey that is already happening. So it degrades instead of blocking: six rough shapes, one tap, and a screen that says outright it doesn’t want precision.</p>
+      </div>
+      <div class="appshots n2">
+        <figure class="appshot">
+          <img class="device-img" src="img/Enter-collection-mobile/enter-app-envelope-map.png" alt="Map view of a city block with building outlines, above a panel asking for the building’s thermal envelope to be selected, a three-step progress indicator and a report-a-problem link" loading="lazy" width="660" height="1288">
+          <figcaption class="appshot-c">
+            <div class="flow-n">The normal path</div>
+            <div class="flow-t">Trace it on the map</div>
+            <div class="flow-d">Only connected parts can be selected, so the envelope stays one volume by construction.</div>
+          </figcaption>
+        </figure>
+        <figure class="appshot">
+          <img class="device-img" src="img/Enter-collection-mobile/enter-app-shape-fallback.png" alt="Fallback screen offering six rough building shapes, rectangular, L, mirrored L, U, T and rectangle with extension, under a note saying an exact match is not required" loading="lazy" width="660" height="1288">
+          <figcaption class="appshot-c">
+            <div class="flow-n">When it fails</div>
+            <div class="flow-t">Pick a rough shape</div>
+            <div class="flow-d">Six shapes and a plain instruction not to be precise. The survey keeps moving.</div>
+          </figcaption>
+        </figure>
       </div>
     </div>
   </div>
+</div>
+
+<!-- ═══ LIVE U-VALUES — overriding the model ══════════════ -->
+<div class="body">
+  <section class="section r">
+    <p class="lbl">Live calculation</p>
+    <h2>Overriding the model,<br>before a bad number<br><em>became the record.</em></h2>
+    <div class="two sp-s">
+      <p class="prose">The U-value is how much heat escapes through a square metre of wall, roof or window, and the entire model rests on it. We calculated it live as construction details went in, so the estimate appeared while somebody was still standing in front of the thing it described.</p>
+      <p class="prose">Every figure stayed editable. Somebody looking into an opened-up wall knows more about it than a lookup table does, and the override opened the official U-value table for the times they would rather check than guess. Go more than 25% off the estimate and the app asked them to look again.</p>
+    </div>
+
+    <div class="two is-wide is-top r sp-l">
+      <div>
+        <div class="pbox sp-0">
+          <p>An override was a signal, not an error. The same correction turning up again and again meant the model was wrong, and that was now countable.</p>
+        </div>
+        <p class="prose sp-s">It also settles what the tool is for. Sending a tradesperson instead of a certified consultant only works if the tool treats their judgement as the better source when the two disagree, rather than as an exception to be logged and ignored.</p>
+      </div>
+      <div class="appshots n2">
+        <figure class="appshot">
+          <img class="device-img" src="img/Enter-collection-mobile/enter-app-uvalue-estimate.png" alt="Roof construction screen with the estimated U-value of 0.98 watts per square metre kelvin pinned to the bottom of the screen beside an override button" loading="lazy" width="660" height="1288">
+          <figcaption class="appshot-c">
+            <div class="flow-n">While you work</div>
+            <div class="flow-t">The running estimate</div>
+            <div class="flow-d">Pinned to the foot of the screen, moving as details go in, never in the way.</div>
+          </figcaption>
+        </figure>
+        <figure class="appshot">
+          <img class="device-img" src="img/Enter-collection-mobile/enter-app-uvalue-override.png" alt="Override dialog: enter a U-value, with a link out to the official U-value table, a numeric keypad, and apply or cancel" loading="lazy" width="660" height="1288">
+          <figcaption class="appshot-c">
+            <div class="flow-n">When you disagree</div>
+            <div class="flow-t">Type the real one</div>
+            <div class="flow-d">With the official U-value table one link away, for the times you would rather check than guess.</div>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ COMPLETENESS — mandatory fields, and the designed exit ═ -->
+  <section class="section r">
+    <p class="lbl">Data completeness</p>
+    <h2>100% or nothing.<br>Real houses <em>don’t cooperate.</em></h2>
+    <div class="two sp-s">
+      <p class="prose">Missing details invalidate both the subsidy and the model, so completion had to be total. Every critical field was mandatory by default and the survey would not submit around one.<br><br>Then you meet the building. The basement is locked and the neighbour has the key. The owner inherited the house and has no idea when the windows went in. The flat roof needs equipment nobody brought.</p>
+      <p class="prose">A requirement you cannot satisfy doesn’t get met, it gets defeated. Somebody types a plausible number and a guess enters the model looking exactly like a measurement.<br><br>So the way out was designed rather than left to happen. “<span lang="de">Antwort nicht möglich</span>” does not quietly clear the requirement. It asks why, from a fixed list.</p>
+    </div>
+
+    <div class="appshots n3 is-tablet r sp-l" data-delay="70">
+      <figure class="appshot">
+        <img class="device-img" src="img/Enter-collection-mobile/enter-app-bypass-1.png" alt="Survey screen on a tablet with an empty mandatory field for the building’s heated temperature" loading="lazy" width="1451" height="2048">
+        <figcaption class="appshot-c">
+          <div class="flow-n">Step 01</div>
+          <div class="flow-t">Mandatory by default</div>
+          <div class="flow-d">Critical fields block the submit. Nothing here suggests there is a way past them.</div>
+        </figcaption>
+      </figure>
+      <figure class="appshot">
+        <img class="device-img" src="img/Enter-collection-mobile/enter-app-bypass-2.png" alt="The same field swiped open to reveal a red “Antwort nicht möglich?” action" loading="lazy" width="1451" height="2048">
+        <figcaption class="appshot-c">
+          <div class="flow-n">Step 02</div>
+          <div class="flow-t">Swipe to find the exit</div>
+          <div class="flow-d">Deliberate enough that nobody reaches “<span lang="de">Antwort nicht möglich</span>” by accident, or by habit.</div>
+        </figcaption>
+      </figure>
+      <figure class="appshot">
+        <img class="device-img" src="img/Enter-collection-mobile/enter-app-bypass-3.png" alt="Dialog asking why the question cannot be answered, offering five reasons: question unclear, part of the building inaccessible, data not available, data not available from the customer, and other" loading="lazy" width="1451" height="2048">
+        <figcaption class="appshot-c">
+          <div class="flow-n">Step 03</div>
+          <div class="flow-t">Say why</div>
+          <div class="flow-d">Question unclear. Part of the building inaccessible. Data doesn’t exist. Customer couldn’t supply it. A reason, not a text box.</div>
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="pbox r">
+      <p>A skipped field is a hole nobody can see. A declared one is a fact about the building, and it reaches the desk with its reason attached.</p>
+    </div>
+
+    <div class="two is-wide is-top r sp-l">
+      <div>
+        <h3 class="sp-0">The homeowner had<br>the <em>final sign-off.</em></h3>
+        <p class="prose sp-s">Nothing went to the model until the person who lives in the building had been through it. Five steps on the tablet, in their own kitchen: the house, the systems, and the figures the result depends on.</p>
+        <p class="prose">Somebody who has lived somewhere for thirty years knows the boiler went in later than the sticker on it claims. And where readings were missing, the screen said what it would cost the answer rather than just marking a field empty.</p>
+      </div>
+      <div class="appshots n2">
+        <figure class="appshot">
+          <img class="device-img" src="img/Enter-collection-mobile/enter-app-confirm-house.png" alt="Customer confirmation, step one of five: year built, living area, occupants, detached status, window types, doors and roof form listed for the homeowner to check, with an update link" loading="lazy" width="660" height="1288">
+          <figcaption class="appshot-c">
+            <div class="flow-n">Step 1 of 5</div>
+            <div class="flow-t">The house</div>
+            <div class="flow-d">Seven figures the whole model rests on, in front of the person best placed to catch them.</div>
+          </figcaption>
+        </figure>
+        <figure class="appshot">
+          <img class="device-img" src="img/Enter-collection-mobile/enter-app-confirm-systems.png" alt="Customer confirmation, step two of five: gas heating, oil heating, solar thermal and photovoltaic listed with install years, above a warning that no consumption data was entered and that this affects calculation accuracy" loading="lazy" width="660" height="1288">
+          <figcaption class="appshot-c">
+            <div class="flow-n">Step 2 of 5</div>
+            <div class="flow-t">The systems</div>
+            <div class="flow-d">Missing consumption data, named as a cost to the answer rather than an empty box.</div>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- ═══ THE CUSTOMER REPORT — DARK BAND ════════════════════ -->
 <div class="dark-band">
   <div class="dark-band-inner">
     <p class="lbl r">The customer report</p>
-    <div class="two r" style="align-items:center;gap:5rem;margin-bottom:3rem">
+    <!-- Top-aligned like every other text-beside-media pair on the page. This
+         one used to centre, which floated the contents list off the grid. -->
+    <div class="two is-wide is-top r sp-mb">
       <div>
         <h2>Field data becomes<br>a plan a homeowner<br><em>can trust.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">Once the field survey was submitted, the AI processed the assessment data and generated a draft report within seconds. Rather than returning for a second visit, the advisor stayed with the homeowner and used the report immediately to review the findings together.</p>
-        <p class="prose">I designed this part of the product from scratch: a structured report that guided the conversation and helped the homeowner choose between the options. Together they confirmed which measures went into the final iSFP, the document behind the funding application.</p>
+        <p class="prose">This is where the week went. The model came back in seconds, so the report opened on the same tablet, in the same kitchen, and the person who had just walked the house went through it with the owner. No third colleague, no scheduled call, no gap for a competitor’s quote to arrive in.</p>
+        <p class="prose">I designed this part from scratch. It had to carry a conversation between a homeowner and somebody who is not a salesperson, and end with an agreed set of measures for the iSFP.</p>
       </div>
       <div>
         <!-- Mirrors the report's own opening contents page -->
@@ -320,7 +499,7 @@
         <div class="walk-text">
           <p class="walk-n">Future outlook</p>
           <h3 class="walk-t">The cost of doing nothing</h3>
-          <p class="walk-d">The report opened with energy prices rather than renovation costs. Projected gas, oil and electricity rates ran out to 2064, set against what this household was already spending each year. It gave the rest of the conversation a baseline: not what a retrofit costs, but what standing still costs.</p>
+          <p class="walk-d">It opened on energy prices, not renovation costs. Projected gas, oil and electricity out to 2064, against what this household already spent each year. The baseline for everything after it was the cost of standing still.</p>
         </div>
       </div>
       <div class="walk-row r">
@@ -328,7 +507,7 @@
         <div class="walk-text">
           <p class="walk-n">Current status</p>
           <h3 class="walk-t">Where the building stands today</h3>
-          <p class="walk-d">Year built, floor area, heat source and annual consumption, drawn straight from the survey the advisor had completed minutes earlier in the same house. Beside it, the current energy class and the class the building could realistically reach. Homeowners recognised their own property here, which is what made the numbers credible.</p>
+          <p class="walk-d">Year built, floor area, heat source, consumption, taken from the survey finished minutes earlier in the same house. Beside it, today’s energy class and the one the building could reach. People recognised their own house here, which is what made the rest credible.</p>
         </div>
       </div>
       <div class="walk-row r">
@@ -336,7 +515,7 @@
         <div class="walk-text">
           <p class="walk-n">Renovation measures</p>
           <h3 class="walk-t">Every measure, ranked</h3>
-          <p class="walk-d">The AI’s full set of recommendations in one table: annual savings, payback period, cost and a recommendation rating for each measure. Ticking a measure updated the totals along the bottom, so the pair could assemble a package and watch the combined saving, energy class and subsidy move as they went.</p>
+          <p class="walk-d">The full set of recommendations in one table: annual saving, payback, cost, a rating. Ticking a measure moved the totals along the bottom, so they could build a package and watch the combined saving, class and subsidy move with it.</p>
         </div>
       </div>
       <div class="walk-row r">
@@ -344,7 +523,7 @@
         <div class="walk-text">
           <p class="walk-n">Renovation details</p>
           <h3 class="walk-t">What one measure does on its own</h3>
-          <p class="walk-d">Opening a measure showed it in isolation: what it saves, what it costs, the subsidy it attracts, the payback period and the energy class it moves the building to. This was usually where the decision happened.</p>
+          <p class="walk-d">Opening a measure showed it alone: saving, cost, subsidy, payback, and the class it moves the building to. This was usually where the decision happened.</p>
         </div>
       </div>
     </div>

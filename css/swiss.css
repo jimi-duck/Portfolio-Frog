@@ -743,7 +743,24 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    legible, but a full half of the grid left it standing a head taller than the
    column beside it. Five-sevenths is where the two columns end level. */
 .two.lean{grid-template-columns:5fr 7fr}
+/* Text beside media wants more air between the columns than two columns of
+   prose do; the bands were all carrying a hand-typed gap:5rem for this. */
+.two.is-wide{gap:clamp(1.8rem,4.2vw,5rem)}
+.two.is-top{align-items:start}
 .three{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap)}
+
+/* ── Case-study vertical rhythm ─────────────────────────────────────────── */
+/* Three steps, and every block inside a section takes one of them. The pages
+   had drifted to a dozen one-off inline margin-tops between them, which is what
+   made the spacing read as accident rather than as a grid. Small: a block that
+   belongs to the one above it. Medium: the next block in the same argument.
+   Large: a new beat inside the same section. */
+.sp-s{margin-top:clamp(1.1rem,2.2vw,1.7rem)}
+.sp-m{margin-top:clamp(1.8rem,3.4vw,2.8rem)}
+.sp-l{margin-top:clamp(2.6rem,4.8vw,4rem)}
+/* Same three steps below an element, for the one or two places that need it */
+.sp-mb{margin-bottom:clamp(1.8rem,3.4vw,2.8rem)}
+.sp-0{margin-top:0}
 .four{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap)}
 /* Case-study artwork runs at its natural height. These are screenshots, flows
    and diagrams — a forced aspect ratio slices content out of them. */
@@ -783,6 +800,11 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 
 /* pull box + pull quote */
 .pbox{border-left:2px solid var(--red);padding:.2rem 0 .2rem 1.2rem;margin:1.4rem 0}
+/* A tinted pull box, for the one that sits on --sheet and needs to lift off it.
+   Mixed from --ink rather than hardcoded near-black: the literal rgba(17,17,16,.05)
+   this replaces was invisible on the dark theme's warm band. */
+.pbox.is-fill{background:color-mix(in srgb,var(--ink) 6%,transparent);
+  padding:clamp(.8rem,1.6vw,1.1rem) clamp(.9rem,1.8vw,1.3rem) clamp(.8rem,1.6vw,1.1rem) 1.2rem}
 .pbox p{font-size:var(--t-body);line-height:1.55}
 .pq{padding:clamp(1.4rem,3vw,2.4rem) 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
   margin:clamp(1.6rem,3vw,2.6rem) 0}
@@ -851,25 +873,12 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .warm-band-inner{max-width:1560px;margin:0 auto}
 .warm-band .lbl{padding-bottom:1rem;border-bottom:1px solid var(--ink);margin-bottom:clamp(1.6rem,3vw,2.6rem);display:block}
 
-/* flows / pipelines / walkthroughs / timelines */
+/* flows / walkthroughs / timelines */
 .flow,.walk,.sprint{display:grid;gap:var(--gap)}
-.cols-4{grid-template-columns:repeat(4,1fr)}
 .flow-step,.day{border-top:1px solid var(--ink);padding-top:.9rem}
 .flow-n,.day-n,.walk-n{font-size:var(--t-lab);letter-spacing:var(--tr-lab);color:var(--red-ink);font-weight:700}
 .flow-t,.day-t,.walk-t{margin-top:.5rem;font-size:var(--t-h3);font-weight:700;letter-spacing:-.02em;line-height:1.1}
 .flow-d,.day-d,.walk-d{margin-top:.45rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.5}
-.pipeline{overflow-x:auto;padding-bottom:.6rem}
-/* The five nodes plus their arrows overran a 1280px viewport by ~26px, so the
-   last node sat clipped behind a scrollbar on the most common laptop width.
-   Narrower basis and a tighter gap: it fits from about 1200px up and scrolls
-   below that, where the row bleeding off the edge is its own affordance. */
-.pipeline-row{display:flex;align-items:stretch;gap:clamp(.8rem,1.4vw,1.6rem);min-width:max-content}
-.pipe-node{flex:0 0 clamp(170px,13.4vw,230px);border-top:1px solid var(--ink);padding-top:.9rem}
-.pipe-node-t{font-size:var(--t-h3);font-weight:700;letter-spacing:-.02em;line-height:1.1}
-.pipe-node-d{margin-top:.45rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.5}
-/* --red-ink, not --red: the plain accent measures 3.7:1 on paper, which fails
-   AA for a glyph this size. */
-.pipe-arr{align-self:center;color:var(--red-ink);font-size:1.1rem}
 /* Report walkthrough — a 2x2 plate. Four full-width rows of a portrait
    screenshot left acres of empty column beside the short commentary. */
 .walk{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(1.8rem,3.6vw,3.4rem) var(--gap)}
@@ -899,6 +908,34 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .phones-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.9rem,1.5vw,1.5rem);align-items:end}
 .phones-trio .phone-col:nth-child(1),.phones-trio .phone-col:nth-child(3){margin-top:clamp(1.6rem,4vw,4rem)}
 
+/* A run of app screens, each carrying its own caption block: the render on top,
+   then the same rule / accent label / heading / description stack as .flow-step,
+   so a row of screenshots reads as part of the argument rather than as a strip
+   of decoration. Unlike .walk-media these renders carry a symmetric transparent
+   margin (~3.5% a side, measured), so they centre in the column and need none
+   of that component's negative pull. The count class sets the row width; all of
+   them narrow through the breakpoints at the foot of this file. */
+.appshots{display:grid;gap:var(--gap)}
+.appshots.n4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.appshots.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.appshots.n2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.appshot{display:flex;flex-direction:column}
+.appshot .device-img{max-width:300px;margin:0 auto clamp(.9rem,1.8vw,1.4rem)}
+/* Tablet renders run at a different ratio to the phone ones (0.71 against 0.51).
+   Capped at the phone width their UI is too small to read, so they get their own,
+   and their transparent margin is narrower (1.8% a side, measured) which makes
+   them look wider again at the same cap. */
+.appshots.is-tablet .device-img{max-width:470px}
+/* Paper and --sheet only. The caption reuses .flow-n/.flow-t/.flow-d, whose
+   colours are tuned for those two grounds, so putting this on .dark-band needs
+   the text patched as well as this hairline — see the note above .dark-band. */
+.appshot-c{border-top:1px solid var(--ink);padding-top:.9rem}
+/* These are captions, not argument steps. .flow-n is red, and a page carrying
+   thirteen of them turns the accent into a texture — the one rule the palette
+   has is that red appears once in a viewport. The caption label goes grey, the
+   same register as .cap, and red goes back to meaning something. */
+.appshot-c .flow-n{color:var(--mute)}
+
 /* Phone beside desktop, sized the way the two objects actually relate and
    aligned on the floor — equal heights made the phone look shrunken next to a
    laptop of the same height. */
@@ -914,7 +951,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 /* The two audience cards in the research band. This was a flex row, which put
    the tag and the heading on the same line and dropped the description
    underneath: an arrangement nobody chose, and one that re-wrapped at every
-   width. It is a stack, built from the same parts as .flow-step and .pipe-node:
+   width. It is a stack, built from the same parts as .flow-step:
    rule, accent label, heading, description. */
 .utype{border-top:1px solid var(--ink);padding-top:1rem}
 .utype-tag{display:block;font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);
@@ -1001,10 +1038,10 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .walk-media{--dev:300px}
   .mgrid{grid-template-columns:1fr}
   .stats,.stats.is-out{grid-template-columns:1fr;gap:1.4rem}
+  .appshots.n4,.appshots.n3{grid-template-columns:repeat(2,minmax(0,1fr))}
   .stat{border-left:0;padding-left:0;border-top:1px solid var(--rule-2);padding-top:1.1rem}
   .stat:first-child{border-top:0;padding-top:0}
   .next{grid-template-columns:1fr;gap:1.6rem}
-  .cols-4{grid-template-columns:1fr 1fr}
   .frow{grid-template-columns:1fr}
   /* three columns of ~110px shred "Senior Product Designer" into three lines,
      so the meta row becomes label-left / value-right rows like the contact
@@ -1022,7 +1059,11 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .sm-hide{display:none}
   .cli{grid-template-columns:repeat(2,1fr)}
   .f-grid{grid-template-columns:1fr}
-  .cols-4,.phones-pair{grid-template-columns:1fr}
+  .phones-pair{grid-template-columns:1fr}
+  /* One screen at a time. Two 150px renders side by side are a texture, not a
+     screenshot, and the caption under each shreds into four words a line. */
+  .appshots.n4,.appshots.n3,.appshots.n2{grid-template-columns:1fr}
+  .appshot .device-img{max-width:270px}
   /* the numeral stops being a rail and becomes a marker above the step */
 }
 
