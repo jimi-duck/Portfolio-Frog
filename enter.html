@@ -68,7 +68,7 @@
   <div class="meta-grid">
     <div class="meta-item"><label>Role</label><p>Senior Product Designer</p></div>
     <div class="meta-item"><label>Company</label><p>Enter, Berlin</p></div>
-    <div class="meta-item"><label>Products</label><p>Field survey app · Customer report · iSFP flow</p></div>
+    <div class="meta-item"><label>Products</label><p>Field survey app · Customer report</p></div>
   </div>
 </header>
 
@@ -77,7 +77,7 @@
 
 <div class="stats">
   <div class="stat r"><div class="stat-n">iSFP</div><div class="stat-l">Official government document<br>generated from field data</div></div>
-  <div class="stat r"><div class="stat-n">2D</div><div class="stat-l">Live floor plans with<br>window-level precision</div></div>
+  <div class="stat r"><div class="stat-n">9 in 10</div><div class="stat-l">Houses with a dimensioned floor plan<br>before anyone knocked</div></div>
   <div class="stat r"><div class="stat-n">1 visit</div><div class="stat-l">Survey, findings and next steps,<br>before anyone leaves the house</div></div>
 </div>
 
@@ -88,7 +88,7 @@
     <h2>Billions in renovation funding.<br>The data to claim it<br><em>didn’t yet exist.</em></h2>
     <div class="two sp-s">
       <p class="prose">The barrier is paperwork. Insulation, a heat pump, new windows: whatever the measure, a homeowner needs an iSFP first, an Individual Renovation Roadmap drawn up from a survey of their building. Traditionally a certified energy consultant does that survey in person, which is slow, expensive, and most of the reason a house never gets one.</p>
-      <p class="prose">Enter split the job. Somebody goes to the house and captures it; the energy model and the certified document are made from that data afterwards. Which only works if what comes back is good enough to build on, and the person who went is usually a <span lang="de">Handwerker</span>: a tradesperson who has spent their working life inside buildings, and has never opened a modelling tool.<br><br>When I joined, they were doing it on paper.</p>
+      <p class="prose">Enter split the job. Somebody goes to the house and captures it; the energy model and the certified document are made from that data afterwards. Which only works if what comes back is good enough to build on, and the person who went is usually a <span lang="de">Handwerker</span>: a tradesperson who has spent their working life inside buildings, and has never opened a modelling tool.</p>
     </div>
   </section>
 </div>
@@ -114,7 +114,7 @@
       <div class="flow-step">
         <div class="flow-n">Stage 03 · The presentation</div>
         <div class="flow-t">1 week</div>
-        <div class="flow-d">A colleague who has never seen the house presents the iSFP on a scheduled call, and the quotes for the work arrive with it.</div>
+        <div class="flow-d">A colleague who has never seen the house presents the iSFP findings on a scheduled call. It is also the sales call, and the only real chance to upsell to the customer.</div>
       </div>
     </div>
 
@@ -141,7 +141,7 @@
 
     <div class="two sp-s">
       <p class="prose">Most of what happened after the visit was work a machine could carry. The energy model, the calculations behind it, the ranked measures, the report the homeowner sees. The certified iSFP still needs a qualified person at the end, but nearly everything feeding it can be imported rather than rebuilt by hand.</p>
-      <p class="prose">The visit was the exception, and it was the part still running on paper. So the shape of the project was settled before a single screen was designed: shrink the human step down to one job, and make what it produces good enough to carry everything after it.<br><br>Which put the whole business case on the quality of one survey.</p>
+      <p class="prose">The visit was the exception, and it was the part still running on paper. So the shape of the project was settled before a single screen was designed: shrink the human step down to one job, and make what it produces good enough to carry everything after it.</p>
     </div>
 
     <!-- The friction the objective had to remove. Evidence under the claim,
@@ -168,10 +168,10 @@
     <h2>We rebuilt the paper form.<br>On a screen. <em>It changed nothing.</em></h2>
     <div class="two sp-s">
       <p class="prose">The cheap move was to build nothing ourselves. We put the survey into Fastfield, an off-the-shelf forms tool, and had it in the field inside a few weeks. It did what it promised. Typed, legible, no more deciphering handwriting at the desk.</p>
-      <p class="prose">It also changed nothing about the job. A window belongs to a floor plan, not to a list of fields, and describing one as form data meant a row of dropdowns for every opening in the house: which floor, which wall, which orientation, what size. Accurate, and miserable. 40 openings into a survey, people were moving fast and rounding things, and that’s where the errors came from.</p>
+      <p class="prose">It also changed nothing about the job. A window belongs to a floor plan, not to a list of fields, and describing one as form data meant a row of dropdowns for every opening in the house: which floor, which wall, which orientation, what size. Accurate, and miserable. 40 openings into a survey, people were moving fast and rounding things, and that is where the errors came from.</p>
     </div>
 
-    <div class="pbox r">
+    <div class="pbox is-claim r">
       <p>The data wasn’t poor because anyone was careless. It was poor because we had made the accurate answer the slowest one to give.</p>
     </div>
   </section>
@@ -197,7 +197,7 @@
       <div class="r">
         <img class="photo is-doc" src="img/enter-poc-tablet.jpg" alt="A field worker marking up the prototype floor plan on a tablet inside an unfinished house" loading="lazy" width="1306" height="816">
         <p class="cap">Marked up in the Files app on a tablet they already carried. Nothing was built to run this test</p>
-        <p class="prose sp-s">Each sheet was filled in on site, then handed to the modelling team to see whether they could actually build from what came back.</p>
+        <p class="prose sp-m">Every sheet went to two audiences: the people working this way in somebody’s attic, and the modelling team building a model from whatever came back. Both were in the room for every round.</p>
         <p class="sp-s"><a class="tlink lbl" href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" style="color:var(--red-ink)">Open the prototype sheet (PDF) &#8599;</a></p>
       </div>
     </div>
@@ -222,42 +222,18 @@
   </section>
 </div>
 
-<!-- ═══ GROUNDWORK — DARK BAND ═════════════════════════════ -->
-<!-- The bridge from research to build. Mostly information architecture, which
-     is why there is almost nothing here worth screenshotting. -->
+<!-- ═══ BUILDING DATA CAPTURE — DARK BAND ══════════════════ -->
+<!-- This is the centre of the work, so it takes the band the groundwork
+     section used to hold. That section opened by admitting it had nothing to
+     show and then showed two screens; its one real point — the information
+     architecture everything else hangs off — is the lead-in here instead. -->
 <div class="dark-band">
   <div class="dark-band-inner">
-    <p class="lbl r">Laying the groundwork</p>
-    <div class="two is-wide is-top r">
-      <div>
-        <h2>Before the survey tool,<br>the <em>plumbing.</em></h2>
-        <p class="prose">Building in house meant more than a capture screen. Field operations were running appointments, tickets and documents across tools that knew nothing about each other, and none of it hung off the customer it belonged to.</p>
-        <p class="prose">Most of that work never shows up in a screenshot: an information architecture with the customer project as the spine, and the appointment, survey, photos, tickets and finished iSFP all attached to it. The visit screen is the part you can see.<br><br>It also held the boundaries. The survey stayed locked until the appointment was started, and the report stayed locked until every section came back.</p>
-      </div>
-      <!-- Pre-framed phone images — black backgrounds blend into dark band -->
-      <div class="phones-pair">
-        <div class="phone-col">
-          <img class="device-img" src="Pre-data_capture.png" alt="Pre-appointment briefing screen" loading="lazy" width="606" height="1006">
-          <p class="cap">Before: data locked, “<span lang="de">Termin starten</span>” visible</p>
-        </div>
-        <div class="phone-col">
-          <img class="device-img" src="Post_data_capture.png" alt="Post-completion appointment screen" loading="lazy" width="606" height="1136">
-          <p class="cap">After: survey submitted, report available</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ BUILDING DATA CAPTURE ══════════════════════════════ -->
-<div class="body">
-  <section class="section r">
-    <p class="lbl">Building data capture</p>
+    <p class="lbl r">Building data capture</p>
     <h2>One handwritten sheet<br>became four <em>sections.</em></h2>
-    <div class="two sp-s">
-      <p class="prose">The paper survey ran in one direction. Nobody works a house that way. You go down to the boiler, up to the loft, back through the two rooms you skipped because someone was asleep in them, so the sheet became four tabs you could leave and come back to.</p>
-      <p class="prose">Almost nothing stayed free text. Heat sources, wall build-ups, glazing: preset options, because the person answering knows buildings, not energy modelling. What reached the model was already a value it recognised, and the submit control stayed dead until all four sections were done.</p>
-    </div>
+    <p class="prose">Building in house meant more than a capture screen. Field operations were running appointments, tickets and documents across tools that knew nothing about each other, and none of it hung off the customer it belonged to. So the survey sat on an information architecture with the customer project as the spine: appointment, survey, photos, tickets and the finished iSFP all attached to it. That structure also held the boundaries, starting with a survey that stayed locked until somebody actually began the appointment.</p>
+    <p class="prose">The paper survey ran in one direction. Nobody works a house that way. You go down to the boiler, up to the loft, back through the two rooms you skipped because someone was asleep in them, so the sheet became four tabs you could leave and come back to.</p>
+    <p class="prose">Almost nothing stayed free text. Heat sources, wall build-ups, glazing: preset options, because the person answering knows buildings, not energy modelling. What reached the model was already a value it recognised, and the submit control stayed dead until all four sections were done.</p>
 
     <div class="appshots n4 r sp-l" data-delay="70">
       <figure class="appshot">
@@ -293,21 +269,34 @@
         </figcaption>
       </figure>
     </div>
-  </section>
+  </div>
 </div>
 
 <!-- ═══ FLOOR PLAN ══════════════════════════════════════════ -->
 <div class="warm-band">
   <div class="warm-band-inner">
-    <p class="lbl r">The floor plan</p>
-    <h2 class="r">The plan arrived first.<br>The windows went<br><em>straight onto it.</em></h2>
+    <p class="lbl r">The floor plan feature</p>
+    <div class="two is-wide is-top r sp-mb">
+      <div>
+        <h2>Window-level accuracy.<br>Built into the<br><em>floor plan.</em></h2>
+        <p class="prose">This is the part the paper trials bought. Windows move the model more than almost anything else: position, size and glazing all feed the U-value of the wall around them, which decides which measures pay for themselves.</p>
+        <p class="prose">The work itself is short. Define the window type, add the measurements, drop it onto the floor plan, and repeat for every opening in the house.</p>
+        <p class="prose">Where the registered geometry disagreed with the building in front of them, they reported the deviation from the plan itself. Those corrections fed the next visit, so the plan the following survey started from was better than the one this survey got.</p>
+      </div>
+      <div style="padding-top:1rem">
+        <img class="photo" src="img/enter-floorplan-window.jpg" alt="A field worker holding a tablet showing the dimensioned floor plan, with a window panel open on it giving the room, its width and height, and its type details of 1972, double glazing and an aluminium frame" loading="lazy" width="1800" height="1350">
+        <p class="cap">One window, on the wall it sits in: room, dimensions and the type it inherits, in one step</p>
+      </div>
+    </div>
 
     <!-- Where the plan comes from. This has to be established before the windows
          make any sense, which is the wrong way round it used to read. -->
     <div class="two is-wide is-top r sp-m">
       <div>
-        <p class="prose">Nobody drew the building. The app pulled its outline off the map and asked the worker to trace the thermal envelope: the heated part, which is the only part the energy model cares about. An attached garage sits on the same footprint and outside that envelope, and only somebody standing there can say which is which.</p>
-        <p class="prose">Cadastral data isn’t a promise, though, and a plan that fails to arrive can’t stop a survey that’s already happening. So it degrades rather than blocks: six rough building shapes, one tap, and a screen that says plainly it doesn’t want precision.</p>
+        <h3 class="sp-0">Cadastral data covered<br>9 houses in <em>10.</em></h3>
+        <p class="prose sp-s">Nobody drew the building. You found it on a map and traced the thermal envelope, the heated volume the model is actually about. An attached garage sits on the same footprint and outside that envelope, and only the person standing there can tell you which is which.</p>
+        <p class="prose">The exceptions were new builds, extensions, anything the registry hadn’t caught up with yet. And a missing plan can’t stop a survey that is already happening.</p>
+        <p class="prose">So the fallback went in after the MVP: six rough shapes, one tap, and a screen that says outright it doesn’t want precision. It carries the last 10% without anyone having to redraw the automation behind the other 90%.</p>
       </div>
       <div class="appshots n2">
         <figure class="appshot">
@@ -351,7 +340,7 @@
 <div class="body">
   <section class="section r">
     <p class="lbl">Live calculation</p>
-    <h2>Overriding the model,<br>before a bad number<br><em>became the record.</em></h2>
+    <h2>The model calculates.<br>The person on site<br><em>overrules it.</em></h2>
     <div class="two sp-s">
       <p class="prose">The U-value is how much heat escapes through a square metre of wall, roof or window, and the entire model rests on it. We calculated it live as construction details went in, so the estimate appeared while somebody was still standing in front of the thing it described.</p>
       <p class="prose">Every figure stayed editable. Somebody looking into an opened-up wall knows more about it than a lookup table does, and the override opened the official U-value table for the times they would rather check than guess. Go more than 25% off the estimate and the app flagged how far out the number was, then took it anyway.</p>
@@ -359,10 +348,8 @@
 
     <div class="two is-wide is-top r sp-l">
       <div>
-        <div class="pbox sp-0">
-          <p>An override was a signal, not an error. The same correction turning up again and again meant the model was wrong, and that was now countable.</p>
-        </div>
-        <p class="prose sp-s">It also settles what the tool is for. Sending a tradesperson instead of a certified consultant only works if the tool treats their judgement as the better source when the two disagree, rather than as an exception to be logged and ignored.</p>
+        <p class="prose sp-0">The override earned its place once the tool went outside Enter. It was sold to other companies to run their own surveys, and their people weren’t only tradespeople. Architects and energy consultants used it too, with the training to want a level of detail the preset options deliberately don’t carry.</p>
+        <p class="prose">So the automated estimate is a starting position, not a verdict. Whoever is standing in front of the wall gets the last word on it, and the number that reaches the model is the one they signed off.</p>
       </div>
       <div class="appshots n2">
         <figure class="appshot">
@@ -419,10 +406,6 @@
           <div class="flow-d">Question unclear. Part of the building inaccessible. Data doesn’t exist. Customer couldn’t supply it. A reason, not a text box.</div>
         </figcaption>
       </figure>
-    </div>
-
-    <div class="pbox r">
-      <p>A skipped field is a hole nobody can see. A declared one is a fact about the building, and it reaches the desk with its reason attached.</p>
     </div>
 
     <div class="two is-wide is-top r sp-l">
@@ -501,7 +484,7 @@
       <div class="walk-row r">
         <div class="walk-media"><img src="Enter-report-1.png" alt="Report screen showing projected energy price development and expected household costs" loading="lazy" width="680" height="884"></div>
         <div class="walk-text">
-          <p class="walk-n">Future outlook</p>
+          <p class="walk-n">01 · Future outlook</p>
           <h3 class="walk-t">The cost of doing nothing</h3>
           <p class="walk-d">It opened on energy prices, not renovation costs. Projected gas, oil and electricity out to 2064, against what this household already spent each year. The baseline for everything after it was the cost of standing still.</p>
         </div>
@@ -509,7 +492,7 @@
       <div class="walk-row r">
         <div class="walk-media"><img src="Enter-report-2.png" alt="Report screen showing the current building assessment and energy class" loading="lazy" width="680" height="884"></div>
         <div class="walk-text">
-          <p class="walk-n">Current status</p>
+          <p class="walk-n">02 · Current assessment</p>
           <h3 class="walk-t">Where the building stands today</h3>
           <p class="walk-d">Year built, floor area, heat source, consumption, taken from the survey finished minutes earlier in the same house. Beside it, today’s energy class and the one the building could reach. People recognised their own house here, which is what made the rest credible.</p>
         </div>
@@ -517,7 +500,7 @@
       <div class="walk-row r">
         <div class="walk-media"><img src="Enter-report-3.png" alt="Report screen listing all available retrofit measures with rankings" loading="lazy" width="680" height="884"></div>
         <div class="walk-text">
-          <p class="walk-n">Renovation measures</p>
+          <p class="walk-n">03 · Renovation roadmap</p>
           <h3 class="walk-t">Every measure, ranked</h3>
           <p class="walk-d">The full set of recommendations in one table: annual saving, payback, cost, a rating. Ticking a measure moved the totals along the bottom, so they could build a package and watch the combined saving, class and subsidy move with it.</p>
         </div>
@@ -525,49 +508,48 @@
       <div class="walk-row r">
         <div class="walk-media"><img src="Enter-report-4.png" alt="Report screen showing the individual impact of a selected heat pump measure" loading="lazy" width="680" height="884"></div>
         <div class="walk-text">
-          <p class="walk-n">Renovation details</p>
+          <p class="walk-n">03 · Renovation roadmap</p>
           <h3 class="walk-t">What one measure does on its own</h3>
           <p class="walk-d">Opening a measure showed it alone: saving, cost, subsidy, payback, and the class it moves the building to. This was usually where the decision happened.</p>
         </div>
       </div>
     </div>
 
-    <!-- The half of the AI story the customer never sees, and the reason the
-         iSFP turnaround moved at all. -->
-    <div class="pbox r sp-l">
-      <p>The same submission was already feeding the energy model behind the conversation. A qualified person still finished and signed the iSFP, but most of its inputs now imported straight in rather than being rebuilt by hand, and that’s where the week went.</p>
-    </div>
   </div>
 </div>
 
 <!-- ═══ HOW SUCCESS WAS MEASURED ═══════════════════════════ -->
-<div class="body" style="padding-top:0">
+<!-- The figures lead, then the frame they were read against. This section used
+     to run the other way round, and the four cards were written as intentions —
+     "reducing time spent", "helping more homeowners move forward". They say what
+     each metric actually counted now, which is what the eyebrow promises. -->
+<div class="body">
   <section class="section r">
     <p class="lbl">Product metrics</p>
-    <h2>How success was <em>measured.</em></h2>
-    <div class="mgrid">
-      <article class="mcard">
-        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="9.5" cy="5.2" rx="6" ry="2.4"/><path d="M3.5 5.2v5.6c0 1.33 2.69 2.4 6 2.4"/><path d="M3.5 10.8v5.6c0 1.33 2.69 2.4 6 2.4h.4"/><path d="M15.5 5.2v3"/><path d="M13.4 17.6l2 2 4-4.4"/></svg></span>
-        <p><strong>Data accuracy</strong>More consistent building data, with fewer errors reaching the energy model.</p>
-      </article>
-      <article class="mcard">
-        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.2" cy="13.4" r="6.8"/><path d="M8.2 2.4h4"/><path d="M10.2 2.4v4.2"/><path d="M10.2 10v3.4l2.2 1.5"/><path d="M20 13.6v6"/><path d="M18 17.6l2 2 2-2"/></svg></span>
-        <p><strong>Time on site</strong>Reducing time spent on property visits without sacrificing data quality.</p>
-      </article>
-      <article class="mcard">
-        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.4 3.2h5.9L19.6 7.5V20.8H9.4z"/><path d="M15.3 3.2v4.3h4.3"/><path d="M6.6 8.2H3.2"/><path d="M6.6 12H1.8"/><path d="M6.6 15.8H3.8"/></svg></span>
-        <p><strong>iSFP turnaround</strong>Shortening the time from site visit to completed iSFP.</p>
-      </article>
-      <article class="mcard">
-        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.2 10.4 12 3.6l8.8 6.8"/><path d="M5.4 12v8.4h13.2V12"/><path d="M8.2 16.6l1.9-1.7 1.9 1.5 1.9-1.5 1.9 1.7"/><path d="M12 16.4v2"/></svg></span>
-        <p><strong>Retrofit sales</strong>Helping more homeowners move forward with recommended measures.</p>
-      </article>
-    </div>
+    <h2>Less time in the house.<br>More of the house<br><em>in the data.</em></h2>
 
-    <!-- Two figures the field tool moved, in the hero's stat vocabulary -->
     <div class="stats is-out r">
       <div class="stat"><div class="stat-n">25%</div><div class="stat-l">Less time per on-site survey,<br>enough for one more appointment a day</div></div>
       <div class="stat"><div class="stat-n">80 &rarr; 95%</div><div class="stat-l">Data completeness on<br>surveys reaching the energy model</div></div>
+    </div>
+
+    <div class="mgrid">
+      <article class="mcard">
+        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="9.5" cy="5.2" rx="6" ry="2.4"/><path d="M3.5 5.2v5.6c0 1.33 2.69 2.4 6 2.4"/><path d="M3.5 10.8v5.6c0 1.33 2.69 2.4 6 2.4h.4"/><path d="M15.5 5.2v3"/><path d="M13.4 17.6l2 2 4-4.4"/></svg></span>
+        <p><strong>Data accuracy</strong>Gaps and corrections in what reached the energy model, counted per survey.</p>
+      </article>
+      <article class="mcard">
+        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.2" cy="13.4" r="6.8"/><path d="M8.2 2.4h4"/><path d="M10.2 2.4v4.2"/><path d="M10.2 10v3.4l2.2 1.5"/><path d="M20 13.6v6"/><path d="M18 17.6l2 2 2-2"/></svg></span>
+        <p><strong>Time on site</strong>How long an assessment took, from arriving at the house to leaving it.</p>
+      </article>
+      <article class="mcard">
+        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.4 3.2h5.9L19.6 7.5V20.8H9.4z"/><path d="M15.3 3.2v4.3h4.3"/><path d="M6.6 8.2H3.2"/><path d="M6.6 12H1.8"/><path d="M6.6 15.8H3.8"/></svg></span>
+        <p><strong>iSFP turnaround</strong>Days from the visit to a certified document a homeowner could act on.</p>
+      </article>
+      <article class="mcard">
+        <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.2 10.4 12 3.6l8.8 6.8"/><path d="M5.4 12v8.4h13.2V12"/><path d="M8.2 16.6l1.9-1.7 1.9 1.5 1.9-1.5 1.9 1.7"/><path d="M12 16.4v2"/></svg></span>
+        <p><strong>Retrofit sales</strong>How many homeowners went ahead with the measures the report showed them.</p>
+      </article>
     </div>
   </section>
 </div>
