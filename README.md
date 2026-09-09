@@ -24,7 +24,20 @@ fonts/               TeX Gyre Heros, self-hosted (GUST Font License)
 img/                 Case study screenshots and image assets
 CNAME                Custom domain config for GitHub Pages
 .nojekyll            Disables Jekyll processing so assets serve as-is
+
+TONE-OF-VOICE.md     How the copy is written. Read before editing any text
+COPY-REVIEW.md       Record of the copy revision pass, with the reasoning
 ```
+
+## Voice
+
+`TONE-OF-VOICE.md` is the rule for every line on the site: headlines, body copy,
+case studies, metadata, buttons and error messages. The short version is *say
+less, be specific, sound like a person who has done the work.* It carries a list
+of words that are never used here (seamless, unlock, empower, leverage, journey,
+robust and about twenty more), UK spelling throughout, contractions where a
+person would use them, and numbers one to nine spelled out with 10 and above as
+figures. Check new copy against it before publishing, not after.
 
 ## Design system
 
