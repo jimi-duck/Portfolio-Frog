@@ -67,6 +67,24 @@
      token is both calmer and the one knob to turn if it wants to be wider. */
   --tr-lab:.12em;
 
+  /* Case-study reading rhythm. Three steps, and every vertical gap on a case
+     study is one of them. --space-tight binds an eyebrow to its headline and a
+     headline to its first paragraph, so a section reads as one block;
+     --space-block separates blocks inside a section; --space-section is the
+     break between sections, and a full-bleed band takes a quarter more again
+     so it arrives as a break rather than as a change of colour. The page used
+     to run an internal gap and a between-sections gap that were nearly the
+     same number, which is what made it read as one undifferentiated column.
+     Changing how the page reads is changing these three values. */
+  --space-tight:clamp(.7rem,1.3vw,1.05rem);
+  --space-block:clamp(2.2rem,4.2vw,3.5rem);
+  --space-section:clamp(5rem,10.5vw,11rem);
+  /* One step above --t-lab. The section eyebrows are the only table of
+     contents the page has, and at the label size they were losing to the
+     headline directly underneath them during a fast scroll. Still small:
+     the job is a legible landmark, not a second heading. */
+  --t-eyebrow:clamp(.83rem,.95vw,.92rem);
+
   --ez:cubic-bezier(.16,1,.3,1);    /* expo out — the house easing */
   --ez2:cubic-bezier(.76,0,.24,1);  /* expo in-out — wipes */
 }
@@ -237,7 +255,15 @@ html.introing,html.introing body{overflow:hidden}
    section that one is the case-study number. The progress bar, the CTA arrows
    and the cursor are present in every viewport, so none of them spend it —
    five simultaneous oranges is no accent at all. */
-#prog{position:fixed;top:0;left:0;height:2px;background:var(--ink);z-index:99988;width:0;pointer-events:none}
+/* The reading progress bar. Two changes from the plain scroll indicator this
+   was: it now sits on a faint track so an eighth of a hairline reads as "an
+   eighth of the way through" rather than as a stray rule, and the fill is a
+   scaleX on --p rather than an animated width, which the JS sets from the
+   article's own extent — see progress() in swiss.js. */
+#prog{position:fixed;top:0;left:0;right:0;height:2px;background:var(--rule-2);
+  z-index:99988;pointer-events:none}
+#prog::before{content:"";position:absolute;inset:0;background:var(--ink);
+  transform:scaleX(var(--p,0));transform-origin:0 50%}
 /* :not(#menu) — the overlay menu is a <nav> too, so that it is announced as
    navigation rather than as an anonymous group. Without the exclusion the bar's
    own height, background and border collapse the full-screen overlay to a 56px
@@ -723,22 +749,61 @@ body.grid-on #gridhint{display:block}
 .stats.is-out .stat-n{font-size:clamp(1.9rem,3.6vw,3rem)}
 
 .body{padding-left:var(--pad);padding-right:var(--pad)}
-.section{padding-top:clamp(3rem,6.5vw,6.5rem);padding-bottom:clamp(1rem,2vw,2rem);max-width:1560px;margin:0 auto}
-.section>.lbl{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;
-  color:var(--ink);padding-bottom:1rem;border-bottom:1px solid var(--ink);margin-bottom:clamp(1.6rem,3vw,2.6rem);display:block}
+.section{padding-top:var(--space-section);padding-bottom:0;max-width:1560px;margin:0 auto}
+/* THE RULE SYSTEM. The page had thirty-seven identical full-ink hairlines on
+   it — a section landmark, an argument step and a screenshot caption all wore
+   the same badge, so the eye had no way to rank them and the whole column read
+   as one texture. There are two weights now and no others:
+
+     2px --ink   a section starts here. Twelve on the page, nothing else.
+     1px --rule  an internal block. Quiet, and it stays quiet.
+
+   A caption gets neither. See .appshot-c below — thirteen of those rules were
+   captions announcing themselves as sections.
+
+   The rule also moved from under the eyebrow to above it: underneath, it split
+   the label off the headline it belongs to. */
+.section>.lbl,.dark-band .lbl,.warm-band .lbl{
+  display:block;font-size:var(--t-eyebrow);font-weight:700;letter-spacing:var(--tr-lab);
+  text-transform:uppercase;color:var(--ink);
+  border-top:2px solid var(--ink);border-bottom:0;
+  padding-top:clamp(.85rem,1.6vw,1.2rem);padding-bottom:0;
+  margin-bottom:var(--space-tight)}
 .lbl{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--ink)}
 .section-num{display:block;font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);color:var(--red-ink);
   margin-bottom:.35rem;font-variant-numeric:tabular-nums}
-.section h2{font-size:var(--t-h2);font-weight:700;letter-spacing:-.038em;line-height:.98;margin-bottom:1.2rem}
-.dark-band h2,.warm-band h2{font-size:var(--t-h2);font-weight:700;letter-spacing:-.038em;line-height:.98;margin-bottom:1.2rem}
+.section h2,.dark-band h2,.warm-band h2{font-size:var(--t-h2);font-weight:700;letter-spacing:-.038em;
+  line-height:.98;margin-bottom:var(--space-tight)}
+/* The first block after a headline belongs to it. .sp-s is the small step
+   between blocks and it was overriding the headline's own tight margin here,
+   which put the same gap under a headline as between two unrelated blocks. */
+h2+.sp-s,h2+.prose,h2+.two{margin-top:0}
+/* --space-section is a padding, so a trailing margin on a section's last child
+   escapes past it and lands on top of the next section's gap. One pull quote
+   at the foot of a section was buying itself 48px more air than the section
+   above it. */
+.section>:last-child,.dark-band-inner>:last-child,.warm-band-inner>:last-child{margin-bottom:0}
+/* .pbox sets its own margin shorthand at (0,2,0) and was out-specifying the
+   rule above, so a section closing on a statement ran 87px longer than one
+   that didn't. */
+.section>.pbox:last-child,.dark-band-inner>.pbox:last-child,
+.warm-band-inner>.pbox:last-child{margin-bottom:0}
 h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
-.section h3{margin-top:1.6rem}
-.prose{font-size:var(--t-body);line-height:1.62;color:var(--ink-2)}
-/* full-width prose needs a measure; prose inside a column already has one */
-.section>.prose,.dark-band-inner>.prose,.warm-band-inner>.prose{max-width:74ch}
-.section>.pbox,.dark-band-inner>.pbox,.warm-band-inner>.pbox{max-width:80ch}
-.prose+.prose{margin-top:1.1em}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3vw,3.2rem)}
+/* :not(.sp-0) so the utility can still zero it — this rule out-specifies a
+   bare .sp-0, and an h3 that opens a column was carrying a top margin its
+   markup had explicitly asked to remove. */
+.section h3:not(.sp-0){margin-top:var(--space-block)}
+/* The measure sits on the paragraph, not on the wrapper it lands in. The old
+   rule capped only full-width prose, which left a paragraph inside a column of
+   the 1560px grid running to ~85 characters — and capping the wrapper instead
+   would have dragged the full-bleed media in with it. */
+.prose{font-size:var(--t-body);line-height:1.62;color:var(--ink-2);max-width:62ch}
+/* A paragraph gap has to beat a line gap or stacked paragraphs read as one
+   block. 1.1em was 0.67 of a line at this leading, which was survivable when
+   prose mostly sat in two short columns and is not once a section runs as a
+   single reading column. */
+.prose+.prose{margin-top:1.5em}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.4rem,3.6vw,4.2rem)}
 /* The prototype artefact is a document, not a picture — it needs width to stay
    legible, but a full half of the grid left it standing a head taller than the
    column beside it. Five-sevenths is where the two columns end level. */
@@ -754,12 +819,17 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    had drifted to a dozen one-off inline margin-tops between them, which is what
    made the spacing read as accident rather than as a grid. Small: a block that
    belongs to the one above it. Medium: the next block in the same argument.
-   Large: a new beat inside the same section. */
-.sp-s{margin-top:clamp(1.1rem,2.2vw,1.7rem)}
-.sp-m{margin-top:clamp(1.8rem,3.4vw,2.8rem)}
-.sp-l{margin-top:clamp(2.6rem,4.8vw,4rem)}
-/* Same three steps below an element, for the one or two places that need it */
-.sp-mb{margin-bottom:clamp(1.8rem,3.4vw,2.8rem)}
+   Large: a new beat inside the same section.
+
+   They are the tokens now rather than three more clamps of their own. Every
+   gap on a case study resolves to --space-tight, --space-block or
+   --space-section, so the whole read is three numbers at the top of this file
+   and the page cannot drift back out of rhythm one component at a time. */
+.sp-s{margin-top:var(--space-tight)}
+.sp-m{margin-top:var(--space-block)}
+.sp-l{margin-top:calc(var(--space-block) * 1.4)}
+/* Same steps below an element, for the one or two places that need it */
+.sp-mb{margin-bottom:var(--space-block)}
 .sp-0{margin-top:0}
 .four{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap)}
 /* Case-study artwork runs at its natural height. These are screenshots, flows
@@ -799,13 +869,52 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    nothing crops. Set an aspect-ratio inline on a specific image if you want one. */
 
 /* pull box + pull quote */
+/* .pbox does two different jobs across the case studies, and treating them as
+   one is what made it look wrong. On Coup and Cooler Future it holds a
+   three-or-four-sentence paragraph inside a half-width column — an emphasised
+   paragraph, and it wants to stay at reading size. On Enter it holds a single
+   sentence at full width, which is a different object entirely.
+
+   So the base stays what it always was, and the statement is a modifier. */
 .pbox{border-left:2px solid var(--red);padding:.2rem 0 .2rem 1.2rem;margin:1.4rem 0}
-/* A tinted pull box, for the one that sits on --sheet and needs to lift off it.
-   Mixed from --ink rather than hardcoded near-black: the literal rgba(17,17,16,.05)
-   this replaces was invisible on the dark theme's warm band. */
+.pbox p{font-size:var(--t-body);line-height:1.55}
+/* A tinted pull box, for one that sits on --sheet and needs to lift off it. */
 .pbox.is-fill{background:color-mix(in srgb,var(--ink) 6%,transparent);
   padding:clamp(.8rem,1.6vw,1.1rem) clamp(.9rem,1.8vw,1.3rem) clamp(.8rem,1.6vw,1.1rem) 1.2rem}
-.pbox p{font-size:var(--t-body);line-height:1.55}
+
+/* ── The statement ──────────────────────────────────────────────────────── */
+/* One sentence, at full width, twice on a page. It is the skim path: somebody
+   scrolling fast should be able to read only these and still leave with the
+   argument.
+
+   Two earlier attempts got this wrong in opposite directions. Large but grey
+   and regular-weight read as oversized body copy and sank into the column it
+   was meant to interrupt. Bold with a rule down the left fixed the weight and
+   broke the page's grammar instead: every other division here is horizontal
+   and on the grid, so a tall red stripe beside a narrow block of type was the
+   one foreign object on the page — and the narrow measure made the stripe
+   taller, which made it worse.
+
+   This is the section header at a smaller scale: a rule, then the line. Red
+   rather than ink, because it marks a different kind of thing, and only as
+   wide as the sentence rather than the full column, so it can't be mistaken
+   for a section starting. */
+.pbox.is-claim{border-left:0;padding:0;margin:calc(var(--space-block) * 1.55) 0}
+/* The measure belongs on the line, not on the box — ch resolves against the
+   element's own font size. Both sentences on the Enter page set in three long
+   lines here rather than the six short ones they were breaking into, which is
+   the difference between a statement and a narrow grey column of type. */
+.pbox.is-claim p{
+  max-width:46ch;
+  border-top:2px solid var(--red);padding-top:clamp(.95rem,2vw,1.5rem);
+  /* The floor of the clamp matters more than the ceiling: on a phone the
+     headline itself is only 1.85rem, so a statement that scaled all the way
+     down landed on the card titles and the distinction collapsed. */
+  font-size:clamp(1.5rem,2.55vw,2.35rem);font-weight:700;line-height:1.18;
+  letter-spacing:-.028em;color:var(--ink);
+  /* Display type, so it balances like the headlines do. Left to normal
+     wrapping both sentences set 94% / 99% / 35% and ended on a stub. */
+  text-wrap:balance}
 .pq{padding:clamp(1.4rem,3vw,2.4rem) 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
   margin:clamp(1.6rem,3vw,2.6rem) 0}
 .pq p{font-size:clamp(1.3rem,2.6vw,2.2rem);font-weight:700;letter-spacing:-.03em;line-height:1.14;max-width:22em}
@@ -813,13 +922,18 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--red-ink)}
 
 /* insight / method cards */
-.cards{counter-reset:card;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;
-  border-top:1px solid var(--rule);border-left:1px solid var(--rule)}
-.icard{padding:clamp(1.1rem,2vw,1.7rem);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
-  counter-increment:card}
+/* Was a boxed grid — a rule on all four sides of every cell — which made three
+   findings the heaviest object in their section and introduced a fifth card
+   style to a page that already had four. These hold exactly the same kind of
+   content as .flow-step (a counted beat in the argument), so they are built
+   the same way: one hairline on top, an accent numeral, a title, a line of
+   description. One card vocabulary, used everywhere. */
+.cards{counter-reset:card;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:var(--gap)}
+.icard{border-top:1px solid var(--rule);padding:.9rem 0 0;counter-increment:card}
 /* .icard markup carries an emoji here, which has no place in this palette —
    the grid numbers itself instead. .mcard has real line icons; it keeps them. */
-.icard-icon{display:block;font-size:0;margin-bottom:.8rem}
+.icard-icon{display:block;font-size:0;margin-bottom:.55rem}
 .icard-icon::before{
   content:counter(card,decimal-leading-zero);
   font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);color:var(--red-ink);
@@ -833,13 +947,19 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    quality that made a lone third card read as deliberate. */
 .mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.9rem,1.6vw,1.5rem);
   margin-top:clamp(1.4rem,2.6vw,1.9rem)}
+/* Following the closing figures, this is a change of subject rather than the
+   next part of one — the metric's own margin is a within-block step. */
+.stats.is-out + .mgrid{margin-top:var(--space-block)}
 /* A warm panel a shade darker than the page, no frame. Square — this used to
    carry the only rounded corner in the system, which made it the one component
    that didn't belong to the grid. */
 .mcard{display:flex;align-items:flex-start;gap:clamp(.9rem,1.4vw,1.15rem);
   background:var(--warm);border:0;border-radius:0;
   padding:clamp(1.4rem,2.6vw,1.85rem)}
-.mcard-ico{flex:none;width:26px;height:26px;color:var(--red-ink);margin-top:.1rem}
+/* Grey, not red. Four of these land in one viewport, and red that appears four
+   times at once is not an accent — the budget is spent on counted sequences
+   (.flow-n, .icard) and on the pull lines. */
+.mcard-ico{flex:none;width:26px;height:26px;color:var(--mute);margin-top:.1rem}
 .mcard-ico svg{width:100%;height:100%;display:block}
 .mcard p{font-size:var(--t-small);line-height:1.72;color:var(--ink-2);margin:0}
 .mcard strong{display:block;font-size:var(--t-h3);font-weight:700;letter-spacing:-.022em;
@@ -862,27 +982,45 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   --rule:color-mix(in srgb,var(--band-ink) 26%,transparent);
   --rule-2:color-mix(in srgb,var(--band-ink) 14%,transparent);
   background:var(--band);color:var(--band-ink);
-  padding:clamp(3rem,6vw,6rem) var(--pad);margin-top:clamp(3rem,6vw,6rem)}
+  padding:clamp(3.4rem,6.6vw,7rem) var(--pad);margin-top:calc(var(--space-section) * 1.25)}
 .dark-band-inner{max-width:1560px;margin:0 auto}
 .dark-band .prose,.dark-band .cap{color:color-mix(in srgb,var(--band-ink) 80%,transparent)}
 .dark-band .lbl,.dark-band h2{color:var(--band-ink)}
-.dark-band .lbl{padding-bottom:1rem;border-bottom:1px solid color-mix(in srgb,var(--band-ink) 30%,transparent);
-  margin-bottom:clamp(1.6rem,3vw,2.6rem);display:block}
-.warm-band{background:var(--sheet);padding:clamp(3rem,6vw,6rem) var(--pad);margin-top:clamp(3rem,6vw,6rem);
+/* On the band the rule is the band's own ink at a fraction, so the landmark
+   reads without turning into a second edge next to the band's boundary. */
+.dark-band .lbl{border-top-color:var(--band-ink)}
+/* A band is a break in the read, and it was arriving with the same gap above
+   it as an ordinary section: the colour changed before the pause did. */
+.warm-band{background:var(--sheet);padding:clamp(3.4rem,6.6vw,7rem) var(--pad);
+  margin-top:calc(var(--space-section) * 1.25);
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 .warm-band-inner{max-width:1560px;margin:0 auto}
-.warm-band .lbl{padding-bottom:1rem;border-bottom:1px solid var(--ink);margin-bottom:clamp(1.6rem,3vw,2.6rem);display:block}
+/* A band directly after another band needs no gap above it. Each band already
+   carries its own padding, so --space-section on top of that opened a 380px
+   hole — half a screen of nothing between two blocks that belong together.
+   They meet on a hard colour edge instead, and the second band drops its
+   hairline, because the change of ground already is the edge. */
+.dark-band + .warm-band,.warm-band + .dark-band,
+.dark-band + .dark-band,.warm-band + .warm-band{margin-top:0}
+.dark-band + .warm-band{border-top:0}
 
 /* flows / walkthroughs / timelines */
 .flow,.walk,.sprint{display:grid;gap:var(--gap)}
-.flow-step,.day{border-top:1px solid var(--ink);padding-top:.9rem}
-.flow-n,.day-n,.walk-n{font-size:var(--t-lab);letter-spacing:var(--tr-lab);color:var(--red-ink);font-weight:700}
+.flow-step,.day{border-top:1px solid var(--rule);padding-top:.9rem}
+/* Red marks a counted sequence: the three stages of the old process, the two
+   pains, the three findings. That is the whole budget. The report walkthrough
+   and the report's contents list were spending eight more of them on labels
+   that are already numbered and already titled, which is how an accent stops
+   being one. */
+.flow-n,.day-n{font-size:var(--t-lab);letter-spacing:var(--tr-lab);color:var(--red-ink);font-weight:700}
+.walk-n{font-size:var(--t-lab);letter-spacing:var(--tr-lab);color:var(--mute);font-weight:700}
 .flow-t,.day-t,.walk-t{margin-top:.5rem;font-size:var(--t-h3);font-weight:700;letter-spacing:-.02em;line-height:1.1}
-.flow-d,.day-d,.walk-d{margin-top:.45rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.5}
+.flow-d,.day-d,.walk-d{margin-top:.45rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.5;
+  max-width:58ch}
 /* Report walkthrough — a 2x2 plate. Four full-width rows of a portrait
    screenshot left acres of empty column beside the short commentary. */
 .walk{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(1.8rem,3.6vw,3.4rem) var(--gap)}
-.walk-row{display:flex;flex-direction:column;border-top:1px solid var(--ink);padding-top:1rem}
+.walk-row{display:flex;flex-direction:column;border-top:1px solid var(--rule);padding-top:1rem}
 /* No plate. These ship as transparent tablet renders carrying their own soft
    shadow, so a --sheet panel behind them just draws a grey box around empty
    space — the same reason .device and .img.is-cutout sit unframed. */
@@ -926,15 +1064,24 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    and their transparent margin is narrower (1.8% a side, measured) which makes
    them look wider again at the same cap. */
 .appshots.is-tablet .device-img{max-width:470px}
-/* Paper and --sheet only. The caption reuses .flow-n/.flow-t/.flow-d, whose
-   colours are tuned for those two grounds, so putting this on .dark-band needs
-   the text patched as well as this hairline — see the note above .dark-band. */
-.appshot-c{border-top:1px solid var(--ink);padding-top:.9rem}
-/* These are captions, not argument steps. .flow-n is red, and a page carrying
-   thirteen of them turns the accent into a texture — the one rule the palette
-   has is that red appears once in a viewport. The caption label goes grey, the
-   same register as .cap, and red goes back to meaning something. */
+/* A caption, at last, rather than a card. There are thirteen of these on the
+   Enter page and they were each carrying a full-ink rule and a heading at
+   --t-h3 — thirteen sub-headings the size of real ones, and thirteen rules
+   identical to the ones marking sections. Reading down the page, a screenshot
+   label was indistinguishable from an argument. So: no rule, and the title
+   drops to body size. The screen above it is the object; this describes it.
+
+   .flow-n stays grey for the same reason it always did — a page carrying
+   thirteen red labels turns the accent into a texture.
+
+   This used to be paper-and---sheet only, because it set colours tuned for
+   those grounds. It no longer sets any: the title inherits, and the label and
+   description take --mute, which .dark-band redefines along with everything
+   else. Measured on the band it runs 6.4:1 in dark and 8.2:1 in light. */
+.appshot-c{border-top:0;padding-top:0}
 .appshot-c .flow-n{color:var(--mute)}
+.appshot-c .flow-t{font-size:var(--t-body);letter-spacing:-.012em;line-height:1.25;margin-top:.3rem}
+.appshot-c .flow-d{font-size:var(--t-small);color:var(--mute);margin-top:.35rem;line-height:1.5}
 
 /* Phone beside desktop, sized the way the two objects actually relate and
    aligned on the floor — equal heights made the phone look shrunken next to a
@@ -953,28 +1100,28 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    underneath: an arrangement nobody chose, and one that re-wrapped at every
    width. It is a stack, built from the same parts as .flow-step:
    rule, accent label, heading, description. */
-.utype{border-top:1px solid var(--ink);padding-top:1rem}
+.utype{border-top:1px solid var(--rule);padding-top:1rem}
 .utype-tag{display:block;font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);
   text-transform:uppercase;color:var(--red-ink);margin-bottom:.55rem}
 .utype h3{font-size:var(--t-h3);letter-spacing:-.022em;line-height:1.1;margin-bottom:.55rem}
 .utype p:not(.utype-tag){font-size:var(--t-small);line-height:1.6;color:var(--ink-2)}
-.toc{border-top:1px solid var(--ink);margin-top:1.4rem}
+.toc{border-top:1px solid var(--rule);margin-top:1.4rem}
 .toc-lbl{font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);padding:1rem 0 .6rem;display:block}
 .toc-list{list-style:none;display:grid;gap:0}
 .toc-list li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.2rem .95rem;
   padding:.85rem 0;border-bottom:1px solid var(--rule-2)}
 .toc-list li:last-child{border-bottom:0}
 .toc-list a{display:contents}
-.toc-n{grid-row:span 2;font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);color:var(--red-ink);
+.toc-n{grid-row:span 2;font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);color:var(--mute);
   padding-top:.25rem;font-variant-numeric:tabular-nums}
 .toc-t{font-size:var(--t-h3);font-weight:700;letter-spacing:-.022em;line-height:1.2}
 .toc-d{font-size:var(--t-small);color:var(--ink-2);line-height:1.55}
-.dark-band .toc{border-top-color:var(--band-ink)}
+.dark-band .toc{border-top-color:var(--rule)}
 .dark-band .toc-t{color:var(--band-ink)}
 
 /* next / back-home */
 .next{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3vw,3rem);align-items:center;
-  border-top:1px solid var(--rule);padding:clamp(2.4rem,5vw,5rem) var(--pad);margin-top:clamp(3rem,6vw,6rem)}
+  border-top:1px solid var(--rule);padding:clamp(2.4rem,5vw,5rem) var(--pad);margin-top:var(--space-section)}
 .next-eyebrow{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);margin-bottom:1rem}
 .next-title{font-size:var(--t-h2);font-weight:700;letter-spacing:-.04em;line-height:.98}
 .next-sub{margin-top:.9rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.5;max-width:44ch}
@@ -1039,6 +1186,21 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .mgrid{grid-template-columns:1fr}
   .stats,.stats.is-out{grid-template-columns:1fr;gap:1.4rem}
   .appshots.n4,.appshots.n3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* Stacked, --gap bottoms out at 1rem, which is less air than sits between a
+     render and its own caption — two screens then read as one column of
+     alternating picture and text. The row gap has to beat the caption gap. */
+  .appshots{row-gap:clamp(1.9rem,4.6vw,2.6rem)}
+  /* 44px touch targets on the links a case study actually carries: the footer
+     index and its bottom bar, the inline document links, and the return to the
+     work list. Each of these was a line of text with a few pixels either side,
+     which is a 36-42px target on a phone. Padding, measured against the label
+     size at this width rather than guessed. */
+  .f-col a{padding-top:.75rem;padding-bottom:.75rem}
+  .f-bar a{padding:.82rem 0}
+  .tlink{padding-top:.85rem;padding-bottom:.85rem}
+  .back{padding-top:.82rem;padding-bottom:.82rem}
+  /* Four filled panels at a 14px gutter read as one slab rather than four. */
+  .mgrid{gap:1.15rem}
   .stat{border-left:0;padding-left:0;border-top:1px solid var(--rule-2);padding-top:1.1rem}
   .stat:first-child{border-top:0;padding-top:0}
   .next{grid-template-columns:1fr;gap:1.6rem}
@@ -1064,6 +1226,17 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
      screenshot, and the caption under each shreds into four words a line. */
   .appshots.n4,.appshots.n3,.appshots.n2{grid-template-columns:1fr}
   .appshot .device-img{max-width:270px}
+  /* In one column the render centres and its caption ran the full width of the
+     page underneath it, so the pair stopped reading as one object. Capping the
+     whole cell to the render's own width keeps the caption under the screen it
+     describes instead of under the page. */
+  .appshot{width:100%;max-width:300px;margin-inline:auto}
+  .appshots.is-tablet .appshot{max-width:100%}
+  .appshots{row-gap:clamp(2.1rem,7vw,2.8rem)}
+  /* The stagger is a two-column device. Stacked, it is just a stray gap. */
+  .phones-pair .phone-col:first-child{margin-top:0}
+  .phones-pair{gap:clamp(1.8rem,6vw,2.4rem)}
+  .doc-row{gap:1.8rem}
   /* the numeral stops being a rail and becomes a marker above the step */
 }
 
@@ -1071,10 +1244,12 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 /* A case study is a long single scroll with no in-page nav, so the footer link
    is a long way from wherever the reader gives up. This is that link pinned:
    hairline box, one accent on hover, nothing that competes with the content.
-   It appears past the first screen and hides again over the footer, over the
-   open mobile menu, and under the grid overlay, each of which owns that corner. */
+   It appears once the first section has been read — measured, not a guessed
+   screen height — and hides again over the next-project card and the footer,
+   over the open mobile menu, under the grid overlay and behind the lightbox,
+   each of which owns that corner while it is up. */
 #totop{
-  position:fixed;right:var(--pad);bottom:clamp(1.1rem,2.4vw,2rem);z-index:99950;
+  position:fixed;right:var(--pad);bottom:max(1.25rem,calc(var(--pad) * .72));z-index:99950;
   display:inline-flex;align-items:center;gap:.5rem;
   padding:.6rem .85rem;background:var(--paper);color:var(--ink);
   border:1px solid var(--ink);cursor:pointer;
@@ -1085,14 +1260,94 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 }
 #totop svg{width:13px;height:13px}
 body.totop-on #totop{opacity:1;visibility:visible;transform:none}
-body.menu-on #totop,body.grid-on #totop{
+body.menu-on #totop,body.grid-on #totop,body.lb-on #totop,body:has(#lb[open]) #totop{
   opacity:0;visibility:hidden;transform:translateY(10px);pointer-events:none}
 #totop:hover{background:var(--ink);color:var(--paper)}
+/* Past the point where the 1560px column stops growing, the page has real
+   margin either side of the text — so the button is anchored to the outer edge
+   of that column rather than to the viewport, and sits beside the article
+   instead of on top of the last card in the row. 1820px is where the gutter is
+   wide enough to hold it without crowding the window edge. Below that a fixed
+   control is unavoidably over content, which is why it also stands down over
+   the next-project card and the footer — see toTop() in swiss.js. */
+@media (min-width:1820px){
+  #totop{left:calc(50vw + 780px + 1rem);right:auto}
+}
 @media (max-width:560px){
   /* icon only, but padded back out to a 44px touch target */
-  #totop{padding:.92rem;gap:0}
+  #totop{padding:.92rem;gap:0;min-width:44px;min-height:44px;justify-content:center}
   #totop span{display:none}
 }
+
+/* ── 20c. IMAGE LIGHTBOX ─────────────────────────────────────────────────── */
+/* The app screens are the evidence, and at 300px in a four-up row they are a
+   texture rather than a screenshot. Click, Enter or Space opens the full-size
+   render with the caption it already carried underneath it. A native <dialog>,
+   so the focus trap, Escape and the return of focus to the thumbnail are the
+   platform's job rather than ours; the only additions are the backdrop click
+   and the caption. The fade is a keyframe animation rather than a transition
+   so the site-wide prefers-reduced-motion block at the foot of this file
+   already kills it — the overlay just appears. */
+.zoom{display:block;width:100%;padding:0;margin:0;border:0;background:none;
+  font:inherit;color:inherit;text-align:inherit;cursor:zoom-in}
+#lb{
+  width:100%;max-width:none;height:100%;max-height:none;
+  margin:0;border:0;padding:clamp(1rem,3.5vw,3rem);
+  background:transparent;color:var(--ink);overflow:auto;
+}
+/* ::backdrop cannot be relied on to inherit the page's custom properties, so
+   the scrim is stated per theme rather than mixed from --paper. */
+#lb::backdrop{background:rgba(239,237,231,.95)}
+[data-theme="dark"] #lb::backdrop{background:rgba(16,16,16,.95)}
+.lb-fig{margin:0;min-height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:clamp(1rem,2.2vw,1.6rem)}
+.lb-img{width:auto;height:auto;max-width:min(100%,1180px);max-height:78svh;object-fit:contain}
+/* Field photography and survey documents keep the register they have on the
+   page — the overlay is the same image larger, not a different one. */
+#lb.is-doc .lb-img{filter:grayscale(100%) contrast(1.06)}
+[data-theme="dark"] #lb.is-doc .lb-img{filter:grayscale(100%) contrast(1) brightness(.86)}
+.lb-cap{max-width:64ch;text-align:center;color:var(--mute);
+  font-size:var(--t-small);line-height:1.5}
+.lb-cap .flow-n{color:var(--mute)}
+.lb-cap .flow-t{font-size:var(--t-h3);color:var(--ink)}
+.lb-cap .flow-d{max-width:none;margin-inline:auto}
+/* A .cap carried across keeps that component's register: small, tracked out,
+   uppercase. A figcaption already carries its own. */
+.lb-cap.is-plain{font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase}
+/* Wide enough for the caption to move beside the render rather than under it.
+   Stacked, the caption was taking a fifth of the height off a portrait phone
+   screenshot — which is the one shape on this page that has height to spare and
+   none to give. Beside it, a phone screen opens at roughly its real physical
+   size, which is the whole reason for the overlay. */
+@media (min-width:1000px){
+  .lb-fig{flex-direction:row;align-items:center;justify-content:center;
+    gap:clamp(1.6rem,3.2vw,3rem)}
+  .lb-img{flex:0 1 auto;min-width:0;max-height:86svh}
+  .lb-cap{flex:0 0 clamp(230px,23vw,330px);max-width:none;text-align:left;margin:0}
+}
+.lb-x{
+  position:fixed;top:clamp(.75rem,2vw,1.4rem);right:clamp(.75rem,2vw,1.4rem);
+  min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;
+  font-size:1.05rem;line-height:1;
+  transition:background-color .25s ease,color .25s ease}
+.lb-x:hover{background:var(--ink);color:var(--paper)}
+/* On a phone the thumbnail is already most of the screen width, so capping the
+   overlay at 78svh gives back almost nothing. Let the render take the full
+   width instead and let the dialog scroll; the figure starts at the top so the
+   head of a tall screenshot is what you land on, under the close button. */
+@media (max-width:700px){
+  #lb{padding:clamp(.75rem,3vw,1.25rem)}
+  .lb-img{max-height:none}
+  .lb-fig{justify-content:flex-start;padding-top:3.4rem;padding-bottom:1rem}
+}
+html.js #lb[open]{animation:lb-in .26s var(--ez)}
+@keyframes lb-in{from{opacity:0}to{opacity:1}}
+/* The dialog locks the page behind it; body overflow propagates to the
+   viewport here because <html> is left visible. The [open] attribute is the
+   source of truth — it is removed by the native close whether or not the close
+   event fires — and the class is the fallback for engines without :has(). */
+body.lb-on,body:has(#lb[open]){overflow:hidden}
 
 /* Theme cross-fade, only while toggling */
 html.theme-anim,html.theme-anim *{
@@ -1108,6 +1363,6 @@ html.theme-anim,html.theme-anim *{
   #intro{display:none}
 }
 @media print{
-  nav,footer,#intro,#prog,#gridov,#menu,#totop{display:none !important}
+  nav,footer,#intro,#prog,#gridov,#menu,#totop,#lb{display:none !important}
   body{background:#fff;color:#000}
 }
