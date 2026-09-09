@@ -150,12 +150,12 @@
       <div class="flow-step">
         <div class="flow-n">Pain 01 · Data collection</div>
         <div class="flow-t">Nothing arrived clean</div>
-        <div class="flow-d">Paper forms and handwritten notes moving through a workflow whose parts did not know about each other. Expensive to collect, hard to share, frequently incomplete. Little reached the desk without a phone call to finish it, and nothing incomplete can be handed to a model.</div>
+        <div class="flow-d">Paper forms and handwritten notes moving through a workflow whose parts didn’t know about each other. Expensive to collect, hard to share, frequently incomplete. Little reached the desk without a phone call to finish it, and nothing incomplete can be handed to a model.</div>
       </div>
       <div class="flow-step">
         <div class="flow-n">Pain 02 · The homeowner</div>
         <div class="flow-t">The answer came too late</div>
-        <div class="flow-d">Results landed days later, on a call that doubled as the sales call, run by somebody the homeowner had never met. The visit built all the trust and none of it was in the room when the money was discussed. By the time the numbers arrived, a competitor’s quote often had too.</div>
+        <div class="flow-d">Enter made its money arranging the retrofit work itself, and the quotes for it came attached to the iSFP: days later, from somebody the homeowner had never met. The trust built during the visit had gone cold by then, and conversion suffered for reasons that had nothing to do with the recommendations.</div>
       </div>
     </div>
   </section>
@@ -192,7 +192,7 @@
         <a href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" aria-label="Open the full prototype sheet as a PDF">
           <img class="img" src="img/enter-poc-plan.jpg" alt="Prototype survey sheet: a dimensioned building footprint with coloured crosses marking window positions, a question asking whether the plan matches the floor, and a table defining four window types by frame material and glazing" loading="lazy" width="1184" height="1684">
         </a>
-        <p class="cap">One sheet per floor, and one blunt question: does this plan match the floor you are standing on?</p>
+        <p class="cap">One sheet per floor, and one blunt question: does this plan match the floor you’re standing on?</p>
       </div>
       <div class="r">
         <img class="photo is-doc" src="img/enter-poc-tablet.jpg" alt="A field worker marking up the prototype floor plan on a tablet inside an unfinished house" loading="lazy" width="1306" height="816">
@@ -216,7 +216,7 @@
       <div class="icard">
         <div class="icard-icon"></div>
         <div class="icard-t">Completeness didn’t</div>
-        <p class="icard-d">A field skipped in the house was still a field missing at the desk. Paper can invite completeness. It cannot enforce it, and that was the argument for building something real.</p>
+        <p class="icard-d">A field skipped in the house was still a field missing at the desk. Paper can invite completeness. It can’t enforce it, and that was the argument for building something real.</p>
       </div>
     </div>
   </section>
@@ -257,7 +257,7 @@
         <figcaption class="appshot-c">
           <div class="flow-n">03 · Geschoss</div>
           <div class="flow-t">Floors &amp; rooms</div>
-          <div class="flow-d">Every storey, with whether it is heated. Heated area is what the model divides by.</div>
+          <div class="flow-d">Every storey, with whether it’s heated. Heated area is what the model divides by.</div>
         </figcaption>
       </figure>
       <figure class="appshot">
@@ -289,8 +289,9 @@
       </div>
     </div>
 
-    <!-- Where the plan came from, and what happens when it doesn't arrive. -->
-    <div class="two is-wide is-top r">
+    <!-- Where the plan comes from. This has to be established before the windows
+         make any sense, which is the wrong way round it used to read. -->
+    <div class="two is-wide is-top r sp-m">
       <div>
         <h3 class="sp-0">Cadastral data covered<br>9 houses in <em>10.</em></h3>
         <p class="prose sp-s">Nobody drew the building. You found it on a map and traced the thermal envelope, the heated volume the model is actually about. An attached garage sits on the same footprint and outside that envelope, and only the person standing there can tell you which is which.</p>
@@ -316,6 +317,22 @@
         </figure>
       </div>
     </div>
+
+    <!-- What goes on the plan once it exists. This is the payoff of the paper PoC. -->
+    <div class="two is-wide is-top r sp-l">
+      <div>
+        <h3 class="sp-0">A window stops<br>being <em>a form.</em></h3>
+        <p class="prose sp-s">This is what the paper sheets were testing, built properly. With a plan on screen you drag a window onto the wall it sits in, type its dimensions, and pick one of the three or four types defined at the start of the survey.</p>
+        <div class="pbox is-fill">
+          <p>Position, size and glazing all feed the U-value of the wall around the opening, and that decides which measures are worth doing. On the plan you can’t put a window on the wrong wall, because the wall is the thing you touched.</p>
+        </div>
+        <p class="prose">Where the registered outline was wrong, the worker flagged it on the plan instead of working around it. Those corrections fed back into the source data for later visits, and completeness on surveys reaching the model went from 80% to 95%.</p>
+      </div>
+      <div>
+        <img class="photo" src="img/enter-floorplan-window.jpg" alt="A field worker holding a tablet showing the dimensioned floor plan, with a window panel open on it giving the room, its width and height, and its type details of 1972, double glazing and an aluminium frame" loading="lazy" width="1800" height="1350">
+        <p class="cap">One window, on the wall it sits in: room, dimensions and the type it inherits, in one step</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -326,7 +343,7 @@
     <h2>The model calculates.<br>The person on site<br><em>overrules it.</em></h2>
     <div class="two sp-s">
       <p class="prose">The U-value is how much heat escapes through a square metre of wall, roof or window, and the entire model rests on it. We calculated it live as construction details went in, so the estimate appeared while somebody was still standing in front of the thing it described.</p>
-      <p class="prose">Every figure stayed editable. Somebody looking into an opened-up wall knows more about it than a lookup table does, and the override opened the official U-value table for the times they would rather check than guess. Go more than 25% off the estimate and the app asked them to look again.</p>
+      <p class="prose">Every figure stayed editable. Somebody looking into an opened-up wall knows more about it than a lookup table does, and the override opened the official U-value table for the times they would rather check than guess. Go more than 25% off the estimate and the app flagged how far out the number was, then took it anyway.</p>
     </div>
 
     <div class="two is-wide is-top r sp-l">
@@ -360,8 +377,8 @@
     <p class="lbl">Data completeness</p>
     <h2>100% or nothing.<br>Real houses <em>don’t cooperate.</em></h2>
     <div class="two sp-s">
-      <p class="prose">Missing details invalidate both the subsidy and the model, so completion had to be total. Every critical field was mandatory by default and the survey would not submit around one.<br><br>Then you meet the building. The basement is locked and the neighbour has the key. The owner inherited the house and has no idea when the windows went in. The flat roof needs equipment nobody brought.</p>
-      <p class="prose">A requirement you cannot satisfy doesn’t get met, it gets defeated. Somebody types a plausible number and a guess enters the model looking exactly like a measurement.<br><br>So the way out was designed rather than left to happen. “<span lang="de">Antwort nicht möglich</span>” does not quietly clear the requirement. It asks why, from a fixed list.</p>
+      <p class="prose">Missing details invalidate both the subsidy and the model, so completion had to be total. Every critical field was mandatory by default and the survey wouldn’t submit around one.<br><br>Then you meet the building. The basement is locked and the neighbour has the key. The owner inherited the house and has no idea when the windows went in. The flat roof needs equipment nobody brought.</p>
+      <p class="prose">A requirement you can’t satisfy doesn’t get met, it gets defeated. Somebody types a plausible number and a guess enters the model looking exactly like a measurement.<br><br>So the way out was designed rather than left to happen. “<span lang="de">Antwort nicht möglich</span>” doesn’t quietly clear the requirement. It asks why, from a fixed list.</p>
     </div>
 
     <div class="appshots n3 is-tablet r sp-l" data-delay="70">
@@ -370,7 +387,7 @@
         <figcaption class="appshot-c">
           <div class="flow-n">Step 01</div>
           <div class="flow-t">Mandatory by default</div>
-          <div class="flow-d">Critical fields block the submit. Nothing here suggests there is a way past them.</div>
+          <div class="flow-d">Critical fields block the submit. Nothing here suggests there’s a way past them.</div>
         </figcaption>
       </figure>
       <figure class="appshot">
@@ -429,7 +446,7 @@
       <div>
         <h2>Field data becomes<br>a plan a homeowner<br><em>can trust.</em></h2>
         <p class="prose">The moment the survey was transmitted, the AI came back with a report. Not the iSFP, which still needed a qualified pair of hands, but the findings: where the building stands, what it could reach, what each measure costs and saves. It opened on the same tablet, in the same kitchen, while the person who had just walked the house was still standing in it.</p>
-        <p class="prose">Speed was not really the point. Field workers were already handing out opinions on the doorstep, because homeowners ask and it is rude not to answer, and none of it was consistent or anything the company could stand behind. This turned that into the same conversation every time, built from the survey they had just finished.</p>
+        <p class="prose">Speed wasn’t really the point. Field workers were already handing out opinions on the doorstep, because homeowners ask and it’s rude not to answer, and none of it was consistent or anything the company could stand behind. This turned that into the same conversation every time, built from the survey they had just finished.</p>
         <p class="prose">I designed this part from scratch. It had to do the job that phone call used to do, in a kitchen, carried by a tradesperson rather than a salesperson, and end with an agreed set of measures for the iSFP.</p>
       </div>
       <div>
