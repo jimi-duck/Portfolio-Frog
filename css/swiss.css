@@ -776,8 +776,10 @@ body.grid-on #gridhint{display:block}
   line-height:.98;margin-bottom:var(--space-tight)}
 /* The first block after a headline belongs to it. .sp-s is the small step
    between blocks and it was overriding the headline's own tight margin here,
-   which put the same gap under a headline as between two unrelated blocks. */
-h2+.sp-s,h2+.prose,h2+.two{margin-top:0}
+   which put the same gap under a headline as between two unrelated blocks.
+   The exception is a block that opens with its own h3: that is the next beat
+   of the section, not the headline's first paragraph, so it keeps its step. */
+h2+.sp-s,h2+.prose,h2+.two:not(:has(h3)){margin-top:0}
 /* --space-section is a padding, so a trailing margin on a section's last child
    escapes past it and lands on top of the next section's gap. One pull quote
    at the foot of a section was buying itself 48px more air than the section

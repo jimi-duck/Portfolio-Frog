@@ -230,10 +230,21 @@
 <div class="dark-band">
   <div class="dark-band-inner">
     <p class="lbl r">Building data capture</p>
+    <div class="two is-wide is-top">
+      <div>
     <h2>One handwritten sheet<br>became four <em>sections.</em></h2>
-    <p class="prose">Building in house meant more than a capture screen. Field operations were running appointments, tickets and documents across tools that knew nothing about each other, and none of it hung off the customer it belonged to. So the survey sat on an information architecture with the customer project as the spine: appointment, survey, photos, tickets and the finished iSFP all attached to it. That structure also held the boundaries, starting with a survey that stayed locked until somebody actually began the appointment.</p>
     <p class="prose">The paper survey ran in one direction. Nobody works a house that way. You go down to the boiler, up to the loft, back through the two rooms you skipped because someone was asleep in them, so the sheet became four tabs you could leave and come back to.</p>
     <p class="prose">Almost nothing stayed free text. Heat sources, wall build-ups, glazing: preset options, because the person answering knows buildings, not energy modelling. What reached the model was already a value it recognised, and the submit control stayed dead until all four sections were done.</p>
+    <p class="prose">Building in house meant more than a capture screen. Field operations were running appointments, tickets and documents across tools that knew nothing about each other, and none of it hung off the customer it belonged to. So the survey sat on an information architecture with the customer project as the spine: appointment, survey, photos, tickets and the finished iSFP all attached to it. That structure also held the boundaries, starting with a survey that stayed locked until somebody actually began the appointment.</p>
+      </div>
+      <!-- Illustrative, not documentary: this frame is generated, unlike the
+           field photography elsewhere on the page. The caption describes the
+           tool rather than claiming a moment. -->
+      <div>
+        <img class="photo" src="img/Enter-collection-mobile/enter-tablet-in-use.jpg" alt="A field worker holding a tablet in a living room, looking up at the windows they are about to record" loading="lazy" width="1064" height="992">
+        <p class="cap">One survey, two devices: the tablet most people worked from, and the phone for when a tablet was one hand too many</p>
+      </div>
+    </div>
 
     <div class="appshots n4 r sp-l" data-delay="70">
       <figure class="appshot">
@@ -276,18 +287,7 @@
 <div class="warm-band">
   <div class="warm-band-inner">
     <p class="lbl r">The floor plan feature</p>
-    <div class="two is-wide is-top r sp-mb">
-      <div>
-        <h2>Window-level accuracy.<br>Built into the<br><em>floor plan.</em></h2>
-        <p class="prose">This is the part the paper trials bought. Windows move the model more than almost anything else: position, size and glazing all feed the U-value of the wall around them, which decides which measures pay for themselves.</p>
-        <p class="prose">The work itself is short. Define the window type, add the measurements, drop it onto the floor plan, and repeat for every opening in the house.</p>
-        <p class="prose">Where the registered geometry disagreed with the building in front of them, they reported the deviation from the plan itself. Those corrections fed the next visit, so the plan the following survey started from was better than the one this survey got.</p>
-      </div>
-      <div style="padding-top:1rem">
-        <img class="photo" src="img/enter-floorplan-window.jpg" alt="A field worker holding a tablet showing the dimensioned floor plan, with a window panel open on it giving the room, its width and height, and its type details of 1972, double glazing and an aluminium frame" loading="lazy" width="1800" height="1350">
-        <p class="cap">One window, on the wall it sits in: room, dimensions and the type it inherits, in one step</p>
-      </div>
-    </div>
+    <h2>Window-level accuracy.<br>Built into the<br><em>floor plan.</em></h2>
 
     <!-- Where the plan comes from. This has to be established before the windows
          make any sense, which is the wrong way round it used to read. -->
@@ -326,7 +326,7 @@
         <div class="pbox is-fill">
           <p>Position, size and glazing all feed the U-value of the wall around the opening, and that decides which measures are worth doing. On the plan you can’t put a window on the wrong wall, because the wall is the thing you touched.</p>
         </div>
-        <p class="prose">Where the registered outline was wrong, the worker flagged it on the plan instead of working around it. Those corrections fed back into the source data for later visits, and completeness on surveys reaching the model went from 80% to 95%.</p>
+        <p class="prose">Where the registered outline was wrong, the worker flagged it on the plan instead of working around it. Those corrections fed back into the source data for later visits.</p>
       </div>
       <div>
         <img class="photo" src="img/enter-floorplan-window.jpg" alt="A field worker holding a tablet showing the dimensioned floor plan, with a window panel open on it giving the room, its width and height, and its type details of 1972, double glazing and an aluminium frame" loading="lazy" width="1800" height="1350">
@@ -536,7 +536,7 @@
     <div class="mgrid">
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="9.5" cy="5.2" rx="6" ry="2.4"/><path d="M3.5 5.2v5.6c0 1.33 2.69 2.4 6 2.4"/><path d="M3.5 10.8v5.6c0 1.33 2.69 2.4 6 2.4h.4"/><path d="M15.5 5.2v3"/><path d="M13.4 17.6l2 2 4-4.4"/></svg></span>
-        <p><strong>Data accuracy</strong>Gaps and corrections in what reached the energy model, counted per survey.</p>
+        <p><strong>Data accuracy</strong>Completeness, overrides and declared gaps, counted per survey.</p>
       </article>
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.2" cy="13.4" r="6.8"/><path d="M8.2 2.4h4"/><path d="M10.2 2.4v4.2"/><path d="M10.2 10v3.4l2.2 1.5"/><path d="M20 13.6v6"/><path d="M18 17.6l2 2 2-2"/></svg></span>
@@ -544,7 +544,7 @@
       </article>
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.4 3.2h5.9L19.6 7.5V20.8H9.4z"/><path d="M15.3 3.2v4.3h4.3"/><path d="M6.6 8.2H3.2"/><path d="M6.6 12H1.8"/><path d="M6.6 15.8H3.8"/></svg></span>
-        <p><strong>iSFP turnaround</strong>Days from the visit to a certified document a homeowner could act on.</p>
+        <p><strong>iSFP turnaround</strong>Days from the visit to a certified document, once its inputs stopped being rekeyed by hand.</p>
       </article>
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.2 10.4 12 3.6l8.8 6.8"/><path d="M5.4 12v8.4h13.2V12"/><path d="M8.2 16.6l1.9-1.7 1.9 1.5 1.9-1.5 1.9 1.7"/><path d="M12 16.4v2"/></svg></span>
