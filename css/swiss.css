@@ -42,6 +42,18 @@
 
   --pad:clamp(1.15rem,3.6vw,3.25rem);
   --gap:clamp(1rem,1.8vw,2rem);
+  /* ONE MEASURE FOR THE WHOLE SITE. The page used to run three width regimes
+     at once: index, about and 404 uncapped; cv capped to a 1456px content
+     column; a case study capped to 1560 for its prose but full-bleed for the
+     hero, the stats and the footer. Past 1664px that put content on two
+     different left margins — 52px and 180px at 1920 — and the nav logo on
+     neither of them. --measure is the content column. --frame is that column
+     plus its two page margins, which is what a container caps at, so a padded
+     container and a capped one resolve to the same left edge at every width.
+     The grid overlay caps at --frame too: what it draws is now what the page
+     is actually built on. */
+  --measure:1560px;
+  --frame:calc(var(--measure) + var(--pad) * 2);
   --bar:56px;                       /* nav height */
 
   /* type scale */
@@ -163,7 +175,8 @@ strong,b{font-weight:700}
 em{font-style:italic}
 
 /* ── 4. LAYOUT PRIMITIVES ────────────────────────────────────────────────── */
-.edge{padding-left:var(--pad);padding-right:var(--pad)}
+.edge{padding-left:var(--pad);padding-right:var(--pad);
+  max-width:var(--frame);margin-inline:auto}
 .g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap)}
 .rule{height:1px;background:var(--rule);border:0;width:100%}
 /* Section rhythm runs at two densities and alternates. A page where every band
@@ -239,6 +252,9 @@ html.js #intro{display:flex}
 #intro .brand{
   position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:space-between;
   padding:var(--pad);z-index:2;overflow:hidden;
+  /* The wordmark lands where the nav logo lands, which past 1664px is the edge
+     of the measure rather than the edge of the window. */
+  max-width:var(--frame);margin-inline:auto;
 }
 #intro .brand span{
   display:block;font-size:clamp(1.1rem,2.4vw,2rem);font-weight:700;letter-spacing:-.03em;
@@ -352,14 +368,24 @@ body.menu-on{overflow:hidden}
    value across three lines. --t-meta rather than --t-lab: this strip is read,
    not skimmed past like a heading label. */
 .hero-meta{
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:0 var(--gap);
   border-bottom:1px solid var(--rule);
   font-size:var(--t-meta);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);
   line-height:1.35;
 }
-.hero-meta span{padding:.85rem 0;border-left:1px solid var(--rule-2)}
-.hero-meta span:first-child{border-left:0;color:var(--ink);font-weight:700}
-.hero-meta span i{font-style:normal;padding-left:1rem;display:block}
+/* Three of the twelve columns per cell. Four 1fr tracks at gap:0 divided the
+   content box into quarters instead, which is not the same thing — and the
+   1rem indent on the <i> then pushed every label, the first one included, off
+   its column line, so "Senior Product Designer" did not start where "Complex"
+   starts directly beneath it. The dividing hairline is a pseudo-element in the
+   middle of the gutter rather than a border on the cell, so it separates the
+   cells without moving the text off the grid. */
+.hero-meta span{grid-column:span 3;padding:.85rem 0;position:relative}
+.hero-meta span::before{content:'';position:absolute;top:0;bottom:0;
+  left:calc(var(--gap) / -2);width:1px;background:var(--rule-2)}
+.hero-meta span:first-child::before{display:none}
+.hero-meta span:first-child{color:var(--ink);font-weight:700}
+.hero-meta span i{font-style:normal;display:block}
 .hero-meta span:first-child i{padding-left:0}
 
 /* min-height:0 on the flex children: without it a flex item refuses to shrink
@@ -369,7 +395,14 @@ body.menu-on{overflow:hidden}
    refuses to shrink below its content, and anything with an aspect-ratio has a
    content width — so a ratio box quietly sets a floor that pushes the whole
    column past the page margin. */
-.hero-main{flex:1;min-height:0;min-width:0;display:grid;grid-template-columns:1.12fr .88fr;gap:var(--gap);align-items:stretch}
+.hero-main{flex:1;min-height:0;min-width:0;display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);align-items:stretch}
+/* Seven columns and five, placed on the tracks rather than approximated by a
+   1.12/.88 ratio. That ratio put the division 35px short of the seven-column
+   line at 1440 and 47px at 1920, and .hero-r draws a rule there — it was the
+   one hairline on the page that fell inside a column instead of in a gutter. */
+.hero-l{grid-column:1 / 8}
+.hero-r{grid-column:8 / 13}
 .hero-l,.hero-r{min-width:0}
 /* Top-aligned, not space-between. Distributing four items down a 100svh column
    put a viewport-sized hole between the headline and the paragraph — the taller
@@ -416,8 +449,12 @@ body.menu-on{overflow:hidden}
 .hero-act{display:flex;align-items:center;gap:1.1rem;margin-top:clamp(1.6rem,3vw,2.4rem)}
 .hero-act .cta-t{font-size:var(--t-lab);font-weight:700;text-transform:uppercase;letter-spacing:var(--tr-lab)}
 
-.hero-r{position:relative;border-left:1px solid var(--rule-2);padding-left:var(--gap);
-  display:flex;flex-direction:column;min-height:0}
+.hero-r{position:relative;display:flex;flex-direction:column;min-height:0}
+/* The rule sits in the gutter, and the portrait starts on the column line. It
+   used to be a border on the cell with a gutter of padding after it, which put
+   the image a gutter to the right of where the grid says column eight begins. */
+.hero-r::before{content:'';position:absolute;top:0;bottom:0;left:calc(var(--gap) / -2);
+  width:1px;background:var(--rule-2)}
 /* The portrait is absolutely positioned, scaled and filtered. Safari does not
    reliably clip a child in that combination to an overflow:hidden ancestor, so
    the image painted over the skill band underneath. contain:paint states the
@@ -437,14 +474,19 @@ body.menu-on{overflow:hidden}
    that, at the same scale and with the same hairline cells as the metadata
    strip in the hero. Same component, second use. */
 .capline{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:0 var(--gap);
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
   font-size:var(--t-meta);letter-spacing:var(--tr-lab);text-transform:uppercase;
   line-height:1.45;
 }
-.capline>div{padding:clamp(1.1rem,2.2vw,1.6rem) 0;border-left:1px solid var(--rule-2);
-  padding-left:var(--gap)}
-.capline>div:first-child{border-left:0;padding-left:0}
+/* Four columns per cell, and the hairline in the gutter — the same correction
+   as .hero-meta and .stat. Thirds of the content box with a gutter of padding
+   after each border started the second and third headings 17px and 9px right
+   of their column lines while the first sat on its own. */
+.capline>div{grid-column:span 4;padding:clamp(1.1rem,2.2vw,1.6rem) 0;position:relative}
+.capline>div::before{content:'';position:absolute;top:0;bottom:0;
+  left:calc(var(--gap) / -2);width:1px;background:var(--rule-2)}
+.capline>div:first-child::before{display:none}
 .capline dt{color:var(--ink);font-weight:700;margin-bottom:.5rem}
 .capline dd{color:var(--mute)}
 
@@ -490,9 +532,23 @@ body.menu-on{overflow:hidden}
 .wproj-hd .fill{flex:1;height:1px;background:var(--rule-2);transform:translateY(-.25em)}
 .wproj-n{color:var(--red-ink);font-variant-numeric:tabular-nums}
 
-.wproj-body{display:grid;grid-template-columns:7fr 5fr;gap:clamp(1.4rem,3.4vw,3.6rem);
+.wproj-body{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);
   align-items:start;margin-top:clamp(1.4rem,2.8vw,2.6rem)}
-.wproj:nth-child(even) .wproj-fig{order:2}
+/* Seven columns of image, five of text. A 7fr/5fr pair cannot land on those
+   lines even in principle — it divides what is left after one gap, which comes
+   out at 7c+5.83g against a true seven columns of 7c+6g — and the clamp that
+   used to set that gap resolved to 49px, which is neither a gutter nor a
+   gutter plus a column, the only two widths this grid offers. Reversing the
+   row now swaps the spans: `order` cannot move an item placed by line. */
+.wproj-fig{grid-column:1 / 8;grid-row:1}
+.wproj-txt{grid-column:8 / 13;grid-row:1}
+/* grid-row:1 on both, or the reversed row breaks. Auto-placement runs in
+   source order and never goes backwards: the figure takes columns 6-13, the
+   cursor is then past column six, and the text — which asks for columns 1-6 —
+   cannot fit behind it, so it drops to a second row underneath the picture.
+   Naming the row places both by line and leaves the cursor out of it. */
+.wproj:nth-child(even) .wproj-fig{grid-column:6 / 13}
+.wproj:nth-child(even) .wproj-txt{grid-column:1 / 6}
 
 /* Fixed ratio, cover fit. The source images run from 1333x2000 portrait to
    1600x896 landscape, so the frame has to impose the crop — 3/2 sits closer to
@@ -563,7 +619,11 @@ body.menu-on{overflow:hidden}
   .wrow:hover .w-a{color:var(--red);transform:translateX(.4rem)}
 }
 /* ── 13. ABOUT ───────────────────────────────────────────────────────────── */
-.about{display:grid;grid-template-columns:5fr 7fr;gap:clamp(1.5rem,4vw,4.5rem);align-items:start}
+/* Five columns and seven. The 5fr/7fr pair was carrying a 58px gap, which put
+   the prose 23px inside column six at 1440 and 29px at 1920. */
+.about{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);align-items:start}
+.about>:first-child{grid-column:1 / 6}
+.about>:last-child{grid-column:6 / 13}
 .about-h{--lead:.97;font-size:var(--t-h2);font-weight:700;letter-spacing:-.038em;line-height:.96}
 .about-body{font-size:var(--t-body);line-height:1.62;color:var(--ink-2);max-width:60ch}
 .about-body p+p{margin-top:1.1em}
@@ -574,7 +634,7 @@ body.menu-on{overflow:hidden}
    left rail with the prose beside it, which left the right ~40% of every row
    empty — the rule spanned full width while the text stopped at 58ch. */
 .proc{display:grid;gap:0;border-top:1px solid var(--ink)}
-.proc-s{display:grid;grid-template-columns:auto minmax(0,4fr) minmax(0,6fr);
+.proc-s{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
   gap:.5rem var(--gap);align-items:start;
   padding-block:clamp(1.3rem,2.6vw,2.3rem);border-bottom:1px solid var(--rule)}
 /* Where / How / When, not 01–03. Numerals promised a sequence the work doesn't
@@ -582,19 +642,26 @@ body.menu-on{overflow:hidden}
    Same label type as .ctab .k, so the column reads as a key.
    Muted at rest: three accented labels would share one viewport and the page
    allows one — the row takes the accent on hover, one at a time. */
-/* Each row is its own grid, so an `auto` key column resolves per row: the
-   numerals aligned only because they were tabular, and Where/How/When are not
-   the same width. The min-width is what holds the title column on one axis
-   down the section — don't drop it. */
+/* Placed on lines, one column for the key and five for the title. The old
+   `auto` key column was content-sized — 64px against an 88px column at 1440 —
+   so the title started inside the first gutter and the description 37px into
+   column six. What used to hold the title column on one axis down the section
+   was a min-width on the key; the grid holds it now, which is what a grid is
+   for, so the min-width has gone. */
+.proc-k{grid-column:1 / 2}
+.proc-t{grid-column:2 / 7}
+.proc-d{grid-column:7 / 13}
 .proc-k{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);
-  text-transform:uppercase;color:var(--mute);min-width:4rem;white-space:nowrap;
+  text-transform:uppercase;color:var(--mute);white-space:nowrap;
   padding-top:.5rem;transition:color .45s var(--ez)}
 .proc-s:hover .proc-k{color:var(--red)}
 .proc-t{font-size:var(--t-h3);font-weight:700;letter-spacing:-.025em;line-height:1.15}
 .proc-d{font-size:var(--t-small);color:var(--ink-2);line-height:1.6;max-width:60ch}
 
 /* ── 15. CONTACT ─────────────────────────────────────────────────────────── */
-.contact{display:grid;grid-template-columns:5fr 7fr;gap:clamp(1.6rem,4vw,4.5rem);align-items:start}
+.contact{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);align-items:start}
+.contact>:first-child{grid-column:1 / 6}
+.contact>:last-child{grid-column:6 / 13}
 .ctab{border-top:1px solid var(--ink);margin-top:2rem}
 .ctab a,.ctab div{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;
   padding:.85rem 0;border-bottom:1px solid var(--rule-2);font-size:var(--t-small)}
@@ -691,7 +758,8 @@ html.js [data-reveal].in{opacity:1;transform:none}
 
 /* ── 18. GRID OVERLAY (press G) ──────────────────────────────────────────── */
 #gridov{position:fixed;inset:0;z-index:99960;pointer-events:none;display:none;
-  grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);padding:0 var(--pad)}
+  grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);padding:0 var(--pad);
+  max-width:var(--frame);margin-inline:auto}
 body.grid-on #gridov{display:grid}
 #gridov i{background:color-mix(in srgb,var(--red) 10%,transparent);
   border-left:1px solid color-mix(in srgb,var(--red) 26%,transparent);
@@ -707,8 +775,10 @@ body.grid-on #gridhint{display:block}
    19. CASE STUDY PAGES — shared component vocabulary
    ═══════════════════════════════════════════════════════════════════════════ */
 .cs-hero{padding-top:calc(var(--bar) + clamp(2.4rem,6vw,5.5rem));padding-bottom:clamp(2rem,4vw,3.4rem);
-  padding-left:var(--pad);padding-right:var(--pad);
-  display:grid;grid-template-columns:7fr 5fr;gap:clamp(1.6rem,4vw,4rem);align-items:end}
+  padding-left:var(--pad);padding-right:var(--pad);max-width:var(--frame);margin-inline:auto;
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);align-items:end}
+.cs-hero>:first-child{grid-column:1 / 8}
+.cs-hero>.meta-grid{grid-column:8 / 13}
 .back{display:inline-flex;align-items:center;gap:.5rem;font-size:var(--t-lab);font-weight:700;
   letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);margin-bottom:1.6rem;transition:color .3s}
 .back:hover{color:var(--red)}
@@ -736,9 +806,18 @@ body.grid-on #gridhint{display:block}
   height:auto;aspect-ratio:16/9;filter:none}
 
 .stats{display:grid;grid-template-columns:repeat(3,1fr);padding:clamp(2rem,4vw,3.4rem) var(--pad);
-  border-bottom:1px solid var(--rule);gap:var(--gap)}
-.stat{border-left:1px solid var(--rule-2);padding-left:var(--gap)}
-.stat:first-child{border-left:0;padding-left:0}
+  border-bottom:1px solid var(--rule);gap:var(--gap);max-width:var(--frame);margin-inline:auto}
+/* Three cells of four columns each, which the 1fr track already resolved to
+   exactly. What was off was the ink inside them: a border-left plus a
+   padding-left of one gutter started cells two and three a full 27px right of
+   their column line while cell one sat on it, so three figures that should
+   have formed a row on three column lines did not. The rule is a
+   pseudo-element in the middle of the gutter instead, and the cell keeps no
+   padding — see the same correction on .capline and .hero-r. */
+.stat{position:relative}
+.stat::before{content:'';position:absolute;top:0;bottom:0;left:calc(var(--gap) / -2);
+  width:1px;background:var(--rule-2)}
+.stat:first-child::before{display:none}
 .stat-n{font-size:clamp(2rem,4.4vw,3.6rem);font-weight:700;letter-spacing:-.045em;line-height:.9}
 .stat-l{margin-top:.7rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.45}
 /* The same stat vocabulary used inside a section rather than as a full-bleed
@@ -749,7 +828,7 @@ body.grid-on #gridhint{display:block}
 .stats.is-out .stat-n{font-size:clamp(1.9rem,3.6vw,3rem)}
 
 .body{padding-left:var(--pad);padding-right:var(--pad)}
-.section{padding-top:var(--space-section);padding-bottom:0;max-width:1560px;margin:0 auto}
+.section{padding-top:var(--space-section);padding-bottom:0;max-width:var(--measure);margin:0 auto}
 /* THE RULE SYSTEM. The page had thirty-seven identical full-ink hairlines on
    it — a section landmark, an argument step and a screenshot caption all wore
    the same badge, so the eye had no way to rank them and the whole column read
@@ -805,14 +884,24 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    prose mostly sat in two short columns and is not once a section runs as a
    single reading column. */
 .prose+.prose{margin-top:1.5em}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.4rem,3.6vw,4.2rem)}
+/* Six columns and six. The hand-set gap that used to sit here resolved to 60px
+   at 1440, which is neither a gutter nor a gutter plus a column, so neither
+   half of the row met a column line. Air on this grid is bought with columns,
+   not with a clamp — see .is-wide below. */
+.two{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap)}
+.two>*{grid-column:span 6}
 /* The prototype artefact is a document, not a picture — it needs width to stay
    legible, but a full half of the grid left it standing a head taller than the
    column beside it. Five-sevenths is where the two columns end level. */
-.two.lean{grid-template-columns:5fr 7fr}
+.two.lean>:first-child{grid-column:1 / 6}
+.two.lean>:last-child{grid-column:6 / 13}
 /* Text beside media wants more air between the columns than two columns of
-   prose do; the bands were all carrying a hand-typed gap:5rem for this. */
-.two.is-wide{gap:clamp(1.8rem,4.2vw,5rem)}
+   prose do. Two equal halves cannot have it — take a column out of twelve and
+   what is left is odd — so this variant spends the column instead: five of
+   text, column six left empty, six of media. That is 139px of air at 1440
+   against the 60px the old clamp gave, and both edges are on a line. */
+.two.is-wide>:first-child{grid-column:1 / 6}
+.two.is-wide>:last-child{grid-column:7 / 13}
 .two.is-top{align-items:start}
 .three{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap)}
 
@@ -930,7 +1019,11 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    content as .flow-step (a counted beat in the argument), so they are built
    the same way: one hairline on top, an accent numeral, a title, a line of
    description. One card vocabulary, used everywhere. */
-.cards{counter-reset:card;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+/* A fixed three, not auto-fit. minmax(230px,1fr) resolved to five tracks at
+   1440 — five does not divide twelve, so no card in the row met a column line,
+   and nine cards came out as a row of five and a row of four. Three columns of
+   four is both on the grid and a clean 3x3. */
+.cards{counter-reset:card;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
   gap:var(--gap)}
 .icard{border-top:1px solid var(--rule);padding:.9rem 0 0;counter-increment:card}
 /* .icard markup carries an emoji here, which has no place in this palette —
@@ -947,7 +1040,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    This is the live site's treatment carried across: same structure and spacing,
    square corners and the new type scale. An open ruled table lost the object
    quality that made a lone third card read as deliberate. */
-.mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.9rem,1.6vw,1.5rem);
+.mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);
   margin-top:clamp(1.4rem,2.6vw,1.9rem)}
 /* Following the closing figures, this is a change of subject rather than the
    next part of one — the metric's own margin is a within-block step. */
@@ -985,7 +1078,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   --rule-2:color-mix(in srgb,var(--band-ink) 14%,transparent);
   background:var(--band);color:var(--band-ink);
   padding:clamp(3.4rem,6.6vw,7rem) var(--pad);margin-top:calc(var(--space-section) * 1.25)}
-.dark-band-inner{max-width:1560px;margin:0 auto}
+.dark-band-inner{max-width:var(--measure);margin:0 auto}
 .dark-band .prose,.dark-band .cap{color:color-mix(in srgb,var(--band-ink) 80%,transparent)}
 .dark-band .lbl,.dark-band h2{color:var(--band-ink)}
 /* On the band the rule is the band's own ink at a fraction, so the landmark
@@ -996,7 +1089,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .warm-band{background:var(--sheet);padding:clamp(3.4rem,6.6vw,7rem) var(--pad);
   margin-top:calc(var(--space-section) * 1.25);
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
-.warm-band-inner{max-width:1560px;margin:0 auto}
+.warm-band-inner{max-width:var(--measure);margin:0 auto}
 /* A band directly after another band needs no gap above it. Each band already
    carries its own padding, so --space-section on top of that opened a 380px
    hole — half a screen of nothing between two blocks that belong together.
@@ -1042,10 +1135,10 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    600px+ phone shots blown up to half the container. */
 .phone-col{display:flex;flex-direction:column}
 .phone-col .cap{text-align:center}
-.phones-pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3vw,2.5rem);
+.phones-pair{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);
   max-width:520px;margin:clamp(1.6rem,3vw,3rem) auto 0;align-items:end}
 .phones-pair .phone-col:first-child{margin-top:clamp(1.2rem,2.5vw,2.5rem)}
-.phones-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.9rem,1.5vw,1.5rem);align-items:end}
+.phones-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);align-items:end}
 .phones-trio .phone-col:nth-child(1),.phones-trio .phone-col:nth-child(3){margin-top:clamp(1.6rem,4vw,4rem)}
 
 /* A run of app screens, each carrying its own caption block: the render on top,
@@ -1122,8 +1215,9 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .dark-band .toc-t{color:var(--band-ink)}
 
 /* next / back-home */
-.next{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3vw,3rem);align-items:center;
-  border-top:1px solid var(--rule);padding:clamp(2.4rem,5vw,5rem) var(--pad);margin-top:var(--space-section)}
+.next{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);align-items:center;
+  border-top:1px solid var(--rule);padding:clamp(2.4rem,5vw,5rem) var(--pad);
+  max-width:var(--frame);margin:var(--space-section) auto 0}
 .next-eyebrow{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);margin-bottom:1rem}
 .next-title{font-size:var(--t-h2);font-weight:700;letter-spacing:-.04em;line-height:.98}
 .next-sub{margin-top:.9rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.5;max-width:44ch}
@@ -1132,7 +1226,8 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .next:hover .next-img{filter:grayscale(0%) contrast(1)}
 .next:hover .next-title{color:var(--red)}
 .next-title{transition:color .35s var(--ez)}
-.backhome{display:block;border-top:1px solid var(--rule);padding:clamp(2.4rem,5vw,5rem) var(--pad);margin-top:clamp(3rem,6vw,6rem)}
+.backhome{display:block;border-top:1px solid var(--rule);padding:clamp(2.4rem,5vw,5rem) var(--pad);
+  max-width:var(--frame);margin:clamp(3rem,6vw,6rem) auto 0}
 .bh-lbl{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);margin-bottom:1rem}
 .bh-t{font-size:var(--t-h2);font-weight:700;letter-spacing:-.04em;line-height:.98}
 
@@ -1152,9 +1247,12 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 @media (max-width:900px){
   :root{--bar:52px}
   .hero{min-height:auto}
+  /* Everything placed by line above has to be released here, or a child still
+     spanning columns 1-8 would generate implicit tracks in a one-column grid. */
   .hero-main{grid-template-columns:1fr;gap:1.8rem}
+  .hero-l,.hero-r{grid-column:auto}
   .hero-l{padding-bottom:0}
-  .hero-r{border-left:0;padding-left:0}
+  .hero-r::before{display:none}
   /* the ratio alone sizes the frame here. Paired with a viewport min-height it
      resolved to a 364px minimum width — wider than the content box on a 375px
      phone — and dragged the hero over the right margin. */
@@ -1163,18 +1261,31 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
      outright on a phone — availability and years practising, which are two of
      the four things a visitor came to establish. A 2x2 grid carries all of it
      at a readable width; the hairlines move to match. */
-  .hero-meta{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:0}
-  .hero-meta span{border-left:0;padding:.7rem 0}
-  .hero-meta span:nth-child(2n){border-left:1px solid var(--rule-2);padding-left:1rem}
+  .hero-meta{grid-template-columns:repeat(6,minmax(0,1fr));row-gap:0}
+  .hero-meta span{grid-column:span 3;padding:.7rem 0}
+  /* Two per row is six of the twelve each, so the pair still sits on column
+     lines and the divider still has a real gutter to sit in. */
+  .hero-meta span::before{display:none}
+  .hero-meta span:nth-child(2n)::before{display:block}
   .hero-meta span:nth-child(n+3){border-top:1px solid var(--rule-2)}
-  .hero-meta span i{padding-left:0}
   .capline{grid-template-columns:1fr}
-  .capline>div{border-left:0;padding-left:0;border-top:1px solid var(--rule-2);
+  .capline>div{grid-column:auto;border-top:1px solid var(--rule-2);
     padding-top:1.1rem;padding-bottom:1.1rem}
+  .capline>div::before{display:none}
   .capline>div:first-child{border-top:0}
   .about,.contact{grid-template-columns:1fr;gap:1.8rem}
+  /* These resets repeat the base rules' selector shape on purpose. `.about>*`
+     is one class — it loses to `.about>:first-child`, which is a class plus a
+     pseudo-class, so the placement above would survive the breakpoint and the
+     block would stay in two columns on a phone. Match the shape, not the
+     intent. */
+  .about>:first-child,.about>:last-child,
+  .contact>:first-child,.contact>:last-child{grid-column:auto}
   .wproj-body{grid-template-columns:1fr;gap:1.2rem;align-items:start}
-  .wproj:nth-child(even) .wproj-fig{order:0}
+  /* grid-row too: left at 1 both items would stack into the same row and
+     overlap once the grid is a single column. */
+  .wproj-fig,.wproj-txt,
+  .wproj:nth-child(even) .wproj-fig,.wproj:nth-child(even) .wproj-txt{grid-column:auto;grid-row:auto}
   .wproj-fig{aspect-ratio:16/10}
   .wrow{grid-template-columns:2.6rem minmax(0,1fr) auto;row-gap:.6rem;padding:1.4rem 0}
   .w-t{grid-column:2}
@@ -1182,10 +1293,16 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .w-d{grid-column:2/4;max-width:44ch}
   .w-y{display:none}
   .cs-hero{grid-template-columns:1fr;gap:2rem;align-items:start}
+  .cs-hero>:first-child,.cs-hero>.meta-grid{grid-column:auto}
   .two,.two.lean,.three,.four,.phones-trio{grid-template-columns:1fr}
+  .two>*,
+  .two.lean>:first-child,.two.lean>:last-child,
+  .two.is-wide>:first-child,.two.is-wide>:last-child{grid-column:auto}
   .walk{grid-template-columns:1fr}
   .walk-media{--dev:300px}
   .mgrid{grid-template-columns:1fr}
+  /* Two of six, still on the grid. */
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
   .stats,.stats.is-out{grid-template-columns:1fr;gap:1.4rem}
   .appshots.n4,.appshots.n3{grid-template-columns:repeat(2,minmax(0,1fr))}
   /* Stacked, --gap bottoms out at 1rem, which is less air than sits between a
@@ -1203,7 +1320,8 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .back{padding-top:.82rem;padding-bottom:.82rem}
   /* Four filled panels at a 14px gutter read as one slab rather than four. */
   .mgrid{gap:1.15rem}
-  .stat{border-left:0;padding-left:0;border-top:1px solid var(--rule-2);padding-top:1.1rem}
+  .stat{border-top:1px solid var(--rule-2);padding-top:1.1rem}
+  .stat::before{display:none}
   .stat:first-child{border-top:0;padding-top:0}
   .next{grid-template-columns:1fr;gap:1.6rem}
   .frow{grid-template-columns:1fr}
@@ -1211,7 +1329,11 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
      so the meta row becomes label-left / value-right rows like the contact
      table — the same Swiss device at a width that can carry it */
   /* key keeps its column; title and description stack beside it */
+  /* The key goes back to a content-sized track here, so it needs the min-width
+     that used to hold the three keys level at every width. */
   .proc-s{grid-template-columns:auto minmax(0,1fr);gap:.35rem var(--gap)}
+  .proc-k{grid-column:1;min-width:4rem}
+  .proc-t{grid-column:2}
   .proc-d{grid-column:2}
   .wmeta{grid-template-columns:1fr}
   .wmeta>div{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
@@ -1223,6 +1345,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .sm-hide{display:none}
   .cli{grid-template-columns:repeat(2,1fr)}
   .f-grid{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr}
   .phones-pair{grid-template-columns:1fr}
   /* One screen at a time. Two 150px renders side by side are a texture, not a
      screenshot, and the caption under each shreds into four words a line. */
@@ -1273,7 +1396,7 @@ body.menu-on #totop,body.grid-on #totop,body.lb-on #totop,body:has(#lb[open]) #t
    control is unavoidably over content, which is why it also stands down over
    the next-project card and the footer — see toTop() in swiss.js. */
 @media (min-width:1820px){
-  #totop{left:calc(50vw + 780px + 1rem);right:auto}
+  #totop{left:calc(50vw + (var(--measure) / 2) + 1rem);right:auto}
 }
 @media (max-width:560px){
   /* icon only, but padded back out to a 44px touch target */
