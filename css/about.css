@@ -1,0 +1,146 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   About — the personal page. Loaded after swiss.css.
+
+   Outside the case-study vocabulary on purpose. The case studies are an
+   argument: hairline rules ranking the sections, uppercase micro-labels,
+   counted indices, bold mega headlines, photography laid out in grids. That
+   machinery is what makes them read as evidence, and it is wrong for a page
+   about a person.
+
+   What is here instead is one composition, sized to one screen:
+
+     a column of text on the left, at a measure you can actually read
+     a portrait in the field beside it, which the photographs fade over
+     the whole block centred in the height of the window
+
+   Three words in the text are underlined. Nothing says so. Hover one and the
+   photograph behind it appears in the empty field — never over the words,
+   which is the point of leaving the field empty.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* One screen, and the block sits in the middle of it. A short page pinned to
+   the top leaves a hole underneath that reads as an accident; centred, the
+   same emptiness reads as margin. The nav floats over the top, so its height
+   comes out of the padding rather than out of the centring. */
+/* Centred in the space below the nav, not in the window — the bar is an opaque
+   fixed overlay, so the area the block actually has is y=--bar downwards. The
+   bottom padding keeps it off the footer's top edge at short viewport heights,
+   where it was landing 20px clear of it. */
+.ab{min-height:100svh;display:flex;align-items:center;
+  padding:var(--bar) var(--pad) clamp(1rem,3svh,2.5rem)}
+.ab-in{width:100%}
+
+/* Not an even split. At 1fr 1fr the text column was 632px, which set the lines
+   at 53 characters and took the paragraphs to sixteen lines — a good measure
+   that no longer fitted on one screen. 1.55fr gives the text ~63 characters
+   and twelve lines, which does, and still leaves the photograph a field wider
+   than it needs. */
+.ab-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);
+  gap:clamp(2rem,5vw,5rem);align-items:start;width:100%}
+
+/* ── The text column ─────────────────────────────────────────────────────── */
+.ab-lbl{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);
+  text-transform:uppercase;color:var(--mute);
+  margin-bottom:clamp(1.1rem,2.6svh,2rem)}
+
+/* The measure is the number the page turns on. Run full-bleed the lines came
+   out at 86 characters and the type had to shrink to 35px to fit five
+   paragraphs on one screen: too long to read and too small to be a statement,
+   which is exactly how it looked. A column at ~63 characters is both.
+
+   The 60ch cap only bites on a large display — below that the grid column is
+   narrower than the cap and sets the measure itself.
+
+   min(vw, svh) so the height of the window can veto the width and the page
+   always lands inside one screen: ~30px at 1440x800, ~37px on a large
+   display. Line-height opens to 1.32 now the lines are a reading measure;
+   1.22 was set for display-sized lines and reads tight here. */
+.ab-say{font-size:clamp(1.15rem,min(2.1vw,3.9svh),2.3rem);font-weight:400;
+  line-height:1.32;letter-spacing:-.022em;color:var(--ink);
+  max-width:60ch;text-wrap:pretty}
+.ab-say+.ab-say{margin-top:.8em}
+
+/* ── The underlined words ────────────────────────────────────────────────── */
+/* An <a> to the photograph itself, so the page still works without JavaScript.
+   The script takes the click over and reveals it in place instead.
+
+   The rule is the accent. Three red hairlines are the entire colour budget of
+   the page and the only thing on it that isn't ink on paper, so they read as
+   the live words without needing a label to say so. 1.5px, which is the weight
+   the rest of the site uses for an accent rule — at 1px it went thin and
+   uncertain under 30px type.
+
+   The offset carries the thickness: the rule sits below the baseline and the
+   browser's default skip-ink breaks it around the descenders in "long bike
+   trips", so the g and the p stay whole.
+
+   The word itself stays --ink until hover. Red text at 30px clears AA at 3:1,
+   which is why the hover state can use --red rather than the darkened
+   --red-ink the small-text rules need. */
+.ab-peek{color:var(--ink);text-decoration:underline;text-underline-offset:.16em;
+  text-decoration-thickness:1.5px;text-decoration-color:var(--red);
+  transition:color .3s var(--ez),text-decoration-color .3s var(--ez)}
+.ab-peek:hover,.ab-peek:focus-visible{color:var(--red);
+  text-decoration-color:var(--red-bright)}
+
+/* ── The portrait, and the reveal over it ────────────────────────────────── */
+/* The field beside the text is no longer empty: it rests on the portrait, and
+   a hovered word fades its photograph over the top.
+
+   Two stacked frames in one 3:4 box rather than one image whose src gets
+   swapped. The box keeps its shape and its place whatever is showing, so the
+   page never moves and the crossfade needs no timing code — which is what
+   breaks when somebody runs the cursor across all three words at once.
+
+   Earlier versions of the reveal were a fixed card with a ground, a border and
+   a drop shadow, and the paragraphs dimmed to 28% while it was up. All of that
+   was scaffolding to survive landing on top of the text. In a column of its
+   own none of it is needed. */
+/* Sized from its width, with the height following the ratio. height:100% is
+   the obvious way to make it match the text column and it does not work here:
+   both images are absolutely positioned, so the box has no in-flow content to
+   fall back on and collapses to 0x0 the moment the percentage fails to
+   resolve.
+
+   420px at most desktop widths, growing on a large display. That is as big as
+   it goes before the frame gets taller than the column of text beside it and
+   starts setting the height of the page itself. */
+.ab-fig{display:flex;justify-content:flex-end;align-items:flex-start}
+.ab-peekbox{position:relative;width:100%;max-width:min(100%,max(420px,24vw));
+  aspect-ratio:3/4;pointer-events:none}
+/* Greyscale, at the same grade as every other photograph on the site. */
+.ab-peekbox img{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;display:block;filter:grayscale(100%) contrast(1.06)}
+[data-theme="dark"] .ab-peekbox img{filter:grayscale(100%) contrast(1) brightness(.86)}
+.ab-swap{opacity:0;transition:opacity .45s var(--ez)}
+.ab-peekbox.on .ab-swap{opacity:1}
+/* ── Close ───────────────────────────────────────────────────────────────── */
+.ab-end{margin-top:clamp(1.6rem,4svh,3rem)}
+.ab-end a{display:inline-block;font-size:var(--t-small);color:var(--mute);
+  position:relative;padding-bottom:.14em;transition:color .35s var(--ez)}
+.ab-end a::after{content:'';position:absolute;left:0;bottom:0;width:100%;height:1px;
+  background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ez)}
+.ab-end a:hover{color:var(--red)}
+.ab-end a:hover::after{transform:scaleX(1);transform-origin:left}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width:900px){
+  /* A phone scrolls, so the one-screen rule comes off with it: no height veto
+     on the type, no centring, and the text takes the full column. */
+  .ab{min-height:0;display:block;
+    padding:calc(var(--bar) + clamp(2rem,7vw,3.5rem)) var(--pad) clamp(3rem,8vw,5rem)}
+  .ab-grid{grid-template-columns:1fr;gap:0}
+  .ab-say{font-size:clamp(1.25rem,5vw,1.75rem);max-width:none}
+
+  /* The portrait sits in the flow under the text, and a tap swaps the
+     photograph in place. No floating card, no shadow, nothing over the page:
+     once the field is a real element rather than an empty gap, the phone
+     needs no separate treatment at all. */
+  .ab-fig{justify-content:flex-start;margin-top:clamp(2rem,7vw,3rem)}
+  /* No row height to fill in a single column, so it goes back to a width. */
+  .ab-peekbox{height:auto;width:min(72%,280px);max-width:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .ab-swap{transition:opacity .01s linear}
+}
