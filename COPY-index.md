@@ -50,7 +50,7 @@ Anything marked _(fixed)_ is structural (numbers, labels) — change only if you
 | ID | Copy |
 |---|---|
 | `hero.meta.1` | Senior Product Designer |
-| `hero.meta.2` | Berlin, DE · 52.52° N, 13.40° E |
+| `hero.meta.2` | Berlin, DE |
 | `hero.meta.3` | Practising since 2015 |
 | `hero.meta.4` | Available from Oct 2026 |
 
@@ -79,8 +79,8 @@ Set as three lines. The full stop is the red accent — keep it on the last line
 | ID | Term | Definition |
 |---|---|---|
 | `cap.1` | Disciplines | UX Research · Service Design · Information Architecture · Interaction Design |
-| `cap.2` | Specialties | Digital-to-Physical Integration · Operational Tooling · Automation |
-| `cap.3` | Domains | Climate Tech · Digital Health · Urban Mobility · Regulated Products |
+| `cap.2` | Specialties | Digital-to-Physical Integration · Operational Tooling · Workflow Automation |
+| `cap.3` | Domains | Climate Tech · Digital Health · Fintech · Urban Mobility · B2B · B2C · Regulated Products |
 
 Section label (screen readers only): `How I work`
 

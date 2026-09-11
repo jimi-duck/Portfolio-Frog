@@ -107,7 +107,7 @@ Identical across all seven pages. Change it here and it changes everywhere.
 | ID | Copy |
 |---|---|
 | `hero.meta.1` | Senior Product Designer |
-| `hero.meta.2` | Berlin, DE · 52.52° N, 13.40° E |
+| `hero.meta.2` | Berlin, DE |
 | `hero.meta.3` | Practising since 2015 |
 | `hero.meta.4` | Available from Oct 2026 |
 
@@ -133,8 +133,8 @@ Landmark label: _How I work_
 | ID | Term | Definition |
 |---|---|---|
 | `disc.1` | Disciplines | UX Research · Service Design · Product Strategy · Information Architecture · Interaction Design |
-| `disc.2` | Specialties | Digital-to-Physical Integration · Operational Tooling · Automation |
-| `disc.3` | Domains | Climate Tech · Digital Health · Urban Mobility · Regulated Products |
+| `disc.2` | Specialties | Digital-to-Physical Integration · Operational Tooling · Workflow Automation |
+| `disc.3` | Domains | Climate Tech · Digital Health · Fintech · Urban Mobility · B2B · B2C · Regulated Products |
 
 ## Clients & employers
 
