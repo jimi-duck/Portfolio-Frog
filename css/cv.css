@@ -4,10 +4,18 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── SCREEN ──────────────────────────────────────────────────────────────── */
-.page{padding:calc(var(--bar) + clamp(2.4rem,5vw,4.5rem)) var(--pad) 0;max-width:1560px;margin:0 auto}
+/* --frame, not --measure: the cap has to include the two page margins or
+   the content column comes out 1456px wide and sits 52px narrower than the
+   same column on every other page. */
+.page{padding:calc(var(--bar) + clamp(2.4rem,5vw,4.5rem)) var(--pad) 0;
+  max-width:var(--frame);margin:0 auto}
 
-.page>header{display:grid;grid-template-columns:1.2fr .8fr;gap:var(--gap);align-items:end;
+/* Seven and five, placed on the page grid — 1.2fr/.8fr came to 60/40 and met
+   no line. */
+.page>header{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);align-items:end;
   padding-bottom:clamp(1.2rem,2.4vw,2rem);border-bottom:1px solid var(--ink)}
+.page>header>:first-child{grid-column:1 / 8}
+.page>header>:last-child{grid-column:8 / 13}
 /* --t-hero, not --t-mega. The mega step is sized for the one-word case-study
    titles ("Enter", "Vivy"); at 15 characters this name wrapped to two lines at
    every desktop width and took 276px of the page before a word of the résumé.
@@ -32,8 +40,13 @@
 .about-strip p{font-size:clamp(1.05rem,1.9vw,1.6rem);font-weight:400;line-height:1.35;
   letter-spacing:-.022em;max-width:56ch;color:var(--mute)}
 
-.body-grid{display:grid;grid-template-columns:1.55fr .95fr;gap:clamp(1.6rem,4vw,4.5rem);
+/* Same seven and five as the header above it, so the two columns of the
+   résumé sit under the two columns of its masthead. 1.55fr/.95fr was 62/38
+   against a 72px hand-set gutter, and lined up with neither. */
+.body-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);
   padding-top:clamp(2rem,4vw,3.4rem);padding-bottom:clamp(2.4rem,5vw,4.5rem)}
+.body-grid>:first-child{grid-column:1 / 8}
+.body-grid>:last-child{grid-column:8 / 13}
 .body-grid section+section{margin-top:clamp(2.2rem,4vw,3.4rem)}
 .sec-lbl{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;
   padding-bottom:.85rem;border-bottom:1px solid var(--ink);margin-bottom:1.4rem}
@@ -75,6 +88,10 @@ a.job-co:hover{color:var(--red)}
 @media (max-width:900px){
   .page>header{grid-template-columns:1fr;gap:1.4rem;align-items:start}
   .body-grid{grid-template-columns:1fr;gap:2.4rem}
+  /* Same selector shape as the placement rules above, or they outrank
+     this and the resume stays two columns on a phone. */
+  .page>header>:first-child,.page>header>:last-child,
+  .body-grid>:first-child,.body-grid>:last-child{grid-column:auto}
 }
 @media (max-width:560px){
   .tools{grid-template-columns:1fr}
