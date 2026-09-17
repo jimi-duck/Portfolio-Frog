@@ -1,6 +1,10 @@
 (function(){
   var avail   = document.querySelector('.avail');
   var canvas  = document.getElementById('astroCanvas');
+  // The file is fetched on demand now (see game() in swiss.js), so it can in
+  // principle arrive on a page that has no board to draw on. Without this the
+  // very next line throws and takes the rest of the page's scripts with it.
+  if (!canvas) return;
   var ctx     = canvas.getContext('2d');
   var exitBtn = document.getElementById('astroExit');
   var tipEl   = document.getElementById('astroTip');

@@ -38,9 +38,8 @@ Identical across all seven pages. Change it here and it changes everywhere.
 | `nav.logo` | Logo | James Ciclitira |
 | `nav.01` | Link 01 | Work |
 | `nav.02` | Link 02 | About |
-| `nav.03` | Link 03 | Process |
-| `nav.04` | Link 04 | Contact |
-| `nav.05` | Link (Résumé) | Résumé ↗ |
+| `nav.03` | Link 03 | Contact |
+| `nav.04` | Link (Résumé) | Résumé ↗ |
 | `nav.burger` | Mobile menu button | Menu |
 | `nav.theme` | Theme toggle (screen-reader label) | Switch between light and dark mode |
 | `nav.aria.primary` | Landmark label | Primary |
@@ -60,9 +59,8 @@ Identical across all seven pages. Change it here and it changes everywhere.
 | `foot.h1` | Column heading | Index |
 | `foot.index.1` | Link | Selected work |
 | `foot.index.2` | Link | About |
-| `foot.index.3` | Link | Process |
-| `foot.index.4` | Link | Contact |
-| `foot.index.5` | Link | Résumé |
+| `foot.index.3` | Link | Contact |
+| `foot.index.4` | Link | Résumé |
 | `foot.h2` | Column heading | Case studies |
 | `foot.case.1` | Link | 01 · Enter |
 | `foot.case.2` | Link | 02 · Coup Mobility |
@@ -149,11 +147,11 @@ Landmark label: _How I work_
 | ID | Copy |
 |---|---|
 | `work.h` | Selected work |
-| `work.idx` | 01 / 04 · 2017–2026 _(fixed)_ |
+| `work.idx` | 01 / 03 · 2017–2026 _(fixed)_ |
 | `work.cta` | View case study _(all four)_ |
 
 ### 01 · Enter
-> Enter helps German homeowners plan energy-efficient renovations and claim government subsidies covering up to 70% of the cost. Certified energy advisors survey the home on site, and AI turns the data into a plan the homeowner can act on.
+> Germany pays up to 70% towards a home retrofit, but only against an official plan. Enter sent tradespeople out to survey the house and build that plan.
 
 | Role | Domain | Scope |
 |---|---|---|
@@ -162,7 +160,7 @@ Landmark label: _How I work_
 **Alt:** An Enter energy advisor standing in a stairwell, tracing a building's footprint on a tablet during an on-site survey.
 
 ### 02 · Coup Mobility
-> Bosch’s e-moped sharing service put 5,000 electric mopeds across Berlin, Paris, and Madrid. They could be found on a map, unlocked with a phone, and left anywhere. Behind the rider experience lay a massive field operation keeping every vehicle charged, repaired, and on the streets.
+> Bosch’s e-moped service put 5,000 vehicles on the streets of Berlin, Paris, and Madrid. A rider app on the front, a field operation behind it.
 
 | Role | Domain | Scope |
 |---|---|---|
@@ -171,7 +169,7 @@ Landmark label: _How I work_
 **Alt:** Two riders on Coup's red shared e-mopeds waiting at a Berlin intersection.
 
 ### 03 · Cooler Future
-> A sustainable investing app for people who want to know exactly what their money is funding. It offers curated climate funds, transparent impact data and a €20 minimum investment, built for first-time investors and sceptics who want hard proof, not greenwashing.
+> Climate investing for people who want to know exactly what their money funds. Curated funds, the holdings in the open, and a €20 minimum.
 
 | Role | Domain | Scope |
 |---|---|---|
@@ -180,7 +178,7 @@ Landmark label: _How I work_
 **Alt:** Cooler Future key visual: an aerial view of a turquoise glacial lake, captioned "The footprint of money: reshaping sustainable investing".
 
 ### 04 · Vivy
-> An Allianz-backed digital health record that lets patients request medical documents, store them securely on their phones, and share them with any practitioner. A modern, encrypted solution built for a country where medical records still move by mail, fax, and in-person requests.
+> An Allianz-backed health record patients carry on their phone, in a country where medical notes still move by fax and post.
 
 | Role | Domain | Scope |
 |---|---|---|
@@ -193,7 +191,7 @@ Landmark label: _How I work_
 | ID | Copy |
 |---|---|
 | `about.h` | About |
-| `about.idx` | 02 / 04 _(fixed)_ |
+| `about.idx` | 02 / 03 _(fixed)_ |
 
 ### Heading
 > **Line 1:** How I think
@@ -208,31 +206,18 @@ Landmark label: _How I work_
 | `about.t.4` | Currently | Open to full-time & part-time |
 
 ### Body
-> **P1:** Most of that time has been spent in complex domains: digital health, sustainable investing, urban mobility, and now home energy. The common thread is products people depend on to do something that matters to them, increasingly at companies working on environmental impact.
+> **P1:** Most of that time has gone into regulated, operational domains: health records, fleets, energy retrofits. Products people depend on to get something done.
 
-> **P2:** Research comes first. It’s far cheaper to learn before you build than after you launch. Time with real users usually reveals the right direction; the job is to ask the right questions, reduce complexity, and turn insight into products that are clear and usable.
+> **P2:** Research comes first. It’s cheaper to learn before you build than after you launch.
 
-> **P3:** My experience ranges from being the sole designer in an early-stage startup to working inside large cross-functional teams, leading projects from research through to delivery.
-
-## The process
-
-| ID | Copy |
-|---|---|
-| `proc.h` | The process |
-| `proc.idx` | 03 / 04 _(fixed)_ |
-
-| Key | Title | Description |
-|---|---|---|
-| Where | Go where the work happens | What breaks a product is rarely visible from a desk. It’s on the tablet in someone’s basement, in the fax machine at the clinic, in the spreadsheet the ops team actually runs on. |
-| How | Keep it rough while it’s still wrong | Storyboards and grey boxes get argued with; polished screens get approved. I keep the work unfinished-looking while the direction is still in question, then make prototypes real enough to earn honest reactions. |
-| When | Stay until it ships | Working alongside engineers through the build, on real devices, with real data. If a design doesn’t hold up once it’s coded, it wasn’t done. |
+> **P3:** I’ve been the only designer in an early-stage startup and one of many in a large team. Either way, I stay with it from research through to what ships.
 
 ## Contact
 
 | ID | Copy |
 |---|---|
 | `contact.h` | Say hello |
-| `contact.idx` | 04 / 04 _(fixed)_ |
+| `contact.idx` | 03 / 03 _(fixed)_ |
 
 ### Heading
 > **Line 1:** Let’s talk about

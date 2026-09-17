@@ -72,7 +72,7 @@
   /* The metadata strip and the counters (section index, case-study number)
      sit one step above the label size. They were the smallest type on the
      page and the first thing to become unreadable on a phone. Word labels
-     (.ctab .k, .proc-k) stay at --t-lab: they read as words. */
+     (.ctab .k) stay at --t-lab: they read as words. */
   --t-meta:clamp(.84rem,1vw,.9rem);
   /* One tracking value for every uppercase micro-label on the site. The old
      system ran four (.14/.16/.17/.19em) at four different sizes; a single
@@ -172,16 +172,20 @@ h1{font-size:var(--t-h1)}
 h2{font-size:var(--t-h2)}
 h3{font-size:var(--t-h3);letter-spacing:-.02em;line-height:1.1}
 strong,b{font-weight:700}
+/* <em> is mostly an accent rather than a slope: inside a headline, a case-study
+   title or the game's hail, a component rule recolours it and resets
+   font-style. Not everywhere, though — the reader quotes in the Cooler Future
+   audience blocks are a plain <em> in a plain <p>, and those do set in the
+   italic cut. That one place is what the third font file is for, so both it and
+   this rule stay. */
 em{font-style:italic}
 
 /* ── 4. LAYOUT PRIMITIVES ────────────────────────────────────────────────── */
 .edge{padding-left:var(--pad);padding-right:var(--pad);
   max-width:var(--frame);margin-inline:auto}
-.g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap)}
-.rule{height:1px;background:var(--rule);border:0;width:100%}
 /* Section rhythm runs at two densities and alternates. A page where every band
    is padded identically scrolls flat no matter how good the grid is, so the
-   argument sections (work, figures, clients, process) run tight and the
+   argument sections (work, figures, clients) run tight and the
    reflective ones (about, contact) run open. */
 .blk{padding-block:clamp(4rem,9vw,9rem)}
 .blk-air{padding-block:clamp(6rem,13vw,13rem)}
@@ -210,10 +214,6 @@ em{font-style:italic}
 .sechd .lab{white-space:nowrap}
 .sechd .fill{flex:1}
 .sechd .idx{font-size:var(--t-meta);letter-spacing:var(--tr-lab);color:var(--mute);font-variant-numeric:tabular-nums}
-
-/* Display type */
-.mega{font-size:var(--t-mega);font-weight:700;line-height:.83;letter-spacing:-.045em}
-.tabnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 .red{color:var(--red)}
 
 /* Circled arrow — the Swiss-deck button */
@@ -619,49 +619,40 @@ body.menu-on{overflow:hidden}
   .wrow:hover .w-a{color:var(--red);transform:translateX(.4rem)}
 }
 /* ── 13. ABOUT ───────────────────────────────────────────────────────────── */
-/* Five columns and seven. The 5fr/7fr pair was carrying a 58px gap, which put
-   the prose 23px inside column six at 1440 and 29px at 1920. */
+/* Five columns, an empty one, then six — the same split as Contact below.
+
+   It used to be 6/13, which gave the prose a seven-column track. The prose is
+   capped at 60ch, so the extra column never widened the text: it sat as 217px
+   of dead track on the right, while the gutter on the left stayed at the
+   standard 26px. Giving column six up spends that slack where it reads as
+   air rather than as a gap nobody chose.
+
+   Column seven is the content edge of this page: the contact form starts
+   there too. Starting the prose on the same line is worth more than ending it
+   on the right margin — which is why this is not 8/13, where the block would
+   have run flush right but been the only thing on the page off that line. */
 .about{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);align-items:start}
 .about>:first-child{grid-column:1 / 6}
-.about>:last-child{grid-column:6 / 13}
+.about>:last-child{grid-column:7 / 13}
 .about-h{--lead:.97;font-size:var(--t-h2);font-weight:700;letter-spacing:-.038em;line-height:.96}
 .about-body{font-size:var(--t-body);line-height:1.62;color:var(--ink-2);max-width:60ch}
 .about-body p+p{margin-top:1.1em}
 
-/* ── 14. PROCESS ─────────────────────────────────────────────────────────── */
-/* An index, not a rail. Key, title and description share a row and between
-   them use the whole measure. The previous version ran a big numeral down a
-   left rail with the prose beside it, which left the right ~40% of every row
-   empty — the rule spanned full width while the text stopped at 58ch. */
-.proc{display:grid;gap:0;border-top:1px solid var(--ink)}
-.proc-s{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
-  gap:.5rem var(--gap);align-items:start;
-  padding-block:clamp(1.3rem,2.6vw,2.3rem);border-bottom:1px solid var(--rule)}
-/* Where / How / When, not 01–03. Numerals promised a sequence the work doesn't
-   follow; these are three questions, and the section answers them in order.
-   Same label type as .ctab .k, so the column reads as a key.
-   Muted at rest: three accented labels would share one viewport and the page
-   allows one — the row takes the accent on hover, one at a time. */
-/* Placed on lines, one column for the key and five for the title. The old
-   `auto` key column was content-sized — 64px against an 88px column at 1440 —
-   so the title started inside the first gutter and the description 37px into
-   column six. What used to hold the title column on one axis down the section
-   was a min-width on the key; the grid holds it now, which is what a grid is
-   for, so the min-width has gone. */
-.proc-k{grid-column:1 / 2}
-.proc-t{grid-column:2 / 7}
-.proc-d{grid-column:7 / 13}
-.proc-k{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);
-  text-transform:uppercase;color:var(--mute);white-space:nowrap;
-  padding-top:.5rem;transition:color .45s var(--ez)}
-.proc-s:hover .proc-k{color:var(--red)}
-.proc-t{font-size:var(--t-h3);font-weight:700;letter-spacing:-.025em;line-height:1.15}
-.proc-d{font-size:var(--t-small);color:var(--ink-2);line-height:1.6;max-width:60ch}
-
 /* ── 15. CONTACT ─────────────────────────────────────────────────────────── */
 .contact{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);align-items:start}
+/* Five columns of contact details, column six left empty, six of form — the
+   same split as About above, and the same content edge at column seven.
+
+   The form used to run 6/13: seven columns, 769px at 1440, which made it both
+   the widest object in the section and 227px wider than the column of details
+   beside it. A single-line text input that long is mostly empty underline, and
+   the eye has to travel the whole of it to find where the next one starts.
+
+   Six columns is 655px, and the column given up is what separates the two
+   halves: air on this grid is bought with columns, not with a gap — the same
+   trade .two.is-wide makes for text beside media. */
 .contact>:first-child{grid-column:1 / 6}
-.contact>:last-child{grid-column:6 / 13}
+.contact>:last-child{grid-column:7 / 13}
 .ctab{border-top:1px solid var(--ink);margin-top:2rem}
 .ctab a,.ctab div{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;
   padding:.85rem 0;border-bottom:1px solid var(--rule-2);font-size:var(--t-small)}
@@ -756,6 +747,42 @@ html.js [data-reveal].in{opacity:1;transform:none}
    Both are pseudo-elements so the section's own fade-up carries them along. */
 .sechd::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink)}
 
+/* ── 17b. GAME LAUNCHER ──────────────────────────────────────────────────── */
+/* These rules used to live in game.css. They cannot any more: css/game.css is
+   fetched on the first press of the launcher, and the launcher is on the page
+   from first paint — unstyled, it is a 61px inline-block sitting in the flow
+   at the foot of the homepage instead of a pinned marker in the corner.
+   Everything that styles the board stays in game.css; only the button that
+   opens it belongs here. */
+/* A quiet marker that rewards noticing: hairline box, greyscale sprite, and a
+   label that only unfolds once you reach for it. Pressing B works too. */
+#game-launch{
+  position:fixed;right:var(--pad);bottom:1.1rem;z-index:99950;
+  display:inline-flex;align-items:center;gap:0;
+  padding:.5rem .7rem;border:1px solid var(--rule);background:var(--paper);color:var(--mute);
+  font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;
+  opacity:0;transform:translateY(6px);pointer-events:none;cursor:pointer;
+  transition:opacity .5s var(--ez),transform .5s var(--ez),
+             color .3s var(--ez),border-color .3s var(--ez),background .3s var(--ez);
+}
+body.scrolled #game-launch{opacity:1;transform:none;pointer-events:auto;border-color:var(--ink);color:var(--ink)}
+body.scrolled #game-launch:hover{color:var(--paper);background:var(--ink);border-color:var(--ink)}
+#game-launch img{height:17px;width:auto;filter:none;opacity:1}
+/* The label unfolds on approach, as the marker was always meant to. Parked open
+   it is a 86px slab pinned over the right margin, which lands on top of the
+   right-aligned project tags as they pass the foot of the viewport. */
+#game-launch .gl-t{
+  display:inline-block;white-space:nowrap;max-width:0;margin-left:0;opacity:0;overflow:hidden;
+  transition:max-width .35s var(--ez),opacity .25s var(--ez),margin-left .35s var(--ez);
+}
+#game-launch:hover .gl-t,#game-launch:focus-visible .gl-t{max-width:5rem;margin-left:.5rem;opacity:1}
+/* and it steps aside entirely at the foot of the page, where it otherwise sat
+   directly on top of the "Back to top" link */
+body.foot-in #game-launch{opacity:0;transform:translateY(6px);pointer-events:none}
+body.astro-active #game-launch{display:none}
+@media (max-width:600px){#game-launch{display:none}}
+html.coarse body:not(.astro-active) #game-launch{display:inline-flex}
+
 /* ── 18. GRID OVERLAY (press G) ──────────────────────────────────────────── */
 #gridov{position:fixed;inset:0;z-index:99960;pointer-events:none;display:none;
   grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap);padding:0 var(--pad);
@@ -789,6 +816,13 @@ body.grid-on #gridhint{display:block}
    "Mobility" was a direct p-into-l hit. 0.97 keeps it tight and safe. */
 .cs-title{font-size:var(--t-mega);font-weight:700;line-height:.97;letter-spacing:-.048em;margin-bottom:1.3rem}
 .cs-title em{font-style:normal}
+/* --t-mega is set for the case study titles, which are all one short word:
+   Enter, Coup, Vivy. A longer single word overflows the seven columns the
+   hero gives it and runs under the meta grid — "Experiments" needed 899px of
+   a 769px column at 1440. This drops it one step, to the scale the homepage
+   headline uses, which fits the same column with room to spare. Reach for it
+   when a title is longer than about six characters, not as a matter of taste. */
+.cs-title.is-long{font-size:var(--t-h1);letter-spacing:-.042em}
 .cs-tagline{font-size:var(--t-small);line-height:1.6;color:var(--ink-2);max-width:52ch}
 .meta-grid{display:grid;gap:0;border-top:1px solid var(--ink)}
 .meta-item{padding:.8rem 0;border-bottom:1px solid var(--rule-2)}
@@ -922,7 +956,6 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 /* Same steps below an element, for the one or two places that need it */
 .sp-mb{margin-bottom:var(--space-block)}
 .sp-0{margin-top:0}
-.four{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap)}
 /* Case-study artwork runs at its natural height. These are screenshots, flows
    and diagrams — a forced aspect ratio slices content out of them. */
 .img,.photo,.device-img,.phone{width:100%;height:auto;display:block}
@@ -954,7 +987,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 /* No crop here. One of these frames is a survey sheet rather than a photograph,
    and a 4:3 box took the header off the top of it and the U-value off the
    bottom. Both sources are square, so they sit level at their natural height. */
-@media(max-width:560px){.doc-row{grid-template-columns:1fr;gap:1.4rem}}
+@media (max-width:560px){.doc-row{grid-template-columns:1fr;gap:1.4rem}}
 .cap{margin-top:.6rem;font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);line-height:1.5}
 /* .tall/.wide/.short are legacy hooks in the markup — deliberately inert, so
    nothing crops. Set an aspect-ratio inline on a specific image if you want one. */
@@ -1232,6 +1265,25 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .bh-t{font-size:var(--t-h2);font-weight:700;letter-spacing:-.04em;line-height:.98}
 
 /* ── 20. RESPONSIVE ──────────────────────────────────────────────────────── */
+/* THE BREAKPOINTS, AND WHAT BREAKS AT EACH. There is no single ladder here on
+   purpose: a breakpoint is set by the content that fails at it, and the client
+   row, the nav and the lightbox do not fail at the same width. What there was
+   no note of is which is which, so every one of them looked like a stray. They
+   are, top to bottom:
+
+     1080   the client logo row drops to three across; the footer to two columns
+     1024   the nav collapses to the burger (the note below says why not 900)
+      900   the main breakpoint: every two-column grid on the site goes single
+      700   the lightbox stops fitting the image to the height and scrolls
+      600   the game launcher stands down (section 17b, below)
+      560   the field-photograph pair stacks; the back-to-top button shrinks
+
+   The --t-hero steps near the top of this file (1440/1200/1024/900/640/400) are
+   a separate ladder and stay separate: they are sized against the longest line
+   the headline sets, not against a layout. css/game.css runs its own single
+   breakpoint at 620, for the full-screen game's dialogs.
+
+   Adding a width here means adding a line above it. */
 @media (max-width:1080px){
   .cli{grid-template-columns:repeat(3,1fr)}
   .f-grid{grid-template-columns:repeat(2,1fr);row-gap:2rem}
@@ -1294,7 +1346,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .w-y{display:none}
   .cs-hero{grid-template-columns:1fr;gap:2rem;align-items:start}
   .cs-hero>:first-child,.cs-hero>.meta-grid{grid-column:auto}
-  .two,.two.lean,.three,.four,.phones-trio{grid-template-columns:1fr}
+  .two,.two.lean,.three,.phones-trio{grid-template-columns:1fr}
   .two>*,
   .two.lean>:first-child,.two.lean>:last-child,
   .two.is-wide>:first-child,.two.is-wide>:last-child{grid-column:auto}
@@ -1328,13 +1380,6 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   /* three columns of ~110px shred "Senior Product Designer" into three lines,
      so the meta row becomes label-left / value-right rows like the contact
      table — the same Swiss device at a width that can carry it */
-  /* key keeps its column; title and description stack beside it */
-  /* The key goes back to a content-sized track here, so it needs the min-width
-     that used to hold the three keys level at every width. */
-  .proc-s{grid-template-columns:auto minmax(0,1fr);gap:.35rem var(--gap)}
-  .proc-k{grid-column:1;min-width:4rem}
-  .proc-t{grid-column:2}
-  .proc-d{grid-column:2}
   .wmeta{grid-template-columns:1fr}
   .wmeta>div{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
     padding-top:.6rem;padding-bottom:.65rem}

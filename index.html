@@ -4,8 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>James Ciclitira · Product Designer, Berlin</title>
+<!-- @head -->
+<!-- Runs before the first paint, which is the whole point of it being inline
+     and not in swiss.js: a stylesheet chosen a frame late is a white flash on
+     a dark-mode page. It sets the theme from storage (or the OS preference on
+     a first visit), marks the document as script-enabled so the reveal start
+     states can be scoped to html.js, and flags a coarse pointer.
+
+     The timeout is the no-script-file failsafe. swiss.js sets data-swiss as
+     soon as it boots; if it never arrives — blocked, failed, cached wrong —
+     the js class comes off after 4s and every hidden start state stops
+     applying, so the page renders in full rather than staying blank. -->
 <script>(function(){var r=document.documentElement;r.className+=' js introing';try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}r.setAttribute('data-theme',t);}catch(e){}if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)r.className+=' coarse';setTimeout(function(){if(!r.dataset.swiss)r.className=r.className.replace(/\bjs\b/,'').replace(/\bintroing\b/,'');},4000);})();</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27%23131311%27%2F%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2726%27%20fill%3D%27%23e23a16%27%2F%3E%3C%2Fsvg%3E">
+<!-- /@head -->
 <meta name="description" content="Senior Product Designer in Berlin. Eleven years designing digital products end to end for companies working on things that matter.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="James Ciclitira · Product Designer, Berlin">
@@ -14,12 +26,17 @@
 <meta property="og:url" content="https://www.jciclitira.com/">
 <link rel="canonical" href="https://www.jciclitira.com/">
 <meta name="twitter:card" content="summary_large_image">
+<!-- @head-assets -->
+<!-- Regular and Bold are preloaded because every page sets in them from the
+     first paint. The italic cut is not: it is used by the reader quotes on one
+     case study, so it can be fetched when that page asks for it. -->
 <link rel="preload" href="fonts/texgyreheros-bold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/texgyreheros-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/swiss.css">
-<link rel="stylesheet" href="css/game.css">
+<!-- /@head-assets -->
 </head>
 <body>
+<!-- @chrome -->
 <a class="skip" href="#main">Skip to content</a>
 
 <!-- ═══ INTRO CURTAIN ═══════════════════════════════════════════════════════ -->
@@ -31,8 +48,14 @@
 <div id="prog" aria-hidden="true"></div>
 <div id="gridov" aria-hidden="true"></div>
 <div id="gridhint" aria-hidden="true">Grid · press G</div>
+<!-- /@chrome -->
 
 <!-- ═══ NAV ═════════════════════════════════════════════════════════════════ -->
+<!-- @nav -->
+<!-- The theme toggle exists twice — once in the desktop row, once in the mobile
+     bar — because the two live in different flex contexts and only one is ever
+     visible. swiss.js binds every .tt, so they stay in step without knowing
+     about each other. -->
 <nav aria-label="Primary">
   <div class="nav-in edge">
     <a href="index.html" class="nav-logo">James Ciclitira</a>
@@ -40,8 +63,7 @@
       <ol class="nav-links">
         <li><a href="#work"><span class="num">01</span>Work</a></li>
         <li><a href="#about"><span class="num">02</span>About</a></li>
-        <li><a href="#process"><span class="num">03</span>Process</a></li>
-        <li><a href="#contact"><span class="num">04</span>Contact</a></li>
+        <li><a href="#contact"><span class="num">03</span>Contact</a></li>
         <li><a href="cv.html">Résumé ↗</a></li>
       </ol>
       <button class="tt" id="theme-toggle" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
@@ -53,18 +75,20 @@
   </div>
 </nav>
 
+<!-- Closed with visibility:hidden, not clip-path alone — clipping leaves its
+     links in the tab order. swiss.js owns the open state. -->
 <nav id="menu" aria-label="Site menu">
   <a href="#work"><span class="n">01</span>Work</a>
   <a href="#about"><span class="n">02</span>About</a>
-  <a href="#process"><span class="n">03</span>Process</a>
-  <a href="#contact"><span class="n">04</span>Contact</a>
-  <a href="cv.html"><span class="n">05</span>Résumé</a>
+  <a href="#contact"><span class="n">03</span>Contact</a>
+  <a href="cv.html"><span class="n">04</span>Résumé</a>
   <div class="foot">
     <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn ↗</a>
     <a href="mailto:jciclitira@gmail.com">Email ↗</a>
     <span class="lab lab-mute">Berlin, DE</span>
   </div>
 </nav>
+<!-- /@nav -->
 
 <main id="main" tabindex="-1">
 
@@ -131,11 +155,11 @@
   </div>
   <div class="cli" style="margin-top:clamp(1.6rem,3vw,2.6rem)">
     <div class="cli-c"><img src="img/enter-logo.svg" width="809" height="227" alt="Enter logo" loading="lazy"></div>
-    <div class="cli-c"><img src="img/63120022425d060ff644f311_Bosch.svg" width="261" height="77" alt="Bosch logo" loading="lazy"></div>
-    <div class="cli-c"><img src="img/6312002203e4f34facdad03f_Allianz.svg" width="261" height="77" alt="Allianz logo" loading="lazy"></div>
-    <div class="cli-c"><img src="img/631200221936d30520080112_Cooler-future.svg" width="261" height="77" alt="Cooler Future logo" loading="lazy"></div>
-    <div class="cli-c"><img src="img/631200228ebd854e3d920754_YonoJuno.svg" width="261" height="77" alt="YunoJuno logo" loading="lazy"></div>
-    <div class="cli-c"><img src="img/Quidco.svg" width="127" height="40" alt="Quidco logo" loading="lazy"></div>
+    <div class="cli-c"><img src="img/client-bosch.svg" width="261" height="77" alt="Bosch logo" loading="lazy"></div>
+    <div class="cli-c"><img src="img/client-allianz.svg" width="261" height="77" alt="Allianz logo" loading="lazy"></div>
+    <div class="cli-c"><img src="img/client-cooler-future.svg" width="261" height="77" alt="Cooler Future logo" loading="lazy"></div>
+    <div class="cli-c"><img src="img/client-yunojuno.svg" width="261" height="77" alt="YunoJuno logo" loading="lazy"></div>
+    <div class="cli-c"><img src="img/client-quidco.svg" width="127" height="40" alt="Quidco logo" loading="lazy"></div>
   </div>
 </section>
 
@@ -147,7 +171,7 @@
   <div class="sechd">
     <h2 class="lab" id="work-h">Selected work</h2>
     <span class="fill"></span>
-    <span class="idx">01 / 04 · 2017–2026</span>
+    <span class="idx">01 / 03 · 2017–2026</span>
   </div>
 
   <div class="work-list">
@@ -162,7 +186,7 @@
         </div>
         <div class="wproj-txt">
           <h3 class="wproj-t">Enter</h3>
-          <p class="wproj-d">Enter helps German homeowners plan energy-efficient renovations and claim government subsidies covering up to 70% of the cost. Certified energy advisors survey the home on site, and AI turns the data into a plan the homeowner can act on.</p>
+          <p class="wproj-d">Germany pays up to 70% towards a home retrofit, but only against an official plan. Enter sent tradespeople out to survey the house and build that plan.</p>
           <dl class="wmeta">
             <div><dt>Role</dt><dd>Senior Product Designer</dd></div>
             <div><dt>Domain</dt><dd>Climate tech</dd></div>
@@ -183,11 +207,11 @@
       </div>
       <div class="wproj-body">
         <div class="wproj-fig">
-          <img src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="Two riders on Coup's red shared e-mopeds waiting at a Berlin intersection." loading="lazy" width="700" height="448">
+          <img src="img/coup-hero.jpeg" alt="Two riders on Coup's red shared e-mopeds waiting at a Berlin intersection." loading="lazy" width="700" height="448">
         </div>
         <div class="wproj-txt">
           <h3 class="wproj-t">Coup Mobility</h3>
-          <p class="wproj-d">Bosch’s e-moped sharing service put 5,000 electric mopeds across Berlin, Paris, and Madrid. They could be found on a map, unlocked with a phone, and left anywhere. Behind the rider experience lay a massive field operation keeping every vehicle charged, repaired, and on the streets.</p>
+          <p class="wproj-d">Bosch’s e-moped service put 5,000 vehicles on the streets of Berlin, Paris, and Madrid. A rider app on the front, a field operation behind it.</p>
           <dl class="wmeta">
             <div><dt>Role</dt><dd>Senior Product Designer</dd></div>
             <div><dt>Domain</dt><dd>Urban mobility</dd></div>
@@ -212,7 +236,7 @@
         </div>
         <div class="wproj-txt">
           <h3 class="wproj-t">Cooler Future</h3>
-          <p class="wproj-d">A sustainable investing app for people who want to know exactly what their money is funding. It offers curated climate funds, transparent impact data and a €20 minimum investment, built for first-time investors and sceptics who want hard proof, not greenwashing.</p>
+          <p class="wproj-d">Climate investing for people who want to know exactly what their money funds. Curated funds, the holdings in the open, and a €20 minimum.</p>
           <dl class="wmeta">
             <div><dt>Role</dt><dd>Lead Product Designer</dd></div>
             <div><dt>Domain</dt><dd>Sustainable fintech</dd></div>
@@ -233,11 +257,11 @@
       </div>
       <div class="wproj-body">
         <div class="wproj-fig">
-          <img src="img/6593e7ac7fe0b1cbed638346_VivyHero.jpeg" alt="The Vivy health record app open on a phone, showing a patient's stored medical documents." loading="lazy" width="700" height="448">
+          <img src="img/vivy-card.jpeg" alt="The Vivy health record app open on a phone, showing a patient's stored medical documents." loading="lazy" width="700" height="448">
         </div>
         <div class="wproj-txt">
           <h3 class="wproj-t">Vivy</h3>
-          <p class="wproj-d">An Allianz-backed digital health record that lets patients request medical documents, store them securely on their phones, and share them with any practitioner. A modern, encrypted solution built for a country where medical records still move by mail, fax, and in-person requests.</p>
+          <p class="wproj-d">An Allianz-backed health record patients carry on their phone, in a country where medical notes still move by fax and post.</p>
           <dl class="wmeta">
             <div><dt>Role</dt><dd>Product Designer</dd></div>
             <div><dt>Domain</dt><dd>Digital health</dd></div>
@@ -258,7 +282,7 @@
   <div class="sechd">
     <h2 class="lab" id="about-h">About</h2>
     <span class="fill"></span>
-    <span class="idx">02 / 04</span>
+    <span class="idx">02 / 03</span>
   </div>
 
   <div class="about" style="margin-top:clamp(1.8rem,3.6vw,3.2rem)">
@@ -270,57 +294,30 @@
       <div class="ctab" style="max-width:32rem">
         <div><span class="k">Based in</span><span class="v">Berlin, Germany</span></div>
         <div><span class="k">Working since</span><span class="v">2015</span></div>
-        <div><span class="k">Languages</span><span class="v">English &middot; German (B2)</span></div>
+        <div><span class="k">Languages</span><span class="v">English · German (B2)</span></div>
         <div><span class="k">Currently</span><span class="v">Open to full-time &amp; part-time</span></div>
         <a href="about.html"><span class="k">Away from work</span><span class="v">About me ↗</span></a>
       </div>
     </div>
     <div class="about-body">
-      <p>Most of that time has been spent in complex domains: digital health, sustainable investing, urban mobility, and now home energy. The common thread is products people depend on to do something that matters to them, increasingly at companies working on environmental impact.</p>
-      <p>Research comes first. It’s far cheaper to learn before you build than after you launch. Time with real users usually reveals the right direction; the job is to ask the right questions, reduce complexity, and turn insight into products that are clear and usable.</p>
-      <p>My experience ranges from being the sole designer in an early-stage startup to working inside large cross-functional teams, leading projects from research through to delivery.</p>
+      <p>Most of that time has gone into regulated, operational domains: health records, fleets, energy retrofits. Products people depend on to get something done.</p>
+      <p>Research comes first. It’s cheaper to learn before you build than after you launch.</p>
+      <p>I’ve been the only designer in an early-stage startup and one of many in a large team. Either way, I stay with it from research through to what ships.</p>
     </div>
   </div>
 
-</section>
-
-<!-- ═══ PROCESS ═════════════════════════════════════════════════════════════ -->
-<section class="edge blk blk-t" id="process" aria-labelledby="process-h" data-reveal>
-  <div class="sechd">
-    <h2 class="lab" id="process-h">The process</h2>
-    <span class="fill"></span>
-    <span class="idx">03 / 04</span>
-  </div>
-
-  <div class="proc" style="margin-top:clamp(2rem,4vw,3.4rem)">
-    <div class="proc-s">
-      <div class="proc-k">Where</div>
-      <h3 class="proc-t">Go where the work happens</h3>
-      <p class="proc-d">What breaks a product is rarely visible from a desk. It’s on the tablet in someone’s basement, in the fax machine at the clinic, in the spreadsheet the ops team actually runs on.</p>
-    </div>
-    <div class="proc-s">
-      <div class="proc-k">How</div>
-      <h3 class="proc-t">Keep it rough while it’s still wrong</h3>
-      <p class="proc-d">Storyboards and grey boxes get argued with; polished screens get approved. I keep the work unfinished-looking while the direction is still in question, then make prototypes real enough to earn honest reactions.</p>
-    </div>
-    <div class="proc-s">
-      <div class="proc-k">When</div>
-      <h3 class="proc-t">Stay until it ships</h3>
-      <p class="proc-d">Working alongside engineers through the build, on real devices, with real data. If a design doesn’t hold up once it’s coded, it wasn’t done.</p>
-    </div>
-  </div>
 </section>
 
 <!-- ═══ CONTACT ═════════════════════════════════════════════════════════════ -->
-<!-- The page's one full-bleed ink rule: Work / About + Process above it,
-     Contact below. Three acts. -->
+<!-- The page's one full-bleed ink rule: Work and About above it, Contact
+     below. Two acts and an invitation. -->
 <hr class="div-ink">
 
 <section class="edge blk-air" id="contact" aria-labelledby="contact-h" data-reveal>
   <div class="sechd">
     <h2 class="lab" id="contact-h">Say hello</h2>
     <span class="fill"></span>
-    <span class="idx">04 / 04</span>
+    <span class="idx">03 / 03</span>
   </div>
 
   <div class="contact" style="margin-top:clamp(1.8rem,3.6vw,3.2rem)">
@@ -343,11 +340,11 @@
       <div class="frow">
         <div class="fg">
           <label for="from_name">Your name</label>
-          <input id="from_name" name="from_name" type="text" placeholder="James Smith" required>
+          <input id="from_name" name="from_name" type="text" autocomplete="name" placeholder="James Smith" required>
         </div>
         <div class="fg">
           <label for="reply_to">Email</label>
-          <input id="reply_to" name="reply_to" type="email" placeholder="james@company.com" required>
+          <input id="reply_to" name="reply_to" type="email" autocomplete="email" placeholder="james@company.com" required>
         </div>
       </div>
       <div class="fg">
@@ -370,6 +367,7 @@
 <!-- ═══ FOOTER ══════════════════════════════════════════════════════════════ -->
 </main>
 
+<!-- @footer -->
 <footer data-reveal>
   <div class="edge">
     <div class="f-grid">
@@ -377,7 +375,6 @@
         <h2>Index</h2>
         <a href="#work">Selected work</a>
         <a href="#about">About</a>
-        <a href="#process">Process</a>
         <a href="#contact">Contact</a>
         <a href="cv.html">Résumé</a>
         <a href="about.html">Personal</a>
@@ -400,13 +397,21 @@
     <div class="f-bar">
       <span>© 2026 James Ciclitira · Product Designer · Berlin</span>
       <span class="f-keys">Press <kbd>G</kbd> for the grid</span>
-      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">Back to top ↑</a>
+      <a href="#" class="f-top">Back to top ↑</a>
     </div>
   </div>
 </footer>
+<!-- /@footer -->
 
-<!-- ═══ ASTEROID BLASTER — launcher button, or press B ══════════════════════ -->
+<!-- ═══ ASTEROID BLASTER ════════════════════════════════════════════════════
+     The launcher is always here. The board is not: #astro-stage ships hidden
+     and swiss.js un-hides it once css/game.css has loaded, because every rule
+     that positions and hides the pieces below lives in that stylesheet. Leave
+     the stage open and a deferred stylesheet means a canvas, a HUD and two
+     dialogs laid out in normal flow at the bottom of the homepage.
+     ═══════════════════════════════════════════════════════════════════════ -->
 <button id="game-launch" type="button" aria-label="Play a hidden game"><img src="pacman.gif" width="32" height="32" alt="" aria-hidden="true" loading="lazy"><span class="gl-t">Play</span></button>
+<div id="astro-stage" hidden>
 <div id="astroDim" aria-hidden="true"></div>
 <canvas id="astroCanvas" aria-hidden="true"></canvas>
 <!-- XP rail: the whole width of the screen, because progress to the next
@@ -492,19 +497,28 @@
 <div id="astroTouch" aria-hidden="true">
   <div id="astroStick"><div id="astroKnob"></div></div>
 </div>
+</div><!-- /#astro-stage -->
 
 <script src="js/swiss.js"></script>
-<script src="js/game.js" defer></script>
 
-<!-- ═══ CONTACT FORM — EmailJS ══════════════════════════════════════════════ -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- ═══ CONTACT FORM — EmailJS ══════════════════════════════════════════════
+     Pinned to an exact version with a subresource integrity hash. At the
+     floating @4 this tag ran whatever the CDN served that day, on the one page
+     that collects a visitor's name and email address — a compromised release
+     or a compromised CDN would have had the form's contents. The browser now
+     refuses any file that does not hash to this. Bumping the version means
+     recomputing the hash:
+       curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A
+     ═══════════════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"
+        integrity="sha384-SALc35EccAf6RzGw4iNsyj7kTPr33K7RoGzYu+7heZhT8s0GZouafRiCg1qy44AS"
+        crossorigin="anonymous"></script>
 <script>
 (function(){
   var PUBLIC_KEY  = 'hTZL-G3lnk36Wg8JD';
   var SERVICE_ID  = 'service_rwv0n4u';
   var TEMPLATE_ID = 'template_0zf917w';
-  var configured  = PUBLIC_KEY !== 'YOUR_PUBLIC_KEY';
-  if (configured && window.emailjs) emailjs.init({ publicKey: PUBLIC_KEY });
+  if (window.emailjs) emailjs.init({ publicKey: PUBLIC_KEY });
 
   var form = document.getElementById('contact-form');
   var btn  = document.getElementById('form-btn');
@@ -512,10 +526,20 @@
   var msg  = document.getElementById('form-msg');
   if (!form) return;
 
+  var SEND_LABEL = btnT.textContent;
+
   function showMsg(text, isError) {
     msg.textContent = text;
     msg.classList.toggle('err', !!isError);
     msg.hidden = false;
+  }
+
+  // Back to a button you can press again. The success path used to leave it
+  // disabled reading "Sent ✓", so a second message needed a page reload — and
+  // the form had just been cleared, which looks like the message went nowhere.
+  function ready(label) {
+    btn.disabled = false;
+    btnT.textContent = label || SEND_LABEL;
   }
 
   form.addEventListener('submit', function (e) {
@@ -527,7 +551,7 @@
 
     if (!name || !email || !subject || !message) return showMsg('Please fill in all fields.', true);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showMsg('Please enter a valid email address.', true);
-    if (!configured || !window.emailjs) return showMsg('The form could not load. Please write to jciclitira@gmail.com instead.', true);
+    if (!window.emailjs) return showMsg('The form could not load. Please write to jciclitira@gmail.com instead.', true);
 
     btn.disabled = true;
     btnT.textContent = 'Sending…';
@@ -536,14 +560,14 @@
     emailjs.send(SERVICE_ID, TEMPLATE_ID, {
       from_name: name, reply_to: email, subject: subject, message: message
     }).then(function () {
-      btnT.textContent = 'Sent ✓';
       showMsg('Message sent. I’ll be in touch soon.', false);
       form.reset();
-    }, function (err) {
-      btn.disabled = false;
-      btnT.textContent = 'Send message';
+      ready('Sent ✓');
+      // and back to the resting label, once the tick has been read
+      setTimeout(function () { btnT.textContent = SEND_LABEL; }, 4000);
+    }, function () {
+      ready();
       showMsg('Something went wrong. Try emailing directly: jciclitira@gmail.com', true);
-      console.error('EmailJS error:', err);
     });
   });
 })();

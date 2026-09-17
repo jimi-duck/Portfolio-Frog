@@ -72,6 +72,41 @@
      text fields with it. Hover is communicated by the accent swap and the
      hairline underline already on every link. */
 
+  /* ── SCROLL ────────────────────────────────────────────────────────────── */
+  /* One scroll listener for the whole page, batched into a frame.
+
+     The progress bar and the back-to-top button each used to register their
+     own scroll and resize handlers, and each called getBoundingClientRect on
+     every event. Two forced layouts per scroll event, on a page that runs to
+     23,000px. They now subscribe here instead: the browser fires once, we
+     measure once on the next frame, and every subscriber reads the same
+     numbers. Adding a third thing that watches the scroll position costs one
+     more line and no more measuring. */
+  var watchers = [];
+  function onScroll(fn) { watchers.push(fn); }
+
+  function scrollLoop() {
+    var queued = false;
+    var flush = function () {
+      queued = false;
+      for (var i = 0; i < watchers.length; i++) watchers[i]();
+    };
+    var request = function () {
+      // A hidden tab gets no animation frames, so batching there would park
+      // the progress bar and the back-to-top button at whatever they read when
+      // the tab went away — and leave them stale until it comes back. Nothing
+      // is painting anyway, so the measurement is cheap: just take it.
+      if (document.hidden) return flush();
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(flush);
+    };
+    addEventListener('scroll', request, { passive: true });
+    addEventListener('resize', request);
+    addEventListener('visibilitychange', request);
+    flush();
+  }
+
   /* ── READING PROGRESS ──────────────────────────────────────────────────── */
   /* The bar measures the article, not the document. Against scrollHeight it
      spent its last stretch filling up through the next-project card and the
@@ -84,8 +119,8 @@
     var el = $('#prog');
     if (!el) return;
     var main = $('#main');
-    var tail = $('.next') || $('.backhome') || $('footer');
-    var run = function () {
+    var tail = articleEnd();
+    onScroll(function () {
       var p;
       if (main && tail) {
         var start = main.getBoundingClientRect().top + scrollY;
@@ -96,12 +131,23 @@
         p = h > 0 ? scrollY / h : 0;
       }
       el.style.setProperty('--p', Math.max(0, Math.min(1, p)));
-      // the game launcher fades in once you are past the hero — see game.css
+    });
+  }
+
+  /* Whatever closes the article: the next-project card, the back-home block,
+     or the footer. Both the progress bar and the back-to-top button stop at
+     it, and they have to agree on where it is. */
+  function articleEnd() { return $('.next') || $('.backhome') || $('footer'); }
+
+  /* ── GAME LAUNCHER: fade in past the hero ──────────────────────────────── */
+  /* Was a side effect inside the progress bar, which meant the launcher only
+     appeared on pages that happened to carry a progress bar. It is its own
+     concern; see game.css for what body.scrolled does with it. */
+  function launcherFade() {
+    if (!$('#game-launch')) return;
+    onScroll(function () {
       document.body.classList.toggle('scrolled', scrollY > innerHeight * 0.6);
-    };
-    addEventListener('scroll', run, { passive: true });
-    addEventListener('resize', run);
-    run();
+    });
   }
 
   /* ── SECTION REVEAL ────────────────────────────────────────────────────── */
@@ -119,8 +165,16 @@
 
   // Sweep anything already in view that the observer has not caught — covers
   // layout shifts from late web fonts or images.
-  function revealOnScreen() {
+  //
+  // `all` skips the viewport test and reveals everything. The failsafe at the
+  // end of boot() passes it: its job is to guarantee nothing stays hidden, and
+  // re-running the same measurement that failed cannot do that. A viewport of
+  // zero height — a background tab in some embedders, a print context — makes
+  // the test below false for every element on the page, so without this the
+  // last line of defence leaves the whole document at opacity 0.
+  function revealOnScreen(all) {
     $$(SEL + ':not(.in)').forEach(function (e) {
+      if (all) return e.classList.add('in');
       var r = e.getBoundingClientRect();
       if (r.bottom > 0 && r.top < innerHeight) e.classList.add('in');
     });
@@ -220,25 +274,44 @@
     // the next-project card as well as the footer — the card is a link the
     // size of the viewport, and a floating button was landing on top of it.
     var first = $('main .section, main .warm-band, main .dark-band');
-    var tail = $('.next') || $('.backhome') || $('footer');
-    var run = function () {
+    var tail = articleEnd();
+    onScroll(function () {
       var gate = first
         ? first.getBoundingClientRect().bottom + scrollY
         : innerHeight * 1.1;
       var on = scrollY > gate;
-      // one measurement per scroll, same cost as the progress bar above
       if (on && tail) on = tail.getBoundingClientRect().top > innerHeight * 0.88;
       document.body.classList.toggle('totop-on', on);
-    };
-    addEventListener('scroll', run, { passive: true });
-    addEventListener('resize', run);
-    run();
-
-    btn.addEventListener('click', function () {
-      window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
-      var m = $('#main');
-      if (m) m.focus({ preventScroll: true });
     });
+
+    btn.addEventListener('click', toTopNow);
+  }
+
+  /* The same journey, from the link in the footer. That link used to carry an
+     onclick attribute with the scroll call written inline in the markup — on
+     eight pages, and with no focus handling, so a keyboard user was returned
+     to the top of the page visually while their tab position stayed several
+     thousand pixels down it. */
+  function toTopNow(e) {
+    if (e) e.preventDefault();
+    window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+    var m = $('#main');
+    if (m) m.focus({ preventScroll: true });
+  }
+
+  function footerTop() {
+    var link = $('.f-top');
+    if (link) link.addEventListener('click', toTopNow);
+  }
+
+  /* ── PRINT (résumé only) ───────────────────────────────────────────────── */
+  /* The last inline handler on the site. Bound here rather than written into
+     the markup so that every behaviour on the page is in one file, and so a
+     Content-Security-Policy without unsafe-inline would not quietly break the
+     one button that produces the PDF. */
+  function printButton() {
+    var btn = $('.print-btn');
+    if (btn) btn.addEventListener('click', function () { window.print(); });
   }
 
   /* ── IMAGE LIGHTBOX ────────────────────────────────────────────────────── */
@@ -359,18 +432,98 @@
     });
   }
 
+  /* ── THE GAME, FETCHED ON DEMAND ───────────────────────────────────────── */
+  /* game.js and game.css are 52KB gzipped — nearly three times the rest of the
+     site's script — for an easter egg behind a corner button. They used to load
+     on every homepage visit, with the stylesheet render-blocking in <head>.
+
+     Now the page ships the launcher and nothing else, and the first press of it
+     (or of B) fetches the pair. The button reports back through its own label
+     while that happens, because on a slow connection the gap between the click
+     and the bridge appearing is otherwise unexplained.
+
+     The one thing this has to get right: game.js binds its own listeners when
+     it runs, and those bindings are what start the game. So the click that
+     triggered the fetch has to be replayed once the script is in — which is
+     what start() does after the load resolves. */
+  function game() {
+    var btn = $('#game-launch');
+    if (!btn) return;
+    var state = 'idle';
+
+    // The stylesheet has to be in before the stage is opened and before
+    // game.js measures anything, so it is awaited rather than fired and
+    // forgotten. The script is only appended once the CSS has landed.
+    function load() {
+      var stage = $('#astro-stage');
+      return new Promise(function (resolve, reject) {
+        var css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = 'css/game.css';
+        css.onload = resolve;
+        css.onerror = reject;
+        document.head.appendChild(css);
+      }).then(function () {
+        if (stage) stage.hidden = false;
+        return new Promise(function (resolve, reject) {
+          var js = document.createElement('script');
+          js.src = 'js/game.js';
+          js.onload = resolve;
+          js.onerror = reject;
+          document.body.appendChild(js);
+        });
+      });
+    }
+
+    function start() {
+      if (state === 'ready') return btn.click();
+      if (state === 'loading') return;
+      state = 'loading';
+      var label = btn.getAttribute('aria-label');
+      btn.setAttribute('aria-label', 'Loading the bridge…');
+      load().then(function () {
+        state = 'ready';
+        btn.setAttribute('aria-label', label);
+        btn.click();          // replay the press that asked for it
+      }, function () {
+        state = 'idle';
+        btn.setAttribute('aria-label', label);
+      });
+    }
+
+    btn.addEventListener('click', function (e) {
+      if (state === 'ready') return;   // game.js owns the click from here
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      start();
+    });
+
+    // B launches too, so the game stays reachable with the keyboard alone.
+    addEventListener('keydown', function (e) {
+      if (state !== 'idle') return;    // once loaded, game.js has its own binding
+      if (e.key !== 'b' && e.key !== 'B') return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var t = e.target.tagName;
+      if (t === 'INPUT' || t === 'TEXTAREA' || e.target.isContentEditable) return;
+      e.preventDefault();
+      start();
+    });
+  }
+
   /* ── BOOT ──────────────────────────────────────────────────────────────── */
   function boot() {
     document.documentElement.dataset.swiss = '1';
-    theme(); progress(); nav(); gridOverlay(); launcher(); toTop(); lightbox();
+    theme(); nav(); gridOverlay(); lightbox(); footerTop(); printButton();
+    progress(); launcherFade(); toTop(); launcher(); game();
+    scrollLoop();
     intro(reveals);
-    addEventListener('load', revealOnScreen);
+    addEventListener('load', function () { revealOnScreen(false); });
     // failsafe: never let the curtain trap the page, and never leave content hidden
     setTimeout(function () {
       var el = $('#intro');
       if (el && !el.classList.contains('done')) { el.classList.add('go'); document.documentElement.classList.remove('introing'); }
       reveals();
-      revealOnScreen();
+      revealOnScreen(true);
     }, 3500);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
