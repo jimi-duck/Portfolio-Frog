@@ -1,0 +1,12 @@
+<!-- Runs before the first paint, which is the whole point of it being inline
+     and not in swiss.js: a stylesheet chosen a frame late is a white flash on
+     a dark-mode page. It sets the theme from storage (or the OS preference on
+     a first visit), marks the document as script-enabled so the reveal start
+     states can be scoped to html.js, and flags a coarse pointer.
+
+     The timeout is the no-script-file failsafe. swiss.js sets data-swiss as
+     soon as it boots; if it never arrives — blocked, failed, cached wrong —
+     the js class comes off after 4s and every hidden start state stops
+     applying, so the page renders in full rather than staying blank. -->
+<script>(function(){var r=document.documentElement;r.className+=' js{{intro}}';try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}r.setAttribute('data-theme',t);}catch(e){}if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)r.className+=' coarse';setTimeout(function(){if(!r.dataset.swiss)r.className=r.className.replace(/\bjs\b/,'').replace(/\bintroing\b/,'');},4000);})();</script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27%23131311%27%2F%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2726%27%20fill%3D%27%23e23a16%27%2F%3E%3C%2Fsvg%3E">

@@ -3,8 +3,20 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Enter · James Ciclitira</title>
+<!-- @head -->
+<!-- Runs before the first paint, which is the whole point of it being inline
+     and not in swiss.js: a stylesheet chosen a frame late is a white flash on
+     a dark-mode page. It sets the theme from storage (or the OS preference on
+     a first visit), marks the document as script-enabled so the reveal start
+     states can be scoped to html.js, and flags a coarse pointer.
+
+     The timeout is the no-script-file failsafe. swiss.js sets data-swiss as
+     soon as it boots; if it never arrives — blocked, failed, cached wrong —
+     the js class comes off after 4s and every hidden start state stops
+     applying, so the page renders in full rather than staying blank. -->
 <script>(function(){var r=document.documentElement;r.className+=' js';try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}r.setAttribute('data-theme',t);}catch(e){}if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)r.className+=' coarse';setTimeout(function(){if(!r.dataset.swiss)r.className=r.className.replace(/\bjs\b/,'').replace(/\bintroing\b/,'');},4000);})();</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27%23131311%27%2F%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2726%27%20fill%3D%27%23e23a16%27%2F%3E%3C%2Fsvg%3E">
+<!-- /@head -->
 <meta name="description" content="A field tool that let tradespeople survey a house well enough to build Germany’s official retrofit plan from, and the report homeowners saw before anyone left.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Enter · James Ciclitira">
@@ -13,15 +25,27 @@
 <meta property="og:url" content="https://www.jciclitira.com/enter.html">
 <link rel="canonical" href="https://www.jciclitira.com/enter.html">
 <meta name="twitter:card" content="summary_large_image">
+<!-- @head-assets -->
+<!-- Regular and Bold are preloaded because every page sets in them from the
+     first paint. The italic cut is not: it is used by the reader quotes on one
+     case study, so it can be fetched when that page asks for it. -->
 <link rel="preload" href="fonts/texgyreheros-bold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/texgyreheros-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/swiss.css">
+<!-- /@head-assets -->
 </head>
 <body>
+<!-- @chrome -->
 <a class="skip" href="#main">Skip to content</a>
 <div id="prog" aria-hidden="true"></div>
 <div id="gridov" aria-hidden="true"></div>
-<div id="gridhint" aria-hidden="true">Grid &middot; press G</div>
+<div id="gridhint" aria-hidden="true">Grid · press G</div>
+<!-- /@chrome -->
+<!-- @nav -->
+<!-- The theme toggle exists twice — once in the desktop row, once in the mobile
+     bar — because the two live in different flex contexts and only one is ever
+     visible. swiss.js binds every .tt, so they stay in step without knowing
+     about each other. -->
 <nav aria-label="Primary">
   <div class="nav-in edge">
     <a href="index.html" class="nav-logo">James Ciclitira</a>
@@ -29,9 +53,8 @@
       <ol class="nav-links">
         <li><a href="index.html#work"><span class="num">01</span>Work</a></li>
         <li><a href="index.html#about"><span class="num">02</span>About</a></li>
-        <li><a href="index.html#process"><span class="num">03</span>Process</a></li>
-        <li><a href="index.html#contact"><span class="num">04</span>Contact</a></li>
-        <li><a href="cv.html">R&eacute;sum&eacute; &#8599;</a></li>
+        <li><a href="index.html#contact"><span class="num">03</span>Contact</a></li>
+        <li><a href="cv.html">Résumé ↗</a></li>
       </ol>
       <button class="tt" id="theme-toggle" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
     </div>
@@ -42,23 +65,25 @@
   </div>
 </nav>
 
+<!-- Closed with visibility:hidden, not clip-path alone — clipping leaves its
+     links in the tab order. swiss.js owns the open state. -->
 <nav id="menu" aria-label="Site menu">
   <a href="index.html#work"><span class="n">01</span>Work</a>
   <a href="index.html#about"><span class="n">02</span>About</a>
-  <a href="index.html#process"><span class="n">03</span>Process</a>
-  <a href="index.html#contact"><span class="n">04</span>Contact</a>
-  <a href="cv.html"><span class="n">05</span>R&eacute;sum&eacute;</a>
+  <a href="index.html#contact"><span class="n">03</span>Contact</a>
+  <a href="cv.html"><span class="n">04</span>Résumé</a>
   <div class="foot">
-    <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
-    <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
+    <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn ↗</a>
+    <a href="mailto:jciclitira@gmail.com">Email ↗</a>
     <span class="lab lab-mute">Berlin, DE</span>
   </div>
 </nav>
+<!-- /@nav -->
 
 <main id="main" tabindex="-1">
 
 <!-- ═══ HERO ══════════════════════════════════════════════ -->
-<header class="cs-hero">
+<header class="cs-hero" data-reveal>
   <div>
     <a href="index.html" class="back">← All work</a>
     <p class="eyebrow">Climate Tech · Field Operations · Service Design</p>
@@ -75,15 +100,15 @@
 <!-- Hero photo: field worker in a garden selecting the building footprint on a map -->
 <img fetchpriority="high" class="hero-img" src="Man_selecting_the_footprint.jpg" alt="An Enter field worker tracing a building’s footprint on a tablet during an on-site survey" width="1333" height="2000">
 
-<div class="stats">
-  <div class="stat r"><div class="stat-n">iSFP</div><div class="stat-l">Official government document<br>generated from field data</div></div>
-  <div class="stat r"><div class="stat-n">9 in 10</div><div class="stat-l">Houses with a dimensioned floor plan<br>before anyone knocked</div></div>
-  <div class="stat r"><div class="stat-n">1 visit</div><div class="stat-l">Survey, findings and next steps,<br>before anyone leaves the house</div></div>
+<div class="stats" data-reveal>
+  <div class="stat"><div class="stat-n">iSFP</div><div class="stat-l">Official government document<br>generated from field data</div></div>
+  <div class="stat"><div class="stat-n">9 in 10</div><div class="stat-l">Houses with a dimensioned floor plan<br>before anyone knocked</div></div>
+  <div class="stat"><div class="stat-n">1 visit</div><div class="stat-l">Survey, findings and next steps,<br>before anyone leaves the house</div></div>
 </div>
 
 <!-- ═══ CONTEXT ═══════════════════════════════════════════ -->
 <div class="body">
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">The context</p>
     <h2>Billions in renovation funding.<br>The data to claim it<br><em>didn’t yet exist.</em></h2>
     <div class="two sp-s">
@@ -94,13 +119,13 @@
 </div>
 
 <!-- ═══ RESEARCH — shadowing the work ═════════════════════ -->
-<div class="warm-band">
+<div class="warm-band" data-reveal>
   <div class="warm-band-inner">
-    <p class="lbl r">Understanding the work</p>
-    <h2 class="r">Two hours in the house.<br>A week to the <em>answer.</em></h2>
-    <p class="prose r sp-s">I rode along on assessments, meter cupboard to loft, then followed the data backwards: to the desk where somebody rekeyed it into the energy model, and onto the call where a colleague finally presented the result. Three stages, two handovers, and data leaked at both.</p>
+    <p class="lbl">Understanding the work</p>
+    <h2>Two hours in the house.<br>A week to the <em>answer.</em></h2>
+    <p class="prose sp-s">I rode along on assessments, meter cupboard to loft, then followed the data backwards: to the desk where somebody rekeyed it into the energy model, and onto the call where a colleague finally presented the result. Three stages, two handovers, and data leaked at both.</p>
 
-    <div class="flow three r sp-m">
+    <div class="flow three sp-m">
       <div class="flow-step">
         <div class="flow-n">Stage 01 · The visit</div>
         <div class="flow-t">2 hrs</div>
@@ -118,7 +143,7 @@
       </div>
     </div>
 
-    <div class="doc-row r sp-l">
+    <div class="doc-row sp-l">
       <div>
         <img class="photo is-doc" src="img/enter-research-visit.jpg" alt="A field worker following a homeowner through the hallway of a house at the start of an assessment" loading="lazy" width="1024" height="1024">
         <p class="cap">Ride-alongs: following the assessment through the house, room by room</p>
@@ -135,7 +160,7 @@
 <!-- The pivot. Without this the tooling reads as a preference rather than the
      answer to two problems the business could put a number against. -->
 <div class="body">
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">The business case</p>
     <h2>Collect the data.<br>Automate <em>everything after it.</em></h2>
 
@@ -163,7 +188,7 @@
 
 <!-- ═══ THE FIRST ATTEMPT — the one that didn't work ══════ -->
 <div class="body">
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">The first attempt</p>
     <h2>We rebuilt the paper form.<br>On a screen. <em>It changed nothing.</em></h2>
     <div class="two sp-s">
@@ -171,7 +196,7 @@
       <p class="prose">It also changed nothing about the job. A window belongs to a floor plan, not to a list of fields, and describing one as form data meant a row of dropdowns for every opening in the house: which floor, which wall, which orientation, what size. Accurate, and miserable. 40 openings into a survey, people were moving fast and rounding things, and that is where the errors came from.</p>
     </div>
 
-    <div class="pbox is-claim r">
+    <div class="pbox is-claim">
       <p>The data wasn’t poor because anyone was careless. It was poor because we had made the accurate answer the slowest one to give.</p>
     </div>
   </section>
@@ -179,7 +204,7 @@
 
 <!-- ═══ THE PAPER PROOF OF CONCEPT ════════════════════════ -->
 <div class="body">
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">Rethinking data collection</p>
     <h2>Paper first.<br>Then <em>the engineering.</em></h2>
     <div class="two sp-s">
@@ -188,21 +213,21 @@
     </div>
 
     <div class="two lean is-wide is-top sp-l">
-      <div class="r">
+      <div>
         <a href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" aria-label="Open the full prototype sheet as a PDF">
           <img class="img" src="img/enter-poc-plan.jpg" alt="Prototype survey sheet: a dimensioned building footprint with coloured crosses marking window positions, a question asking whether the plan matches the floor, and a table defining four window types by frame material and glazing" loading="lazy" width="1184" height="1684">
         </a>
         <p class="cap">One sheet per floor, and one blunt question: does this plan match the floor you’re standing on?</p>
       </div>
-      <div class="r">
+      <div>
         <img class="photo is-doc" src="img/enter-poc-tablet.jpg" alt="A field worker marking up the prototype floor plan on a tablet inside an unfinished house" loading="lazy" width="1306" height="816">
         <p class="cap">Marked up in the Files app on a tablet they already carried. Nothing was built to run this test</p>
         <p class="prose sp-m">Every sheet went to two audiences: the people working this way in somebody’s attic, and the modelling team building a model from whatever came back. Both were in the room for every round.</p>
-        <p class="sp-s"><a class="tlink lbl" href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" style="color:var(--red-ink)">Open the prototype sheet (PDF) &#8599;</a></p>
+        <p class="sp-s"><a class="tlink lbl" href="img/enter-2d-footprint-prototype.pdf" target="_blank" rel="noopener" style="color:var(--red-ink)">Open the prototype sheet (PDF) ↗</a></p>
       </div>
     </div>
 
-    <div class="cards r sp-l">
+    <div class="cards sp-l">
       <div class="icard">
         <div class="icard-icon"></div>
         <div class="icard-t">The footprint held</div>
@@ -227,9 +252,9 @@
      section used to hold. That section opened by admitting it had nothing to
      show and then showed two screens; its one real point — the information
      architecture everything else hangs off — is the lead-in here instead. -->
-<div class="dark-band">
+<div class="dark-band" data-reveal>
   <div class="dark-band-inner">
-    <p class="lbl r">Building data capture</p>
+    <p class="lbl">Building data capture</p>
     <div class="two is-wide is-top">
       <div>
     <h2>One handwritten sheet<br>became four <em>sections.</em></h2>
@@ -246,7 +271,7 @@
       </div>
     </div>
 
-    <div class="appshots n4 r sp-l" data-delay="70">
+    <div class="appshots n4 sp-l">
       <figure class="appshot">
         <img class="device-img" src="img/Enter-collection-mobile/enter-app-house-data.png" alt="House data tab: a card confirming the digital building form has been created, with an edit button, above address and year built fields" loading="lazy" width="660" height="1288">
         <figcaption class="appshot-c">
@@ -284,14 +309,14 @@
 </div>
 
 <!-- ═══ FLOOR PLAN ══════════════════════════════════════════ -->
-<div class="warm-band">
+<div class="warm-band" data-reveal>
   <div class="warm-band-inner">
-    <p class="lbl r">The floor plan feature</p>
+    <p class="lbl">The floor plan feature</p>
     <h2>Window-level accuracy.<br>Built into the<br><em>floor plan.</em></h2>
 
     <!-- Where the plan comes from. This has to be established before the windows
          make any sense, which is the wrong way round it used to read. -->
-    <div class="two is-wide is-top r sp-m">
+    <div class="two is-wide is-top sp-m">
       <div>
         <h3 class="sp-0">Cadastral data covered<br>9 houses in <em>10.</em></h3>
         <p class="prose sp-s">Nobody drew the building. You found it on a map and traced the thermal envelope, the heated volume the model is actually about. An attached garage sits on the same footprint and outside that envelope, and only the person standing there can tell you which is which.</p>
@@ -319,7 +344,7 @@
     </div>
 
     <!-- What goes on the plan once it exists. This is the payoff of the paper PoC. -->
-    <div class="two is-wide is-top r sp-l">
+    <div class="two is-wide is-top sp-l">
       <div>
         <h3 class="sp-0">A window stops<br>being <em>a form.</em></h3>
         <p class="prose sp-s">This is what the paper sheets were testing, built properly. With a plan on screen you drag a window onto the wall it sits in, type its dimensions, and pick one of the three or four types defined at the start of the survey.</p>
@@ -338,7 +363,7 @@
 
 <!-- ═══ LIVE U-VALUES — overriding the model ══════════════ -->
 <div class="body">
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">Live calculation</p>
     <h2>The model calculates.<br>The person on site<br><em>overrules it.</em></h2>
     <div class="two sp-s">
@@ -346,7 +371,7 @@
       <p class="prose">Every figure stayed editable. Somebody looking into an opened-up wall knows more about it than a lookup table does, and the override opened the official U-value table for the times they would rather check than guess. Go more than 25% off the estimate and the app flagged how far out the number was, then took it anyway.</p>
     </div>
 
-    <div class="two is-wide is-top r sp-l">
+    <div class="two is-wide is-top sp-l">
       <div>
         <p class="prose sp-0">The override earned its place once the tool went outside Enter. It was sold to other companies to run their own surveys, and their people weren’t only tradespeople. Architects and energy consultants used it too, with the training to want a level of detail the preset options deliberately don’t carry.</p>
         <p class="prose">So the automated estimate is a starting position, not a verdict. Whoever is standing in front of the wall gets the last word on it, and the number that reaches the model is the one they signed off.</p>
@@ -373,7 +398,7 @@
   </section>
 
   <!-- ═══ COMPLETENESS — mandatory fields, and the designed exit ═ -->
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">Data completeness</p>
     <h2>100% or nothing.<br>Real houses <em>don’t cooperate.</em></h2>
     <div class="two sp-s">
@@ -381,7 +406,7 @@
       <p class="prose">A requirement you can’t satisfy doesn’t get met, it gets defeated. Somebody types a plausible number and a guess enters the model looking exactly like a measurement.<br><br>So the way out was designed rather than left to happen. “<span lang="de">Antwort nicht möglich</span>” doesn’t quietly clear the requirement. It asks why, from a fixed list.</p>
     </div>
 
-    <div class="appshots n3 is-tablet r sp-l" data-delay="70">
+    <div class="appshots n3 is-tablet sp-l">
       <figure class="appshot">
         <img class="device-img" src="img/Enter-collection-mobile/enter-app-bypass-1.png" alt="Survey screen on a tablet with an empty mandatory field for the building’s heated temperature" loading="lazy" width="1451" height="2048">
         <figcaption class="appshot-c">
@@ -408,7 +433,7 @@
       </figure>
     </div>
 
-    <div class="two is-wide is-top r sp-l">
+    <div class="two is-wide is-top sp-l">
       <div>
         <h3 class="sp-0">The homeowner had<br>the <em>final sign-off.</em></h3>
         <p class="prose sp-s">Nothing went to the model until the person who lives in the building had been through it. Five steps on the tablet, in their own kitchen: the house, the systems, and the figures the result depends on.</p>
@@ -437,12 +462,12 @@
 </div>
 
 <!-- ═══ THE CUSTOMER REPORT — DARK BAND ════════════════════ -->
-<div class="dark-band">
+<div class="dark-band" data-reveal>
   <div class="dark-band-inner">
-    <p class="lbl r">The customer report</p>
+    <p class="lbl">The customer report</p>
     <!-- Top-aligned like every other text-beside-media pair on the page. This
          one used to centre, which floated the contents list off the grid. -->
-    <div class="two is-wide is-top r sp-mb">
+    <div class="two is-wide is-top sp-mb">
       <div>
         <h2>Field data becomes<br>a plan a homeowner<br><em>can trust.</em></h2>
         <p class="prose">The moment the survey was transmitted, the AI came back with a report. Not the iSFP, which still needed a qualified pair of hands, but the findings: where the building stands, what it could reach, what each measure costs and saves. It opened on the same tablet, in the same kitchen, while the person who had just walked the house was still standing in it.</p>
@@ -481,7 +506,7 @@
 
     <!-- Report walkthrough — four steps, in the order the conversation took them -->
     <div class="walk">
-      <div class="walk-row r">
+      <div class="walk-row">
         <div class="walk-media"><img src="Enter-report-1.png" alt="Report screen showing projected energy price development and expected household costs" loading="lazy" width="680" height="884"></div>
         <div class="walk-text">
           <p class="walk-n">01 · Future outlook</p>
@@ -489,7 +514,7 @@
           <p class="walk-d">It opened on energy prices, not renovation costs. Projected gas, oil and electricity out to 2064, against what this household already spent each year. The baseline for everything after it was the cost of standing still.</p>
         </div>
       </div>
-      <div class="walk-row r">
+      <div class="walk-row">
         <div class="walk-media"><img src="Enter-report-2.png" alt="Report screen showing the current building assessment and energy class" loading="lazy" width="680" height="884"></div>
         <div class="walk-text">
           <p class="walk-n">02 · Current assessment</p>
@@ -497,7 +522,7 @@
           <p class="walk-d">Year built, floor area, heat source, consumption, taken from the survey finished minutes earlier in the same house. Beside it, today’s energy class and the one the building could reach. People recognised their own house here, which is what made the rest credible.</p>
         </div>
       </div>
-      <div class="walk-row r">
+      <div class="walk-row">
         <div class="walk-media"><img src="Enter-report-3.png" alt="Report screen listing all available retrofit measures with rankings" loading="lazy" width="680" height="884"></div>
         <div class="walk-text">
           <p class="walk-n">03 · Renovation roadmap</p>
@@ -505,7 +530,7 @@
           <p class="walk-d">The full set of recommendations in one table: annual saving, payback, cost, a rating. Ticking a measure moved the totals along the bottom, so they could build a package and watch the combined saving, class and subsidy move with it.</p>
         </div>
       </div>
-      <div class="walk-row r">
+      <div class="walk-row">
         <div class="walk-media"><img src="Enter-report-4.png" alt="Report screen showing the individual impact of a selected heat pump measure" loading="lazy" width="680" height="884"></div>
         <div class="walk-text">
           <p class="walk-n">03 · Renovation roadmap</p>
@@ -524,13 +549,13 @@
      "reducing time spent", "helping more homeowners move forward". They say what
      each metric actually counted now, which is what the eyebrow promises. -->
 <div class="body">
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">Product metrics</p>
     <h2>Less time in the house.<br>More of the house<br><em>in the data.</em></h2>
 
-    <div class="stats is-out r">
+    <div class="stats is-out">
       <div class="stat"><div class="stat-n">25%</div><div class="stat-l">Less time per on-site survey,<br>enough for one more appointment a day</div></div>
-      <div class="stat"><div class="stat-n">80 &rarr; 95%</div><div class="stat-l">Data completeness on<br>surveys reaching the energy model</div></div>
+      <div class="stat"><div class="stat-n">80 → 95%</div><div class="stat-l">Data completeness on<br>surveys reaching the energy model</div></div>
     </div>
 
     <div class="mgrid">
@@ -554,12 +579,12 @@
   </section>
 </div>
 
-<a href="coup.html" class="next">
+<a href="coup.html" class="next" data-reveal>
   <div class="next-l">
     <div><p class="next-eyebrow">Next project →</p><div class="next-title">Coup<br><em>Mobility</em></div></div>
     <p class="next-sub">Senior Product Designer · Bosch · Fleet Operations</p>
   </div>
-  <div class="next-r"><img class="next-img" src="img/6593e7acaa8939066cb3ff74_CoupHero.jpeg" alt="" loading="lazy" width="700" height="448"></div>
+  <div class="next-r"><img class="next-img" src="img/coup-hero.jpeg" alt="" loading="lazy" width="700" height="448"></div>
 </a>
 
 </main>
@@ -572,6 +597,7 @@
   <span>Top</span>
 </button>
 
+<!-- @footer -->
 <footer>
   <div class="edge">
     <div class="f-grid">
@@ -579,9 +605,8 @@
         <h2>Index</h2>
         <a href="index.html#work">Selected work</a>
         <a href="index.html#about">About</a>
-        <a href="index.html#process">Process</a>
         <a href="index.html#contact">Contact</a>
-        <a href="cv.html">R&eacute;sum&eacute;</a>
+        <a href="cv.html">Résumé</a>
         <a href="about.html">Personal</a>
       </div>
       <div class="f-col">
@@ -593,18 +618,19 @@
       </div>
       <div class="f-col">
         <h2>Elsewhere</h2>
-        <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
-        <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
+        <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="mailto:jciclitira@gmail.com">Email ↗</a>
       </div>
     </div>
   </div>
   <div class="edge">
     <div class="f-bar">
-      <span>&copy; 2026 James Ciclitira &middot; Product Designer &middot; Berlin</span>
-      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">Back to top &#8593;</a>
+      <span>© 2026 James Ciclitira · Product Designer · Berlin</span>
+      <a href="#" class="f-top">Back to top ↑</a>
     </div>
   </div>
 </footer>
+<!-- /@footer -->
 
 <script src="js/swiss.js"></script>
 <!-- Cloudflare Web Analytics -->

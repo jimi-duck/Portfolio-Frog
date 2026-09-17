@@ -41,6 +41,7 @@
   function show(t) {
     img.src = t.getAttribute('href');
     img.alt = t.getAttribute('data-alt') || '';
+    img.hidden = false;          // it ships hidden, having no src to show yet
     box.classList.add('on');
   }
 

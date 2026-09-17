@@ -3,8 +3,20 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Vivy · James Ciclitira</title>
+<!-- @head -->
+<!-- Runs before the first paint, which is the whole point of it being inline
+     and not in swiss.js: a stylesheet chosen a frame late is a white flash on
+     a dark-mode page. It sets the theme from storage (or the OS preference on
+     a first visit), marks the document as script-enabled so the reveal start
+     states can be scoped to html.js, and flags a coarse pointer.
+
+     The timeout is the no-script-file failsafe. swiss.js sets data-swiss as
+     soon as it boots; if it never arrives — blocked, failed, cached wrong —
+     the js class comes off after 4s and every hidden start state stops
+     applying, so the page renders in full rather than staying blank. -->
 <script>(function(){var r=document.documentElement;r.className+=' js';try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}r.setAttribute('data-theme',t);}catch(e){}if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)r.className+=' coarse';setTimeout(function(){if(!r.dataset.swiss)r.className=r.className.replace(/\bjs\b/,'').replace(/\bintroing\b/,'');},4000);})();</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27%23131311%27%2F%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2726%27%20fill%3D%27%23e23a16%27%2F%3E%3C%2Fsvg%3E">
+<!-- /@head -->
 <meta name="description" content="An Allianz-backed digital health record, letting patients request, store, and share encrypted medical files from their phone. Designed from the ground up.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Vivy · James Ciclitira">
@@ -13,15 +25,27 @@
 <meta property="og:url" content="https://www.jciclitira.com/vivy.html">
 <link rel="canonical" href="https://www.jciclitira.com/vivy.html">
 <meta name="twitter:card" content="summary_large_image">
+<!-- @head-assets -->
+<!-- Regular and Bold are preloaded because every page sets in them from the
+     first paint. The italic cut is not: it is used by the reader quotes on one
+     case study, so it can be fetched when that page asks for it. -->
 <link rel="preload" href="fonts/texgyreheros-bold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/texgyreheros-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/swiss.css">
+<!-- /@head-assets -->
 </head>
 <body>
+<!-- @chrome -->
 <a class="skip" href="#main">Skip to content</a>
 <div id="prog" aria-hidden="true"></div>
 <div id="gridov" aria-hidden="true"></div>
-<div id="gridhint" aria-hidden="true">Grid &middot; press G</div>
+<div id="gridhint" aria-hidden="true">Grid · press G</div>
+<!-- /@chrome -->
+<!-- @nav -->
+<!-- The theme toggle exists twice — once in the desktop row, once in the mobile
+     bar — because the two live in different flex contexts and only one is ever
+     visible. swiss.js binds every .tt, so they stay in step without knowing
+     about each other. -->
 <nav aria-label="Primary">
   <div class="nav-in edge">
     <a href="index.html" class="nav-logo">James Ciclitira</a>
@@ -29,9 +53,8 @@
       <ol class="nav-links">
         <li><a href="index.html#work"><span class="num">01</span>Work</a></li>
         <li><a href="index.html#about"><span class="num">02</span>About</a></li>
-        <li><a href="index.html#process"><span class="num">03</span>Process</a></li>
-        <li><a href="index.html#contact"><span class="num">04</span>Contact</a></li>
-        <li><a href="cv.html">R&eacute;sum&eacute; &#8599;</a></li>
+        <li><a href="index.html#contact"><span class="num">03</span>Contact</a></li>
+        <li><a href="cv.html">Résumé ↗</a></li>
       </ol>
       <button class="tt" id="theme-toggle" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
     </div>
@@ -42,22 +65,24 @@
   </div>
 </nav>
 
+<!-- Closed with visibility:hidden, not clip-path alone — clipping leaves its
+     links in the tab order. swiss.js owns the open state. -->
 <nav id="menu" aria-label="Site menu">
   <a href="index.html#work"><span class="n">01</span>Work</a>
   <a href="index.html#about"><span class="n">02</span>About</a>
-  <a href="index.html#process"><span class="n">03</span>Process</a>
-  <a href="index.html#contact"><span class="n">04</span>Contact</a>
-  <a href="cv.html"><span class="n">05</span>R&eacute;sum&eacute;</a>
+  <a href="index.html#contact"><span class="n">03</span>Contact</a>
+  <a href="cv.html"><span class="n">04</span>Résumé</a>
   <div class="foot">
-    <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
-    <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
+    <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn ↗</a>
+    <a href="mailto:jciclitira@gmail.com">Email ↗</a>
     <span class="lab lab-mute">Berlin, DE</span>
   </div>
 </nav>
+<!-- /@nav -->
 
 <main id="main" tabindex="-1">
 
-<header class="cs-hero">
+<header class="cs-hero" data-reveal>
   <div>
     <a href="index.html" class="back">← All work</a>
     <p class="eyebrow">Digital Health · Allianz-backed</p>
@@ -73,15 +98,15 @@
 
 <img fetchpriority="high" class="hero-img" src="img/vivy-hero.jpg" width="1600" height="1024" alt="Vivy app showing medication details, vaccination record and X-ray viewer">
 
-<div class="stats">
-  <div class="stat r"><div class="stat-n">E2E</div><div class="stat-l">End-to-end encryption,<br>security users could trust</div></div>
-  <div class="stat r"><div class="stat-n">4 days</div><div class="stat-l">Design sprint in Munich<br>with Allianz to define invoicing</div></div>
-  <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Sides of one record: patient,<br>practitioner and insurer</div></div>
+<div class="stats" data-reveal>
+  <div class="stat"><div class="stat-n">E2E</div><div class="stat-l">End-to-end encryption,<br>security users could trust</div></div>
+  <div class="stat"><div class="stat-n">4 days</div><div class="stat-l">Design sprint in Munich<br>with Allianz to define invoicing</div></div>
+  <div class="stat"><div class="stat-n">3</div><div class="stat-l">Sides of one record: patient,<br>practitioner and insurer</div></div>
 </div>
 
 <div class="body">
 
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">The problem</p>
     <h2>Your health records exist.<br>They just don’t exist<br><em>anywhere useful.</em></h2>
     <div class="two" style="margin-top:1.4rem">
@@ -90,39 +115,39 @@
     </div>
   </section>
 
-  <img class="img device" src="img/659405f82052fcd4fd187216_onboarding.png" alt="Vivy onboarding screens introducing the encrypted health record before sign-up" loading="lazy" width="1600" height="925">
+  <img class="img device" src="img/vivy-onboarding.png" alt="Vivy onboarding screens introducing the encrypted health record before sign-up" loading="lazy" width="1600" height="925">
   <p class="cap" style="margin-bottom:5rem">First run: setting the tone before a single document is added</p>
 
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">Document request &amp; sharing</p>
     <h2>The core flow: request a<br>document, receive it, share it.<br><em>Encrypted throughout.</em></h2>
     <p class="prose">A patient opens the app, sends a request to their GP for last month’s blood results, and receives them directly to their phone, with no phone calls, no waiting rooms and no paper. Once there, files can be shared with any other practitioner in seconds, with access controlled entirely by the patient.</p>
-    <img class="img device" src="img/659416107fe0b1cbed80711f_request.png" alt="Three entry points to the same flow: request a document, upload one, or find a doctor" loading="lazy" width="1600" height="905">
+    <img class="img device" src="img/vivy-request-entry.png" alt="Three entry points to the same flow: request a document, upload one, or find a doctor" loading="lazy" width="1600" height="905">
     <p class="cap">Requesting, uploading and finding a doctor: three entry points into the same flow</p>
-    <div class="artifact r" style="margin-top:2rem">
-      <img src="img/659416107f9e54b4050a80a7_request_flow.png" alt="Early flow map tracing a document request from patient to practice and back, with the points where it could stall" loading="lazy" width="1600" height="482">
+    <div class="artifact" style="margin-top:2rem">
+      <img src="img/vivy-request-flow.png" alt="Early flow map tracing a document request from patient to practice and back, with the points where it could stall" loading="lazy" width="1600" height="482">
     </div>
     <p class="cap">An early flow map, sketching how a request could reach a doctor, and where it could quietly break down. That risk turned out to be the real story (next).</p>
   </section>
 
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">Expectation management</p>
     <h2>Better to be honest with people<br>than <em>reassuring.</em></h2>
     <div class="pbox"><p>When we launched, many document requests went unanswered, because most doctors had never heard of Vivy. The technology worked. The ecosystem wasn’t ready yet. Patients felt the app was broken. The problem wasn’t the product; it was that we’d set expectations we couldn’t yet meet.</p></div>
     <p class="prose" style="margin-top:1.4rem">So rather than hiding the uncertainty behind a progress spinner, I made it visible. The request-status system kept people informed: what was pending, why it might be delayed, and what their options were, with small explanatory moments along the way so patients understood the process behind the screen.<br><br>It was one of the better decisions I made at Vivy: trust people with honest information rather than paper over a messy reality with reassuring-looking UI. Patients coped far better with honesty than with false confidence.</p>
     <div class="two device-pair" style="margin-top:1.8rem">
-      <img class="img device device-1up" src="img/6594171c0766f1d5452648f9_expectation2.png" alt="Request status screen naming what is pending and why it may be delayed" loading="lazy" width="799" height="1415">
-      <img class="img device device-1up" src="img/6594178a73954868b9e34622_expectation1.png" alt="Explanatory screen setting out what happens next and what the patient can do meanwhile" loading="lazy" width="816" height="1415">
+      <img class="img device device-1up" src="img/vivy-request-status.png" alt="Request status screen naming what is pending and why it may be delayed" loading="lazy" width="799" height="1415">
+      <img class="img device device-1up" src="img/vivy-request-explainer.png" alt="Explanatory screen setting out what happens next and what the patient can do meanwhile" loading="lazy" width="816" height="1415">
     </div>
     <p class="cap">Replacing a progress spinner with a specific status, a reason, and a next step</p>
   </section>
 
-  <blockquote class="pq r">
+  <blockquote class="pq">
     <p>“Building a product that’s ahead of its supporting infrastructure teaches you something most UX courses don’t: how to manage the gap between vision and reality with dignity.”</p>
     <cite>James Ciclitira, on Vivy</cite>
   </blockquote>
 
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">The Munich sprint: invoice management</p>
     <h2>Four days with Allianz.<br>One major feature, <em>defined properly.</em></h2>
     <p class="prose" style="margin-bottom:1.8rem">Private healthcare in Germany puts the bill on the patient first: pay up front, then claim it back from the insurer. It is slow, paper-heavy and genuinely stressful. I went to Munich to run a four-day sprint with Allianz, to understand both sides before anyone designed a screen.</p>
@@ -132,20 +157,20 @@
       <div class="day"><p class="day-n">Day 03</p><p class="day-t">Rapid prototyping</p><p class="day-d">Multiple invoice submission flows, tested on-the-spot with real patients and Allianz staff.</p></div>
       <div class="day"><p class="day-n">Day 04</p><p class="day-t">Validation &amp; sign-off</p><p class="day-d">Working prototype. Feature requirements aligned. A shared language between design, tech, and insurer.</p></div>
     </div>
-    <img class="img device" src="img/6594171e826c9de511445a4c_viewing.png" alt="Invoice management: submitting a private healthcare bill and tracking the reimbursement claim" loading="lazy" width="1600" height="921">
+    <img class="img device" src="img/vivy-invoice-claim.png" alt="Invoice management: submitting a private healthcare bill and tracking the reimbursement claim" loading="lazy" width="1600" height="921">
     <p class="cap">The invoice flow that came out of the sprint, validated with Allianz and real patients</p>
   </section>
 
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">File sharing &amp; the practitioner interface</p>
     <h2>The patient experience only<br>works if doctors <em>trust it too.</em></h2>
     <p class="prose" style="margin-bottom:1.8rem">I also designed the practitioner side: a secure, direct connection that felt professional to clinician and patient alike. The challenge was carrying enough trust signals that a doctor would put it into their workflow.</p>
-    <div class="shots r">
-      <img class="device s-phone" src="img/65953db7535215a416bf2af0_share1.png" alt="Patient sharing a document from their phone, choosing who gets access" loading="lazy" width="799" height="1415">
-      <img class="device s-desk" src="img/6594171ddb2f3e1ef7c7923a_dr.png" alt="Practitioner portal: documents a patient has shared, opened on a clinic desktop" loading="lazy" width="1314" height="820">
+    <div class="shots">
+      <img class="device s-phone" src="img/vivy-document-sharing.png" alt="Patient sharing a document from their phone, choosing who gets access" loading="lazy" width="799" height="1415">
+      <img class="device s-desk" src="img/vivy-practitioner-portal.png" alt="Practitioner portal: documents a patient has shared, opened on a clinic desktop" loading="lazy" width="1314" height="820">
     </div>
     <p class="cap">The patient’s phone (left) and the practitioner’s portal (right): two contexts, one trust model</p>
-    <div class="r" style="margin-top:1.8rem">
+    <div style="margin-top:1.8rem">
       <img class="img" src="img/vivy-pro-portal.jpg" alt="Vivy Pro Portal online check-in list for practices" loading="lazy" width="1600" height="889">
       <p class="cap">The Pro Portal’s online check-in: patients arrive with paperwork already done, staff see who’s due at a glance</p>
     </div>
@@ -155,7 +180,7 @@
 
 <!-- ═══ HOW SUCCESS WAS MEASURED ═══════════════════════════ -->
 <div class="body" style="padding-top:0">
-  <section class="section r">
+  <section class="section" data-reveal>
     <p class="lbl">Product metrics</p>
     <h2>How success was <em>measured.</em></h2>
     <div class="mgrid">
@@ -175,7 +200,7 @@
   </section>
 </div>
 
-<a href="index.html" class="backhome">
+<a href="index.html" class="backhome" data-reveal>
   <div>
     <p class="bh-lbl">That’s all the work →</p>
     <p class="bh-t">Back to the <em>portfolio</em></p>
@@ -192,6 +217,7 @@
   <span>Top</span>
 </button>
 
+<!-- @footer -->
 <footer>
   <div class="edge">
     <div class="f-grid">
@@ -199,9 +225,8 @@
         <h2>Index</h2>
         <a href="index.html#work">Selected work</a>
         <a href="index.html#about">About</a>
-        <a href="index.html#process">Process</a>
         <a href="index.html#contact">Contact</a>
-        <a href="cv.html">R&eacute;sum&eacute;</a>
+        <a href="cv.html">Résumé</a>
         <a href="about.html">Personal</a>
       </div>
       <div class="f-col">
@@ -213,18 +238,19 @@
       </div>
       <div class="f-col">
         <h2>Elsewhere</h2>
-        <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn &#8599;</a>
-        <a href="mailto:jciclitira@gmail.com">Email &#8599;</a>
+        <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="mailto:jciclitira@gmail.com">Email ↗</a>
       </div>
     </div>
   </div>
   <div class="edge">
     <div class="f-bar">
-      <span>&copy; 2026 James Ciclitira &middot; Product Designer &middot; Berlin</span>
-      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">Back to top &#8593;</a>
+      <span>© 2026 James Ciclitira · Product Designer · Berlin</span>
+      <a href="#" class="f-top">Back to top ↑</a>
     </div>
   </div>
 </footer>
+<!-- /@footer -->
 
 <script src="js/swiss.js"></script>
 <!-- Cloudflare Web Analytics -->

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Experiments · James Ciclitira</title>
+<!-- @head -->
+<!-- Runs before the first paint, which is the whole point of it being inline
+     and not in swiss.js: a stylesheet chosen a frame late is a white flash on
+     a dark-mode page. It sets the theme from storage (or the OS preference on
+     a first visit), marks the document as script-enabled so the reveal start
+     states can be scoped to html.js, and flags a coarse pointer.
+
+     The timeout is the no-script-file failsafe. swiss.js sets data-swiss as
+     soon as it boots; if it never arrives — blocked, failed, cached wrong —
+     the js class comes off after 4s and every hidden start state stops
+     applying, so the page renders in full rather than staying blank. -->
+<script>(function(){var r=document.documentElement;r.className+=' js';try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}r.setAttribute('data-theme',t);}catch(e){}if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)r.className+=' coarse';setTimeout(function(){if(!r.dataset.swiss)r.className=r.className.replace(/\bjs\b/,'').replace(/\bintroing\b/,'');},4000);})();</script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27%23131311%27%2F%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2726%27%20fill%3D%27%23e23a16%27%2F%3E%3C%2Fsvg%3E">
+<!-- /@head -->
+<!-- Unlisted. Not in the nav, not in the footer, not in sitemap.xml — the only
+     way here is the URL. noindex keeps it out of search results as well, so
+     sharing the link stays a deliberate act rather than something Google does
+     on my behalf. If this ever becomes a public page, take the robots line out
+     AND add it to sitemap.xml; one without the other is half a decision. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Two side projects on the go, both an excuse to find out what the current AI tools can actually do. Neither is client work. Neither is finished.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Experiments · James Ciclitira">
+<meta property="og:description" content="Two side projects on the go, both an excuse to find out what the current AI tools can actually do. Neither is client work. Neither is finished.">
+<meta property="og:image" content="https://www.jciclitira.com/img/stay-local-hero.jpg">
+<meta property="og:url" content="https://www.jciclitira.com/lab.html">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head-assets -->
+<!-- Regular and Bold are preloaded because every page sets in them from the
+     first paint. The italic cut is not: it is used by the reader quotes on one
+     case study, so it can be fetched when that page asks for it. -->
+<link rel="preload" href="fonts/texgyreheros-bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/texgyreheros-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/swiss.css">
+<!-- /@head-assets -->
+</head>
+<body>
+<!-- @chrome -->
+<a class="skip" href="#main">Skip to content</a>
+<div id="prog" aria-hidden="true"></div>
+<div id="gridov" aria-hidden="true"></div>
+<div id="gridhint" aria-hidden="true">Grid · press G</div>
+<!-- /@chrome -->
+<!-- @nav -->
+<!-- The theme toggle exists twice — once in the desktop row, once in the mobile
+     bar — because the two live in different flex contexts and only one is ever
+     visible. swiss.js binds every .tt, so they stay in step without knowing
+     about each other. -->
+<nav aria-label="Primary">
+  <div class="nav-in edge">
+    <a href="index.html" class="nav-logo">James Ciclitira</a>
+    <div class="nav-desk">
+      <ol class="nav-links">
+        <li><a href="index.html#work"><span class="num">01</span>Work</a></li>
+        <li><a href="index.html#about"><span class="num">02</span>About</a></li>
+        <li><a href="index.html#contact"><span class="num">03</span>Contact</a></li>
+        <li><a href="cv.html">Résumé ↗</a></li>
+      </ol>
+      <button class="tt" id="theme-toggle" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
+    </div>
+    <div class="nav-mob">
+      <button class="tt" id="theme-toggle-m" type="button" aria-label="Switch between light and dark mode"><i class="tt-knob"></i><svg class="tt-ic tt-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3"/><path d="M12 19.3v2.3"/><path d="M4.2 4.2l1.6 1.6"/><path d="M18.2 18.2l1.6 1.6"/><path d="M2.4 12h2.3"/><path d="M19.3 12h2.3"/><path d="M4.2 19.8l1.6-1.6"/><path d="M18.2 5.8l1.6-1.6"/></g></svg><svg class="tt-ic tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 14.5A8.6 8.6 0 1 1 9.5 3.6a6.9 6.9 0 0 0 10.9 10.9z"/></svg></button>
+      <button class="burger" type="button" aria-controls="menu" aria-expanded="false"><span class="bars" aria-hidden="true"><i></i><i></i></span><span class="b-t">Menu</span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- Closed with visibility:hidden, not clip-path alone — clipping leaves its
+     links in the tab order. swiss.js owns the open state. -->
+<nav id="menu" aria-label="Site menu">
+  <a href="index.html#work"><span class="n">01</span>Work</a>
+  <a href="index.html#about"><span class="n">02</span>About</a>
+  <a href="index.html#contact"><span class="n">03</span>Contact</a>
+  <a href="cv.html"><span class="n">04</span>Résumé</a>
+  <div class="foot">
+    <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn ↗</a>
+    <a href="mailto:jciclitira@gmail.com">Email ↗</a>
+    <span class="lab lab-mute">Berlin, DE</span>
+  </div>
+</nav>
+<!-- /@nav -->
+
+<main id="main" tabindex="-1">
+
+<header class="cs-hero" data-reveal>
+  <div>
+    <a href="index.html" class="back">← All work</a>
+    <p class="eyebrow">Side projects · 2026</p>
+    <h1 class="cs-title is-long">Experiments</h1>
+    <p class="cs-tagline">Two things I’m building at the moment: a seasonal produce almanac on the web, and an iOS app for German fuel prices. Both started as an excuse to find out what these tools can actually do when you point them at a real problem rather than a demo. Neither is client work.</p>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-item"><label>Role</label><p>Design, code, illustration and data. Nobody else.</p></div>
+    <div class="meta-item"><label>Built with</label><p>Claude Code · React · TypeScript · SwiftUI</p></div>
+    <div class="meta-item"><label>Why</label><p>To find out where the tools break</p></div>
+  </div>
+</header>
+
+<div class="body">
+
+  <section class="section" data-reveal>
+    <p class="lbl">Why this page exists</p>
+    <h2>You only learn what a tool<br>is good for by <em>building<br>something real with it.</em></h2>
+    <div class="two" style="margin-top:1.4rem">
+      <p class="prose">There’s no shortage of writing about what AI can do for design work. None of it tells you where the tools get stuck, what they quietly get wrong, or how much of the job is still yours at the end. Building something does.<br><br>So I picked two problems I actually wanted solved and built them end to end: the data, the illustration, the interface, the deployment, the lot. No team, no brief, nobody to hand the hard part to.</p>
+      <p class="prose">Neither is trying to be a portfolio piece. What I’m after is a calibrated sense of where the tools earn their place and where they cost more than they save.<br><br>Both answers turned out to be the same thing approached from opposite directions. The output arrives faster than you can read it, so the work moves to deciding what to keep.</p>
+    </div>
+  </section>
+
+  <!-- ═══ 01 · ERNTEREIF ════════════════════════════════════ -->
+  <!-- NAME CHECK. The deployed build at the Netlify URL still brands itself
+       "stay local" — wordmark, <title> and every screenshot below. If the
+       project is Erntereif now, redeploy and the three .jpg captures need
+       retaking; if it is staying Stay Local, this heading and the link label
+       are the only two places to change. Do not ship the page with the two
+       names disagreeing. -->
+  <section class="section" data-reveal>
+    <p class="lbl">01 · Erntereif</p>
+    <h2>A seasonal almanac where<br>every one of the 87 crops<br><em>was generated, not shot.</em></h2>
+    <p class="prose">Pick a month and a country and it tells you what’s actually being harvested nearby, what has come out of cold store, and what the imported alternative costs in carbon. 87 crops, five countries, German interface.</p>
+
+    <img class="img sp-m" src="img/stay-local-hero.jpg" alt="The almanac in September: a large headline reading Was der September bringt, with 65 varieties being harvested and 66 available" loading="lazy" width="1600" height="1000">
+    <p class="cap">September in Germany. 65 varieties being harvested, 66 available once cold store counts</p>
+
+    <p class="prose sp-m">The month switch is the part that earns the page. September is the fullest stretch of the year and it says so. March drops to nine things being harvested, and the copy changes with it: almost nothing is growing, and what’s there came in last autumn and keeps well. Most seasonal charts flatten the year into a grid of green bars. This one is willing to tell you it’s a bad month.</p>
+
+    <img class="img sp-m" src="img/stay-local-march.jpg" alt="The same page switched to March: nine varieties harvested, 22 available, and a badge reading Keller und Lager" loading="lazy" width="1600" height="1000">
+    <p class="cap">The same page in March. Nine harvested, 22 available, and a headline that admits it</p>
+
+    <h3>One contact sheet, 87 cut-outs</h3>
+    <p class="prose">The produce photography is the part worth talking about. All 87 images are generated and cut out on transparent ground, sliced from a single generated contact sheet, so the whole set shares one light, one camera angle and one white ground. That is the only reason they read as a series rather than as 87 stock photos with 87 different suns in them.</p>
+
+    <img class="img sp-m" src="img/stay-local-grid.jpg" alt="The produce grid: rows of cut-out vegetables on a light ground, each with a name and a short cooking note" loading="lazy" width="1600" height="1000">
+    <p class="cap">One light, one angle, one ground, across all 87</p>
+
+    <p class="prose sp-m">Before settling on the generated photographs I built two complete alternative sets: 87 flat vector illustrations, then 87 line-art tiles on saturated colour grounds. Both got finished, and both got thrown away.<br><br>Neither was a pile of drawings. Each was a system: a shape vocabulary, one lighting rule, one palette and 87 short recipes. Changing the light in one place changed all 87. That is what makes abandoning a direction cheap enough to be worth doing twice.</p>
+
+    <div class="pbox is-claim"><p>A direction is only cheap to abandon if the whole set regenerates from one rule.</p></div>
+
+    <h3>Three things a glance missed</h3>
+    <div class="cards sp-s">
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">A file that wasn’t what it claimed</div>
+        <p class="icard-d">One input arrived as a 14.8&nbsp;MB vector. It was a bitmap re-encoded as 220,532 one-pixel rectangles, with no geometry in it to work with at all. Inspect the input before you build on it.</p>
+      </div>
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">The dark mode that couldn’t work</div>
+        <p class="icard-d">The cut-outs are soft-alpha almost everywhere. One image has five fully opaque pixels out of 45,149, and the colour underneath still carries the near-white shadow it was generated with, so on any dark ground every item grows a grey halo.</p>
+      </div>
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">Two more the same habit caught</div>
+        <p class="icard-d">A 10px label sitting at 2.97:1 contrast, and a grid where one long caption was quietly setting the row height for every card beside it.</p>
+      </div>
+    </div>
+
+    <p class="prose sp-m">The halo finding is why the layout is what it is. The produce keeps a light plate and the interface goes dark around it, rather than the other way round. None of that was visible by looking; it came out of reading the alpha channel.</p>
+
+    <div class="stats is-out">
+      <div class="stat"><div class="stat-n">87</div><div class="stat-l">Crops, each with a harvest window,<br>a cooking note and a carbon figure</div></div>
+      <div class="stat"><div class="stat-n">2</div><div class="stat-l">Complete art sets built,<br>then thrown away</div></div>
+    </div>
+
+    <p class="sp-s"><a class="tlink lbl" href="https://chimerical-shortbread-708934.netlify.app/" target="_blank" rel="noopener" style="color:var(--red-ink)">Open it ↗</a></p>
+  </section>
+
+  <!-- ═══ 02 · TANKEN ════════════════════════════════════════ -->
+  <!-- All five screens run the app’s own -sample-history demo mode, which is
+       canned end to end and says so on screen in red. That label is the reason
+       these can be shown at all: nothing here is presented as a real price. -->
+  <section class="section" data-reveal>
+    <p class="lbl">02 · Tanken</p>
+    <h2>An app that knows<br>what it doesn’t know.<br><em>That was the hard part.</em></h2>
+    <p class="prose">German filling stations have had to report their prices to the Bundeskartellamt since 2013, which makes fuel one of the few consumer markets with a live public price feed. Tanken reads it and answers a driver’s questions in the order they arrive: which grade, what it costs today, how it got there, which chain is cheapest, and only then whether tomorrow looks cheaper.<br><br>One screen, no tab bar. The reading order is the order of the questions.</p>
+
+    <div class="appshots n3 sp-l">
+      <figure class="appshot">
+        <img class="device-img" src="img/tanken-01-hero-1w.png" alt="Tanken home screen: national average of 1,794 euros, down 0,025 over a week, with a one-week line chart and the brand ranking below" loading="lazy" width="660" height="1435">
+        <figcaption class="appshot-c">
+          <div class="flow-n">01 · Heute</div>
+          <div class="flow-t">The headline</div>
+          <div class="flow-d">Grade, national average to the tenth of a cent, and the move since last week.</div>
+        </figcaption>
+      </figure>
+      <figure class="appshot">
+        <img class="device-img" src="img/tanken-02-chart-3m.png" alt="The same screen over three months: a denser line chart with 91 readings, average 1,847 euros, range 1,794 to 1,896" loading="lazy" width="660" height="1435">
+        <figcaption class="appshot-c">
+          <div class="flow-n">02 · Verlauf</div>
+          <div class="flow-t">Same screen, longer view</div>
+          <div class="flow-d">1W to Max, scrubbable. The held reading replaces the headline while you drag.</div>
+        </figcaption>
+      </figure>
+      <figure class="appshot">
+        <img class="device-img" src="img/tanken-03-brands-prognose.png" alt="Brand table listing JET, TotalEnergies, Esso, Shell and Aral with average prices and overnight moves, above a forecast reading Morgen: eher guenstiger at 46 per cent" loading="lazy" width="660" height="1435">
+        <figcaption class="appshot-c">
+          <div class="flow-n">03 · Marken</div>
+          <div class="flow-t">Cheapest first</div>
+          <div class="flow-d">Five chains ranked, each with its overnight move, then the outlook and the footnote.</div>
+        </figcaption>
+      </figure>
+    </div>
+
+    <p class="prose sp-m">The outlook is the hard part, and most of the engineering went into making it say less than it could. It scores nine signals, from pump-price trends and the weekday pattern to Brent, EUR/USD and the refining margin, each weighted by how directly it measures the thing being predicted.<br><br>One rule holds it together: a missing input has to lower confidence, never be replaced by a neutral guess. A feed the app can’t reach reports as absent, which shrinks coverage, pulls every probability back toward 50 per cent and, past a threshold, forces the amber “unclear” state. A fresh install says it hasn’t enough data rather than showing you a confident-looking coin flip.</p>
+
+    <div class="pbox is-claim"><p>A missing signal lowers confidence. It never gets quietly replaced by a plausible one.</p></div>
+
+    <div class="appshots n2">
+      <figure class="appshot">
+        <img class="device-img" src="img/tanken-04-prognose-method.png" alt="The calculation sheet: fuel prices falling, three market feeds listed as nicht verbunden, price history unfavourable, and a 46 / 22 / 32 per cent split with reliability given as medium" loading="lazy" width="660" height="1435">
+        <figcaption class="appshot-c">
+          <div class="flow-n">04 · Wie wird das berechnet?</div>
+          <div class="flow-t">The working, shown</div>
+          <div class="flow-d">Every feed it couldn’t reach is listed as “nicht verbunden” and drags the reliability down, rather than being averaged over.</div>
+        </figcaption>
+      </figure>
+      <figure class="appshot">
+        <img class="device-img" src="img/tanken-05-info.png" alt="Info sheet: Tankerkoenig licence attribution, market data sources, a privacy note, and an explanation of what the numbers mean" loading="lazy" width="660" height="1435">
+        <figcaption class="appshot-c">
+          <div class="flow-n">05 · Info</div>
+          <div class="flow-t">Where it all came from</div>
+          <div class="flow-d">Sources, the CC BY licence attribution, and a plain account of what the numbers do and don’t cover.</div>
+        </figcaption>
+      </figure>
+    </div>
+
+    <h3 class="sp-m">Three things it refuses to do</h3>
+    <div class="cards sp-s">
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">No odds on the weekday pattern</div>
+        <p class="icard-d">The Bundeskartellamt reports document a regularity in the past, so that component returns a description and has no code path that can emit a likelihood. A test asserts the copy contains no predictive language. An earlier prototype had a probability card on it.</p>
+      </div>
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">The ranking states its own sample</div>
+        <p class="icard-d">There is no national-average endpoint, so the app pools stations around eight cities and says so on screen rather than implying a census.</p>
+      </div>
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">Provenance is drawn, not just stored</div>
+        <p class="icard-d">Imported history renders dashed, and a timeframe holding too few readings is offered dimmed and unselectable rather than being tapped into an apology.</p>
+      </div>
+    </div>
+
+    <div class="stats is-out">
+      <div class="stat"><div class="stat-n">9</div><div class="stat-l">Signals in the outlook, each weighted by<br>how directly it measures the price</div></div>
+      <div class="stat"><div class="stat-n">2</div><div class="stat-l">Finished screens cut, to keep<br>the app to one question</div></div>
+    </div>
+
+    <p class="prose sp-m">It builds and runs on iOS&nbsp;27 and is verified end to end against the live feed. It isn’t shipped. Whether this use counts as non-commercial under Tankerkönig’s terms is unresolved, and that is the thing to settle before it goes anywhere.</p>
+  </section>
+
+  <!-- ═══ WHAT BOTH OF THEM TAUGHT ════════════════════════════ -->
+  <section class="section" data-reveal>
+    <p class="lbl">So far</p>
+    <h2>The useful work<br>was <em>subtraction.</em></h2>
+    <div class="two" style="margin-top:1.4rem">
+      <p class="prose">Both of these went faster than they would have by hand, and that is the least interesting thing about them. What the tools are reliably good at is mechanical breadth: 87 consistent cut-outs, five brand monograms, a licence-attribution path, a Dynamic Type pass. Work that is entirely knowable and entirely tedious.</p>
+      <p class="prose">What they won’t do is stop. They will hand you a probability card for a pattern that cannot support one, a national average drawn from eight cities, or a dark mode that puts a grey halo round every object on the page. Nothing in the output tells you which of those is a problem. You have to go and measure.</p>
+    </div>
+
+    <div class="pbox is-claim"><p>AI is fastest at producing a lot of something consistent. The work is making that output a system you can regenerate, and checking it with a measurement rather than a glance.</p></div>
+
+    <p class="prose">Two complete art sets thrown away. Two finished screens cut. A probability card removed. None of that is generation, and all of it is the reason either project is worth showing.</p>
+  </section>
+
+</div>
+
+<a href="index.html" class="backhome" data-reveal>
+  <div>
+    <p class="bh-lbl">Enough tinkering →</p>
+    <p class="bh-t">Back to the <em>real work</em></p>
+  </div>
+</a>
+
+</main>
+
+<button id="totop" type="button" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.2V5.4"/><path d="M5.6 11.8 12 5.4l6.4 6.4"/></svg>
+  <span>Top</span>
+</button>
+
+<!-- @footer -->
+<footer>
+  <div class="edge">
+    <div class="f-grid">
+      <div class="f-col">
+        <h2>Index</h2>
+        <a href="index.html#work">Selected work</a>
+        <a href="index.html#about">About</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="cv.html">Résumé</a>
+        <a href="about.html">Personal</a>
+      </div>
+      <div class="f-col">
+        <h2>Case studies</h2>
+        <a href="enter.html">01 · Enter</a>
+        <a href="coup.html">02 · Coup Mobility</a>
+        <a href="cooler-future.html">03 · Cooler Future</a>
+        <a href="vivy.html">04 · Vivy</a>
+      </div>
+      <div class="f-col">
+        <h2>Elsewhere</h2>
+        <a href="https://linkedin.com/in/jciclitira" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="mailto:jciclitira@gmail.com">Email ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="edge">
+    <div class="f-bar">
+      <span>© 2026 James Ciclitira · Product Designer · Berlin</span>
+      <a href="#" class="f-top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+
+<script src="js/swiss.js"></script>
+<!-- Cloudflare Web Analytics -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "39562e228b684fa0a9ce1c1d056ee97c"}'></script>
+<!-- End Cloudflare Web Analytics -->
+</body></html>

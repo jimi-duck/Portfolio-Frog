@@ -14,11 +14,14 @@ coup.html            Case study — Coup Mobility
 cooler-future.html   Case study — Cooler Future
 vivy.html            Case study — Vivy
 
+partials/            The shared chrome — nav, site menu, footer, head boilerplate
+build.js             Stamps partials/ into every page. See "The chrome" below
+
 css/swiss.css        The whole design system — every page loads this
 css/cv.css           Résumé-only screen styles + the A4 print sheet
-css/game.css         Chrome for the hidden Asteroids easter egg
+css/game.css         Chrome for the hidden easter egg. Fetched on first launch
 js/swiss.js          Shared behaviour (reveals, menu, theme, grid overlay, launcher)
-js/game.js           The easter egg itself
+js/game.js           The easter egg itself. Fetched on first launch
 
 fonts/               TeX Gyre Heros, self-hosted (GUST Font License)
 img/                 Case study screenshots and image assets
@@ -45,7 +48,11 @@ Swiss / International Typographic Style: one grotesque, a strict grid, hairline
 rules, one accent. All of it lives in `css/swiss.css`.
 
 - **Type** — TeX Gyre Heros, a free cut to Helvetica's metrics, self-hosted from
-  `fonts/`. Regular and Bold only; there is no third weight by design.
+  `fonts/`. Regular and Bold only; there is no third weight by design. There
+  is an italic cut, used in exactly one place — the reader quotes in the Cooler
+  Future audience blocks, which are a plain `<em>` in a plain `<p>` and so miss
+  every `font-style:normal` reset the component rules apply. It is not
+  preloaded; that page fetches it when it needs it.
   Every uppercase micro-label shares one size (`--t-lab`) and one tracking
   (`--tr-lab`) — change the token, not the rule.
 - **Colour** — paper `--paper`, ink `--ink`, one accent `--red`. Dark mode swaps
@@ -79,22 +86,23 @@ rules, one accent. All of it lives in `css/swiss.css`.
   all. Break a sentence with a comma, a colon or a full stop instead, and use
   the middot (`·`) where a label needs a separator (`01 · Enter`). Never run a text-level find-and-replace over a whole HTML file: the
   inline `<script>` blocks live in the body and string literals get mangled.
-- **Motion** — add `.r` (fade up), `.rl` (masked lines, needs
-  `<span class="ln"><i>…</i></span>` per line), `.rw` (rule wipe) or `.rm`
-  (image clip reveal). `js/swiss.js` adds `.in` when the element scrolls into
-  view; `data-delay="70"` staggers it — keep steps at or under ~80ms or the
-  group stops reading as one gesture. `.sechd` and `.wproj` also draw their
-  hairline in from the left on arrival. No hover scale, no shadows, no
+- **Motion** — one treatment, and it goes on **sections, not elements**. Put
+  `data-reveal` on a section and it rises 14px and fades in once as it arrives,
+  as a single object; its contents are not observed and do not animate
+  separately. There is nothing to stagger and no delay to set.
+
+  This replaced a per-element ladder — `.r` fade-ups, `.rl` line masks, `.rw`
+  rule wipes, `.rm` image clips, all stepped with `data-delay` — which meant
+  six things moving in one viewport and anything scrolled past quickly being
+  read mid-fade. Those class names are gone from the CSS; if you find one in
+  markup it is a leftover and does nothing. No hover scale, no shadows, no
   gradients: hover is an accent swap and a hairline underline. Everything is
   disabled under `prefers-reduced-motion`.
 
-  Three traps worth knowing if you extend these. The `.rm` clip sits on the
-  **image**, never on the observed element — a `clip-path` that collapses an
-  element's visual rect makes `IntersectionObserver` report it as not
-  intersecting, so it would never reveal. Every hidden start state is prefixed
-  `html.js`, so the matching `.in` rule needs the same prefix or the start state
-  out-specifies it. And the drawing hairlines are pseudo-elements rather than
-  borders, so anything that sets `border-bottom` on `.sechd` will fight them.
+  Two traps if you extend this. Every hidden start state is prefixed `html.js`,
+  so the matching `.in` rule needs the same prefix or the start state
+  out-specifies it. And `.sechd` draws its hairline with a pseudo-element
+  rather than a border, so anything setting `border-bottom` on it will fight.
 
 Case study pages share one class vocabulary (`cs-hero`, `section`, `prose`,
 `two`/`three`/`four`, `stats`, `pbox`, `pq`, `cards`, `dark-band`, `warm-band`,
@@ -107,13 +115,69 @@ the homepage index, so keep the two in step if you add another.
 
 Two easter eggs: **G** overlays the 12-column grid on any page (hinted once in
 the footer), and the homepage game opens from the corner launcher or by pressing
-**P**. The launcher collapses to its sprite until you approach it and stands
+**B**. The launcher collapses to its sprite until you approach it and stands
 down entirely over the footer, where it otherwise covered "Back to top".
+
+The game's 52KB (gzipped) of CSS and JavaScript is not on the homepage's
+critical path: the page ships the launcher and an empty `#astro-stage`, and the
+first press fetches the pair. The stage is `hidden` until `css/game.css` has
+loaded, because every rule that positions and hides the board lives in that
+stylesheet — open the stage early and you get a canvas, a HUD and two dialogs
+laid out in normal flow at the bottom of the page.
+
+## The chrome
+
+The nav, the site menu, the footer and the boilerplate at the top of `<head>`
+are identical on all eight pages. They live in `partials/`, and `build.js`
+stamps them into each page between a pair of marker comments:
+
+```html
+<!-- @nav -->  … everything here is generated …  <!-- /@nav -->
+```
+
+```bash
+node build.js
+```
+
+It rewrites only the marked regions, so the committed `.html` files stay
+complete, readable, working HTML — open one from the filesystem and it renders,
+and GitHub Pages serves it as it is. There is no template language and nothing
+at runtime. Running it twice changes nothing.
+
+Four values differ between pages and are set in the `PAGES` table at the top of
+`build.js`: `home` (a nav link is `#work` on the homepage and `index.html#work`
+everywhere else), `intro` and `curtain` (only the homepage has the intro
+curtain, and the boot script has to know before first paint), `keys` (the grid
+hint appears once, in the homepage footer) and `reveal` (only the homepage
+footer fades in).
+
+Those last three are the lesson of this arrangement: a shared region is only
+shared to the extent that every page really does want the same thing. The
+`@chrome` region runs from the skip link to the grid hint, and on the homepage
+the intro curtain sits between the two — so the first version of the partial,
+which did not carry it, silently deleted it.
+
+Before committing a change to the chrome:
+
+```bash
+node build.js --check
+```
+
+which writes nothing and exits non-zero if any page has drifted from
+`partials/`. That check is the point of the whole arrangement: the eight copies
+had already diverged — the homepage and the 404 wrote `é` and `↗` as literal
+characters, the other six wrote `&eacute;` and `&#8599;` — and nothing compared
+them, so nobody knew.
+
+**Edit `partials/`, not the marked regions.** Anything you write between the
+markers is overwritten on the next build.
 
 ## Before you deploy
 
 A short checklist, because these are the things that rot between releases:
 
+- `node build.js --check` passes. If it does not, run `node build.js` and
+  commit the result.
 - `sitemap.xml` lists only the six live pages and carries a `<lastmod>` — bump
   the dates when you publish.
 - Meta descriptions are kept under ~160 characters so search results do not
@@ -122,6 +186,10 @@ A short checklist, because these are the things that rot between releases:
 - Every `<img>` needs `width` and `height` (prevents layout shift) and
   `loading="lazy"` — except the one hero image per page, which stays eager and
   carries `fetchpriority="high"` on the homepage.
+- The contact form loads EmailJS from jsdelivr pinned to an exact version with
+  a subresource integrity hash. Bumping the version means recomputing the hash,
+  or the browser refuses the file and the form stops working:
+  `curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A`
 - PNGs here are transparent device renders, so they cannot be converted to JPEG.
   They have been re-encoded losslessly; if you add more, run them through
   ImageOptim or Squoosh first — the originals were ~15% larger than necessary.
@@ -143,7 +211,11 @@ Then open http://localhost:8000.
 
 Hosted on GitHub Pages, deployed from the `main` branch. Pushing to `main` triggers an automatic rebuild — changes are usually live within a minute or two.
 
+GitHub Pages serves the repository as-is; `build.js` runs on your machine, not
+there, so the stamped HTML has to be committed.
+
 ```bash
+node build.js --check   # or: node build.js, then review the diff
 git add .
 git commit -m "Update"
 git push
