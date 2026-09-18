@@ -8,6 +8,8 @@ Personal product design portfolio for James Ciclitira. A set of static, hand-cod
 index.html           Homepage
 cv.html              Résumé (screen sheet + a single-page A4 print sheet)
 404.html             Not found
+lab.html             Experiments — side projects. Footer-linked, noindexed,
+                     deliberately absent from sitemap.xml
 
 enter.html           Case study — Enter (energy tech)
 coup.html            Case study — Coup Mobility
@@ -18,9 +20,11 @@ partials/            The shared chrome — nav, site menu, footer, head boilerpl
 build.js             Stamps partials/ into every page. See "The chrome" below
 
 css/swiss.css        The whole design system — every page loads this
+css/about.css        About-only. Outside the case-study vocabulary on purpose
 css/cv.css           Résumé-only screen styles + the A4 print sheet
 css/game.css         Chrome for the hidden easter egg. Fetched on first launch
 js/swiss.js          Shared behaviour (reveals, menu, theme, grid overlay, launcher)
+js/about.js          About-only. Makes the photo pile clickable, and nothing else
 js/game.js           The easter egg itself. Fetched on first launch
 
 fonts/               TeX Gyre Heros, self-hosted (GUST Font License)
@@ -128,7 +132,7 @@ laid out in normal flow at the bottom of the page.
 ## The chrome
 
 The nav, the site menu, the footer and the boilerplate at the top of `<head>`
-are identical on all eight pages. They live in `partials/`, and `build.js`
+are identical on all nine pages. They live in `partials/`, and `build.js`
 stamps them into each page between a pair of marker comments:
 
 ```html
@@ -164,10 +168,15 @@ node build.js --check
 ```
 
 which writes nothing and exits non-zero if any page has drifted from
-`partials/`. That check is the point of the whole arrangement: the eight copies
+`partials/`. That check is the point of the whole arrangement: the nine copies
 had already diverged — the homepage and the 404 wrote `é` and `↗` as literal
 characters, the other six wrote `&eacute;` and `&#8599;` — and nothing compared
 them, so nobody knew.
+
+The Cloudflare Web Analytics beacon is a marked region too (`@analytics`). It
+is one script tag and it was pasted into all nine pages by hand, which is
+exactly the thing `--check` is for and exactly the thing it could not see while
+the tag sat outside the markers.
 
 **Edit `partials/`, not the marked regions.** Anything you write between the
 markers is overwritten on the next build.
@@ -178,14 +187,23 @@ A short checklist, because these are the things that rot between releases:
 
 - `node build.js --check` passes. If it does not, run `node build.js` and
   commit the result.
-- `sitemap.xml` lists only the six live pages and carries a `<lastmod>` — bump
-  the dates when you publish.
+- `sitemap.xml` lists only the seven indexable pages and carries a `<lastmod>`
+  — bump the dates when you publish. `lab.html` and `404.html` are deliberately
+  absent, and both carry `noindex`; if either ever earns a place in the
+  sitemap, the robots line comes out in the same commit.
 - Meta descriptions are kept under ~160 characters so search results do not
   truncate them mid-sentence. Both `description` and `og:description` carry the
   same string, so change them together.
 - Every `<img>` needs `width` and `height` (prevents layout shift) and
   `loading="lazy"` — except the one hero image per page, which stays eager and
-  carries `fetchpriority="high"` on the homepage.
+  carries `fetchpriority="high"`. On `about.html` that is the portrait in the
+  photo pile: it is the LCP element, so lazy-loading it delays the only paint
+  anyone measures.
+- Each GIF in `img/GIF/` has a `-still.png` beside it, and the `<picture>` on
+  `about.html` serves the still under `prefers-reduced-motion`. Re-encode a GIF
+  and the still goes stale silently — regenerate it in the same commit. Three
+  animations that loop forever with no way to pause them is the thing that
+  setting exists to answer.
 - The contact form loads EmailJS from jsdelivr pinned to an exact version with
   a subresource integrity hash. Bumping the version means recomputing the hash,
   or the browser refuses the file and the form stops working:

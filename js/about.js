@@ -1,75 +1,63 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   About — the hover reveals.
+   About — the pile of prints.
 
-   Three words in the prose are links to a photograph. Without this file they
-   still work: the href goes to the image. With it, the click is taken over and
-   the photograph appears in the empty half of the page instead.
+   The collage is four photographs stacked in CSS, each one turned a couple of
+   degrees off square. Hovering a plate straightens it and lifts it, which is
+   CSS and needs nothing from here. This file is the other half of that: a
+   click pins a plate on top and leaves it there.
 
-   Three ways in, because a hover is only one of them:
-     hover    a mouse enters the word, the photograph fades in, leaving hides it
-     focus    the same, for anyone tabbing through
-     click    pins it open until the next click, which is the only thing a
-              touchscreen can do
-
-   Degrades to a plain link if anything here throws.
+   It exists for the phone, where there is no hover at all and the plate you
+   want is the one underneath. Everything degrades to a static collage if it
+   throws — the photographs are in the markup and the arrangement is in the
+   stylesheet.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  var box = document.getElementById('peek');
-  var trigs = [].slice.call(document.querySelectorAll('.ab-peek'));
-  if (!box || !trigs.length) return;
+  var pile = document.getElementById('collage');
+  if (!pile) return;
 
-  /* Two stacked frames. The portrait underneath never moves; the one on top
-     carries whichever photograph is being hovered and fades over it. Two
-     elements rather than one src swap because a crossfade written in
-     setTimeout glitches the moment somebody moves across three words quickly. */
-  var img = box.querySelector('.ab-swap');
+  var plates = [].slice.call(pile.querySelectorAll('.pl'));
+  if (plates.length < 2) return;
 
-  /* Decoded up front. A reveal that has to fetch first shows an empty frame
-     for a beat, which reads as a bug rather than as a photograph. */
-  trigs.forEach(function (t) {
-    var pre = new Image();
-    pre.src = t.getAttribute('href');
-  });
+  /* One plate on top at a time. Raising the clicked one and dropping the last
+     is the whole model: no z-index counter that climbs forever, and no state
+     to get out of step with what is on screen. */
+  var top = null;
 
-  /* The word that is currently pinned open by a click, if any. While something
-     is pinned, moving the mouse over other words does nothing — otherwise a
-     tap on a phone opens a photograph that the next stray hover replaces. */
-  var pinned = null;
-
-  function show(t) {
-    img.src = t.getAttribute('href');
-    img.alt = t.getAttribute('data-alt') || '';
-    img.hidden = false;          // it ships hidden, having no src to show yet
-    box.classList.add('on');
+  function set(p, on) {
+    p.classList.toggle('is-top', on);
+    p.setAttribute('aria-pressed', on ? 'true' : 'false');
   }
 
-  function hide() {
-    box.classList.remove('on');
+  function raise(p) {
+    if (top) set(top, false);
+    top = (p === top) ? null : p;
+    if (top) set(top, true);
   }
 
-  trigs.forEach(function (t) {
-    t.addEventListener('mouseenter', function () { if (!pinned) show(t); });
-    t.addEventListener('mouseleave', function () { if (!pinned) hide(); });
-    t.addEventListener('focus', function () { if (!pinned) show(t); });
-    t.addEventListener('blur', function () { if (!pinned) hide(); });
+  plates.forEach(function (p) {
+    /* A <figure> that answers a click is a button, and saying so is the whole
+       of what a screen reader needs: without a role it is an unlabelled group
+       that happens to be in the tab order, which reads as a bug in the page
+       rather than as something to press. The name comes off the photograph's
+       own alt — it is already written, and it is what distinguishes one plate
+       from the next. aria-pressed carries the state, because clicking the one
+       on top puts it back down: this is a toggle, not a trigger.
 
-    t.addEventListener('click', function (e) {
-      e.preventDefault();               // the href is the no-JavaScript path
-      if (pinned === t) { pinned = null; hide(); return; }
-      pinned = t;
-      show(t);
+       Set from here rather than in the markup on purpose. All of it describes
+       behaviour that only exists while this file is running, and the page
+       without it is four photographs in a pile — which is a perfectly good
+       thing to be, and should not announce itself as a control. */
+    var alt = (p.querySelector('img') || {}).alt || 'Photograph';
+    p.setAttribute('role', 'button');
+    p.setAttribute('tabindex', '0');
+    p.setAttribute('aria-label', alt + ' — bring to the front');
+    p.setAttribute('aria-pressed', 'false');
+
+    p.addEventListener('click', function () { raise(p); });
+    p.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); raise(p); }
     });
-  });
-
-  /* Anywhere else puts it away. This runs after the trigger's own handler, so
-     the click that opened one doesn't immediately close it. */
-  document.addEventListener('click', function (e) {
-    if (pinned && !e.target.closest('.ab-peek')) { pinned = null; hide(); }
-  });
-
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && pinned) { pinned = null; hide(); }
   });
 })();

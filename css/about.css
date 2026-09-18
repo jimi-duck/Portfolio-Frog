@@ -2,20 +2,30 @@
    About — the personal page. Loaded after swiss.css.
 
    Outside the case-study vocabulary on purpose. The case studies are an
-   argument: hairline rules ranking the sections, uppercase micro-labels,
-   counted indices, bold mega headlines, photography laid out in grids. That
-   machinery is what makes them read as evidence, and it is wrong for a page
-   about a person.
+   argument: counted indices, bold mega headlines, photography laid out in
+   grids. That machinery is what makes them read as evidence, and it is wrong
+   for a page about a person.
 
    What is here instead is one composition, sized to one screen:
 
-     a column of text on the left, at a measure you can actually read
-     a portrait in the field beside it, which the photographs fade over
-     the whole block centred in the height of the window
+     a header rule carrying the page label and the place
+     a column of text on the left, a lead and then four short paragraphs
+     four photographs piled up beside it, squared to that text top and bottom
+     a closing rule with the two ways off the page, and a dog on it
 
-   Three words in the text are underlined. Nothing says so. Hover one and the
-   photograph behind it appears in the empty field — never over the words,
-   which is the point of leaving the field empty.
+   The rules are what the earlier version was missing. A slab of type and a
+   photograph floating in the middle of a screen have nothing to measure
+   themselves against, so every gap in the composition reads as an accident.
+   With a line above and a line below, the same gaps read as margin.
+
+   And then the grid is broken on purpose, once, in the only place on the site
+   where that is the right thing to do. The photographs are a pile of prints
+   rather than a figure: four plates, four sizes, each one turned a degree or
+   three off square and overlapping its neighbours, with the page ground
+   showing as a print border so the overlaps read. Three animated GIFs from
+   the old web — two flags in the prose, a dog trotting along the closing rule
+   — are the only colour on the page besides the accent. A strict page that
+   relaxes exactly once says more about a person than a strict page does.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* One screen, and the block sits in the middle of it. A short page pinned to
@@ -23,117 +33,317 @@
    same emptiness reads as margin. The nav floats over the top, so its height
    comes out of the padding rather than out of the centring. */
 /* Centred in the space below the nav, not in the window — the bar is an opaque
-   fixed overlay, so the area the block actually has is y=--bar downwards. The
-   bottom padding keeps it off the footer's top edge at short viewport heights,
-   where it was landing 20px clear of it. */
-.ab{min-height:100svh;display:flex;align-items:center;
-  padding:var(--bar) var(--pad) clamp(1rem,3svh,2.5rem);
+   fixed overlay, so the area the block actually has is y=--bar downwards.
+
+   Equal padding top and bottom is NOT what centres this, which is what the
+   old rule got wrong twice over — the nav is 56px of opaque bar sitting on top
+   of the top padding, so a padding of --bar both ends puts --cush + half the
+   free space under the block and only half the free space above it. The top
+   padding carries the bar as well as the cushion; the bottom carries the
+   cushion alone. Then both visible gaps come out at --cush + half the slack.
+
+   --cush is also what keeps the block off the footer's top edge when the
+   window is short enough that the free space runs out. */
+/* The print white. Off-paper and slightly warm, and fixed rather than themed:
+   see the note on .pl below. */
+:root{--print:#f6f3ec}
+:root[data-theme="dark"]{--print:#e9e5dc}
+
+.ab{--cush:clamp(.75rem,2svh,1.75rem);
+  min-height:100svh;display:flex;align-items:center;
+  padding:calc(var(--bar) + var(--cush)) var(--pad) var(--cush);
   max-width:var(--frame);margin-inline:auto}
 .ab-in{width:100%}
 
+/* ── The header rule ─────────────────────────────────────────────────────── */
+/* The house section header, used once. .sechd brings the flex row and the ink
+   hairline with it; all this adds is the gap down to the composition and a
+   line-height on the h1, which .lab sets to 1 for a label sitting in a row of
+   its own but which reads cramped on an element with a margin under it. */
+.ab-head{margin-bottom:clamp(1.4rem,3.4svh,2.6rem)}
+.ab-head .lab{line-height:1.1}
+/* The accent, once. The three underlined words used to carry it; with the
+   reveal gone the page had no red left on it at all, and the favicon is a red
+   circle, so the place tag gets the same mark. */
+.ab-head .idx{display:inline-flex;align-items:center;gap:.5rem}
+.ab-head .dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex:none}
+
 /* Not an even split. At 1fr 1fr the text column was 632px, which set the lines
    at 53 characters and took the paragraphs to sixteen lines — a good measure
-   that no longer fitted on one screen. 1.55fr gives the text ~63 characters
-   and twelve lines, which does, and still leaves the photograph a field wider
-   than it needs. */
-/* Seven columns and five — the ratio above, resolved onto the page grid.
-   1.55fr/1fr came to 60.8/39.2, which is close to seven-and-five and lands on
-   nothing; seven columns gives the text the ~63 characters the note above
-   asks for and puts both edges on a line. */
+   that no longer fitted on one screen.
+
+   Seven columns and five. The old split was the same on paper and then capped
+   the photograph at 420px inside its field, so the gutter came out at 147px of
+   nothing and the photograph's left edge landed 8px shy of a grid line — near
+   enough to look like a miss rather than a decision. Nothing is capped now:
+   the pile fills its five columns, and the air it needs is the air between the
+   prints. */
 .ab-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
-  gap:var(--gap);align-items:start;width:100%}
+  gap:var(--gap);align-items:stretch;width:100%}
 .ab-col{grid-column:1 / 8}
 .ab-fig{grid-column:8 / 13}
 
 /* ── The text column ─────────────────────────────────────────────────────── */
-.ab-lbl{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);
-  text-transform:uppercase;color:var(--mute);
-  margin-bottom:clamp(1.1rem,2.6svh,2rem)}
+/* Two sizes, not one. Every paragraph used to run at the display size in full
+   ink, which is why the column read as a single grey slab: five blocks of
+   equal weight, no way in, and nothing for the eye to do but start at the top.
+
+   The first paragraph is the lead and keeps the display size and --ink. The
+   rest step down to ~78% of it in --ink-2, the reading ink the rest of the
+   site sets body copy in. The jump is 1.28×, which is a hierarchy rather than
+   a change of subject — close enough that the column still reads as one voice,
+   far enough that there is an entry point.
+
+   min(vw, svh) on both, so the height of the window can veto the width and the
+   composition always lands inside one screen. The svh coefficients are what
+   actually bite: at 1440 wide the vw term alone never shrinks, so a 1440x800
+   window overflowed the fold by the difference. */
+.ab-lead{font-size:clamp(1.3rem,min(2.35vw,3.9svh),2.6rem);font-weight:400;
+  line-height:1.24;letter-spacing:-.026em;color:var(--ink);
+  max-width:46ch;text-wrap:pretty}
 
 /* The measure is the number the page turns on. Run full-bleed the lines came
-   out at 86 characters and the type had to shrink to 35px to fit five
-   paragraphs on one screen: too long to read and too small to be a statement,
-   which is exactly how it looked. A column at ~63 characters is both.
+   out at 86 characters; a column at ~62 characters is a reading measure. The
+   ch caps only bite on a large display — below that the grid column is
+   narrower than the cap and sets the measure itself. */
+.ab-say{font-size:clamp(1.05rem,min(1.86vw,3.05svh),1.95rem);font-weight:400;
+  line-height:1.45;letter-spacing:-.014em;color:var(--ink-2);
+  max-width:58ch;text-wrap:pretty}
 
-   The 60ch cap only bites on a large display — below that the grid column is
-   narrower than the cap and sets the measure itself.
+/* The lead is a block of its own, so it gets a gap a third wider than the one
+   between the paragraphs under it. */
+.ab-lead+.ab-say{margin-top:1.15em}
+.ab-say+.ab-say{margin-top:.9em}
 
-   min(vw, svh) so the height of the window can veto the width and the page
-   always lands inside one screen: ~30px at 1440x800, ~37px on a large
-   display. Line-height opens to 1.32 now the lines are a reading measure;
-   1.22 was set for display-sized lines and reads tight here. */
-.ab-say{font-size:clamp(1.15rem,min(2.1vw,3.9svh),2.3rem);font-weight:400;
-  line-height:1.32;letter-spacing:-.022em;color:var(--ink);
-  max-width:60ch;text-wrap:pretty}
-.ab-say+.ab-say{margin-top:.8em}
+/* ── The collage ─────────────────────────────────────────────────────────── */
+/* align-items:stretch on the grid gives this element the height of the text
+   beside it; the collage fills it absolutely, which is also what keeps it out
+   of the row's sizing. The row is measured from the text column alone, the
+   figure stretches to it, and the pile then fills that height — so the top and
+   the bottom of the two columns land on the same two lines however long the
+   paragraphs run. Sized the other way round, a width with a ratio under it,
+   the field would ask the row how tall to be while the row was asking the
+   field. */
+.ab-fig{position:relative;min-height:0}
+.ab-collage{position:absolute;inset:0}
 
-/* ── The underlined words ────────────────────────────────────────────────── */
-/* An <a> to the photograph itself, so the page still works without JavaScript.
-   The script takes the click over and reveals it in place instead.
+/* The pile is sized from this field's WIDTH — every plate is a percentage of
+   it, with the height following from the photograph's ratio. The field's
+   height, though, comes from the text column beside it, and that shrinks with
+   the svh terms in the type clamps. So a short window moves the two apart: the
+   field loses height, the pile keeps it, and the prints run out of the bottom.
+   Below about 660px of viewport height at 1440 wide the portrait crossed the
+   closing rule and sat on the Resume link.
 
-   The rule is the accent. Three red hairlines are the entire colour budget of
-   the page and the only thing on it that isn't ink on paper, so they read as
-   the live words without needing a label to say so. 1.5px, which is the weight
-   the rest of the site uses for an accent rule — at 1px it went thin and
-   uncertain under 30px type.
+   Capping the pile's width by the field's own height keeps the two together.
+   93.8cqh is the pile's ratio at the size it was drawn for (542x578), so at
+   any window tall enough this is inert and the pile fills its five columns
+   exactly as before; below that it shrinks and stays inside the rules.
 
-   The offset carries the thickness: the rule sits below the baseline and the
-   browser's default skip-ink breaks it around the descenders in "long bike
-   trips", so the g and the p stay whole.
+   left:auto is load-bearing. inset:0 pins both edges, which over-constrains
+   the box and makes width a no-op; releasing the left edge anchors the pile to
+   the right margin, which is where it already was.
 
-   The word itself stays --ink until hover. Red text at 30px clears AA at 3:1,
-   which is why the hover state can use --red rather than the darkened
-   --red-ink the small-text rules need. */
-.ab-peek{color:var(--ink);text-decoration:underline;text-underline-offset:.16em;
-  text-decoration-thickness:1.5px;text-decoration-color:var(--red);
-  transition:color .3s var(--ez),text-decoration-color .3s var(--ez)}
-.ab-peek:hover,.ab-peek:focus-visible{color:var(--red);
-  text-decoration-color:var(--red-bright)}
+   Desktop only. container-type:size needs a height that does not come from the
+   contents, and in the single-column layout below it is the collage that gives
+   the field its height. */
+@media (min-width:901px){
+  .ab-fig{container-type:size}
+  .ab-collage{left:auto;width:min(100%,93.8cqh)}
+}
+/* A container in its own right, at every width, so each print's frame can be
+   set as a share of the pile rather than of the viewport. A border cannot take
+   a percentage and cqw can, which is the whole reason this line is here. */
+.ab-collage{container-type:inline-size}
 
-/* ── The portrait, and the reveal over it ────────────────────────────────── */
-/* The field beside the text is no longer empty: it rests on the portrait, and
-   a hovered word fades its photograph over the top.
+/* Every plate is placed as a percentage of the field, so the pile keeps its
+   arrangement at any size rather than being four values that only work at
+   1440. Widths only: the height of each one comes from the photograph's own
+   ratio, which is why the climbing frame — 619x1100, the odd one — stays tall
+   and narrow instead of being cropped square to match the others.
 
-   Two stacked frames in one 3:4 box rather than one image whose src gets
-   swapped. The box keeps its shape and its place whatever is showing, so the
-   page never moves and the crossfade needs no timing code — which is what
-   breaks when somebody runs the cursor across all three words at once.
+   The six are chained rather than scattered — every print overlaps at least
+   two others, which is the difference between a pile and a mess. Laid out as
+   three columns of two they were not a pile at all: two rows of prints with a
+   channel of ground between them, a contact sheet. The fix is not to overlap
+   them harder but to stop them lining up. They cascade instead, stepping down
+   and across, so the vertical span comes from the diagonal rather than from
+   stacking two prints in a column — which is also the only way six of them
+   cover a field this size without any one being buried. */
+/* A Polaroid, to the real proportions: the side and top edges are about 5% of
+   the print's width and the chin at the bottom is about 18%, which is the
+   thing your eye actually recognises. Nothing else about the frame matters
+   nearly as much — get the chin wrong and it reads as a photo with a white
+   border, not as a print.
 
-   Earlier versions of the reveal were a fixed card with a ground, a border and
-   a drop shadow, and the paragraphs dimmed to 28% while it was up. All of that
-   was scaffolding to survive landing on top of the text. In a column of its
-   own none of it is needed. */
-/* Sized from its width, with the height following the ratio. height:100% is
-   the obvious way to make it match the text column and it does not work here:
-   both images are absolutely positioned, so the box has no in-flow content to
-   fall back on and collapses to 0x0 the moment the percentage fails to
-   resolve.
+   --edge is set per plate below, as a share of the pile's width, because the
+   four prints are four different sizes and a single clamp would give the
+   smallest one a chin half the depth of its photograph.
 
-   420px at most desktop widths, growing on a large display. That is as big as
-   it goes before the frame gets taller than the column of text beside it and
-   starts setting the height of the page itself. */
-.ab-fig{display:flex;justify-content:flex-end;align-items:flex-start}
-.ab-peekbox{position:relative;width:100%;max-width:min(100%,max(420px,24vw));
-  aspect-ratio:3/4;pointer-events:none}
-/* Greyscale, at the same grade as every other photograph on the site. */
-.ab-peekbox img{position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;display:block;filter:grayscale(100%) contrast(1.06)}
-/* The swap frame ships without a src — there is nothing to show until a word
-   is hovered. It carries the hidden attribute so it is not a broken image in
-   the accessibility tree until then, and this restates it: the display:block
-   above would otherwise out-specify the browser's own [hidden] rule. */
-.ab-peekbox img[hidden]{display:none}
-[data-theme="dark"] .ab-peekbox img{filter:grayscale(100%) contrast(1) brightness(.86)}
-.ab-swap{opacity:0;transition:opacity .45s var(--ez)}
-.ab-peekbox.on .ab-swap{opacity:1}
+   The frame stays a warm print white in both themes. A photograph you are
+   holding does not invert when the room gets dark, and against the dark ground
+   the white edge is what makes the pile read as objects on the page rather
+   than as windows cut into it.
+
+   box-sizing is border-box site-wide, so the chin comes out of the plate's own
+   box: the outer rectangle keeps the size and the ratio it is placed at, and
+   the image area inside gets squarer. Which is what a Polaroid looks like, and
+   means the arrangement above did not have to move. */
+.pl{--edge:8px;
+  position:absolute;margin:0;cursor:pointer;
+  background:var(--print);
+  border:var(--edge) solid var(--print);
+  border-bottom-width:calc(var(--edge) * 3.6);
+  /* Prints on a table, so a real shadow — a close contact one to sit them
+     down, and a wider soft one to lift them off the page. The hairline stays
+     underneath both: where a print overlaps nothing, it is what keeps the
+     white edge from dissolving into a pale ground. */
+  box-shadow:0 0 0 1px var(--rule),
+             0 1px 2px rgba(0,0,0,.14),
+             0 9px 20px -6px rgba(0,0,0,.22);
+  transition:transform .55s var(--ez),box-shadow .55s var(--ez)}
+
+/* The film grade. Colour is back — this is the one page that is allowed it —
+   but not the colour a phone camera gives you: the contrast comes down so the
+   blacks lift, the saturation comes off, and a little sepia warms what is
+   left. That combination is most of what reads as instant film. */
+.pl img{display:block;width:100%;height:100%;object-fit:cover;
+  filter:saturate(.84) contrast(.9) brightness(1.05) sepia(.16)}
+/* On dark ground the same grade runs a touch darker, so a lit print does not
+   glare against the page. */
+[data-theme="dark"] .pl img{filter:saturate(.8) contrast(.92) brightness(.97) sepia(.18)}
+
+/* The cast, which the filter cannot do on its own: filters grade the whole
+   image at once, and film does not — it warms the highlights and goes cool
+   and a little green in the shadows. A screen-blended wash over the image area
+   only (inset:0 resolves to the padding box, so it stops at the frame) does
+   the split that saturate() and sepia() cannot. */
+.pl::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(118% 82% at 50% 6%, rgba(255,236,190,.26), transparent 64%),
+    linear-gradient(198deg, rgba(120,166,176,.16) 0%, rgba(255,214,166,.10) 56%,
+                            rgba(88,78,68,.20) 100%);
+  mix-blend-mode:screen}
+
+/* Back to front is largest to smallest, which is the order a pile of prints
+   ends up in on its own. The left edge of the climb is held 3% off the field
+   so the pile does not crowd the last line of the paragraph next to it.
+
+   The portrait and the bike are inset by the width their own rotation throws
+   past the box — 1% and a half of one. A turned rectangle's corner sticks out
+   by half its height times the sine of the angle, which came to four pixels
+   past the right-hand rule and three above the first line of text: too little
+   to read as breaking the margin, more than enough to read as missing it.
+
+   Sizes are what buy the spacing. The pile has to span the field either way,
+   so the only place air can come from is the prints themselves: at four, the
+   bike had covered half the portrait, and dropping each width a few points
+   took the worst pair from half to a third and the rest down to corners.
+
+   Six prints in the same field cannot hold quite that much air — the field is
+   sized by the text beside it and does not grow — so the widths come down
+   again and the overlaps are spread instead of concentrated. Nothing now runs
+   past a third, and most pairs sit between 8% and 20%, which reads as more
+   generous than four prints did with one 50% bite in the middle of it.
+
+   The left column is held 3-4% off the field edge. It is the only side with no
+   rule to land on, and at 0 the rotated corners reached far enough into the
+   gutter to crowd the last line of the paragraph — 22px of clearance where the
+   four-print pile had 40. */
+.pl-a{top:.6%;right:1%;width:45%;aspect-ratio:768/1022;z-index:1;transform:rotate(1.2deg)}
+.pl-c{bottom:.5%;right:2%;width:38%;aspect-ratio:3/4;z-index:2;transform:rotate(-1.4deg)}
+.pl-d{bottom:1.2%;left:27%;width:34%;aspect-ratio:3/4;z-index:3;transform:rotate(3.2deg)}
+.pl-b{top:1.5%;left:4%;width:33%;aspect-ratio:480/853;z-index:4;transform:rotate(-2.6deg)}
+.pl-e{bottom:6%;left:3%;width:33%;aspect-ratio:3/4;z-index:5;transform:rotate(-2.2deg)}
+.pl-f{top:14%;left:24%;width:32%;aspect-ratio:520/873;z-index:6;transform:rotate(2.4deg)}
+
+/* Each print's frame is 4.8% of its OWN width, which is the Polaroid ratio.
+   Written against the pile instead, because that is what cqw can see: the
+   plate widths above are shares of the pile, so 58% of the pile at 4.8% of
+   itself is 2.78cqw, and so on down. The floor keeps the smallest print
+   framed on the narrowest phone, where 1.54cqw is under five pixels. */
+.pl-a{--edge:max(4px,2.16cqw)}
+.pl-c{--edge:max(4px,1.82cqw)}
+.pl-d{--edge:max(4px,1.63cqw)}
+.pl-b{--edge:max(4px,1.58cqw)}
+.pl-e{--edge:max(4px,1.58cqw)}
+.pl-f{--edge:max(4px,1.54cqw)}
+
+/* Reaching for a print straightens it and lifts it off the pile. The whole
+   interaction, and it is the pile's own behaviour rather than something
+   bolted on: a photograph you pick up sits square and sits on top.
+
+   Behind a hover query, because a touchscreen reports a tap as a hover and
+   then keeps reporting it: without this the plate you tapped stays straight
+   and lifted after you have tapped the next one, and two prints read as
+   picked up at once. The head script already flags coarse pointers for the
+   rest of the site; this is the same fact asked of the browser directly. */
+@media (hover:hover){
+  .pl:hover{transform:rotate(0deg) scale(1.035);z-index:9;
+    box-shadow:0 0 0 1px var(--rule),
+               0 2px 4px rgba(0,0,0,.16),
+               0 18px 34px -8px rgba(0,0,0,.30)}
+}
+/* The hairline above is a box-shadow, and so is the site's focus halo — at
+   equal specificity the later file wins, so a focused plate would have lost
+   the red ring and kept only the ink outline. Both, in one declaration. */
+.pl:focus-visible{transform:rotate(0deg) scale(1.035);z-index:9;
+  box-shadow:0 0 0 1px var(--rule),0 0 0 5px var(--red),
+             0 18px 34px -8px rgba(0,0,0,.30)}
+/* Clicked, it stays on top — the only thing a touchscreen can do, and the
+   only state the script owns. */
+.pl.is-top{z-index:10}
+
+/* ── The GIFs ────────────────────────────────────────────────────────────── */
+/* Sized to the text rather than to themselves: at native size the flags are
+   50px tall and would out-measure the paragraph they sit in. A fifth of that
+   reads as a stamp stuck next to the word, which is the job. They are
+   decoration — the sentence says Scotland and says German — so they are
+   aria-hidden and add nothing to the reading. */
+.ab-gif{display:inline-block;width:auto;height:clamp(17px,1.35vw,23px);
+  vertical-align:-.18em;margin-left:.3em;image-rendering:auto}
+
+/* The dog trots back and forth on the closing rule, and that is entirely the
+   GIF's own doing: its 35 frames run the sprite out across its 200px canvas
+   and bring it back again, x=2 to x=178 and home.
+
+   So the page moves it nowhere. It used to be translated the width of the rule
+   on top of all that, which is two travels at once — the box sliding steadily
+   left to right while the dog inside it scurried the other way and doubled
+   back — and the two never agreed for a second of it. The canvas is the run.
+
+   The file itself was the other half of the problem. It shipped with no
+   Netscape loop block, so it played its one lap and froze, and then spent the
+   rest of the cycle being slid across the page as a still picture of a dog.
+   Its frames were timed 400ms for the first and 10ms for the other thirty-four,
+   and every browser clamps anything under about 20ms up to 100ms — so what it
+   actually played was a long stall followed by a 10fps shuffle. Re-encoded at
+   a flat 80ms with the loop set: 2.8 seconds a lap, forever.
+
+   bottom:-1px drops the frame the depth of the rule, so the two transparent
+   pixels under the sprite's feet land on the line rather than above it. */
+.ab-dog{position:absolute;left:0;right:0;bottom:100%;height:0;pointer-events:none}
+.ab-dog img{position:absolute;bottom:-1px;left:40%;width:auto;
+  height:clamp(15px,1.4vw,21px)}
+
 /* ── Close ───────────────────────────────────────────────────────────────── */
-.ab-end{margin-top:clamp(1.6rem,4svh,3rem)}
+/* A rule and two ways off the page, one at each end of it. The link used to
+   sit alone 36px under the text with nothing to align to and the full width of
+   the page to be lost in. Under a hairline, with a second link holding the
+   right margin, it reads as the foot of the composition rather than as
+   something left over. */
+.ab-end{position:relative;display:flex;align-items:baseline;justify-content:space-between;
+  gap:1.5rem;flex-wrap:wrap;
+  margin-top:clamp(1.6rem,3.6svh,2.8rem);padding-top:clamp(.8rem,1.6svh,1.15rem);
+  border-top:1px solid var(--rule)}
 .ab-end a{display:inline-block;font-size:var(--t-small);color:var(--mute);
   position:relative;padding-bottom:.14em;transition:color .35s var(--ez)}
 .ab-end a::after{content:'';position:absolute;left:0;bottom:0;width:100%;height:1px;
   background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ez)}
 .ab-end a:hover{color:var(--red)}
 .ab-end a:hover::after{transform:scaleX(1);transform-origin:left}
+/* The way back is the primary one, so it carries the ink and the arrow. */
+.ab-end .ab-back{color:var(--ink);font-weight:700}
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width:900px){
@@ -143,17 +353,29 @@
     padding:calc(var(--bar) + clamp(2rem,7vw,3.5rem)) var(--pad) clamp(3rem,8vw,5rem)}
   .ab-grid{grid-template-columns:1fr;gap:0}
   .ab-col,.ab-fig{grid-column:auto}
-  .ab-say{font-size:clamp(1.25rem,5vw,1.75rem);max-width:none}
+  .ab-lead{font-size:clamp(1.35rem,5.4vw,1.95rem);max-width:none}
+  .ab-say{font-size:clamp(1.05rem,4.1vw,1.45rem);max-width:none}
 
-  /* The portrait sits in the flow under the text, and a tap swaps the
-     photograph in place. No floating card, no shadow, nothing over the page:
-     once the field is a real element rather than an empty gap, the phone
-     needs no separate treatment at all. */
-  .ab-fig{justify-content:flex-start;margin-top:clamp(2rem,7vw,3rem)}
-  /* No row height to fill in a single column, so it goes back to a width. */
-  .ab-peekbox{height:auto;width:min(72%,280px);max-width:none}
+  /* The pile sits in the flow under the text. No row height to stretch to in
+     a single column, so the field goes back to being sized by its own width —
+     a hair taller than square, which is the shape the four plates were laid
+     out in. Everything inside stays in percentages and simply scales. */
+  .ab-fig{margin-top:clamp(2.2rem,8vw,3.5rem)}
+  .ab-collage{position:relative;inset:auto;width:100%;aspect-ratio:1/1.06}
+  /* No border override here any more. --edge carries a max(4px, …) floor, so
+     the frame holds its Polaroid proportions down to the narrowest phone
+     instead of being squared off to a uniform 4px and losing the chin. */
 }
 
 @media (prefers-reduced-motion:reduce){
-  .ab-swap{transition:opacity .01s linear}
+  /* Nothing to switch off for the dog here. It has no CSS animation left to
+     stop — the page stopped moving it when the double travel came out — and
+     its own frames are handled a level up: each GIF sits in a <picture> whose
+     first <source> carries a still of frame one at this media query, so under
+     this setting the browser never fetches the animation at all. That matters
+     beyond taste — three GIFs looping for as long as the page is open is
+     moving content with no way to pause it. */
+  /* The lift stays — it is what says a plate has been picked up — but it
+     arrives rather than travels. */
+  .pl{transition:none}
 }
