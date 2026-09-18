@@ -404,14 +404,28 @@
 </footer>
 <!-- /@footer -->
 
-<!-- ═══ ASTEROID BLASTER ════════════════════════════════════════════════════
-     The launcher is always here. The board is not: #astro-stage ships hidden
-     and swiss.js un-hides it once css/game.css has loaded, because every rule
-     that positions and hides the pieces below lives in that stylesheet. Leave
-     the stage open and a deferred stylesheet means a canvas, a HUD and two
-     dialogs laid out in normal flow at the bottom of the homepage.
+<!-- ═══ ASTEROID BLASTER ══════════════════════════════════════════════════════
+     The corner launcher is a homepage thing and stays one: the game is
+     something you come across, not something you are sent to. lab.html reaches
+     the same board through a named link in its own copy instead.
+
+     The board itself is shared with that page and so lives in
+     partials/game.html — see the comment at the top of it.
      ═══════════════════════════════════════════════════════════════════════ -->
 <button id="game-launch" type="button" aria-label="Play a hidden game"><img src="pacman.gif" width="32" height="32" alt="" aria-hidden="true" loading="lazy"><span class="gl-t">Play</span></button>
+<!-- @game -->
+<!-- ═══ ASTEROID BLASTER · THE BOARD ═════════════════════════════════════════
+     Stamped into index.html, where the corner launcher opens it, and lab.html,
+     where the Experiments entry for it does. Ninety lines of markup kept in two
+     places by hand is the drift build.js exists to stop, and a board that has
+     drifted does not fail loudly: game.js reads every id below with
+     getElementById and simply skips whatever it cannot find.
+
+     It ships hidden and swiss.js un-hides it once css/game.css has loaded,
+     because every rule that positions and hides the pieces lives in that
+     stylesheet. Leave the stage open and a deferred stylesheet means a canvas,
+     a HUD and two dialogs laid out in normal flow at the bottom of the page.
+     ═══════════════════════════════════════════════════════════════════════ -->
 <div id="astro-stage" hidden>
 <div id="astroDim" aria-hidden="true"></div>
 <canvas id="astroCanvas" aria-hidden="true"></canvas>
@@ -499,6 +513,7 @@
   <div id="astroStick"><div id="astroKnob"></div></div>
 </div>
 </div><!-- /#astro-stage -->
+<!-- /@game -->
 
 <script src="js/swiss.js"></script>
 

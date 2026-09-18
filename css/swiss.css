@@ -241,6 +241,18 @@ a:hover>.circ svg,button:hover>.circ svg,.circ:hover svg{transform:translateX(3p
   transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ez);
 }
 .tlink:hover::after{transform:scaleX(1);transform-origin:left}
+/* The one .tlink that is not a link: Experiments opens the game on the page it
+   is already on, which is an action and not a destination. An <a href="#"> would
+   announce itself as a jump to the top of the document, so it is a button, and
+   a button has to be stripped back to text before it can wear this.
+
+   :where() and not a bare button.tlink, because this pairs with .lbl and a
+   type selector would out-specify it: font:inherit would quietly hand the
+   control the body size and weight instead of the micro-label's. At zero
+   specificity the chrome resets below still land — nothing else claims them —
+   and .lbl keeps the type. */
+:where(button).tlink{background:none;border:0;padding-inline:0;font:inherit;
+  letter-spacing:inherit;color:inherit;text-align:inherit;cursor:pointer}
 
 /* ── 6. INTRO CURTAIN ────────────────────────────────────────────────────── */
 #intro{position:fixed;inset:0;z-index:99999;display:none;pointer-events:none}
@@ -1010,13 +1022,34 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    So the base stays what it always was, and the statement is a modifier. */
 .pbox{border-left:2px solid var(--red);padding:.2rem 0 .2rem 1.2rem;margin:1.4rem 0}
 .pbox p{font-size:var(--t-body);line-height:1.55}
-/* .pbox p is the one body component that never got the 62ch measure .prose
-   carries, which does not show on the case studies because the paragraphs there
-   are long enough to wrap anyway. A two-line job story at full section width is
-   a 130-character line, so the brief takes the house measure explicitly. The
-   base is left alone rather than fixed globally, because that would reflow the
-   pull boxes on three case-study pages. */
-.pbox.is-brief p{max-width:62ch}
+/* ── The job story ── */
+/* Experiments only, and the one sentence per section that says why the thing
+   exists. It used to be body copy behind the .pbox rule, which put it at the
+   same weight as the paragraph under it — so the reason a project happened read
+   as a footnote to the description of it.
+
+   Set as a quotation instead: between body and the headline in size, regular
+   weight against the headline's bold so the two never compete, and the marks
+   hung in the accent. The rule down the left comes off, because the accent is
+   rationed to one appearance per viewport and the marks now spend it.
+
+   The opening mark hangs into the margin (the negative text-indent) so the
+   text edge stays on the same line as the .prose below it — without that the
+   first line starts half a character right of every other line on the page.
+   line-height:0 on the marks keeps a 1.4em glyph from opening up the first
+   line box, and the measure is 46ch rather than the house 62: at this size a
+   62-character line is a paragraph, not a sentence you take in at a glance,
+   and 46 lands each of the three job stories on three lines. */
+.pbox.is-brief{border-left:0;padding:0;margin:var(--space-block) 0}
+.pbox.is-brief p{
+  font-size:clamp(1.25rem,2.15vw,1.95rem);line-height:1.28;max-width:46ch;
+  color:var(--ink);text-indent:-.56em;
+}
+.pbox.is-brief p::before{content:'\201C'}
+.pbox.is-brief p::after{content:'\201D'}
+.pbox.is-brief p::before,.pbox.is-brief p::after{
+  color:var(--red);font-size:1.4em;line-height:0;vertical-align:-.16em;
+}
 /* A tinted pull box, for one that sits on --sheet and needs to lift off it. */
 .pbox.is-fill{background:color-mix(in srgb,var(--ink) 6%,transparent);
   padding:clamp(.8rem,1.6vw,1.1rem) clamp(.9rem,1.8vw,1.3rem) clamp(.8rem,1.6vw,1.1rem) 1.2rem}

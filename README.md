@@ -8,15 +8,17 @@ Personal product design portfolio for James Ciclitira. A set of static, hand-cod
 index.html           Homepage
 cv.html              Résumé (screen sheet + a single-page A4 print sheet)
 404.html             Not found
-lab.html             Experiments — side projects. Footer-linked, noindexed,
-                     deliberately absent from sitemap.xml
+lab.html             Experiments — side projects, one of which is the game.
+                     Footer-linked, noindexed, deliberately absent from
+                     sitemap.xml
 
 enter.html           Case study — Enter (energy tech)
 coup.html            Case study — Coup Mobility
 cooler-future.html   Case study — Cooler Future
 vivy.html            Case study — Vivy
 
-partials/            The shared chrome — nav, site menu, footer, head boilerplate
+partials/            The shared chrome — nav, site menu, footer, head boilerplate,
+                     plus the game board, which only two pages carry
 build.js             Stamps partials/ into every page. See "The chrome" below
 
 css/swiss.css        The whole design system — every page loads this
@@ -118,12 +120,19 @@ which ends on a card back to the portfolio. Every case study is reachable from
 the homepage index, so keep the two in step if you add another.
 
 Two easter eggs: **G** overlays the 12-column grid on any page (hinted once in
-the footer), and the homepage game opens from the corner launcher or by pressing
-**B**. The launcher collapses to its sprite until you approach it and stands
-down entirely over the footer, where it otherwise covered "Back to top".
+the footer), and the game opens from the homepage's corner launcher or by
+pressing **B**. The launcher collapses to its sprite until you approach it and
+stands down entirely over the footer, where it otherwise covered "Back to top".
 
-The game's 52KB (gzipped) of CSS and JavaScript is not on the homepage's
-critical path: the page ships the launcher and an empty `#astro-stage`, and the
+`lab.html` carries the same board and lists the game as its third project, so
+there it opens from a named button (`#play-game`) in that entry rather than
+from a launcher. Being told a game exists and then having to find the control
+for it is a worse page, so that page has no launcher and the homepage keeps no
+named link. Both controls run through the same loader in `swiss.js`, which
+binds whichever of the two the page has.
+
+The game's 52KB (gzipped) of CSS and JavaScript is not on either page's
+critical path: the page ships a control and an empty `#astro-stage`, and the
 first press fetches the pair. The stage is `hidden` until `css/game.css` has
 loaded, because every rule that positions and hides the board lives in that
 stylesheet — open the stage early and you get a canvas, a HUD and two dialogs
@@ -147,6 +156,11 @@ It rewrites only the marked regions, so the committed `.html` files stay
 complete, readable, working HTML — open one from the filesystem and it renders,
 and GitHub Pages serves it as it is. There is no template language and nothing
 at runtime. Running it twice changes nothing.
+
+One region is optional. `@game` is the board itself, and it is stamped only
+into the two pages that carry the marker pair — the homepage and `lab.html`.
+Every other region is chrome that all nine pages want, so a page missing one of
+those markers is a mistake and the build says so.
 
 Four values differ between pages and are set in the `PAGES` table at the top of
 `build.js`: `home` (a nav link is `#work` on the homepage and `index.html#work`

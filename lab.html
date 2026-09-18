@@ -23,10 +23,10 @@
      if it ever becomes a page worth being found cold. One without the other is
      half a decision. -->
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="Two self-set side projects: a seasonal produce almanac for Germany in React, and an iOS app for German fuel prices in SwiftUI.">
+<meta name="description" content="Three things I wanted, so I built them: a seasonal produce calendar in React, an iOS app for German fuel prices, and a game hidden in this site.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Experiments · James Ciclitira">
-<meta property="og:description" content="Two self-set side projects: a seasonal produce almanac for Germany in React, and an iOS app for German fuel prices in SwiftUI.">
+<meta property="og:description" content="Three things I wanted, so I built them: a seasonal produce calendar in React, an iOS app for German fuel prices, and a game hidden in this site.">
 <meta property="og:image" content="https://www.jciclitira.com/img/erntereif-hero.jpg">
 <meta property="og:url" content="https://www.jciclitira.com/lab.html">
 <!-- Self-referencing, like every other page. It does nothing while the robots
@@ -97,12 +97,7 @@
     <a href="index.html" class="back">← All work</a>
     <p class="eyebrow">Side projects · 2026</p>
     <h1 class="cs-title is-long">Experiments</h1>
-    <p class="cs-tagline">Two side projects, both self-set: I wrote the brief, then built the thing. One a React web app, one native iOS.</p>
-  </div>
-  <div class="meta-grid">
-    <div class="meta-item"><label>Role</label><p>Design, code, illustration and data. Nobody else.</p></div>
-    <div class="meta-item"><label>Built with</label><p>Claude Code · React + TypeScript · SwiftUI</p></div>
-    <div class="meta-item"><label>Brief</label><p>Mine. Both problems I wanted solved</p></div>
+    <p class="cs-tagline">Three things I wanted, so I built them. One React web app, one native iOS app, one game.</p>
   </div>
 </header>
 
@@ -115,25 +110,20 @@
        so it stays out of this. -->
   <section class="section" data-reveal>
     <p class="lbl">01 · Erntereif · React</p>
-    <h2>A seasonal almanac for<br>what is actually <em>growing near you.</em></h2>
+    <h2>A seasonal calendar for<br>what is actually <em>growing near you.</em></h2>
 
     <div class="pbox is-brief"><p>When I’m food shopping, I want to know what’s genuinely in season here right now, so I can buy that instead of something flown in out of season.</p></div>
 
-    <p class="prose sp-s">87 crops across five countries, German interface. Pick a month and it shows what’s being harvested, what has come out of cold store, what’s a few weeks off, and what the imported alternative costs in carbon. Built in React and TypeScript. All 87 produce images are generated and cut from a single contact sheet, so they share one light and one camera angle.</p>
+    <p class="prose sp-s">87 crops, five countries, German interface. Pick a month and it shows what’s being harvested, what’s out of cold store, and what the imported version costs in carbon. React and TypeScript. All 87 images are cut from one generated contact sheet, so they share a light and an angle.</p>
 
     <img class="img sp-m" src="img/erntereif-hero.jpg" alt="Erntereif in September: a large headline reading Was der September bringt on a dark ground, with 65 varieties being harvested and 66 available" loading="lazy" width="1600" height="1000">
     <p class="cap">September in Germany. 65 varieties harvested, 66 available once cold store counts</p>
 
     <img class="img sp-m" src="img/erntereif-march.jpg" alt="The same page switched to March: nine varieties harvested, 22 available, and a badge reading Keller und Lager" loading="lazy" width="1600" height="1000">
-    <p class="cap">March, the same page. Nine harvested against September’s 65, and a headline that says so</p>
+    <p class="cap">March, the same page. Nine harvested against September’s 65</p>
 
     <img class="img sp-m" src="img/erntereif-grid.jpg" alt="The produce grid: rows of cut-out vegetables, each on its own pale square against the dark interface, with a name and a short cooking note" loading="lazy" width="1600" height="1000">
-    <p class="cap">Every crop carries a cooking note. Each cut-out sits on its own pale plate</p>
-
-    <div class="stats is-out">
-      <div class="stat"><div class="stat-n">87</div><div class="stat-l">Crops, each with a harvest window,<br>a cooking note and a carbon figure</div></div>
-      <div class="stat"><div class="stat-n">5</div><div class="stat-l">Countries, each with its own<br>calendar and its own names</div></div>
-    </div>
+    <p class="cap">Every crop carries a cooking note</p>
 
     <p class="sp-s"><a class="tlink lbl" href="https://chimerical-shortbread-708934.netlify.app/" target="_blank" rel="noopener" style="color:var(--red-ink)">Open it ↗</a></p>
   </section>
@@ -148,7 +138,7 @@
 
     <div class="pbox is-brief"><p>When I drive past a petrol station, I want to know whether today’s price is a good one, so I don’t fill up the day before it drops.</p></div>
 
-    <p class="prose sp-s">German stations have been legally required to report their prices since 2013, so Tanken reads that public feed: today’s national average, how it got there, the five biggest chains ranked cheapest first, and a guarded outlook for tomorrow. SwiftUI, one screen, no tab bar, and the reading order is the order of the questions.</p>
+    <p class="prose sp-s">German stations have had to report their prices publicly since 2013, so Tanken reads that feed: today’s average, how it got there, the five biggest chains ranked cheapest first, and a guarded outlook for tomorrow. SwiftUI, one screen, no tab bar.</p>
 
     <div class="appshots n3 sp-l">
       <figure class="appshot">
@@ -164,7 +154,7 @@
         <figcaption class="appshot-c">
           <div class="flow-n">02 · Verlauf</div>
           <div class="flow-t">How it got there</div>
-          <div class="flow-d">1W to Max, scrubbable. The held reading replaces the headline while you drag.</div>
+          <div class="flow-d">1W to Max. The held reading replaces the headline while you drag.</div>
         </figcaption>
       </figure>
       <figure class="appshot">
@@ -183,7 +173,7 @@
         <figcaption class="appshot-c">
           <div class="flow-n">04 · Prognose</div>
           <div class="flow-t">Why it thinks that</div>
-          <div class="flow-d">A feed it can’t reach is listed as “nicht verbunden” and drags the reliability down, rather than being guessed at.</div>
+          <div class="flow-d">A feed it can’t reach says so, and drags the reliability down rather than being guessed at.</div>
         </figcaption>
       </figure>
       <figure class="appshot">
@@ -191,30 +181,47 @@
         <figcaption class="appshot-c">
           <div class="flow-n">05 · Info</div>
           <div class="flow-t">Where the numbers come from</div>
-          <div class="flow-d">Sources, the CC BY licence attribution, and what the figures do and don’t cover.</div>
+          <div class="flow-d">Sources, the CC BY attribution, and what the figures don’t cover.</div>
         </figcaption>
       </figure>
     </div>
-
-    <div class="stats is-out">
-      <div class="stat"><div class="stat-n">1</div><div class="stat-l">Screen. No tab bar,<br>no navigation stack</div></div>
-      <div class="stat"><div class="stat-n">9</div><div class="stat-l">Signals behind the outlook,<br>from Brent to the weekday pattern</div></div>
-    </div>
   </section>
 
-  <!-- ═══ WEB AGAINST NATIVE ══════════════════════════════ -->
+  <!-- ═══ 03 · ASTEROID BLASTER · CANVAS ══════════════ -->
+  <!-- The only section on the page with no screenshots, and deliberately: this
+       is the one project here that runs on the page you are reading, so the
+       control at the end of it does the job the pictures do above. It is a
+       <button> rather than an <a href="#">, because it opens the game over this
+       page rather than going anywhere. The board it opens is stamped in at the
+       bottom of the file from partials/game.html. -->
   <section class="section" data-reveal>
-    <p class="lbl">Web against native</p>
-    <h2>The web loop is free.<br>The native one <em>has to be built.</em></h2>
-    <div class="two" style="margin-top:1.4rem">
-      <p class="prose">Erntereif needed nothing beyond a browser to check: save, reload, look.</p>
-      <p class="prose">Tanken wants Xcode, an SDK and a simulator for a build, so its logic sits in a package with no interface and can be tested without booting one.</p>
-    </div>
+    <p class="lbl">03 · Asteroid Blaster · Canvas</p>
+    <h2>A game in the site,<br>and the script that <em>playtests it.</em></h2>
 
-    <div class="stats is-out">
-      <div class="stat"><div class="stat-n">0</div><div class="stat-l">Tooling the web loop needed.<br>Save, reload, look.</div></div>
-      <div class="stat"><div class="stat-n">4</div><div class="stat-l">Layers of verification before<br>the native loop could go fast</div></div>
-    </div>
+    <div class="pbox is-brief"><p>When someone’s done reading, I want something here they can play instead, so the last thing they do isn’t more scrolling.</p></div>
+
+    <p class="prose sp-s">A survivor-style roguelite over whatever page you launched it from. The phasers fire themselves so the helm is the only control, and each time the dilithium rail fills you pick one of three subsystems.</p>
+
+    <p class="prose">It needed a test rig to balance. Every warbird kill used to drop a hull point, which put the net rate at 0.00 lives a minute, so no run could ever end. Playing it never felt wrong.</p>
+
+    <img class="img sp-m" src="img/asteroid-blaster.jpg" alt="The game running over this page: a cyan starship among magenta rocks on a dark green grid, a refit rail across the top reading REFIT 2, and a Leave the bridge button in the corner" loading="lazy" width="1600" height="1000">
+    <p class="cap">Refit 2, nine dilithium to the next one. The page you launched it from is still underneath</p>
+
+    <p class="sp-s"><button type="button" id="play-game" class="tlink lbl" style="color:var(--red-ink)">Play it here →</button></p>
+  </section>
+
+  <!-- ═══ AI, HONESTLY ═══════════════════════════════ -->
+  <!-- The page closes on the thing all three have in common rather than on a
+       comparison between two of them, which is what stood here before. No
+       stats block: a reservation with a figure bolted to it reads as a finding,
+       and this is not one. -->
+  <section class="section" data-reveal>
+    <p class="lbl">AI, honestly</p>
+    <h2>Quick, and <em>not quite there.</em></h2>
+
+    <p class="prose sp-s">All three were built with Claude Code. It gets you something running fast, and that is genuinely useful: none of these would exist otherwise. Getting from running to the thing I actually wanted took a lot of back and forth.</p>
+
+    <p class="prose">I’m still working out where that line sits. Quick is real. So is the arguing.</p>
   </section>
 
 </div>
@@ -268,6 +275,114 @@
   </div>
 </footer>
 <!-- /@footer -->
+
+<!-- ═══ ASTEROID BLASTER ══════════════════════════════════════════════════════
+     The same board the homepage opens, and the reason section 03 can say "play
+     it here" and mean it. No corner launcher on this page: the entry above is
+     already telling you the game exists, so a second control that has to be
+     discovered would be answering a question nobody is left asking.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<!-- @game -->
+<!-- ═══ ASTEROID BLASTER · THE BOARD ═════════════════════════════════════════
+     Stamped into index.html, where the corner launcher opens it, and lab.html,
+     where the Experiments entry for it does. Ninety lines of markup kept in two
+     places by hand is the drift build.js exists to stop, and a board that has
+     drifted does not fail loudly: game.js reads every id below with
+     getElementById and simply skips whatever it cannot find.
+
+     It ships hidden and swiss.js un-hides it once css/game.css has loaded,
+     because every rule that positions and hides the pieces lives in that
+     stylesheet. Leave the stage open and a deferred stylesheet means a canvas,
+     a HUD and two dialogs laid out in normal flow at the bottom of the page.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div id="astro-stage" hidden>
+<div id="astroDim" aria-hidden="true"></div>
+<canvas id="astroCanvas" aria-hidden="true"></canvas>
+<!-- XP rail: the whole width of the screen, because progress to the next
+     upgrade is the number the run is actually steered by -->
+<div id="astroXp" aria-hidden="true">
+  <div id="astroXpFill"></div>
+  <div id="astroXpText">
+    <b id="astroLevelNum">REFIT 1</b>
+    <span class="xp-v"><i class="px-gem" aria-hidden="true"></i><span id="astroXpVal">0 / 4</span></span>
+  </div>
+</div>
+<!-- Warbird chrome. The hull bar only exists while a capital ship is alive, and
+     the warning only while one is decloaking — neither is part of the standing
+     HUD. Both strings are overwritten by JS from the warbird roster. -->
+<div id="astroBoss" aria-hidden="true">
+  <div id="astroBossName">I.K.S. Vor’cha</div>
+  <div id="astroBossBar"><div id="astroBossFill"></div></div>
+</div>
+<div id="astroWarn" aria-hidden="true">Warbird closing</div>
+<div id="astroTipWrap" aria-hidden="true"><div id="astroTip" class="g-pill">↑ impulse · ←→ helm · phasers fire themselves · esc leave the bridge</div></div>
+<button id="astroExit" class="g-pill">← Leave the bridge</button>
+<div id="astroHud" aria-hidden="true">
+  <div id="astroScore">Stardate 0</div>
+  <div id="astroLives"><i class="px-hull on"></i><i class="px-hull on"></i><i class="px-hull on"></i><i class="px-hull"></i><i class="px-hull"></i></div>
+  <div id="astroBuffs">
+    <span id="astroShieldBuff">Deflector 0s</span>
+    <span id="astroRapidBuff">Phasers 0s</span>
+  </div>
+</div>
+<div id="astroOver" aria-hidden="true"><div id="astroOverCard">
+  <div class="ao-t">Hull breach</div>
+  <div class="ao-s">Stardate <span id="astroFinal">0</span></div>
+  <div class="ao-m" id="astroFinalSub">0s adrift · refit 1</div>
+  <div class="ao-h" id="astroRestartHint">press any key to launch again</div>
+</div></div>
+<!-- Level up — opens the instant the XP rail fills, and the cards inside it are
+     rolled fresh in JS every time, so nothing here is authored by hand. It is
+     not aria-hidden: the cards are the one part of the game you actually pick. -->
+<div id="astroLevel"><div id="astroLevelCard">
+  <div class="al-t" id="astroLevelKind">Field refit</div>
+  <div class="al-s" id="astroLevelSub">Refit <b>2</b> · authorise one subsystem</div>
+  <div class="al-grid" id="astroLevelGrid"></div>
+  <div class="al-h" id="astroLevelHint">Select a subsystem, or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></div>
+</div></div>
+<!-- Engagement hail — the one decision in the run that is not an upgrade. It
+     opens between the inbound warning and the capital ship actually arriving,
+     and it halts the field the same way a refit card does. Like the refit card
+     it is not aria-hidden: it is a choice, not chrome. The ship's name and the
+     two figures are written by JS; everything else here is fixed copy. -->
+<div id="astroHail"><div id="astroHailCard">
+  <div class="ah-t">Red alert</div>
+  <div class="ah-s"><b id="astroHailName">I.K.S. Vor’cha</b> · intercept course · orders?</div>
+  <div class="ah-grid">
+    <button type="button" class="ah-opt is-fight" id="astroHailFight">
+      <span class="ah-l"><em>Engage</em><b>Press 1</b></span>
+      <span class="ah-n">Stand and fight</span>
+      <span class="ah-w">Hold the sector and break her hull. She fights back, she calls escorts, and she turns nastier at half hull — but nothing else in the run pays like a kill.</span>
+      <span class="ah-d">
+        <span id="astroHailBounty">+1800 stardate</span>
+        <span>Battle salvage · one subsystem</span>
+        <span>+2 hull · dilithium · a power-up</span>
+      </span>
+    </button>
+    <button type="button" class="ah-opt is-flee" id="astroHailFlee">
+      <span class="ah-l"><em>Evade</em><b>Press 2</b></span>
+      <span class="ah-n">Break off and run</span>
+      <span class="ah-w">Full impulse out of the sector. She never decloaks and she never touches you — and nothing she was carrying is ever yours.</span>
+      <span class="ah-d">
+        <span>No bounty · no refit</span>
+        <span id="astroHailAgain">Next contact in 37s</span>
+        <span>Evasive burn · 2.6s</span>
+      </span>
+    </button>
+  </div>
+  <div class="ah-h">Give the order, or press <kbd>1</kbd> <kbd>2</kbd></div>
+</div></div>
+<div id="astroPause" aria-hidden="true"><div id="astroPauseCard">
+  <div class="ap-t">All stop</div>
+  <div class="ap-h">click or press any key to resume</div>
+</div></div>
+<!-- Helm only. Phasers and torpedoes fire themselves, so there is no fire
+     button and the stick comes to wherever the thumb lands. -->
+<div id="astroTouch" aria-hidden="true">
+  <div id="astroStick"><div id="astroKnob"></div></div>
+</div>
+</div><!-- /#astro-stage -->
+<!-- /@game -->
 
 <script src="js/swiss.js"></script>
 <!-- @analytics -->

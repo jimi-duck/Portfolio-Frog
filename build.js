@@ -24,7 +24,9 @@
 
    --check is the one to run before you commit, or in CI. It never writes.
 
-   TO ADD A PAGE: add it to PAGES below, and put the five marker pairs in it.
+   TO ADD A PAGE: add it to PAGES below, and put the six chrome marker pairs in
+   it. The @game pair is optional and only the two pages that open the game
+   carry it.
    TO CHANGE THE NAV OR FOOTER: edit partials/, then run this.
    ═══════════════════════════════════════════════════════════════════════════ */
 'use strict';
@@ -85,8 +87,21 @@ const BLOCKS = {
   chrome:       'chrome.html',
   nav:          'nav.html',
   footer:       'footer.html',
+  game:         'game.html',
   analytics:    'analytics.html',
 };
+
+/* Blocks only some pages carry. The six above are the shared chrome and every
+   page wants all of them, so a page missing one of those markers is a mistake
+   and stamp() says so. The game board is not chrome: it belongs to the two
+   pages that can open it, and everywhere else its absence is the right answer
+   rather than an error. */
+const OPTIONAL = new Set(['game']);
+
+/* Does this page carry the marker pair for a block? */
+function has(html, name) {
+  return html.includes(`<!-- @${name} -->`) && html.includes(`<!-- /@${name} -->`);
+}
 
 const read = f => fs.readFileSync(f, 'utf8');
 
@@ -121,6 +136,7 @@ function build(file) {
   const vars = PAGES[file];
   let html = read(path.join(ROOT, file));
   for (const [name, partial] of Object.entries(BLOCKS)) {
+    if (OPTIONAL.has(name) && !has(html, name)) continue;
     const body = fill(read(path.join(PARTIALS, partial)), vars, partial);
     html = stamp(html, name, body, file);
   }
