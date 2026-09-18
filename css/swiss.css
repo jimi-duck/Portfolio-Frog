@@ -696,6 +696,14 @@ footer{--red:#ff5b36;--red-ink:#ff5b36;
 .f-col a,.f-col p{display:block;font-size:var(--t-small);color:color-mix(in srgb,var(--band-ink) 78%,transparent);padding:.28rem 0;line-height:1.5}
 .f-col a{transition:color .3s}
 .f-col a:hover{color:var(--red)}
+/* An entry that belongs in a column without belonging to its numbered set. The
+   four case studies are a chain — 01 to 04, and each page's .next card carries
+   you to the following one — so a fifth number would claim membership of a run
+   this is not part of. Withholding the number is the signal, because on this
+   site a numeral means "member of the ordered set"; the hairline above says the
+   same thing a second way. Reach for it for a related page, not a fifth case
+   study. */
+.f-col a.f-aside{margin-top:.7rem;padding-top:.85rem;border-top:1px solid var(--rule-2)}
 .f-bar:last-child{padding-bottom:clamp(1.4rem,2.6vw,2.2rem)}
 .f-bar{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:1rem 0;
   border-top:1px solid color-mix(in srgb,var(--band-ink) 26%,transparent);
@@ -1002,6 +1010,13 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    So the base stays what it always was, and the statement is a modifier. */
 .pbox{border-left:2px solid var(--red);padding:.2rem 0 .2rem 1.2rem;margin:1.4rem 0}
 .pbox p{font-size:var(--t-body);line-height:1.55}
+/* .pbox p is the one body component that never got the 62ch measure .prose
+   carries, which does not show on the case studies because the paragraphs there
+   are long enough to wrap anyway. A two-line job story at full section width is
+   a 130-character line, so the brief takes the house measure explicitly. The
+   base is left alone rather than fixed globally, because that would reflow the
+   pull boxes on three case-study pages. */
+.pbox.is-brief p{max-width:62ch}
 /* A tinted pull box, for one that sits on --sheet and needs to lift off it. */
 .pbox.is-fill{background:color-mix(in srgb,var(--ink) 6%,transparent);
   padding:clamp(.8rem,1.6vw,1.1rem) clamp(.9rem,1.8vw,1.3rem) clamp(.8rem,1.6vw,1.1rem) 1.2rem}

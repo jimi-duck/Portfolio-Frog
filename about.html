@@ -17,10 +17,10 @@
 <script>(function(){var r=document.documentElement;r.className+=' js';try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}r.setAttribute('data-theme',t);}catch(e){}if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)r.className+=' coarse';setTimeout(function(){if(!r.dataset.swiss)r.className=r.className.replace(/\bjs\b/,'').replace(/\bintroing\b/,'');},4000);})();</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27%23131311%27%2F%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2726%27%20fill%3D%27%23e23a16%27%2F%3E%3C%2Fsvg%3E">
 <!-- /@head -->
-<meta name="description" content="Product designer in Berlin. From the UK, trained in product and industrial design in Scotland, in Germany since 2017. Climbing, hiking and bike touring the rest of the time.">
+<meta name="description" content="Product designer in Berlin. From the UK, trained in product and industrial design in Scotland, in Germany since 2017. Climbing and bike touring otherwise.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="About · James Ciclitira">
-<meta property="og:description" content="Product designer in Berlin. From the UK, trained in product and industrial design in Scotland, in Germany since 2017. Climbing, hiking and bike touring the rest of the time.">
+<meta property="og:description" content="Product designer in Berlin. From the UK, trained in product and industrial design in Scotland, in Germany since 2017. Climbing and bike touring otherwise.">
 <meta property="og:image" content="https://www.jciclitira.com/img/about-portrait.jpg">
 <meta property="og:url" content="https://www.jciclitira.com/about.html">
 <link rel="canonical" href="https://www.jciclitira.com/about.html">
@@ -86,31 +86,41 @@
 <div class="ab">
   <div class="ab-in">
 
+    <div class="sechd ab-head" data-reveal>
+      <h1 class="lab">About</h1>
+      <span class="fill"></span>
+      <span class="idx"><i class="dot" aria-hidden="true"></i>Berlin, DE</span>
+    </div>
+
     <div class="ab-grid">
 
       <div class="ab-col">
-        <h1 class="ab-lbl">About</h1>
-
         <div class="ab-text" data-reveal>
-          <p class="ab-say">I’m James. I grew up in the UK, studied product and industrial design in Scotland, and eventually ended up designing digital products instead of physical ones.</p>
+          <p class="ab-lead">I’m James. I grew up in the UK, studied product and industrial design in Scotland<picture><source srcset="img/GIF/scotland3-still.png" media="(prefers-reduced-motion: reduce)"><img class="ab-gif" src="img/GIF/scotland3.gif" alt="" width="80" height="50" loading="lazy" aria-hidden="true"></picture>, and eventually ended up designing digital products instead of physical ones.</p>
           <p class="ab-say">I still like making things with my hands, though. These days, most of the making happens on a screen.</p>
           <p class="ab-say">I moved to Berlin in 2017 for a job that was meant to last a year. I’m still here.</p>
-          <p class="ab-say">In 2025 I became a German citizen and a father.</p>
-          <p class="ab-say">Outside of work, I try to spend as little time looking at screens as possible. I <a class="ab-peek" href="img/about-climb.jpg" data-alt="Climbing a rock face">climb</a>, <a class="ab-peek" href="img/about-hike.jpg" data-alt="Walking up a scree slope">hike</a> and take unnecessarily <a class="ab-peek" href="img/about-tour.jpg" data-alt="A loaded touring bike on a wet track">long bike trips</a>, usually carrying too much stuff and trusting the weather forecast more than I should.</p>
+          <p class="ab-say">In 2025 I became a German citizen<picture><source srcset="img/GIF/germanyW-still.png" media="(prefers-reduced-motion: reduce)"><img class="ab-gif" src="img/GIF/germanyW.gif" alt="" width="68" height="50" loading="lazy" aria-hidden="true"></picture> and a father.</p>
+          <p class="ab-say">Outside of work, I try to spend as little time looking at screens as possible. I climb, hike and take unnecessarily long bike trips, usually carrying too much stuff and trusting the weather forecast more than I should.</p>
         </div>
       </div>
 
       <div class="ab-fig" data-reveal>
-        <div class="ab-peekbox" id="peek">
-          <img class="ab-base" src="img/about-portrait.jpg" alt="James, out in the woods in winter" width="768" height="1022">
-          <img class="ab-swap" alt="" width="768" height="1024" hidden>
+        <div class="ab-collage" id="collage">
+          <figure class="pl pl-a"><img src="img/about-portrait.jpg" alt="James, out in the woods in winter" width="768" height="1022" fetchpriority="high"></figure>
+          <figure class="pl pl-b"><img src="img/about-climb.jpg" alt="Climbing a rock face" width="480" height="853" loading="lazy"></figure>
+          <figure class="pl pl-c"><img src="img/about-tour.jpg" alt="A loaded touring bike on a wet track" width="552" height="736" loading="lazy"></figure>
+          <figure class="pl pl-d"><img src="img/about-hike.jpg" alt="Walking up a scree slope" width="420" height="560" loading="lazy"></figure>
+          <figure class="pl pl-e"><img src="img/about-hammock.jpg" alt="Resting in a hammock beside a loaded touring bike" width="552" height="736" loading="lazy"></figure>
+          <figure class="pl pl-f"><img src="img/about-father.jpg" alt="Lifting my child up out of a lake" width="520" height="873" loading="lazy"></figure>
         </div>
       </div>
 
     </div>
 
     <div class="ab-end" data-reveal>
-      <a href="index.html">Back to the work →</a>
+      <span class="ab-dog" aria-hidden="true"><picture><source srcset="img/GIF/dogrun-still.png" media="(prefers-reduced-motion: reduce)"><img src="img/GIF/dogrun.gif" alt="" width="200" height="35" loading="lazy"></picture></span>
+      <a class="ab-back" href="index.html">Back to the work →</a>
+      <a href="cv.html">Résumé ↗</a>
     </div>
 
   </div>
@@ -141,6 +151,7 @@
         <a href="coup.html">02 · Coup Mobility</a>
         <a href="cooler-future.html">03 · Cooler Future</a>
         <a href="vivy.html">04 · Vivy</a>
+        <a href="lab.html" class="f-aside">Experiments</a>
       </div>
       <div class="f-col">
         <h2>Elsewhere</h2>
@@ -160,8 +171,14 @@
 
 <script src="js/swiss.js"></script>
 <script src="js/about.js"></script>
+<!-- @analytics -->
 <!-- Cloudflare Web Analytics -->
+<!-- Cookieless. No client-side state, nothing stored on the visitor, so there
+     is no consent banner to show and nothing to keep in step with one. One
+     token across nine pages, which is the reason it lives here: nine pasted
+     copies of a script tag is the drift this whole arrangement exists to stop,
+     and --check had no opinion on it while it sat outside the markers. -->
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "39562e228b684fa0a9ce1c1d056ee97c"}'></script>
-<!-- End Cloudflare Web Analytics -->
+<!-- /@analytics -->
 </body>
 </html>

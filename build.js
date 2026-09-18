@@ -24,7 +24,7 @@
 
    --check is the one to run before you commit, or in CI. It never writes.
 
-   TO ADD A PAGE: add it to PAGES below, and put the four marker pairs in it.
+   TO ADD A PAGE: add it to PAGES below, and put the five marker pairs in it.
    TO CHANGE THE NAV OR FOOTER: edit partials/, then run this.
    ═══════════════════════════════════════════════════════════════════════════ */
 'use strict';
@@ -85,6 +85,7 @@ const BLOCKS = {
   chrome:       'chrome.html',
   nav:          'nav.html',
   footer:       'footer.html',
+  analytics:    'analytics.html',
 };
 
 const read = f => fs.readFileSync(f, 'utf8');
