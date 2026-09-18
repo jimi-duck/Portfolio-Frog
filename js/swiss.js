@@ -447,8 +447,14 @@
      triggered the fetch has to be replayed once the script is in — which is
      what start() does after the load resolves. */
   function game() {
-    var btn = $('#game-launch');
-    if (!btn) return;
+    /* Two ways in, and no page has both. The homepage has the corner launcher,
+       which is the easter egg. lab.html lists the game as a project and opens
+       it from a named link in that entry, because a project you are being told
+       about should not also have to be stumbled upon. Either control loads the
+       pair the same way, so whichever one was pressed is the one that has to
+       report back and the one whose press gets replayed. */
+    var ctrls = [$('#game-launch'), $('#play-game')].filter(Boolean);
+    if (!ctrls.length) return;
     var state = 'idle';
 
     // The stylesheet has to be in before the stage is opened and before
@@ -475,30 +481,45 @@
       });
     }
 
-    function start() {
-      if (state === 'ready') return btn.click();
+    /* The launcher's own word (.gl-t) is collapsed to nothing until you hover
+       it, so on the homepage the waiting is announced through the aria-label
+       and nowhere else. The Experiments link is a word on screen with no label
+       of its own, so there the word itself changes. Rewriting the label on that
+       one instead would leave the accessible name saying one thing while the
+       button said another. */
+    function start(from) {
+      if (state === 'ready') return from.click();
       if (state === 'loading') return;
       state = 'loading';
-      var label = btn.getAttribute('aria-label');
-      btn.setAttribute('aria-label', 'Loading the bridge…');
+      var slot  = from.querySelector('.gl-t') || from;
+      var word  = slot.textContent;
+      var label = from.getAttribute('aria-label');
+      slot.textContent = 'Loading…';
+      if (label !== null) from.setAttribute('aria-label', 'Loading the bridge…');
+      var settle = function (ready) {
+        state = ready ? 'ready' : 'idle';
+        slot.textContent = word;
+        if (label !== null) from.setAttribute('aria-label', label);
+      };
       load().then(function () {
-        state = 'ready';
-        btn.setAttribute('aria-label', label);
-        btn.click();          // replay the press that asked for it
+        settle(true);
+        from.click();         // replay the press that asked for it
       }, function () {
-        state = 'idle';
-        btn.setAttribute('aria-label', label);
+        settle(false);
       });
     }
 
-    btn.addEventListener('click', function (e) {
-      if (state === 'ready') return;   // game.js owns the click from here
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      start();
+    ctrls.forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        if (state === 'ready') return;   // game.js owns the click from here
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        start(el);
+      });
     });
 
-    // B launches too, so the game stays reachable with the keyboard alone.
+    // B launches too, so the game stays reachable with the keyboard alone. It
+    // reports on the first control the page has, which is the only one it has.
     addEventListener('keydown', function (e) {
       if (state !== 'idle') return;    // once loaded, game.js has its own binding
       if (e.key !== 'b' && e.key !== 'B') return;
@@ -506,7 +527,7 @@
       var t = e.target.tagName;
       if (t === 'INPUT' || t === 'TEXTAREA' || e.target.isContentEditable) return;
       e.preventDefault();
-      start();
+      start(ctrls[0]);
     });
   }
 

@@ -1,0 +1,99 @@
+<!-- ═══ ASTEROID BLASTER · THE BOARD ═════════════════════════════════════════
+     Stamped into index.html, where the corner launcher opens it, and lab.html,
+     where the Experiments entry for it does. Ninety lines of markup kept in two
+     places by hand is the drift build.js exists to stop, and a board that has
+     drifted does not fail loudly: game.js reads every id below with
+     getElementById and simply skips whatever it cannot find.
+
+     It ships hidden and swiss.js un-hides it once css/game.css has loaded,
+     because every rule that positions and hides the pieces lives in that
+     stylesheet. Leave the stage open and a deferred stylesheet means a canvas,
+     a HUD and two dialogs laid out in normal flow at the bottom of the page.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div id="astro-stage" hidden>
+<div id="astroDim" aria-hidden="true"></div>
+<canvas id="astroCanvas" aria-hidden="true"></canvas>
+<!-- XP rail: the whole width of the screen, because progress to the next
+     upgrade is the number the run is actually steered by -->
+<div id="astroXp" aria-hidden="true">
+  <div id="astroXpFill"></div>
+  <div id="astroXpText">
+    <b id="astroLevelNum">REFIT 1</b>
+    <span class="xp-v"><i class="px-gem" aria-hidden="true"></i><span id="astroXpVal">0 / 4</span></span>
+  </div>
+</div>
+<!-- Warbird chrome. The hull bar only exists while a capital ship is alive, and
+     the warning only while one is decloaking — neither is part of the standing
+     HUD. Both strings are overwritten by JS from the warbird roster. -->
+<div id="astroBoss" aria-hidden="true">
+  <div id="astroBossName">I.K.S. Vor’cha</div>
+  <div id="astroBossBar"><div id="astroBossFill"></div></div>
+</div>
+<div id="astroWarn" aria-hidden="true">Warbird closing</div>
+<div id="astroTipWrap" aria-hidden="true"><div id="astroTip" class="g-pill">↑ impulse · ←→ helm · phasers fire themselves · esc leave the bridge</div></div>
+<button id="astroExit" class="g-pill">← Leave the bridge</button>
+<div id="astroHud" aria-hidden="true">
+  <div id="astroScore">Stardate 0</div>
+  <div id="astroLives"><i class="px-hull on"></i><i class="px-hull on"></i><i class="px-hull on"></i><i class="px-hull"></i><i class="px-hull"></i></div>
+  <div id="astroBuffs">
+    <span id="astroShieldBuff">Deflector 0s</span>
+    <span id="astroRapidBuff">Phasers 0s</span>
+  </div>
+</div>
+<div id="astroOver" aria-hidden="true"><div id="astroOverCard">
+  <div class="ao-t">Hull breach</div>
+  <div class="ao-s">Stardate <span id="astroFinal">0</span></div>
+  <div class="ao-m" id="astroFinalSub">0s adrift · refit 1</div>
+  <div class="ao-h" id="astroRestartHint">press any key to launch again</div>
+</div></div>
+<!-- Level up — opens the instant the XP rail fills, and the cards inside it are
+     rolled fresh in JS every time, so nothing here is authored by hand. It is
+     not aria-hidden: the cards are the one part of the game you actually pick. -->
+<div id="astroLevel"><div id="astroLevelCard">
+  <div class="al-t" id="astroLevelKind">Field refit</div>
+  <div class="al-s" id="astroLevelSub">Refit <b>2</b> · authorise one subsystem</div>
+  <div class="al-grid" id="astroLevelGrid"></div>
+  <div class="al-h" id="astroLevelHint">Select a subsystem, or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></div>
+</div></div>
+<!-- Engagement hail — the one decision in the run that is not an upgrade. It
+     opens between the inbound warning and the capital ship actually arriving,
+     and it halts the field the same way a refit card does. Like the refit card
+     it is not aria-hidden: it is a choice, not chrome. The ship's name and the
+     two figures are written by JS; everything else here is fixed copy. -->
+<div id="astroHail"><div id="astroHailCard">
+  <div class="ah-t">Red alert</div>
+  <div class="ah-s"><b id="astroHailName">I.K.S. Vor’cha</b> · intercept course · orders?</div>
+  <div class="ah-grid">
+    <button type="button" class="ah-opt is-fight" id="astroHailFight">
+      <span class="ah-l"><em>Engage</em><b>Press 1</b></span>
+      <span class="ah-n">Stand and fight</span>
+      <span class="ah-w">Hold the sector and break her hull. She fights back, she calls escorts, and she turns nastier at half hull — but nothing else in the run pays like a kill.</span>
+      <span class="ah-d">
+        <span id="astroHailBounty">+1800 stardate</span>
+        <span>Battle salvage · one subsystem</span>
+        <span>+2 hull · dilithium · a power-up</span>
+      </span>
+    </button>
+    <button type="button" class="ah-opt is-flee" id="astroHailFlee">
+      <span class="ah-l"><em>Evade</em><b>Press 2</b></span>
+      <span class="ah-n">Break off and run</span>
+      <span class="ah-w">Full impulse out of the sector. She never decloaks and she never touches you — and nothing she was carrying is ever yours.</span>
+      <span class="ah-d">
+        <span>No bounty · no refit</span>
+        <span id="astroHailAgain">Next contact in 37s</span>
+        <span>Evasive burn · 2.6s</span>
+      </span>
+    </button>
+  </div>
+  <div class="ah-h">Give the order, or press <kbd>1</kbd> <kbd>2</kbd></div>
+</div></div>
+<div id="astroPause" aria-hidden="true"><div id="astroPauseCard">
+  <div class="ap-t">All stop</div>
+  <div class="ap-h">click or press any key to resume</div>
+</div></div>
+<!-- Helm only. Phasers and torpedoes fire themselves, so there is no fire
+     button and the stick comes to wherever the thumb lands. -->
+<div id="astroTouch" aria-hidden="true">
+  <div id="astroStick"><div id="astroKnob"></div></div>
+</div>
+</div><!-- /#astro-stage -->
