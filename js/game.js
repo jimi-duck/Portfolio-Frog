@@ -8,14 +8,21 @@
   var ctx     = canvas.getContext('2d');
   var exitBtn = document.getElementById('astroExit');
   var tipEl   = document.getElementById('astroTip');
-  var scoreEl = document.getElementById('astroScore');
+  var scoreEl = document.getElementById('astroScoreVal');
   var livesEl = document.getElementById('astroLives');
   var shieldEl= document.getElementById('astroShieldBuff');
   var rapidEl = document.getElementById('astroRapidBuff');
   var xpBarEl = document.getElementById('astroXp');
   var xpFillEl= document.getElementById('astroXpFill');
   var xpNumEl = document.getElementById('astroXpVal');
-  var lvlNumEl= document.getElementById('astroLevelNum');
+  var xpNeedEl= document.getElementById('astroXpNeed');
+  var lvlNumEl= document.getElementById('astroLevelVal');
+  var coreEl    = document.getElementById('astroCore');
+  var coreFillEl= document.getElementById('astroCoreFill');
+  var coreLabEl = document.getElementById('astroCoreLabel');
+  var chainEl   = document.getElementById('astroChain');
+  var chainValEl= document.getElementById('astroChainVal');
+  var releaseBtn   = document.getElementById('astroRelease');
   var tipTimer = null;
 
   var NOSE_OFFSET = 17;
@@ -72,6 +79,25 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // at 400px the raw flight time is 80 frames, and leading a bobbing target by
   // eighty frames aims at somewhere it is never going to be.
   var TORP_SEEK_R = 520, TORP_TURN = 4.2, TORP_FUSE = 13, TORP_LEAD = 30;
+  // ── mines ───────────────────────────────────────────────────────────
+  // The third weapon, and the third answer to the same question. The phaser
+  // hits what is in front of you and the torpedo hits what it can see; a mine
+  // hits whatever arrives after you have gone. It is the only ordnance in the
+  // game that is aimed by *where you flew*, which makes running away a way of
+  // laying a trap rather than a way of losing ground.
+  //
+  // Three rules keep it from being a second wake. It arms on a short fuse, so
+  // a mine dropped on top of a rock does not go off in your own exhaust. It
+  // triggers on rock as readily as on Klingons, because a field the player has
+  // to keep flying through is the thing a mine is for. And the rack holds a
+  // fixed number: lay the next one past the cap and the oldest goes cold, so
+  // the weapon covers the ground you are using rather than the whole sector.
+  //
+  // It never touches your own hull. A mine that could kill you would make the
+  // card a trap dressed as a weapon, and the ship has no way to pick one up.
+  var MINE_COOLDOWN = 4.2, MINE_LIFE = 16, MINE_ARM = 0.8, MINE_R = 6;
+  var MINE_TRIG = 44, MINE_BLAST = 96, MINE_DMG = 5, MINE_RACK = 4;
+  var MINE_RGB = '199,125,255';
   // ── Navigational deflector ───────────────────────────────────────────────
   // Rock is ~70% of all damage taken, and every other defensive card answers
   // it indirectly — this one answers it by name. It is a shove, not a wall:
@@ -90,7 +116,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // keeps the card off the 70% of the damage that the deflector answers and
   // stops it quietly becoming a second field-clearer.
   var WAKE_LIFE = 2.4, WAKE_R = 11, WAKE_GAP = 0.055, WAKE_TICK = 0.35;
-  var wake = [];
+  var wake = [], nextEmber = 0;
   // ── hull arc ─────────────────────────────────────────────────────────────
   // Every other weapon on this ship rewards standing off. The arc is the one
   // that pays for the opposite, and the price is set by the radius: at 43px a
@@ -116,8 +142,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var RAM_BLEED = 0.45, RAM_ARC = 0.95;
   function ramThreshold(){ return 0.86 - 0.06 * (up.ram - 1); }
   function ramDamage(){ return 1 + 3 * up.ram + up.dmg; }
-  // terminal speed falls out of thrust against a 0.98-per-frame drag
-  function terminalSpeed(){ return thrustPower() / 0.02; }
+  // terminal speed falls out of thrust against the hull's own per-frame drag.
+  // It used to assume 0.98 for every ship, which put the ram threshold out of
+  // reach on any hull that bleeds speed faster than that.
+  function terminalSpeed(){ return thrustPower() / (1 - hullMods().drag); }
   function ramArmed(tx, ty){
     if(up.ram <= 0 || !ship.thrusting) return false;
     var sp = Math.hypot(ship.vx, ship.vy);
@@ -138,10 +166,174 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   function ramBleed(){
     ship.vx *= RAM_BLEED; ship.vy *= RAM_BLEED;
     burst(ship.x, ship.y, 12, '111,232,255');
+    shake(0.3); freeze(0.03);
   }
+  // ── the graze, the core, and overcharging it ─────────────────────────────
+  // This ship had no button. Both guns fire themselves, the upgrades apply
+  // themselves, and the whole input vocabulary was steering — which is fine
+  // for a minute and thin for ten. What was missing was not another weapon: it
+  // was a reason to fly *at* the field instead of around it, and something to
+  // spend the nerve on once you had.
+  //
+  //   graze      · passing through a rock's shadow without touching it
+  //                overcharges the warp core. Only ever while you are actually
+  //                vulnerable — with a deflector up, or inside respawn
+  //                invulnerability, nothing counts — so the meter can never be
+  //                farmed from safety, which is the one way a mechanic like
+  //                this quietly becomes free.
+  //   overcharge · at a full core, one press lets it go. A surge of drive
+  //                plasma sweeps out from the hull, burns through rock,
+  //                warbirds and incoming fire alike, and leaves the phaser
+  //                array overloaded for a few seconds afterwards.
+  //
+  // It was called "the vent" until Sep 2026 and nobody could work out what it
+  // was for. "Overcharge" says both halves of it — the thing fills up, and
+  // what it does when it is full is let go of what it filled up with.
+  //
+  // Charge is a flat award per graze rather than a rate per second, and the
+  // difference matters: a rate pays for parking beside a rock, a flat award
+  // pays for threading the field and coming out the other side. Kills pay a
+  // trickle as well, so a player who never takes the risk still gets to vent
+  // — slowly, and having earned it the duller way.
+  var GRAZE_BAND = 32, GRAZE_FIRE_BAND = 17, GRAZE_COOL = 1.1;
+  var CORE_MAX = 100;
+  var CORE_ROCK = 5.5, CORE_SHIP = 9, CORE_FIRE = 5;
+  var CORE_KILL_ROCK = 1.2, CORE_KILL_SHIP = 4, CORE_KILL_BOSS = 22;
+  var SURGE_R = 320, SURGE_TIME = 0.42, SURGE_DMG = 4, SURGE_OVERLOAD = 3;
+  var core = 0, overcharged = false, grazeTotal = 0, overchargeCount = 0;
+  // how long the gauge keeps saying it fired. Long enough to be read on the
+  // way past, short enough that it is gone before the core starts refilling.
+  var RELEASE_SAY = 1.5;
+  var releasedT = 0;
+  var surges = [];
+
+  function addCore(n){
+    if(core >= CORE_MAX) return;
+    core = Math.min(CORE_MAX, core + n);
+    // Restart the gauge's flash on every charge. The forced reflow is what
+    // makes a CSS animation replay, and this only runs on a graze or a kill,
+    // so it is nowhere near a per-frame cost. Without it the gauge creeps up
+    // silently and the player never connects the flying to the filling.
+    if(coreEl){
+      coreEl.classList.remove('charge');
+      void coreEl.offsetWidth;
+      coreEl.classList.add('charge');
+    }
+    if(core >= CORE_MAX && !overcharged){
+      overcharged = true;
+      // the one moment the core announces itself on the field rather than only
+      // in the rail: the player's eyes are on the rock, not on the gauge
+      bloom(ship.x, ship.y, 56, '125,249,255');
+      sparks(ship.x, ship.y, 16, '125,249,255', 1.1);
+      if(!overchargeCount){
+        showTip('<span>Overcharge ready</span><span>' + (isCoarse
+                  ? 'Tap <b>release</b> to let it go.'
+                  : 'Press <b>space</b> to release it.') + '</span>', 6);
+      }
+    }
+  }
+
+  // Credited once per object per GRAZE_COOL, and the cooldown lives on the
+  // object rather than on the ship: flying the length of one rock should pay
+  // once, and threading four rocks should pay four times.
+  function graze(o, amount, x, y){
+    if(shieldTime > 0 || ship.invuln > 0) return;
+    if(gameTime < (o.grazeT || 0)) return;
+    o.grazeT = gameTime + GRAZE_COOL;
+    grazeTotal++;
+    sparks(x, y, 3, '125,249,255', 0.55);
+    addCore(amount);
+    teach('graze', '<span>Close pass</span><span>Near misses charge your overcharge.</span>', 5);
+  }
+
+  function tryOvercharge(){
+    if(!overcharged || gameOver || isPaused()) return false;
+    core = 0; overcharged = false;
+    releasedT = gameTime + RELEASE_SAY;
+    overchargeCount++;
+    surges.push({ x: ship.x, y: ship.y, r: 0, max: SURGE_R, hit: [], t: 0 });
+    // The overload is the same one the rare rock drops, deliberately: it reads
+    // on the hull and in the bottom rail already, and a second vocabulary for
+    // "the guns are hot" would only be a second thing to learn.
+    rapidTime = Math.max(rapidTime, SURGE_OVERLOAD);
+    bloom(ship.x, ship.y, 150, '125,249,255');
+    burst(ship.x, ship.y, 34, '125,249,255', 1.6);
+    shake(0.82); freeze(0.08);
+    return true;
+  }
+
+  function surgeDamage(){ return SURGE_DMG + up.dmg * 2; }
+
+  // The front expands and burns what it reaches in the order it reaches it —
+  // the rock on the hull goes first and the far edge of the field goes last,
+  // which is what makes it read as a pressure wave rather than as a circle of
+  // things all ceasing to exist on the same frame. Each object is marked as it
+  // is burned, so the front passes over it once however long it lingers.
+  function updateSurges(dt){
+    for(var i=surges.length-1;i>=0;i--){
+      var v = surges[i];
+      v.t += dt;
+      v.r = v.max * Math.min(1, v.t / SURGE_TIME);
+      var R2 = v.r * v.r, dmg = surgeDamage(), k, o, dx, dy;
+
+      for(k=asteroids.length-1;k>=0;k--){
+        o = asteroids[k];
+        if(v.hit.indexOf(o.id) !== -1) continue;
+        dx = o.x - v.x; dy = o.y - v.y;
+        if(dx*dx + dy*dy > R2) continue;
+        v.hit.push(o.id);
+        o.hp -= dmg; o.hitT = 0.14;
+        if(o.hp <= 0) killAsteroid(k);
+      }
+      for(k=aliens.length-1;k>=0;k--){
+        o = aliens[k];
+        if(v.hit.indexOf(o.id) !== -1) continue;
+        dx = o.x - v.x; dy = o.y - v.y;
+        if(dx*dx + dy*dy > R2) continue;
+        v.hit.push(o.id);
+        o.hitT = 0.14;
+        if(alienHurt(o, dmg)) killAlien(k);
+      }
+      if(boss && !boss.leaving && v.hit.indexOf(boss.id) === -1){
+        dx = boss.x - v.x; dy = boss.y - v.y;
+        if(dx*dx + dy*dy <= R2){
+          v.hit.push(boss.id);
+          // a capital ship is one target rather than forty, so the front does
+          // not simply evaporate against it
+          boss.hp -= dmg * 2; boss.hitT = 0.14;
+          if(boss.hp <= 0) killBoss();
+        }
+      }
+      for(k=alienBullets.length-1;k>=0;k--){
+        var ab = alienBullets[k];
+        dx = ab.x - v.x; dy = ab.y - v.y;
+        if(dx*dx + dy*dy <= R2) alienBullets.splice(k,1);
+      }
+
+      if(v.t >= SURGE_TIME * 1.55) surges.splice(i,1);
+    }
+  }
+
+  // ── the kill chain ───────────────────────────────────────────────────────
+  // Score, and only score. It never touches XP, hull, drops or the spawn
+  // table, so it cannot move the health economy the whole run is balanced on.
+  // What it buys is a reason to keep pressing rather than to disengage and
+  // circle — which is the difference between a shooter and a driving game.
+  var CHAIN_WINDOW = 2.6, CHAIN_CAP = 25;
+  var chain = 0, chainT = 0, chainBest = 0;
+  function chainMult(){ return 1 + Math.min(chain, CHAIN_CAP) * 0.04; }
+  function scored(n){
+    chain++; chainT = CHAIN_WINDOW;
+    if(chain > chainBest) chainBest = chain;
+    bonus += Math.round(n * chainMult());
+  }
+
   var SHIP_RADIUS = 9, INVULN = 1.1, RESPAWN_INVULN = 2.2;
   var START_LIVES = 3, MAX_LIVES = 5;
-  var START_ROCKS = 20, MAX_ROCKS = 54;
+  // Rock is ~70% of all damage taken, so this pair is the field's pressure
+  // almost by itself. It was 20/54, which filled the view faster than the
+  // guns could ever clear it and read as the rocks taking the run over.
+  var START_ROCKS = 15, MAX_ROCKS = 34;
   var BULLET_LIFE = 1.35, MAX_STEP = 3;
   // how far past each edge of the view the rock field extends, in screens. The
   // population lives in a band of (1 + 2 x BAND_PAD) screens, so roughly 40% of
@@ -169,7 +361,195 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // torpedoes fly in their own list because they are the only projectile that
   // survives its first contact long enough to detonate, and shockwaves are
   // pure decoration with a damage pass already applied when they were born
-  var torpedoes = [], shockwaves = [];
+  var torpedoes = [], shockwaves = [], mines = [];
+
+  // ── the language of impact ───────────────────────────────────────────────
+  // Everything below this line is presentation, and all of it speaks the same
+  // three-word grammar so that a phaser hit, a warbird going up and a capital
+  // ship breaking apart read as the same event at three volumes:
+  //
+  //   bloom   · the flash. What turns "the rock stopped being drawn" into
+  //             "the rock blew up".
+  //   trauma  · the shake. Squared on its way to an offset, which is the whole
+  //             trick — otherwise a graze and a dreadnought rattle the screen
+  //             by about the same amount and neither one means anything.
+  //   freeze  · the held frame. Weight, bought for a fifteenth of a second.
+  //
+  // None of it touches the simulation. freeze() in particular stops the run
+  // clock along with everything else, so the beat it buys is not paid for in
+  // difficulty, score or cooldowns.
+  var blooms = [];
+  var trauma = 0, hitStop = 0;
+  var SHAKE_MAX = 15, TRAUMA_DECAY = 2.0, HITSTOP_MAX = 0.11;
+  function shake(a){
+    if(reduceMotion) return;
+    trauma = Math.min(1, trauma + a);
+  }
+  function freeze(s){
+    if(reduceMotion) return;
+    hitStop = Math.min(HITSTOP_MAX, Math.max(hitStop, s));
+  }
+  function bloom(x, y, r, rgb){
+    // spin and spoke count are rolled once, so the spikes hold still for the
+    // tenth of a second the flash lasts instead of strobing
+    blooms.push({ x:x, y:y, max:r, life:1, rgb: rgb || '255,238,200',
+                  spin: Math.random() * Math.PI, n: 6 + Math.floor(r / 14) });
+  }
+
+  // A blit is only a straight copy while its destination lands on whole
+  // device pixels, and the camera eases — so camY, and every parallax offset
+  // taken off it, is fractional on nearly every frame. Everything that
+  // positions a baked layer goes through snap() first. See the note above
+  // bakeSky() for what it is worth.
+  var viewDpr = 1;
+  function snap(v){ return Math.round(v * viewDpr) / viewDpr; }
+
+  // ── an honest frame budget ───────────────────────────────────────────────
+  // The backdrop is two full-screen blits, and on a canvas that is not
+  // GPU-accelerated that is comfortably the most expensive thing in the frame:
+  // measured at about 8ms against 3.6ms for the entire rest of the field. So
+  // rather than guess which machines can afford it, the run measures itself.
+  // A rolling average of the frame interval, sampled only on frames that were
+  // actually simulated — a stalled tab or a sleeping laptop is not a
+  // measurement — and if it settles below roughly 38fps the backdrop goes and
+  // everything else stays exactly as it is. It never comes back: a background
+  // that flickers in and out as the field thins is worse than either state,
+  // and without the backdrop the canvas simply clears to the dimmed page the
+  // way it always used to.
+  var frameAvg = 0, frameSamples = 0, backdropOn = true;
+  function budget(dt){
+    if(dt <= 0 || dt > 0.05) return;
+    frameAvg += (dt - frameAvg) * 0.05;
+    if(!backdropOn || ++frameSamples < 180) return;
+    if(frameAvg > 0.026) backdropOn = false;
+  }
+
+  // ── deep space ───────────────────────────────────────────────────────────
+  // The canvas used to clear to nothing and let the dimmed page show through,
+  // which meant that flying flat out across an empty stretch of sector looked
+  // exactly like sitting still. Two layers fix that: a baked backdrop of cloud
+  // and stars, and a live near layer that streaks along the ship's own
+  // velocity — which is the speed readout this game never had. At full impulse
+  // the near stars draw as lines and you can feel the throttle without a gauge.
+  //
+  // There was a third: a planet in the middle distance, and a graticule of
+  // range rings centred on the ship. Both are gone at James's request. They
+  // were doing real work — depth, and a sense of distance — but the sector is
+  // the backdrop to a fight, not the subject of one, and between them they
+  // were the two biggest things on screen that the player never had to look at.
+  //
+  // TWO RULES GOVERN ALL OF IT, and between them they are worth more than the
+  // entire rest of the frame. Both were learned the expensive way: the first
+  // build of this layer ran the game at 29fps.
+  //
+  // 1 · A baked layer is baked at DEVICE resolution and blitted at exactly its
+  //     own size, onto whole device pixels. A drawImage is a straight copy
+  //     only under those conditions; miss any of them and it is resampled.
+  //     Measured here, for the same five full-screen blits:
+  //
+  //         whole device pixels ................  3.2ms
+  //         fractional destination ............. 26.2ms
+  //         inside a 0.07-degree rotation ...... 33.7ms
+  //
+  //     The camera eases, so camY is fractional on nearly every frame and so
+  //     is every parallax offset derived from it — hence snap() on every
+  //     destination. The shake is snapped for the same reason and has no
+  //     rotation at all.
+  //
+  // 2 · Count the full-screen blits, because a canvas that is not
+  //     GPU-accelerated pays for every one of them in fill rate. This layer
+  //     started as five — a nebula, two star layers of two tiles each — and it
+  //     is now two, because the parallax that separated them was not buying
+  //     anything: at a tenth of the scroll, across a nine-thousand-pixel page,
+  //     the star layer travels about nine hundred pixels over an ENTIRE RUN.
+  //     Nobody can perceive a parallax difference against a background that
+  //     moves nine hundred pixels in ten minutes, so the cloud and the stars
+  //     are baked into one tile and share one rate. What actually sells the
+  //     depth is the near layer, which moves six times faster and is live.
+  var SKY_B = 20;                       // bleed, so the shake never opens a bare edge
+  var skyTile = null, skyH = 0;
+  var motes = [], moteH = 900;
+  var skyW = 0, skyVH = 0;              // the viewport the current bake was cut for
+
+  function bakeLayer(wCss, hCss, paint){
+    var c = document.createElement('canvas');
+    if(!c || !c.getContext) return null;
+    var d = Math.min(3, window.devicePixelRatio || 1);
+    c.width  = Math.max(1, Math.round(wCss * d));
+    c.height = Math.max(1, Math.round(hCss * d));
+    var g = c.getContext('2d');
+    if(!g || !g.scale) return null;
+    g.scale(d, d);
+    paint(g, wCss, hCss);
+    return c;
+  }
+
+  function paintNebula(g, w, h){
+    if(!g.createRadialGradient) return;
+    // Violet and teal, the two colours the rocks and the LCARS chrome already
+    // carry. Nothing in here goes near the hot pink: that is the alert colour
+    // and it has to stay the only thing on screen wearing it.
+    var clouds = [[0.28,0.16,0.5,'92,58,190'], [0.78,0.42,0.42,'0,136,178'],
+                  [0.44,0.72,0.38,'132,52,168'], [0.08,0.58,0.34,'32,104,160']];
+    // Every cloud is painted three times — in place, and one tile-height above
+    // and below. The tile repeats vertically, and a cloud that simply stops at
+    // the tile edge draws a hard horizontal line straight across the sky when
+    // the seam scrolls into view. It DOES scroll into view: at a tenth of the
+    // scroll across a nine-thousand-pixel page the backdrop travels about nine
+    // hundred pixels, and the tile is nine hundred and twenty-eight tall, so
+    // the seam crosses the screen roughly once a run. This is what makes the
+    // tile wrap seamlessly; the stars need no such help, being noise.
+    for(var i=0;i<clouds.length;i++){
+      var cl = clouds[i], cx = cl[0]*w, r = cl[2]*Math.max(w, h);
+      for(var k=-1;k<=1;k++){
+        var cy = cl[1]*h + k*h;
+        var gr = g.createRadialGradient(cx, cy, 0, cx, cy, r);
+        // a quarter down from where this started. The cloud is the room the
+        // fight happens in, and it was lit about as brightly as the fight.
+        gr.addColorStop(0,    'rgba(' + cl[3] + ',.19)');
+        gr.addColorStop(0.55, 'rgba(' + cl[3] + ',.065)');
+        gr.addColorStop(1,    'rgba(' + cl[3] + ',0)');
+        g.fillStyle = gr;
+        g.fillRect(0, 0, w, h);
+      }
+    }
+  }
+
+  function paintBackdrop(g, w, h){
+    paintNebula(g, w, h);
+    // Weighted hard toward plain white. A sky where every star is tinted reads
+    // as confetti; two in thirty reads as a sky with some colour in it. Three
+    // sizes, because one plane of identical dots is what a starfield looks
+    // like when it has been generated rather than drawn.
+    var n = Math.round(w * h / 2100);
+    for(var i=0;i<n;i++){
+      var far = Math.random();
+      var s = far < 0.62 ? 0.45 + Math.random()*0.35
+                         : (far < 0.92 ? 0.8 + Math.random()*0.5 : 1.3 + Math.random()*0.7);
+      var a = far < 0.62 ? 0.16 + Math.random()*0.24
+                         : (far < 0.92 ? 0.34 + Math.random()*0.3 : 0.6 + Math.random()*0.35);
+      var tint = Math.random();
+      var col = tint > 0.94 ? '125,249,255' : (tint > 0.88 ? '199,125,255' : '226,233,255');
+      g.fillStyle = 'rgba(' + col + ',' + a.toFixed(3) + ')';
+      g.beginPath(); g.arc(Math.random()*w, Math.random()*h, s, 0, Math.PI*2); g.fill();
+    }
+  }
+
+  function bakeSky(){
+    var W = Math.max(1, window.innerWidth), H = Math.max(1, window.innerHeight);
+    skyW = W; skyVH = H;
+    // a tile one screen plus a margin tall always covers the view in exactly
+    // two blits, whatever offset the scroll lands on
+    skyH = H + 160;
+    skyTile = bakeLayer(W + SKY_B * 2, skyH, paintBackdrop);
+    // the live band has to be at least a screen tall or motes wrap inside the
+    // view, which reads as stars popping in and out of existence
+    moteH = Math.max(760, H + 240);
+    motes = [];
+    for(var i=0; i<Math.round(W / 22); i++){
+      motes.push({ x: Math.random()*W, y: Math.random()*moteH, r: 0.55 + Math.random()*1.15 });
+    }
+  }
 
   // ── the run clock ────────────────────────────────────────────────────────
   // gameTime only advances on frames we actually simulate, so switching tabs,
@@ -200,16 +580,30 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // second rather than in visible steps. The player's own power curve is the
   // opposite: it moves in discrete jumps, one per level. The run is the race
   // between the two.
-  function speedMultAt(t){ return Math.min(5.4, 1.30 + t * 0.015); }
-  function rockTargetAt(t){ return Math.min(MAX_ROCKS, START_ROCKS + Math.floor(t / 9)); }
-  function alienInterval(t){ return Math.max(3.4, 17 - t * 0.055); }
-  function alienCooldown(t){ return Math.max(0.62, 1.7 - t * 0.009); }
+  // PAST_OPEN is the extra pressure layered on after the first minute (Sep
+  // 2026, "slightly too easy"). The opening minute is left exactly as it was
+  // on purpose: raising it once made the first minute 80% more lethal and read
+  // as a worse game rather than a harder one. From a minute in, rock gets a
+  // little faster, one more rock every half minute, and one more hull is
+  // allowed on the field. Measured with the scripted pilot, runs came out
+  // about a fifth shorter than before the upgrade pacing changed.
+  var PAST_OPEN = 60;
+  function pastOpen(t){ return Math.max(0, t - PAST_OPEN); }
+  function speedMultAt(t){ return Math.min(5.4, 1.30 + t * 0.015 + pastOpen(t) * 0.004); }
+  function rockTargetAt(t){
+    return Math.min(MAX_ROCKS, START_ROCKS + Math.floor(t / 16) + Math.floor(pastOpen(t) / 30));
+  }
+  function alienInterval(t){ return Math.max(2.4, 7.5 - t * 0.030); }
+  // Every hull on the field now fires slower than it used to. That is what
+  // pays for there being two to three times as many of them: the run should
+  // read as more ships, not as more plasma.
+  function alienCooldown(t){ return Math.max(0.70, 2.2 - t * 0.009); }
   function alienSpread(t){   return Math.max(0.07, 0.26 - t * 0.0014); }
   function alienBulletSpeed(t){ return Math.min(5.6, 3.1 + t * 0.012); }
   // The warbird count is the one curve with no ceiling. Everything else flattens
   // out inside five minutes, and a run whose pressure stops climbing is a run
   // you can settle into and hold forever — which is what this one was doing.
-  function alienMax(t){ return Math.min(6, 1 + Math.floor(t / 60)); }
+  function alienMax(t){ return Math.min(9, 3 + Math.floor(t / 24) + (t > PAST_OPEN ? 1 : 0)); }
   function alienHpScale(t){ return 1 + Math.min(1.7, t / 125); }
   // Rocks harden slowly, so Heavy Rounds still earns its slot at minute four
   // instead of one-shotting the entire field from level three onwards.
@@ -217,21 +611,408 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     return r >= 22 ? Math.min(5, 2 + Math.floor(t / 95)) : (t > 150 ? 2 : 1);
   }
 
-  // ── the warbird roster ───────────────────────────────────────────────
-  // Three hulls, unlocked on the clock, so the sky stops being one encounter
-  // repeated for the whole run. Scouts strafe past and take pot shots; lancers
-  // are slow gun platforms that fire in fans; stalkers steer at the ship and
-  // lead their shots, which is the first thing in the run that cannot be
-  // handled by flying in a straight line away from it.
+  // ── the enemy roster ─────────────────────────────────────────────────────
+  // Seven hulls across five factions, unlocked on the clock, and the point of
+  // every one of them is that it asks a DIFFERENT question. A roster of
+  // reskins is one encounter with four paint jobs; what makes a sky worth
+  // flying through is that the answer which just worked stops working.
+  //
+  //   scout   · Klingon Bird-of-Prey. Strafes past, takes pot shots. The
+  //             baseline, and the thing every other hull is a departure from.
+  //   raptor  · Klingon K'Tinga. Does not circle and does not track: it lines
+  //             up, commits to a run straight THROUGH you at speed, shoots
+  //             only while it is on that line, then coasts out and comes back.
+  //             Briefly harmless, briefly lethal, on a rhythm you can learn.
+  //   lancer  · Cardassian Galor. A slow platform that fires in fans. Answered
+  //             by getting out of the cone rather than out of the way.
+  //   stalker · Klingon Bird-of-Prey, heavy. Steers at you and leads its
+  //             shots — the first hull that a straight line away does not beat.
+  //   warbird · Romulan Warbird. Never closes: holds station at four hundred
+  //             pixels and slides sideways to keep it, so flying away does
+  //             nothing. Lobs one slow plasma torpedo that follows you — and
+  //             that you can SHOOT DOWN, which is the only enemy ordnance in
+  //             the game your guns can answer.
+  //   drone   · Borg cube. Straight at you, slowly, for ever. Does not dodge,
+  //             does not lead, does not break off, takes a great deal of
+  //             killing — and ADAPTS, taking half damage once it has absorbed
+  //             enough, so the answer is to kill it quickly or not at all.
+  //             Cuts with a tracking beam rather than shooting.
+  //   weaver  · Tholian web ship. Is not trying to hit you at all. It flies to
+  //             a point, stops, spins a web, and leaves. The web is what hurts
+  //             you, and the shape of the field has changed. Killing it before
+  //             the web sets is the entire interaction.
+  //
+  // `cap` is how many of a kind may be on the field at once, and it is doing
+  // real work: two Borg cubes is pressure, four is a wall, and one web is an
+  // obstacle where three is a cage.
   var ALIEN_TYPES = {
     scout:   { r:15, hp:2, speed:1.55, bonus:150, heart:0.28, gems:1, bob:26,
-               rgb:'127,227,236', stroke:'#7fe3ec', at:0,  weight:3, cd:1.00, shots:1 },
+               rgb:'255,122,99', stroke:'#ff7a63', at:0, weight:3, cd:1.00, shots:1,
+               cap:4, faction:'Klingon' },
+    raptor:  { r:17, hp:4, speed:1.35, bonus:300, heart:0.30, gems:2, bob:0,
+               rgb:'255,122,99', stroke:'#ff8f6e', at:40, weight:2, cd:1.00, shots:2,
+               cap:2, faction:'Klingon', move:'run', fire:'burst', face:'heading' },
     lancer:  { r:19, hp:5, speed:0.95, bonus:280, heart:0.36, gems:2, bob:15,
-               rgb:'167,139,250', stroke:'#a78bfa', at:85, weight:2, cd:1.55, shots:3 },
+               rgb:'240,168,72', stroke:'#f0a848', at:70, weight:2, cd:1.55, shots:3,
+               cap:2, faction:'Cardassian' },
+    warbird: { r:21, hp:6, speed:1.05, bonus:420, heart:0.34, gems:3, bob:0,
+               rgb:'96,224,150', stroke:'#7fd6a6', at:95, weight:2, cd:2.30, shots:1,
+               cap:2, faction:'Romulan', move:'standoff', fire:'plasma', ttl:22, face:'heading' },
     stalker: { r:16, hp:4, speed:1.15, bonus:340, heart:0.40, gems:2, bob:0,
-               rgb:'255,122,99',  stroke:'#ff7a63', at:120, weight:2, cd:1.30, shots:1 }
+               rgb:'255,122,99', stroke:'#ff7a63', at:115, weight:2, cd:1.30, shots:1,
+               cap:2, faction:'Klingon', move:'chase', fire:'lead', ttl:24, face:'heading' },
+    drone:   { r:20, hp:14, speed:0.52, bonus:520, heart:0.42, gems:3, bob:0,
+               rgb:'126,255,110', stroke:'#8fb4c9', at:138, weight:2, cd:1.00, shots:0,
+               cap:2, faction:'Borg', move:'grind', fire:'beam', face:'none', plume:false },
+    weaver:  { r:15, hp:3, speed:1.45, bonus:380, heart:0.30, gems:2, bob:0,
+               rgb:'255,159,67', stroke:'#ff9f43', at:158, weight:2, cd:1.00, shots:0,
+               cap:1, faction:'Tholian', move:'anchor', fire:'none', face:'heading' }
+  };  // ── the two hazards that are not bullets ─────────────────────────────────
+  // A Borg cutting beam and a Tholian web are both area denial rather than
+  // projectiles, and both needed their own collision: a ray and a set of line
+  // segments. Between them they are the only things on the field you cannot
+  // answer by shooting at the thing that made them.
+  var PLASMA_SPEED = 2.2, PLASMA_TURN = 1.05, PLASMA_HP = 3, PLASMA_R = 8;
+  var BEAM_WIND = 1.05, BEAM_FIRE = 1.35, BEAM_LEN = 540, BEAM_W = 7, BEAM_TRACK = 0.85;
+  var WEB_SPIN = 1.5, WEB_R = 86, WEB_LIFE = 12, WEB_W = 6, WEB_GROW = 0.55;
+  // Damage absorbed before a cube halves what it takes. It has to be well
+  // UNDER the cube's own hull or the adaptation never happens at all: at 16
+  // against 14 hull the thing simply died first, every time, and the most
+  // characterful mechanic in the roster was unreachable. At 6 the cube costs
+  // about 22 damage to kill and announces, visibly and halfway through, that
+  // it has started resisting.
+  var BORG_ADAPT = 6;
+  var webs = [];
+
+  // shortest distance from a point to a ray of finite length
+  function rayDist(px, py, ax, ay, ang, len){
+    var dx = Math.cos(ang), dy = Math.sin(ang);
+    var k = (px - ax) * dx + (py - ay) * dy;
+    if(k < 0) k = 0; else if(k > len) k = len;
+    return Math.hypot(px - (ax + dx * k), py - (ay + dy * k));
+  }
+
+  // and to a line segment
+  function segDist(px, py, x1, y1, x2, y2){
+    var dx = x2 - x1, dy = y2 - y1;
+    var L = dx*dx + dy*dy;
+    var k = L ? ((px - x1) * dx + (py - y1) * dy) / L : 0;
+    if(k < 0) k = 0; else if(k > 1) k = 1;
+    return Math.hypot(px - (x1 + dx * k), py - (y1 + dy * k));
+  }
+
+  function spawnWeb(x, y){
+    var n = 7, pts = [], segs = [], i;
+    for(i=0;i<n;i++){
+      var a = i / n * Math.PI * 2 + Math.random() * 0.25;
+      var rr = WEB_R * (0.82 + Math.random() * 0.36);
+      pts.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]);
+    }
+    for(i=0;i<n;i++) segs.push([pts[i][0], pts[i][1], pts[(i+1)%n][0], pts[(i+1)%n][1]]);
+    // chords across the middle, which is what makes it a web and not a hoop
+    for(i=0;i<n;i++) segs.push([pts[i][0], pts[i][1], pts[(i+3)%n][0], pts[(i+3)%n][1]]);
+    webs.push({ x:x, y:y, pts:pts, segs:segs, life:WEB_LIFE, grow:0 });
+    shake(0.18);
+  }
+
+  function updateWebs(dt){
+    for(var i=webs.length-1;i>=0;i--){
+      var w = webs[i];
+      if(w.grow < 1) w.grow = Math.min(1, w.grow + dt / WEB_GROW);
+      w.life -= dt;
+      if(w.life <= 0){ webs.splice(i,1); continue; }
+      // it only bites once it has finished drawing itself, so the wind-up is
+      // a real warning rather than a decoration on top of a hit
+      if(w.grow < 1 || ship.invuln > 0 || shieldTime > 0) continue;
+      if(Math.hypot(ship.x - w.x, ship.y - w.y) > WEB_R * 1.5) continue;
+      for(var s=0;s<w.segs.length;s++){
+        var g = w.segs[s];
+        if(segDist(ship.x, ship.y, g[0], g[1], g[2], g[3]) < WEB_W + SHIP_RADIUS){
+          burst(ship.x, ship.y, 12, '255,159,67');
+          hitShip('fire');
+          break;
+        }
+      }
+    }
+  }
+
+  // Beams live on the cube that fired them rather than in a list of their own:
+  // there is only ever one per hull, it starts at the hull, and it dies with
+  // it — which is exactly the lifetime an object on the emitter already has.
+  function updateBeams(dt, sf, t){
+    for(var i=0;i<aliens.length;i++){
+      var al = aliens[i];
+      if(!al.beamT) continue;
+      al.beamT -= dt;
+      if(al.beamT <= 0){ al.beamT = 0; continue; }
+      var want = Math.atan2(ship.y - al.y, ship.x - al.x);
+      al.beamAng += angDiff(want, al.beamAng) * (1 - Math.pow(1 - BEAM_TRACK * dt, sf));
+      if(al.beamT > BEAM_FIRE) continue;             // still winding up
+      if(ship.invuln > 0 || shieldTime > 0) continue;
+      if(rayDist(ship.x, ship.y, al.x, al.y, al.beamAng, BEAM_LEN) < BEAM_W + SHIP_RADIUS){
+        burst(ship.x, ship.y, 14, ALIEN_TYPES[al.kind].rgb);
+        hitShip('fire');
+      }
+    }
+  }
+
+  function drawWebs(camY){
+    if(!webs.length) return;
+    ctx.save();
+    for(var i=0;i<webs.length;i++){
+      var w = webs[i];
+      var fade = Math.min(1, w.life / 2.5);
+      var a = (w.grow < 1 ? w.grow * 0.5 : 0.5) * fade;
+      // the strands draw themselves outward from the anchor while it spins,
+      // so a half-built web is visibly half-built
+      ctx.strokeStyle = 'rgba(199,125,255,' + (a + 0.25 * fade).toFixed(3) + ')';
+      ctx.shadowColor = '#c77dff';
+      ctx.shadowBlur = w.grow < 1 ? 6 : 10;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      for(var s=0;s<w.segs.length;s++){
+        var g = w.segs[s];
+        ctx.moveTo(g[0], g[1] - camY);
+        ctx.lineTo(g[0] + (g[2] - g[0]) * w.grow, g[1] + (g[3] - g[1]) * w.grow - camY);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      // anchors
+      ctx.fillStyle = 'rgba(255,159,67,' + (0.7 * fade).toFixed(3) + ')';
+      for(var p=0;p<w.pts.length;p++){
+        ctx.beginPath();
+        ctx.arc(w.pts[p][0], w.pts[p][1] - camY, 2.2, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawBeams(camY){
+    for(var i=0;i<aliens.length;i++){
+      var al = aliens[i];
+      if(!al.beamT) continue;
+      var AT = ALIEN_TYPES[al.kind];
+      var winding = al.beamT > BEAM_FIRE;
+      var y = al.y - camY;
+      var ex = al.x + Math.cos(al.beamAng) * BEAM_LEN;
+      var ey = y + Math.sin(al.beamAng) * BEAM_LEN;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineCap = 'round';
+      if(winding){
+        // the telegraph: a hairline along the line it is about to cut, so the
+        // beam is survivable by anyone paying attention
+        var wind = 1 - (al.beamT - BEAM_FIRE) / BEAM_WIND;
+        ctx.strokeStyle = 'rgba(' + AT.rgb + ',' + (0.14 + 0.3 * wind).toFixed(3) + ')';
+        ctx.lineWidth = 1 + wind * 1.6;
+        ctx.beginPath(); ctx.moveTo(al.x, y); ctx.lineTo(ex, ey); ctx.stroke();
+      } else {
+        var hot = Math.min(1, al.beamT / 0.18);       // it snaps off, not fades
+        ctx.strokeStyle = 'rgba(' + AT.rgb + ',' + (0.3 * hot).toFixed(3) + ')';
+        ctx.lineWidth = BEAM_W * 2.4 * hot;
+        ctx.beginPath(); ctx.moveTo(al.x, y); ctx.lineTo(ex, ey); ctx.stroke();
+        ctx.strokeStyle = 'rgba(' + AT.rgb + ',' + (0.85 * hot).toFixed(3) + ')';
+        ctx.lineWidth = BEAM_W * hot;
+        ctx.beginPath(); ctx.moveTo(al.x, y); ctx.lineTo(ex, ey); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,' + (0.9 * hot).toFixed(3) + ')';
+        ctx.lineWidth = Math.max(1, BEAM_W * 0.34 * hot);
+        ctx.beginPath(); ctx.moveTo(al.x, y); ctx.lineTo(ex, ey); ctx.stroke();
+      }
+      ctx.lineCap = 'butt';
+      ctx.restore();
+    }
+  }
+
+  // ── how each hull flies ──────────────────────────────────────────────────
+  // One function per flight style, picked by name off the type table. The
+  // shared work — drift, graze, collision, shields, ramming, loot — stays in
+  // the update loop where it was; only the steering and the trigger moved out.
+  var ALIEN_MOVE = {};
+  var ALIEN_FIRE = {};
+
+  // strafe: across the screen at a constant speed, bobbing. The default.
+  ALIEN_MOVE.strafe = function(al, dt, sf, t, AT){
+    al.x += al.vx * sf;
+    al.y = al.baseY + Math.sin(al.t) * AT.bob;
   };
-  var ALIEN_FIRST = 7;
+
+  // chase: steers at the ship under thrust and drag rather than tracking it
+  // exactly, so it overshoots and swings back — dodgeable, but only if you
+  // keep turning. Burns fuel; when it runs dry it breaks off and goes.
+  ALIEN_MOVE.chase = function(al, dt, sf, t, AT){
+    al.ttl -= dt;
+    if(al.ttl > 0){
+      var sdx = ship.x - al.x, sdy = ship.y - al.y, sd = Math.hypot(sdx, sdy) || 1;
+      al.vx += (sdx / sd) * 0.06 * sf;
+      al.vy += (sdy / sd) * 0.06 * sf;
+    } else if(!al.fleeing){
+      al.fleeing = true;
+      var fdx = al.x - ship.x, fdy = al.y - ship.y, fd = Math.hypot(fdx, fdy) || 1;
+      al.vx = fdx / fd * AT.speed * 2.4;
+      al.vy = fdy / fd * AT.speed * 2.4;
+    }
+    if(!al.fleeing){
+      var sdrag = Math.pow(0.975, sf);
+      al.vx *= sdrag; al.vy *= sdrag;
+      var spd = Math.hypot(al.vx, al.vy), cap = AT.speed * 1.9;
+      if(spd > cap){ al.vx = al.vx / spd * cap; al.vy = al.vy / spd * cap; }
+    }
+    al.x += al.vx * sf; al.y += al.vy * sf;
+    al.baseY = al.y;
+  };
+
+  // run: the attack pass. Backs off while it lines up, then commits to a
+  // straight line through the player at nearly three times its cruise and
+  // does not steer again until the run is spent. The whole hull is a rhythm:
+  // two seconds of being shot at, two seconds of it being somewhere else.
+  ALIEN_MOVE.run = function(al, dt, sf, t, AT){
+    al.runT -= dt;
+    if(al.phase === 'line'){
+      var wantA = Math.atan2(ship.y - al.y, ship.x - al.x);
+      al.face += angDiff(wantA, al.face) * (1 - Math.pow(1 - 0.05, sf));
+      var s = AT.speed * 0.5;
+      al.vx = Math.cos(al.face + Math.PI) * s;
+      al.vy = Math.sin(al.face + Math.PI) * s;
+      if(al.runT <= 0){
+        al.phase = 'run'; al.runT = 2.0;
+        al.vx = Math.cos(al.face) * AT.speed * 2.7;
+        al.vy = Math.sin(al.face) * AT.speed * 2.7;
+        burst(al.x, al.y, 8, AT.rgb, 0.7);
+      }
+    } else if(al.runT <= 0){
+      al.phase = 'line'; al.runT = 1.5 + Math.random() * 0.8;
+    }
+    al.x += al.vx * sf; al.y += al.vy * sf;
+    al.baseY = al.y;
+  };
+
+  // standoff: holds a set range and slides sideways to keep it. Pushes out
+  // when you close and pulls in when you run, which is what makes this the
+  // one hull that flying away does not answer.
+  ALIEN_MOVE.standoff = function(al, dt, sf, t, AT){
+    al.ttl -= dt;
+    if(al.ttl <= 0){
+      if(!al.fleeing){
+        al.fleeing = true;
+        var ex = al.x - ship.x, ey = al.y - ship.y, ed = Math.hypot(ex, ey) || 1;
+        al.vx = ex / ed * AT.speed * 2.4; al.vy = ey / ed * AT.speed * 2.4;
+      }
+      al.x += al.vx * sf; al.y += al.vy * sf; al.baseY = al.y;
+      return;
+    }
+    var dx = ship.x - al.x, dy = ship.y - al.y, d = Math.hypot(dx, dy) || 1;
+    var push = (d - 380) * 0.0016;
+    al.vx += (dx / d) * push * sf;
+    al.vy += (dy / d) * push * sf;
+    al.slideT -= dt;
+    if(al.slideT <= 0){ al.slide = -al.slide; al.slideT = 2 + Math.random() * 2.5; }
+    al.vx += (-dy / d) * 0.014 * al.slide * sf;
+    al.vy += ( dx / d) * 0.014 * al.slide * sf;
+    var dr = Math.pow(0.97, sf);
+    al.vx *= dr; al.vy *= dr;
+    var sp = Math.hypot(al.vx, al.vy), cap = AT.speed * 1.7;
+    if(sp > cap){ al.vx = al.vx / sp * cap; al.vy = al.vy / sp * cap; }
+    al.x += al.vx * sf; al.y += al.vy * sf;
+    al.baseY = al.y;
+  };
+
+  // grind: straight at you, slowly, for ever.
+  ALIEN_MOVE.grind = function(al, dt, sf, t, AT){
+    var dx = ship.x - al.x, dy = ship.y - al.y, d = Math.hypot(dx, dy) || 1;
+    al.vx = dx / d * AT.speed;
+    al.vy = dy / d * AT.speed;
+    al.x += al.vx * sf; al.y += al.vy * sf;
+    al.baseY = al.y;
+  };
+
+  // anchor: fly to a spot, stop, spin, leave. It never attacks; what it
+  // leaves behind does.
+  ALIEN_MOVE.anchor = function(al, dt, sf, t, AT){
+    if(al.phase === 'seek'){
+      var dx = al.ax - al.x, dy = al.ay - al.y, d = Math.hypot(dx, dy) || 1;
+      if(d < 14){
+        al.phase = 'spin'; al.spinT = WEB_SPIN; al.vx = 0; al.vy = 0;
+      } else {
+        al.vx = dx / d * AT.speed * 1.8;
+        al.vy = dy / d * AT.speed * 1.8;
+      }
+    } else if(al.phase === 'spin'){
+      al.spinT -= dt;
+      if(al.spinT <= 0){
+        spawnWeb(al.x, al.y);
+        al.phase = 'leave';
+        var fx = al.x - ship.x, fy = al.y - ship.y, fd = Math.hypot(fx, fy) || 1;
+        al.vx = fx / fd * AT.speed * 2.3;
+        al.vy = fy / fd * AT.speed * 2.3;
+      }
+    }
+    al.x += al.vx * sf; al.y += al.vy * sf;
+    al.baseY = al.y;
+  };
+
+  // ── and how each one shoots ──────────────────────────────────────────────
+  ALIEN_FIRE.fan = function(al, t, AT){
+    var asp = alienBulletSpeed(t);
+    var aimA = Math.atan2(ship.y - al.y, ship.x - al.x) + (Math.random() - 0.5) * 2 * alienSpread(t);
+    for(var sh=0; sh<AT.shots; sh++){
+      var sa = aimA + (sh - (AT.shots - 1) / 2) * 0.2;
+      alienBullets.push({ x: al.x, y: al.y, vx: Math.cos(sa) * asp, vy: Math.sin(sa) * asp,
+                          life: 2.9, r: 3, rgb: AT.rgb });
+    }
+  };
+
+  // leads its target, which is what stops a long straight burn away from it
+  // being the whole answer
+  ALIEN_FIRE.lead = function(al, t, AT){
+    var asp = alienBulletSpeed(t);
+    var lead = Math.hypot(ship.x - al.x, ship.y - al.y) / asp;
+    var tx = ship.x + ship.vx * lead * 0.55, ty = ship.y + ship.vy * lead * 0.55;
+    var sa = Math.atan2(ty - al.y, tx - al.x) + (Math.random() - 0.5) * 2 * alienSpread(t);
+    alienBullets.push({ x: al.x, y: al.y, vx: Math.cos(sa) * asp, vy: Math.sin(sa) * asp,
+                        life: 2.9, r: 3, rgb: AT.rgb });
+  };
+
+  // twin bolts down the run line, and only while it is ON the run — off it,
+  // the raptor is a hull flying away from you and nothing else
+  ALIEN_FIRE.burst = function(al, t, AT){
+    if(al.phase !== 'run'){ al.nextShot = t + 0.25; return; }
+    var asp = alienBulletSpeed(t) * 1.15;
+    for(var s=-1; s<=1; s+=2){
+      alienBullets.push({
+        x: al.x - Math.sin(al.face) * s * al.r * 0.5,
+        y: al.y + Math.cos(al.face) * s * al.r * 0.5,
+        vx: Math.cos(al.face) * asp, vy: Math.sin(al.face) * asp,
+        life: 2.6, r: 3, rgb: AT.rgb });
+    }
+  };
+
+  // One heavy plasma torpedo: slow, homing, and the only thing an enemy fires
+  // that the player's own guns can destroy. That is the whole design of it —
+  // a threat you answer by shooting rather than by dodging, because nothing
+  // else in the game lets you do that.
+  ALIEN_FIRE.plasma = function(al, t, AT){
+    var a = Math.atan2(ship.y - al.y, ship.x - al.x);
+    alienBullets.push({
+      x: al.x, y: al.y,
+      vx: Math.cos(a) * PLASMA_SPEED, vy: Math.sin(a) * PLASMA_SPEED,
+      life: 8, r: PLASMA_R, rgb: AT.rgb, id: ++uid,
+      hp: PLASMA_HP, seek: PLASMA_TURN, heavy: true });
+    burst(al.x, al.y, 8, AT.rgb, 0.8);
+  };
+
+  // the cutting beam: a long wind-up you can see and get out of, then a
+  // sweep that tracks slowly. It is not aimed at where you are; it is aimed
+  // at where you were when it started, and it catches up.
+  ALIEN_FIRE.beam = function(al, t, AT){
+    al.beamT = BEAM_WIND + BEAM_FIRE;
+    al.beamAng = Math.atan2(ship.y - al.y, ship.x - al.x);
+    al.nextShot = t + 5.4;
+  };
+
+  ALIEN_FIRE.none = function(){};
+
+  var ALIEN_FIRST = 4;
   var aliens = [], alienBullets = [], nextAlienAt = ALIEN_FIRST, bonus = 0;
 
   // ── bosses ───────────────────────────────────────────────────────
@@ -277,7 +1058,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var hailFleeEl   = document.getElementById('astroHailFlee');
   var finalEl = document.getElementById('astroFinal');
   var finalSubEl = document.getElementById('astroFinalSub');
-  var hintEl = document.getElementById('astroRestartHint');
+  var againEl = document.getElementById('astroAgain');
+  var tilesEl = document.getElementById('astroTiles');
+  var chartEl = document.getElementById('astroChart');
 
   // ── drops ────────────────────────────────────────────────────────────────
   // XP that evaporates before it can be reached punishes the player for the
@@ -293,11 +1076,24 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // upgrade card. The curve is deliberately shallow at the front so the first
   // level lands inside ten seconds and teaches the loop before it can bite.
   var xp = 0, level = 1, pendingLevels = 0;
-  // Still deliberately shallow at the front — the first level lands inside ten
-  // seconds and teaches the loop before it can bite — but the square term means
-  // the late upgrades are earned rather than collected. Under the old linear
-  // curve level 10 cost 216 XP; it now costs 385, and a maxed gun 641.
-  function xpNeed(l){ return 4 + (l - 1) * 5 + Math.floor(Math.pow(l - 1, 2) * 0.6); }
+  // The first card still lands inside ten seconds and teaches the loop before
+  // it can bite. After that the gaps widen on purpose. Until Sep 2026 the rail
+  // filled every twelve seconds or so, five cards in the first minute, and a
+  // card that arrives that often is something that happens to you rather than
+  // something you earned. Measured with the scripted pilot:
+  //
+  //                     1st   2nd   3rd   4th   5th   6th
+  //   before (4+5n)      5s   12s   21s   33s   49s   67s
+  //   first pass (8+11n) 8s   20s   40s   67s   96s  122s
+  //   now  (12+22n)     11s   29s   59s  100s  139s  155s
+  //
+  // Two or three cards in the first minute instead of five, and after that
+  // one every thirty to forty seconds. The first pass halved the gap and was
+  // still "too quick"; this one roughly triples it. To keep a card worth the
+  // wait, the weakest per-level steps got bigger at the same time (see
+  // FIRE_STEP) and a full rail now plays a beat before the cards deal (see
+  // refitReady).
+  function xpNeed(l){ return 12 + (l - 1) * 22 + Math.floor(Math.pow(l - 1, 2) * 0.9); }
 
   // ── timed power-ups ──────────────────────────────────────────────────────
   // These never pause anything: they land on the ship the instant it touches
@@ -305,10 +1101,65 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var POWER_TIME = 10;
   var shieldTime = 0, rapidTime = 0;
 
+  // ── the three hulls ──────────────────────────────────────────────────────
+  // Every hull is the same ship with five numbers moved, and those five
+  // numbers are the whole difference between them: how hard it pushes, how
+  // fast it comes round, how much speed it bleeds when you stop pushing, how
+  // quickly the phasers cycle, and how many plates it carries. Before this
+  // the three hulls flew identically and only the opening weapon differed,
+  // which made the first panel of the run a weapon menu wearing three ship
+  // names.
+  //
+  // `drag` is the one that is not obvious. It is the per-frame speed bleed,
+  // so a HIGHER number is a ship that KEEPS its speed. Top speed works out at
+  // thrust / (1 - drag), which means drag sets the ceiling and thrust sets how
+  // long you take to reach it. The Sovereign is slow because it has both
+  // against it; the Defiant is quick because it has both for it.
+  //
+  // Retuned Sep 2026 because all three were too fast and too slippery. The
+  // old drags (0.979-0.9825) kept the ship coasting for most of a second
+  // after you let go, and the Defiant topped out near 640px/s — past the
+  // point where a player can steer through a field of rock. Drag now bleeds
+  // speed roughly twice as fast, so the ship goes where it is pointed and
+  // stops soon after you stop pushing, and every top speed came down:
+  //
+  // Pulled further apart later in Sep 2026, because the three still flew
+  // within about fifteen percent of each other on every axis and the pick
+  // read as one ship in three paint jobs. Each hull now owns one axis
+  // outright and pays for it on another:
+  //
+  //             top speed   coast (1/e)   turn     phasers    hull
+  //   Defiant    ~500px/s      0.5s       205°/s   x1.22      3    the fast one
+  //   Nova       ~420px/s      0.43s      275°/s   x0.87      2    the nimble one
+  //   Sovereign  ~315px/s      0.72s      155°/s   x1.00      4    the heavy one
+  //
+  // (The Sovereign's phaser figure looks ordinary, but it fires a three-beam
+  // cone from the first second, which is two and a half times the beams of
+  // either escort. On the pick card that is what the Phasers row counts.)
+  //
+  // Thrust is set from those figures, not the other way round: thrust =
+  // top speed per frame * (1 - drag) / drag. The enemies cruise at 1-4px a
+  // frame, so even the Sovereign outruns everything on the field.
+  //
+  // These are the only per-hull numbers in the game. Nothing else branches on
+  // which ship you picked, so a hull can be retuned here without hunting
+  // through the flight code.
+  var HULL_MODS = {
+    torp:   { thrust:1.78, rot:1.00, drag:0.968, cool:0.82, lives:3, magnet:1 },
+    spread: { thrust:0.80, rot:0.76, drag:0.977, cool:1.00, lives:4, magnet:1 },
+    mine:   { thrust:1.78, rot:1.34, drag:0.962, cool:1.15, lives:2, magnet:1.8 }
+  };
+  // The unmodified ship. It is never flown — a run always has a hull by the
+  // time anything moves — but every stat function reads through hullMods(),
+  // and those functions are also called by the upgrade cards before the pick
+  // panel has closed. This is what they read until then.
+  var HULL_BASE = { thrust:1, rot:1, drag:0.98, cool:1, lives:START_LIVES, magnet:1 };
+  function hullMods(){ return HULL_MODS[hull] || HULL_BASE; }
+
   // ── permanent upgrades ───────────────────────────────────────────────────
   var up = { fire:0, thrust:0, spread:0, pierce:0, dmg:0, magnet:0, range:0, guard:0,
-             torp:0, seek:0, deflector:0, armour:0, wake:0, arc:0, ram:0 };
-  var nextGuard = 0, nextTorp = 0;
+             torp:0, seek:0, deflector:0, armour:0, wake:0, arc:0, ram:0, mine:0 };
+  var nextGuard = 0, nextTorp = 0, nextMine = 0;
   // Ablative armour is a single charge that regrows on a clock, not a pool —
   // one plate, taken off you by the next hit and back a while later. It is
   // stored as a boolean plus the time it returns so nothing has to be
@@ -322,9 +1173,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // its levels as arguments because the upgrade cards quote the figure the
   // player would get *after* picking, and a card must never promise a rate the
   // ship cannot actually reach.
-  function rawCooldown(l){ return SHOT_COOLDOWN * Math.pow(0.88, l); }
+  // Three systems reach the same ceiling they always did in fewer, bigger
+  // steps. Cards got rarer in Sep 2026, and a card you waited a minute for
+  // has to feel like it did something: +14% thrust does not. The end states
+  // are unchanged (Phaser Array 0.855^5 = 0.457 against 0.88^6 = 0.464;
+  // Impulse Drive +84% thrust either way; Tractor Beam +141% against +140%),
+  // so nothing past the last card moved, and MAX is now reachable in a run.
+  var FIRE_STEP = 0.855, THRUST_STEP = 0.21, TURN_STEP = 0.15, MAGNET_STEP = 0.47;
+  function rawCooldown(l){ return SHOT_COOLDOWN * Math.pow(FIRE_STEP, l); }
   function cooldownWith(fireL, spreadL, rapid){
-    var c = rawCooldown(fireL) * Math.pow(SPREAD_DRAG, spreadL);
+    var c = rawCooldown(fireL) * hullMods().cool * Math.pow(SPREAD_DRAG, spreadL);
     if(rapid) c *= RAPID_MULT;
     return Math.max(MIN_COOLDOWN, c);
   }
@@ -337,9 +1195,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   function bulletDamage(){ return 1 + up.dmg; }
   function bulletSpeed(){ return BULLET_SPEED * (1 + 0.12 * up.range); }
   function bulletLife(){  return BULLET_LIFE  * (1 + 0.15 * up.range); }
-  function thrustPower(){ return THRUST * (1 + 0.14 * up.thrust); }
-  function rotPower(){ return ROT_SPEED * (1 + 0.10 * up.thrust); }
-  function magnetRange(){ return MAGNET_R * (1 + 0.35 * up.magnet); }
+  function thrustPower(){ return THRUST * hullMods().thrust * (1 + THRUST_STEP * up.thrust); }
+  function rotPower(){ return ROT_SPEED * hullMods().rot * (1 + TURN_STEP * up.thrust); }
+  function magnetRange(){ return MAGNET_R * hullMods().magnet * (1 + MAGNET_STEP * up.magnet); }
   // The torpedo bay reloads faster and hits harder with every level, but the
   // travel time never changes — the weapon is supposed to be something you
   // fire into where the field is *going* to be, not where it is.
@@ -352,6 +1210,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // take because your torpedoes keep missing.
   function torpSeekRange(){ return TORP_SEEK_R * (1 + 0.30 * up.seek); }
   function torpTurnRate(){  return TORP_TURN   * (1 + 0.45 * up.seek); }
+  // Levels buy the rack four ways at once — more mines, laid sooner, armed
+  // wider, hitting harder — because any one of them alone is imperceptible on
+  // a weapon you do not aim. The trigger is what a player actually feels: it
+  // is the difference between a mine that catches the rock and one the rock
+  // sails past.
+  function mineCooldown(){ return MINE_COOLDOWN * Math.pow(0.82, Math.max(0, up.mine - 1)); }
+  function mineDamage(){ return MINE_DMG + (up.mine - 1) + up.dmg; }
+  function mineBlast(){ return MINE_BLAST * (1 + 0.12 * (up.mine - 1)); }
+  function mineTrigger(){ return MINE_TRIG + 7 * (up.mine - 1); }
+  function mineRack(){ return MINE_RACK + 2 * up.mine; }
   function deflectRange(){ return up.deflector ? DEFLECT_R * (1 + 0.30 * (up.deflector - 1)) : 0; }
   function armourEvery(l){ return 44 - l * 7; }      // 37s → 30s → 23s
   // levels buy how long the trail hangs and how hard it burns, not how wide it
@@ -370,24 +1238,82 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   }
 
   function resize(){
-    var dpr = window.devicePixelRatio || 1;
+    // Capped at 2. Everything in here is neon vector work with a glow, and
+    // nobody can see the difference between 2x and 3x on it — but fill cost
+    // goes with the square, so a 3x phone was paying 2.25 times a 2x phone's
+    // bill for the backdrop and the shadow passes. This is the single
+    // cheapest thing that protects a handset.
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    viewDpr = dpr;
     canvas.width = window.innerWidth * dpr;
     canvas.height = window.innerHeight * dpr;
     canvas.style.width = window.innerWidth + 'px';
     canvas.style.height = window.innerHeight + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     computeDocHeight();
+    // The baked layers are cut to one exact viewport, so a resize is the one
+    // thing that genuinely invalidates them — but a resize event that did not
+    // change the viewport (an on-screen keyboard, a scrollbar appearing) must
+    // not spend two large bakes on nothing.
+    if(!skyTile || skyW !== window.innerWidth || skyVH !== window.innerHeight) bakeSky();
   }
 
   function resetShip(inv){
     ship = { x: window.innerWidth/2, y: window.scrollY + window.innerHeight/2, vx: 0, vy: 0,
-             angle: -Math.PI/2, thrusting: false, invuln: inv || INVULN, lastShot: -99 };
+             angle: -Math.PI/2, thrusting: false, invuln: inv || INVULN, lastShot: -99,
+             muzzle: 0 };
   }
 
-  function burst(x, y, n, col){
+  // ── debris ───────────────────────────────────────────────────────────────
+  // Four kinds, because one kind of particle makes every explosion look like
+  // the same explosion no matter how many of them you spawn:
+  //
+  //   spark · fast, additive, stretched along its own velocity. The flash.
+  //   ember · slow, glowing, outlives the rest. What hangs in the air after.
+  //   shard · a tumbling line of hull or rock, and the only opaque one — it
+  //           is what stops a burst reading as pure light.
+  //   dust  · the original square, kept for the cheap incidental hits.
+  //
+  // burst() mixes them by weight rather than spawning one type, so a 26-piece
+  // burst is an event with a shape instead of more of the same dot. The
+  // signature is unchanged — twenty call sites pass (x, y, n, col) and all of
+  // them get the new mix for free — with an optional power multiplier on the
+  // end for the handful of places that want a bigger one.
+  function burst(x, y, n, col, power){
+    var p = power || 1;
     for(var i=0;i<n;i++){
-      var a = Math.random()*Math.PI*2, sp = 1.5+Math.random()*3;
-      particles.push({ x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life:1, col: col || null });
+      var a = Math.random()*Math.PI*2, roll = Math.random(), sp;
+      if(roll < 0.44){
+        sp = (2.2 + Math.random()*5.2) * p;
+        particles.push({ t:'spark', x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+                         life:1, decay: 2.8 + Math.random()*2.6, drag:0.90, col: col || null });
+      } else if(roll < 0.72){
+        sp = (0.5 + Math.random()*1.6) * p;
+        particles.push({ t:'ember', x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+                         life:1, decay: 1.0 + Math.random()*0.9, drag:0.968,
+                         r: 1.0 + Math.random()*1.9, col: col || null });
+      } else if(roll < 0.89){
+        sp = (1.3 + Math.random()*3.4) * p;
+        particles.push({ t:'shard', x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+                         life:1, decay: 1.4 + Math.random()*1.0, drag:0.955,
+                         rot: Math.random()*Math.PI*2, vr: (Math.random()-0.5)*0.46,
+                         len: 2.6 + Math.random()*5, col: col || null });
+      } else {
+        sp = (1.5 + Math.random()*3) * p;
+        particles.push({ t:'dust', x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+                         life:1, decay: 2.4, drag:0.94, col: col || null });
+      }
+    }
+  }
+
+  // Sparks alone, for the places that want a flash rather than wreckage: a
+  // phaser landing, the muzzle, a deflected rock.
+  function sparks(x, y, n, col, power){
+    var p = power || 1;
+    for(var i=0;i<n;i++){
+      var a = Math.random()*Math.PI*2, sp = (2.6 + Math.random()*5.4) * p;
+      particles.push({ t:'spark', x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+                       life:1, decay: 3.4 + Math.random()*2.6, drag:0.89, col: col || null });
     }
   }
 
@@ -413,8 +1339,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     return Math.random() < 0.5 ? 'shield' : 'rapid';
   }
 
-  function makeAsteroid(mode, special){
-    var r = special ? 22 + Math.random()*7 : 14 + Math.random()*14;
+  function makeAsteroid(mode, special, size){
+    var r = special ? 22 + Math.random()*7
+                    : (size === 'mini' ? 7 + Math.random()*4.5 : 14 + Math.random()*14);
     var n = 8 + Math.floor(Math.random()*3);
     var pts = [];
     for(var i=0;i<n;i++){
@@ -427,6 +1354,19 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // without anyone ever getting a sudden shove. Rare rocks drift slower —
     // they are a prize, and a prize you cannot catch is just a tease.
     var sf = (0.4 + Math.random()*0.8) * (special ? 0.62 : 1);
+    // Chords between vertex pairs, rolled once. The renderer opens one more of
+    // them for every point of hull the rock has lost, so damage shows on the
+    // rock. Rolled at birth rather than per frame because cracks that re-roll
+    // every frame read as television static, not as damage.
+    var cracks = [];
+    for(var ci=0; ci<4; ci++){
+      var v0 = Math.floor(Math.random()*n);
+      cracks.push([v0, (v0 + 2 + Math.floor(Math.random()*(n-3))) % n]);
+    }
+    // There used to be a `lit0` here — the vertex a rock's lit faces started
+    // from, rolled once at birth. The renderer stopped reading it when the key
+    // light became world-fixed: which way the light falls is now a property of
+    // the sector, not of the rock, so the roll is gone with it.
     var top = window.scrollY, vh = window.innerHeight, vw = window.innerWidth;
     var x, y, ang, entering = false;
 
@@ -458,6 +1398,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     return { id: ++uid, x:x, y:y, ang:ang, sf:sf,
              vx: Math.cos(ang)*sf*speedMult, vy: Math.sin(ang)*sf*speedMult,
              r:r, pts:pts, hp: special ? 4 : rockHp(r, gameTime), hitT: 0,
+             maxHp: special ? 4 : rockHp(r, gameTime), cracks: cracks,
              special: special || null, pulse: Math.random()*Math.PI*2,
              rot: Math.random()*Math.PI*2, rotSpeed: (Math.random()-0.5)*0.02,
              entering: entering };
@@ -478,6 +1419,51 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     return a;
   }
 
+  // ── how rock arrives ─────────────────────────────────────────────────────
+  // Three shapes now, not one: a single rock, a cluster of small ones
+  // travelling together, or a big one with a couple of attendants. The
+  // population CAP is untouched — a cluster of four counts as four against
+  // rockTargetAt — so what this varies is the distribution of the field's mass
+  // rather than how much of it there is.
+  //
+  // That distinction is the whole reason it is safe to do at all. Rock is
+  // about 70% of every point of damage the player takes, so a change to
+  // density is a change to the health economy; a change to how that density is
+  // parcelled up is a change to what the field asks of you. A cluster cannot
+  // be cleared with one shot and cannot be threaded; a lone boulder can be
+  // both. Measured either side of this at N=64 and the survival curve did not
+  // move, which is the result it was built to get.
+  var CLUSTER_CHANCE = 0.22, ESCORT_CHANCE = 0.18;
+
+  // a small one travelling WITH its parent: same heading, near enough the same
+  // speed, so a cluster holds together across the screen instead of dispersing
+  // on the first frame
+  function shardOf(a, dist){
+    var ang = Math.random() * Math.PI * 2;
+    var m = makeAsteroid('field', null, 'mini');
+    m.x = a.x + Math.cos(ang) * dist;
+    m.y = a.y + Math.sin(ang) * dist;
+    m.ang = a.ang + (Math.random() - 0.5) * 0.3;
+    m.sf = a.sf * (0.92 + Math.random() * 0.24);
+    m.entering = a.entering;
+    return m;
+  }
+
+  function spawnWave(target){
+    var a = spawnSafeAsteroid();
+    asteroids.push(a);
+    var room = target - asteroids.length;
+    if(room <= 0 || a.special) return;
+    var roll = Math.random(), i;
+    if(roll < CLUSTER_CHANCE){
+      var k = Math.min(room, 3 + Math.floor(Math.random() * 3));
+      for(i=0;i<k;i++) asteroids.push(shardOf(a, 24 + Math.random() * 24));
+    } else if(roll < CLUSTER_CHANCE + ESCORT_CHANCE && a.r >= 22){
+      var m = Math.min(room, 1 + Math.floor(Math.random() * 2));
+      for(i=0;i<m;i++) asteroids.push(shardOf(a, a.r + 12 + Math.random() * 18));
+    }
+  }
+
   function spawnFieldAsteroid(){
     var a, tries = 0;
     do { a = makeAsteroid('field'); tries++; } while(tries < 10 && Math.hypot(a.x-ship.x, a.y-ship.y) < 180);
@@ -495,33 +1481,106 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
   // Weighted draw over whatever the clock has unlocked, so the newer hulls
   // dilute the scouts rather than replacing them.
+  // a hull is gone once it is well clear of the band the camera travels in,
+  // whichever direction it left by
+  // Which way a hull points. Strafers flip to face their lane; everything
+  // that manoeuvres points along its own velocity — except that a hull holding
+  // station has no velocity worth speaking of and points at the player
+  // instead, and a cube has no bow at all.
+  function alienFacing(al, AT){
+    if(AT.face === 'none') return 0;
+    if(AT.face === 'heading'){
+      if(Math.hypot(al.vx, al.vy) < 0.25) return Math.atan2(ship.y - al.y, ship.x - al.x);
+      return Math.atan2(al.vy, al.vx);
+    }
+    return al.vx < 0 ? Math.PI : 0;
+  }
+
+  function offBand(al){
+    return al.x < -al.r * 4 || al.x > window.innerWidth + al.r * 4 ||
+           al.y < window.scrollY - window.innerHeight * 0.8 ||
+           al.y > window.scrollY + window.innerHeight * 1.8;
+  }
+
+  // Borg cubes learn. EVERY source of damage to a hull goes through here, so
+  // the adaptation cannot be sidestepped by switching weapon — which is the
+  // entire point of it, and the reason this is a function rather than a line
+  // in the bullet loop.
+  function alienHurt(al, dmg){
+    if(al.adapt !== undefined){
+      if(al.adapted) dmg *= 0.5;
+      else {
+        al.adapt += dmg;
+        if(al.adapt >= BORG_ADAPT){
+          al.adapted = true;
+          burst(al.x, al.y, 12, '255,255,255', 0.9);
+        }
+      }
+    }
+    al.hp -= dmg;
+    return al.hp <= 0;
+  }
+
   function pickAlienKind(t){
-    var roster = [], total = 0, k;
-    for(k in ALIEN_TYPES) if(t >= ALIEN_TYPES[k].at){ roster.push(k); total += ALIEN_TYPES[k].weight; }
+    var roster = [], total = 0, k, i;
+    // Caps are per kind and they are doing real work: two Borg cubes is
+    // pressure and four is a wall; one web is an obstacle and three is a cage.
+    var live = {};
+    for(i=0;i<aliens.length;i++) live[aliens[i].kind] = (live[aliens[i].kind] || 0) + 1;
+    for(k in ALIEN_TYPES){
+      var T = ALIEN_TYPES[k];
+      if(t < T.at) continue;
+      if(T.cap && (live[k] || 0) >= T.cap) continue;
+      roster.push(k); total += T.weight;
+    }
+    if(!roster.length) return 'scout';
     var r = Math.random() * total;
-    for(var i=0;i<roster.length;i++){
+    for(i=0;i<roster.length;i++){
       r -= ALIEN_TYPES[roster[i]].weight;
       if(r <= 0) return roster[i];
     }
-    return 'scout';
+    return roster[roster.length - 1];
   }
 
   function spawnAlien(kind){
     kind = kind || pickAlienKind(gameTime);
     var T = ALIEN_TYPES[kind];
+    // rolled once and used for both, so the damage bar can never open a run
+    // already showing a dent — the day alienHpScale grows any jitter, two
+    // calls would have meant hp and maxHp disagreeing on the spawn frame
+    var alienHp = Math.max(1, Math.round(T.hp * alienHpScale(gameTime)));
     var fromLeft = Math.random() < 0.5;
     var y = window.scrollY + window.innerHeight * (0.2 + Math.random() * 0.6);
-    aliens.push({
+    var al = {
       id: ++uid, kind: kind, r: T.r,
       x: fromLeft ? -T.r * 2 : window.innerWidth + T.r * 2,
       y: y, baseY: y,
       vx: (fromLeft ? 1 : -1) * T.speed, vy: 0,
       t: Math.random() * Math.PI * 2,
-      hp: Math.max(1, Math.round(T.hp * alienHpScale(gameTime))), hitT: 0,
-      // a stalker burns fuel to chase; when it runs dry it breaks off and goes
-      ttl: kind === 'stalker' ? 24 : 0, fleeing: false,
+      hp: alienHp, hitT: 0,
+      maxHp: alienHp,
+      // chasers and standoff hulls burn fuel; when it runs dry they break off
+      ttl: T.ttl || 0, fleeing: false,
       nextShot: gameTime + 0.7   // a beat before it opens fire
-    });
+    };
+    // Per-hull state, set up here rather than lazily, so a flight style never
+    // has to guess whether its own fields exist yet.
+    if(T.move === 'run'){
+      al.phase = 'line'; al.runT = 0.8; al.face = fromLeft ? 0 : Math.PI;
+    } else if(T.move === 'standoff'){
+      al.slide = Math.random() < 0.5 ? 1 : -1; al.slideT = 2;
+    } else if(T.move === 'grind'){
+      al.adapt = 0; al.adapted = false; al.beamT = 0; al.beamAng = 0;
+      al.nextShot = gameTime + 2.6;
+    } else if(T.move === 'anchor'){
+      // it anchors off the player's shoulder rather than on top of them, so
+      // the web is an obstacle to fly around and not an ambush to fly into
+      var wa = Math.random() * Math.PI * 2;
+      al.phase = 'seek';
+      al.ax = Math.max(WEB_R, Math.min(window.innerWidth - WEB_R, ship.x + Math.cos(wa) * 215));
+      al.ay = ship.y + Math.sin(wa) * 215;
+    }
+    aliens.push(al);
   }
 
   // ── drops ────────────────────────────────────────────────────────────────
@@ -550,11 +1609,251 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var ROCK_HEART = 0.013;
   function dropRockLoot(x, y){
     if(lives < MAX_LIVES && Math.random() < ROCK_HEART){ dropPickup(x, y, 'heart'); return; }
-    dropPickup(x, y, Math.random() < 0.25 ? 'gem' : 'coin');
+    // 0.38, not 0.25: a third fewer rocks means a third fewer kills, and at
+    // the old rate the thinner field cost most of a level per run.
+    dropPickup(x, y, Math.random() < 0.38 ? 'gem' : 'coin');
   }
 
   function currentScore(){
     return Math.floor(gameTime * 10) + bonus;
+  }
+
+  // ── the run recorder ─────────────────────────────────────────────────────
+  // Everything the summary screen needs, gathered while the run is happening
+  // because none of it can be reconstructed afterwards. It is READ-ONLY with
+  // respect to the simulation: nothing in here is ever consulted by update(),
+  // so a recorder that broke outright would cost a chart and nothing else.
+  //
+  // The curve is sampled on the run clock rather than per frame — a frame
+  // counter would give a player on a 144Hz screen a different shaped run from
+  // one on a 60Hz screen. A run long enough to overflow the buffer drops every
+  // other sample and doubles the interval, so a forty-minute run keeps the
+  // same shape a two-minute one has instead of having its tail thrown away.
+  var dilithium = 0;
+  var runSeries = [], runStep = 2, runNext = 0, RUN_MAX = 90;
+
+  function sampleRun(){
+    if(gameTime < runNext) return;
+    runNext = gameTime + runStep;
+    runSeries.push([gameTime, currentScore()]);
+    if(runSeries.length > RUN_MAX){
+      var thin = [], i;
+      for(i=0;i<runSeries.length;i+=2) thin.push(runSeries[i]);
+      runSeries = thin;
+      runStep *= 2;
+    }
+  }
+
+  // The best run ever flown on this browser. Storage is allowed to be absent,
+  // full, or throw outright — a private window does all three — so every path
+  // through here has to be able to hand back null and let the panel render a
+  // first run with nothing to compare against.
+  var BEST_KEY = 'ab.bridge.best.v1';
+  function loadBest(){
+    try {
+      var raw = window.localStorage.getItem(BEST_KEY);
+      if(!raw) return null;
+      var b = JSON.parse(raw);
+      if(!b || typeof b.score !== 'number') return null;
+      if(!b.series || !b.series.length) b.series = [];
+      return b;
+    } catch(e){ return null; }
+  }
+  function saveBest(b){
+    try { window.localStorage.setItem(BEST_KEY, JSON.stringify(b)); } catch(e){}
+  }
+  // Each figure keeps its own record. Storing the best-scoring run wholesale
+  // and reading the tiles off it was wrong in a way that only shows up on the
+  // second run: a player who flew a monster chain in a run that ended early
+  // was told their best chain was whatever the high-scoring run happened to
+  // manage. The curve and the headline score still come from one run — they
+  // have to, a curve is a run — but the four figures are maxima in their own
+  // right, which is what "best chain" says on the tin.
+  function mergeBest(now, best){
+    if(!best) return now;
+    var keep = now.score > best.score ? now : best;
+    return { score:keep.score, t:keep.t, refit:keep.refit, series:keep.series,
+             chain:   Math.max(now.chain   || 0, best.chain   || 0),
+             salvage: Math.max(now.salvage || 0, best.salvage || 0),
+             over:    Math.max(now.over    || 0, best.over    || 0),
+             bosses:  Math.max(now.bosses  || 0, best.bosses  || 0) };
+  }
+
+  function runStats(){
+    return { score: currentScore(), t: Math.round(gameTime), refit: level,
+             chain: chainBest, salvage: dilithium, over: overchargeCount,
+             bosses: bossKills, series: runSeries.slice() };
+  }
+
+  // ── the run summary ──────────────────────────────────────────────────────
+  // What a hull breach screen is actually for. The run is over, and there are
+  // only two useful questions: how did that go, and was it better than last
+  // time. The panel answers both and then gets out of the way.
+  //
+  // ONE MEASURE, ONE AXIS. The obvious summary chart plots score, chain,
+  // dilithium and overcharges on the same grid — and it cannot be read,
+  // because a chain of 14 and a score of 4970 do not share a scale: the three
+  // small series lie flat along the floor pretending to be zero, and the only
+  // line anyone can actually see is score. So the chart plots SCORE over time
+  // and nothing else, and the other three become tiles, which is the right
+  // form for a single number anyway.
+  //
+  // The second line is the SAME measure at a different time — your best run —
+  // so it is the same hue a step darker rather than a second category. It is
+  // also dashed and labelled at its end, which means identity never rests on
+  // colour alone. Checked with the palette validator: ΔE 26.9 deuteranopia,
+  // 27.7 normal vision, both well clear. The bright step sits above the usual
+  // lightness band on purpose — cyan is the player in this game, everywhere,
+  // and the run you just flew is the player.
+  var TILES = [
+    { k:'chain',   lab:'Best chain',    icon:'chain' },
+    { k:'salvage', lab:'Dilithium',     icon:'gem'   },
+    { k:'over',    lab:'Overcharges',   icon:'bolt'  },
+    { k:'bosses',  lab:'Capital ships', icon:'ship'  }
+  ];
+  var TILE_ICONS = {
+    chain:'<path d="M9.5 14.5l5-5"/><path d="M13 6.5l1.8-1.8a3.4 3.4 0 0 1 4.8 4.8L17.8 11.3"/>' +
+          '<path d="M11 17.5L9.2 19.3a3.4 3.4 0 0 1-4.8-4.8L6.2 12.7"/>',
+    gem:  '<path d="M12 2.5l6.5 5.5-6.5 13.5L5.5 8z"/><path d="M5.5 8h13"/><path d="M12 2.5v19"/>',
+    bolt: '<path d="M13.5 2.5L6 13h5l-1.5 8.5L18 11h-5.2z"/>',
+    ship: '<path d="M2.5 12h6.5"/><path d="M20 12a5.5 3 0 1 1-11 0 5.5 3 0 0 1 11 0z"/>' +
+          '<path d="M8 7.5h8M8 16.5h8"/>'
+  };
+
+  function fmtAxis(v){ return v >= 1000 ? (v / 1000).toFixed(1) + 'k' : String(Math.round(v)); }
+
+  // Time does not step in powers of ten — 100 seconds is not a mark anybody
+  // reads. The unit is chosen ONCE for the whole axis from a ladder of real
+  // clock intervals, so the ticks are all seconds or all whole minutes and
+  // never both. Deriving each label from its own value instead is what put
+  // "3m" on the axis twice: 150s and 200s both round to three minutes.
+  var TIME_STEPS = [10,15,20,30,60,120,180,300,600,900,1800,3600];
+  function niceTime(span, want){
+    for(var i=0;i<TIME_STEPS.length;i++) if(span / TIME_STEPS[i] <= want) return TIME_STEPS[i];
+    return TIME_STEPS[TIME_STEPS.length - 1];
+  }
+  function fmtClock(sec, step){ return step >= 60 ? (sec / 60) + 'm' : sec + 's'; }
+
+  // a 1 / 2 / 5 × 10ⁿ step, so the gridlines land on numbers a person would
+  // have chosen rather than on maxY/4
+  function niceStep(span, want){
+    var raw = span / want;
+    if(!(raw > 0)) return 1;
+    var mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+    var n = raw / mag;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * mag;
+  }
+
+  // A run that ends in the first couple of seconds has one sample or none, and
+  // a path with a single moveto draws nothing at all — so the curve always
+  // starts from the origin it actually started from.
+  function prepSeries(a){
+    var out = (a && a.length) ? a.slice() : [];
+    if(!out.length || out[0][0] > 0.01) out.unshift([0, 0]);
+    return out;
+  }
+
+  function seriesPath(a, sx, sy){
+    var d = '', i;
+    for(i=0;i<a.length;i++) d += (i ? 'L' : 'M') + sx(a[i][0]).toFixed(1) + ' ' + sy(a[i][1]).toFixed(1);
+    return d;
+  }
+
+  function renderChart(run, best){
+    if(!chartEl) return;
+    // The SVG scales to the panel, so everything inside it shrinks with the
+    // screen — at phone width the 9px axis type lands at about five real
+    // pixels, which is not type any more. The viewBox text is scaled back up
+    // in CSS, and the end labels lose their prose so the bigger lettering
+    // still fits in the margin kept for it.
+    var narrow = window.innerWidth < 760;
+    var W = 720, H = 188, L = narrow ? 62 : 54, R = narrow ? 84 : 112, T = 16, B = 30, i, v, gy;
+    var bs = (best && best.series && best.series.length) ? prepSeries(best.series) : null;
+    var maxT = run[run.length - 1][0], maxY = 0;
+    if(bs) maxT = Math.max(maxT, bs[bs.length - 1][0]);
+    for(i=0;i<run.length;i++) maxY = Math.max(maxY, run[i][1]);
+    if(bs) for(i=0;i<bs.length;i++) maxY = Math.max(maxY, bs[i][1]);
+    maxT = Math.max(maxT, 10); maxY = Math.max(maxY, 10);
+    var yStep = niceStep(maxY, 5), yTop = Math.ceil(maxY / yStep) * yStep;
+    var xStep = niceTime(maxT, 5), xEnd = Math.ceil(maxT / xStep) * xStep;
+    var pw = W - L - R, ph = H - T - B;
+    function sx(t){ return L + pw * (t / xEnd); }
+    function sy(q){ return T + ph * (1 - q / yTop); }
+
+    // the grid, kept recessive: it is there to be measured against, not read
+    var g = '';
+    for(v = 0; v <= yTop + yStep * 0.01; v += yStep){
+      gy = sy(v);
+      g += '<line x1="' + L + '" y1="' + gy.toFixed(1) + '" x2="' + (L + pw) +
+           '" y2="' + gy.toFixed(1) + '" class="cg"/>' +
+           '<text x="' + (L - 9) + '" y="' + (gy + 3.4).toFixed(1) +
+           '" class="cl cly">' + fmtAxis(v) + '</text>';
+    }
+    for(v = 0; v <= xEnd + xStep * 0.01; v += xStep){
+      g += '<text x="' + sx(v).toFixed(1) + '" y="' + (H - 9) +
+           '" class="cl clx">' + (v ? fmtClock(v, xStep) : '0') + '</text>';
+    }
+
+    var re = run[run.length - 1], ry = sy(re[1]), rx = sx(re[0]);
+    var out = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="ac-svg" role="img" aria-label="' +
+              'Score over time. This run reached ' + re[1] +
+              (bs ? '. Previous best reached ' + best.score : '. No previous run') + '.">' + g;
+    if(bs){
+      var be = bs[bs.length - 1], by = sy(be[1]), bx = sx(be[0]);
+      // two labels at the same height collide into one illegible line, so the
+      // quieter of the pair gives way
+      var gap = by - ry;
+      if(Math.abs(gap) < 15) by = ry + (gap < 0 ? -15 : 15);
+      out += '<path d="' + seriesPath(bs, sx, sy) + '" class="cp cp-best"/>' +
+             '<circle cx="' + bx.toFixed(1) + '" cy="' + sy(be[1]).toFixed(1) +
+             '" r="3.4" class="ce ce-best"/>' +
+             '<text x="' + (bx + 11).toFixed(1) + '" y="' + (by + 3.6).toFixed(1) +
+             '" class="cl cn cn-best">BEST ' + best.score + '</text>';
+    }
+    out += '<path d="' + seriesPath(run, sx, sy) + '" class="cp cp-run"/>' +
+           '<circle cx="' + rx.toFixed(1) + '" cy="' + ry.toFixed(1) + '" r="4.4" class="ce ce-run"/>' +
+           '<text x="' + (rx + 11).toFixed(1) + '" y="' + (ry + 3.6).toFixed(1) +
+           '" class="cl cn cn-run">' + (narrow ? '' : 'THIS RUN ') + re[1] + '</text>' +
+           '</svg>';
+    chartEl.innerHTML = out;
+  }
+
+  // The delta is an ABSOLUTE difference, not a percentage. Three more
+  // overcharges than last time is a fact a player can act on; "+67%" is the
+  // same fact wearing a costume, and on a denominator of three it is noise.
+  function tileHtml(spec, now, best){
+    var v = now[spec.k], p = best ? best[spec.k] : null, d = '';
+    if(p === null || p === undefined) d = '<span class="at-d">first run</span>';
+    else if(v > p) d = '<span class="at-d is-up">▲ +' + (v - p) + '</span>' +
+                       '<span class="at-p">best ' + p + '</span>';
+    else if(v < p) d = '<span class="at-d is-dn">▼ ' + (v - p) + '</span>' +
+                       '<span class="at-p">best ' + p + '</span>';
+    else d = '<span class="at-d">matched</span><span class="at-p">best ' + p + '</span>';
+    return '<div class="ao-tile' + (p !== null && p !== undefined && v > p ? ' is-best' : '') + '">' +
+             '<svg class="at-i" viewBox="0 0 24 24" aria-hidden="true">' + TILE_ICONS[spec.icon] + '</svg>' +
+             '<span class="at-l">' + spec.lab + '</span>' +
+             '<b class="at-v">' + v + '</b>' +
+             '<span class="at-r">' + d + '</span>' +
+           '</div>';
+  }
+
+  function renderSummary(){
+    var now = runStats();
+    // the curve has to end where the run ended, not up to a sample interval
+    // short of it — the last thing that happened is usually the interesting one
+    now.series.push([gameTime, now.score]);
+    var best = loadBest();
+    var beat = !best || now.score > best.score;
+    if(finalEl) finalEl.textContent = now.score;
+    if(finalSubEl) finalSubEl.textContent =
+      now.t + 's adrift · refit ' + now.refit +
+      (best ? (beat ? ' · new best' : ' · best ' + best.score) : ' · first run');
+    if(tilesEl) tilesEl.innerHTML = TILES.map(function(t){ return tileHtml(t, now, best); }).join('');
+    renderChart(prepSeries(now.series), best);
+    // always, not only on a new high score: a run that scored badly can still
+    // have set the longest chain or killed the most capital ships, and those
+    // records are lost the moment they are not written down
+    saveBest(mergeBest(now, best));
   }
 
   function heartMarkup(){
@@ -566,7 +1865,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // syncHud runs on every simulated frame, so each field is compared before it
   // is written — the lives row in particular is markup, and rebuilding it 60
   // times a second for a value that changes twice a run is pure layout churn.
-  var hudLast = { score:-1, lives:-1, xp:-1, need:-1, level:-1, shield:-1, rapid:-1, boss:-1 };
+  var hudLast = { score:-1, lives:-1, xp:-1, need:-1, level:-1, shield:-1, rapid:-1, boss:-1,
+                  core:-1, overcharged:null, coreLab:'', chain:-1 };
 
   // Red alert is derived, never set: anything that moves `lives` — a hit, a
   // repair, a run reset — lands here on the next frame and the class follows.
@@ -582,22 +1882,28 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   function syncHud(){
     var sc = currentScore();
     syncRedAlert();
-    if(scoreEl && sc !== hudLast.score){ scoreEl.textContent = 'Stardate ' + sc; hudLast.score = sc; }
+    // Only the figure is written now — the word beside it is authored in the
+    // markup and never changes, and rewriting it sixty times a second was
+    // rebuilding a text node to say "Stardate" again.
+    if(scoreEl && sc !== hudLast.score){ scoreEl.textContent = sc; hudLast.score = sc; }
     if(livesEl && lives !== hudLast.lives){ livesEl.innerHTML = heartMarkup(); hudLast.lives = lives; }
 
     var need = xpNeed(level);
     if(xp !== hudLast.xp || need !== hudLast.need){
       if(xpFillEl) xpFillEl.style.width = Math.max(0, Math.min(100, xp / need * 100)).toFixed(1) + '%';
-      if(xpNumEl) xpNumEl.textContent = xp + ' / ' + need;
+      // the crystals in hand and the crystals wanted are two tiers, not one
+      // string: the left number is what moved, the right one is the target
+      if(xpNumEl) xpNumEl.textContent = xp;
+      if(xpNeedEl) xpNeedEl.textContent = '/ ' + need;
       hudLast.xp = xp; hudLast.need = need;
     }
-    if(lvlNumEl && level !== hudLast.level){ lvlNumEl.textContent = 'REFIT ' + level; hudLast.level = level; }
+    if(lvlNumEl && level !== hudLast.level){ lvlNumEl.textContent = level; hudLast.level = level; }
 
     // the timers only ever need whole seconds, so they are only touched when
     // that whole second actually ticks over
     var sSec = Math.ceil(shieldTime), rSec = Math.ceil(rapidTime);
     if(shieldEl && sSec !== hudLast.shield){
-      shieldEl.textContent = 'Deflector ' + sSec + 's';
+      shieldEl.textContent = 'Shields ' + sSec + 's';
       shieldEl.classList.toggle('on', shieldTime > 0);
       hudLast.shield = sSec;
     }
@@ -605,6 +1911,41 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       rapidEl.textContent = 'Phasers ' + rSec + 's';
       rapidEl.classList.toggle('on', rapidTime > 0);
       hudLast.rapid = rSec;
+    }
+
+    // The core is quantised to whole percent — it is a nine-pixel ladder and
+    // nothing finer than a percent can land on a different segment.
+    var cPct = Math.round(core / CORE_MAX * 100);
+    if(coreFillEl && cPct !== hudLast.core){
+      coreFillEl.style.width = cPct + '%';
+      hudLast.core = cPct;
+    }
+    if(overcharged !== hudLast.overcharged){
+      // on the body rather than on the gauge, because the touch vent button
+      // lives at the other end of the screen and has to answer the same state
+      document.body.classList.toggle('astro-core-ready', overcharged);
+      hudLast.overcharged = overcharged;
+    }
+    // The gauge has three states and the label only ever had words for two of
+    // them: a press that emptied a full bar looked exactly like a bar that had
+    // never filled. Charging is the noun, ready is the order, released is the
+    // receipt. Derived here rather than written at the press, because
+    // `overcharged` flips false on release and the branch above would
+    // overwrite anything set from outside this function on the next frame.
+    var cLab = overcharged ? 'Overcharge ready'
+             : (gameTime < releasedT ? 'Overcharge released' : 'Overcharge');
+    if(coreLabEl && cLab !== hudLast.coreLab){
+      coreLabEl.textContent = cLab;
+      coreLabEl.classList.toggle('is-released', cLab === 'Overcharge released');
+      hudLast.coreLab = cLab;
+    }
+    // The chain only exists once it is worth something. Sitting at x1.00 for
+    // most of a run, it would be a readout that means "nothing is happening".
+    var cm = chain >= 3 ? chainMult() : 0;
+    if(chainEl && cm !== hudLast.chain){
+      if(cm && chainValEl) chainValEl.textContent = '\u00d7' + cm.toFixed(2);
+      chainEl.classList.toggle('on', cm > 0);
+      hudLast.chain = cm;
     }
 
     // the hull bar is the only readout that has to move smoothly, so it is
@@ -637,10 +1978,17 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       armourAt = gameTime + armourEvery(up.armour);
       ship.invuln = Math.max(ship.invuln, 1.0);
       burst(ship.x, ship.y, 20, '111,232,255');
+      bloom(ship.x, ship.y, 48, '111,232,255');
+      shake(0.34); freeze(0.04);
       return;
     }
     lives--;
-    burst(ship.x, ship.y, 26);
+    // Losing a hull plate is the worst thing that happens to the player, so it
+    // gets the second-loudest entry in the grammar — and it is the one place
+    // the alert colour is allowed into a bloom.
+    burst(ship.x, ship.y, 30, null, 1.4);
+    bloom(ship.x, ship.y, 62, '255,45,120');
+    shake(0.78); freeze(0.07);
     if(lives > 0){
       resetShip(RESPAWN_INVULN);
       syncHud();
@@ -648,12 +1996,11 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     }
     lives = 0;
     gameOver = true;                    // loop() paints this frame, then stops
-    if(finalEl) finalEl.textContent = currentScore();
-    if(finalSubEl) finalSubEl.textContent =
-      Math.floor(gameTime) + 's adrift · refit ' + level +
-      (bossKills ? ' · ' + bossKills + ' capital ship' + (bossKills > 1 ? 's' : '') + ' destroyed' : '') +
-      (bossFled ? ' · ' + bossFled + ' evaded' : '');
-    if(hintEl) hintEl.textContent = isCoarse ? 'tap to play again' : 'press any key to play again';
+    // The whole panel — hero figure, tiles, curve — is one call, and it is
+    // the only thing that ever writes it. The run used to be summarised as a
+    // middot-separated sentence here; everything that sentence carried is now
+    // a tile with last run's figure beside it.
+    renderSummary();
     if(overEl) overEl.classList.add('on');
     // dying mid-fight left the hull bar and the inbound warning stranded on top
     // of the game-over card until the next run reset them
@@ -667,6 +2014,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
   // wipe the run back to zero — clock, XP, upgrades, buffs, rocks and warbirds
   function resetRun(){
+    preloadArt();
     bullets = []; particles = []; aliens = []; alienBullets = []; pickups = [];
     bonus = 0; nextAlienAt = ALIEN_FIRST;
     boss = null; bossWarn = 0; bossCount = 0; bossKills = 0; bossFled = 0; nextBossAt = BOSS_FIRST;
@@ -677,13 +2025,19 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     gameTime = 0; lastFrame = performance.now();
     speedMult = speedMultAt(0); rockSpawnAcc = 0;
     lives = START_LIVES;
-    xp = 0; level = 1; pendingLevels = 0;
+    xp = 0; level = 1; pendingLevels = 0; refitDealt();
     shieldTime = 0; rapidTime = 0; nextGuard = 0;
     armourReady = false; armourAt = 0;
     for(var k in up) up[k] = 0;
+    hull = null; refits = 0;
     autoPaused = false;
-    torpedoes = []; shockwaves = []; wake = []; arcOn = [];
-    nextTorp = 0; nextWake = 0;
+    torpedoes = []; shockwaves = []; mines = []; wake = []; arcOn = [];
+    blooms = []; trauma = 0; hitStop = 0;
+    surges = []; webs = []; core = 0; overcharged = false; releasedT = 0;
+    grazeTotal = 0; overchargeCount = 0;
+    dilithium = 0; runSeries = []; runStep = 2; runNext = 0;
+    chain = 0; chainT = 0; chainBest = 0;
+    nextTorp = 0; nextMine = 0; nextWake = 0; nextEmber = 0;
     redAlert = true;                 // force syncRedAlert to re-evaluate
     syncRedAlert();
     closeLevel(true);
@@ -698,166 +2052,294 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     gameOver = false;
     if(overEl) overEl.classList.remove('on');
     resetRun();
+    openPick();
     raf = requestAnimationFrame(loop);
   }
 
+  // ── hulls, and the three cards they own ────────────────────────────
+  // Three of the sixteen cards are not upgrades at all: they are whole
+  // weapons, and which one you have decides how the first two minutes of a
+  // run are actually flown. Drawing one of those three at refit 2 used to be
+  // the single biggest thing that happened to a run, and it happened to you
+  // rather than being chosen — so they are now the hull you pick before the
+  // field spawns, and the run opens with the weapon already warm.
+  //
+  // The other two are not gone, they are held back. The first opens at refit
+  // 3 and the second at refit 5, counted in cards actually taken rather than
+  // in the XP level, so a run that took three salvage cards off capital ships
+  // reaches them three cards sooner. That ordering is the whole design: the
+  // first third of a run is one weapon and the build on top of it, the middle
+  // is the second weapon arriving into a ship already shaped, and only a long
+  // run ever flies all three. Once a card is open it behaves like every other
+  // card in the deck — rolled at random, stacked to its own max, no special
+  // case anywhere in choose().
+  var SIG = ['torp', 'spread', 'mine'];
+  var hull = null;      // which of the three this run started with
+  var refits = 0;       // cards taken, salvage included
+
+  // Deterministic, so a run can be read back: the two you did not pick open
+  // in SIG order, the first at 3 and the second at 5. They were 6 and 12
+  // until the XP curve steepened in Sep 2026; 3 and 5 land at about the same
+  // points in the run as 6 and 12 used to (a minute in, and two and a half).
+  function sigUnlock(id){
+    if(!hull) return Infinity;
+    var others = [], i;
+    for(i=0;i<SIG.length;i++) if(SIG[i] !== hull) others.push(SIG[i]);
+    var at = others.indexOf(id);
+    return at < 0 ? 0 : (at === 0 ? 3 : 5);
+  }
+  function sigOpen(id){ return hull === id || refits >= sigUnlock(id); }
+
+  // The three hulls. This panel opens once, before the field exists, and the
+  // question it asks is small: which of these three do I want to be flying.
+  // So the card carries the fewest things that can answer it — the ship, its
+  // class and type, and the gun it opens with — and nothing else. The gun is
+  // named off the upgrade roster rather than typed out here, so the card says
+  // exactly what the refit deck will later call it.
+  //
+  // `art` is the ship as supplied, used as is. It is not the ship the game
+  // flies — that one is drawn on canvas by shipShape() and has to read at nine
+  // pixels while moving. This is the opposite job: still, large, and looked at
+  // for as long as the player wants.
+  //
+  // `tint` is the card's colour, and it is the only place in the game where a
+  // colour is chosen per ship rather than per category. It is safe here
+  // because this panel opens once, before the field exists, and the three
+  // categories it would otherwise clash with are not on screen: there are no
+  // upgrade cards in a hull draft. Amber, cyan, violet in roster order, which
+  // is the same three hues the deck uses, so the palette stays closed.
+  var SHIPS = [
+    { id:'torp',   name:'Defiant class',   role:'Escort',  tint:'gun',  art:'game/escort.svg' },
+    { id:'spread', name:'Sovereign class', role:'Cruiser', tint:'hull', art:'game/cruiser.svg' },
+    { id:'mine',   name:'Nova class',      role:'Scout',   tint:'ship', art:'game/scout.svg' }
+  ];
+
+  function applyHull(id){
+    hull = id;
+    up[id] = 1;
+    // The plate count is part of the hull, not part of the run, so it is set
+    // here rather than at reset — reset runs before a hull exists. This is
+    // also the only thing on the pick panel that can make a run harder: the
+    // Nova opens on two plates, which is a third of the baseline run's health
+    // economy gone before anything has spawned.
+    lives = Math.min(MAX_LIVES, hullMods().lives);
+    if(id === 'torp') nextTorp = gameTime + 0.8;
+    if(id === 'mine') nextMine = gameTime + 0.8;
+  }
+
   // ── the upgrade pool ─────────────────────────────────────────────────────
-  // Sixteen entries, three offered per level. Every line a card prints is
+  // Seventeen entries, three offered per level. Every line a card prints is
   // computed from the live stat functions rather than written out, so a card
   // can never promise a number the ship does not actually get.
   //
   // The pool grew from nine in Sep 2026 and that has a cost worth knowing: a
   // specific card now shows up in roughly a fifth of drafts rather than a
   // third. That is the trade a bigger deck makes — more builds, less control
-  // over reaching one — and it is why the two most situational additions are
-  // gated rather than always on offer (Targeting Sensors needs a torpedo bay;
-  // Damage Control needs a missing hull plate).
+  // over reaching one — and it is why the situational entries are gated
+  // rather than always on offer: Targeting Sensors needs a torpedo bay,
+  // Damage Control needs a missing hull plate, and the three signature
+  // weapons are held behind the hull you picked (see sigOpen). Five of the
+  // seventeen are gated, so an early draft is really drawn from fourteen.
 
-  // Both weapon cards move the same underlying number, and Spread Shot moves it
+  // One arrow, everywhere a figure changes. U+2192 rather than the heavy
+  // U+2794 the cards used to carry: at 13px in a mono face the heavy arrow
+  // out-weighed the numbers on either side of it, and the numbers are the
+  // thing being compared.
+  var ARROW = ' \u2192 ';
+
+  // Both weapon cards move the same underlying number, and the Cone moves it
   // the wrong way, so they quote it through one helper. Whole figures read
   // cleaner, but it drops to a decimal when rounding would print the same
   // number twice and make a real change look like a no-op.
   function rateLine(fireL, spreadL){
     var a = 1 / shotCooldown(), b = 1 / cooldownWith(fireL, spreadL, rapidTime > 0);
     var dp = Math.round(a) === Math.round(b) ? 1 : 0;
-    return a.toFixed(dp) + ' \u2794 ' + b.toFixed(dp) + ' shots/sec';
+    return a.toFixed(dp) + ARROW + b.toFixed(dp) + ' shots/sec';
   }
   function pct(from, to){ return '+' + Math.round((to / from - 1) * 100) + '%'; }
 
-  // ── the subsystem roster ─────────────────────────────────────────────────
-  // Every card carries three things, in this order, because a name alone was
-  // never enough: a ROLE so the card can be sorted at a glance against the
-  // other two on offer, a plain sentence saying what it actually does in
-  // ordinary words, and the figures. The Star Trek naming is the flavour on
-  // top — it should never be the only thing telling you what you are picking.
+  // ── the upgrade roster ───────────────────────────────────────────────────
+  // Every card carries four things, and the card is set as a ladder that
+  // descends through them in this order: the CATEGORY, so a draw can be sorted
+  // at a glance; the NAME, which is the headline — it is what the card is
+  // called and it is what you say to yourself when you pick it; then a plain
+  // SENTENCE saying what it actually does in ordinary words; then the FIGURES.
+  // The name tells you which shipboard system this is; the sentence tells you
+  // what taking it does to you. Every tier is smaller and dimmer than the one
+  // above it, so the card has a single obvious top.
   //
   // The figures are still computed from the live stat functions rather than
   // written out, so a card can never promise a value the ship does not get,
   // and they are quoted in units a player can feel: shots per second, targets
   // hit, seconds of cover. No pixel counts — nobody can see 165px.
+  //
+  // ── the four words the whole deck is written in ──────────────────────────
+  // A player reading three cards in a frozen second cannot also be learning a
+  // vocabulary, so every card uses the same four nouns for the same four
+  // things and never a synonym:
+  //
+  //   shot    one pull of the trigger. Rate is quoted in shots/sec.
+  //   beam    one phaser round in flight. Damage, speed, range and how many
+  //           targets it passes through are all properties of a BEAM.
+  //   torpedo the homing warhead. Never "missile", never "round".
+  //   mine    the thing you leave behind you. It is laid, never fired.
+  //   hull    the plates you lose on a hit. Never "life", never "health".
+  //
+  // That is why the Cone quotes "beams per shot" and the Array quotes
+  // "shots/sec" — the two figures look alike and mean different things, and
+  // the nouns are what tells them apart.
+  //
+  // Every `benefit` is one short sentence, in the second person, ending in a
+  // full stop. It is the line the card is picked on, so it says what YOU get
+  // rather than what the system is called.
   var UPGRADES = [
-    { id:'fire', name:'Phaser Array', role:'Rate', max:6,
-      what:'Your main gun cycles faster.',
+    { id:'fire', cat:'gun', name:'Phaser Array', role:'Rate', max:5,
+      benefit:'Your phasers fire faster.',
       lines:function(){ return [rateLine(up.fire + 1, up.spread)]; } },
 
-    { id:'ram', name:'Ramming Speed', role:'Impact', max:3,
+    { id:'ram', cat:'gun', name:'Ramming Speed', role:'Impact', max:3,
       // the capital-ship exemption has to be on the card. It is not a detail:
       // without it the only way to learn the rule is to ram a dreadnought at
       // full impulse and lose a hull plate finding out.
-      what:'At full impulse the bow shield holds. Fly flat out into rock or a ' +
-           'warbird and it breaks, not you \u2014 but the impact kills your speed, ' +
-           'and a capital ship is too big to shunt.',
+      benefit:'Fly into asteroids to break them.',
+      what:'Not capital ships.',
       lines:function(){
         return up.ram
-          ? [ramDamage() + ' \u2794 ' + (ramDamage() + 3) + ' impact damage',
-             'Arms at ' + Math.round(ramThreshold() * 100) + '% \u2794 ' +
+          ? [ramDamage() + ARROW + (ramDamage() + 3) + ' impact damage',
+             'Needs ' + Math.round(ramThreshold() * 100) + '%' + ARROW +
              Math.round((0.86 - 0.06 * up.ram) * 100) + '% of top speed']
-          : [ramDamage() + 3 + ' impact damage, at ' +
-             Math.round(0.86 * 100) + '% of top speed'];
+          : [(ramDamage() + 3) + ' impact damage',
+             'Needs ' + Math.round(0.86 * 100) + '% of top speed'];
       } },
 
-    { id:'thrust', name:'Impulse Drive', role:'Handling', max:6,
-      what:'Accelerate harder and come about quicker.',
-      lines:function(){ return ['+14% thrust \u00b7 +10% turn rate']; } },
+    { id:'thrust', cat:'ship', name:'Impulse Drive', role:'Handling', max:4,
+      benefit:'Your ship moves faster and turns quicker.',
+      lines:function(){ return ['+' + Math.round(THRUST_STEP * 100) + '% thrust',
+                                '+' + Math.round(TURN_STEP * 100) + '% turn rate']; } },
 
-    // The one card that costs something. The downside goes in the sentence
-    // rather than being buried in the second figure, because a hidden cost on
-    // the strongest card in the deck is just a trap.
-    { id:'spread', name:'Phaser Array Cone', role:'Coverage', max:3,
-      what:'Fires a fan instead of one beam. Covers more sky, cycles slower.',
-      lines:function(){ return [barrels(up.spread) + ' \u2794 ' + barrels(up.spread + 1) +
-                                ' beams', rateLine(up.fire, up.spread + 1)]; } },
+    // The one card in the deck that costs something, and the only one with a
+    // `cost` line. It needs one: every other figure on every other card is a
+    // gain, so "4 \u2192 3 shots/sec" set in the same cyan as the line above it
+    // reads as a third improvement at a glance \u2014 and the sentence that used to
+    // carry the warning is only printed the first time the card is offered,
+    // which is the one time you are least likely to be taking it.
+    { id:'spread', cat:'gun', name:'Phaser Array Cone', role:'Coverage', max:3,
+      avail:function(){ return sigOpen('spread'); },
+      benefit:'Fire a wider spread of beams.',
+      what:'Wider cover, slower cycle.',
+      lines:function(){ return [barrels(up.spread) + ARROW + barrels(up.spread + 1) +
+                                ' beams per shot']; },
+      cost:function(){ return [rateLine(up.fire, up.spread + 1)]; } },
 
     // The only card that adds a whole weapon rather than moving a number, so
     // it is worth a level of its own before it starts scaling.
-    { id:'torp', name:'Photon Torpedo Bay', role:'Warheads', max:4,
-      what:'Adds a slow torpedo that hunts the nearest warbird, flying through ' +
-           'rock to reach it, and detonates on everything caught in the blast. ' +
-           'With no ship in range it flies straight and cracks the field.',
+    { id:'torp', cat:'gun', name:'Photon Torpedo Bay', role:'Warheads', max:4,
+      avail:function(){ return sigOpen('torp'); },
+      benefit:'Adds torpedoes that chase their target.',
+      what:'They fire and reload on their own.',
       lines:function(){
         return up.torp
-          ? [torpDamage() + ' \u2794 ' + (torpDamage() + 1) + ' blast damage',
-             'Reloads every ' + torpCooldown().toFixed(1) + 's \u2794 ' +
+          ? [torpDamage() + ARROW + (torpDamage() + 1) + ' blast damage',
+             'Reloads every ' + torpCooldown().toFixed(1) + 's' + ARROW +
              (TORP_COOLDOWN * Math.pow(0.82, up.torp)).toFixed(1) + 's']
-          : [TORP_DMG + ' blast damage, every ' + TORP_COOLDOWN.toFixed(1) + 's'];
+          : [TORP_DMG + ' blast damage',
+             'Reloads every ' + TORP_COOLDOWN.toFixed(1) + 's'];
       },
       apply:function(){ up.torp++; nextTorp = gameTime + 0.8; } },
 
-    { id:'wake', name:'Warp Plasma Vent', role:'Wake', max:4,
-      what:'Lays burning drive plasma behind you whenever the engines are lit. ' +
-           'Klingons that fly through it cook; rock ignores it. Turning tight ' +
-           'under power draws a wall.',
+    // The third whole weapon, and the only one aimed by where you flew rather
+    // than by where you are pointing.
+    { id:'mine', cat:'gun', name:'Tricobalt Mine Layer', role:'Mines', max:4,
+      avail:function(){ return sigOpen('mine'); },
+      benefit:'Leave mines behind you that wait for a target.',
+      what:'They arm on their own and never touch your hull.',
+      lines:function(){
+        return up.mine
+          ? [mineDamage() + ARROW + (mineDamage() + 1) + ' blast damage',
+             'Lays every ' + mineCooldown().toFixed(1) + 's' + ARROW +
+             (MINE_COOLDOWN * Math.pow(0.82, up.mine)).toFixed(1) + 's',
+             mineRack() + ARROW + (MINE_RACK + 2 * (up.mine + 1)) + ' mines in the rack']
+          : [MINE_DMG + ' blast damage',
+             'Lays every ' + MINE_COOLDOWN.toFixed(1) + 's'];
+      },
+      apply:function(){ up.mine++; nextMine = gameTime + 0.8; } },
+
+    { id:'wake', cat:'gun', name:'Warp Plasma Vent', role:'Wake', max:4,
+      benefit:'Leave a burning trail behind you.',
+      what:'Anything that flies through it takes damage.',
       lines:function(){
         return up.wake
-          ? [wakeDamage() + ' \u2794 ' + wakeDamageAt(up.wake + 1) + ' burn damage',
-             'Trail lasts ' + wakeLife().toFixed(1) + 's \u2794 ' +
+          ? [wakeDamage() + ARROW + wakeDamageAt(up.wake + 1) + ' burn damage',
+             'Trail lasts ' + wakeLife().toFixed(1) + 's' + ARROW +
              (WAKE_LIFE * (1 + 0.35 * up.wake)).toFixed(1) + 's']
-          : [wakeDamageAt(1) + ' burn damage \u00b7 trail lasts ' +
-             WAKE_LIFE.toFixed(1) + 's'];
+          : [wakeDamageAt(1) + ' burn damage',
+             'Trail lasts ' + WAKE_LIFE.toFixed(1) + 's'];
       } },
 
-    { id:'pierce', name:'Polarised Emitters', role:'Pierce', max:3,
-      what:'Beams carry on through whatever they hit instead of stopping dead.',
-      lines:function(){ return ['Hits ' + (up.pierce + 1) + ' \u2794 ' + (up.pierce + 2) +
-                                ' targets per shot']; } },
+    { id:'pierce', cat:'gun', name:'Polarised Emitters', role:'Pierce', max:3,
+      benefit:'Your beams pass through targets.',
+      what:'One shot can clear a line of rock.',
+      lines:function(){ return ['Each beam hits ' + (up.pierce + 1) + ARROW +
+                                (up.pierce + 2) + ' targets']; } },
 
-    { id:'dmg', name:'Warp Core Output', role:'Damage', max:4,
-      what:'Every weapon on the ship hits harder.',
-      lines:function(){ return ['Beam damage ' + bulletDamage() + ' \u2794 ' + (bulletDamage() + 1),
-                                'Torpedoes scale with it']; } },
+    { id:'dmg', cat:'gun', name:'Warp Core Output', role:'Damage', max:4,
+      benefit:'Your weapons deal more damage.',
+      lines:function(){ return ['Beam damage ' + bulletDamage() + ARROW + (bulletDamage() + 1),
+                                'Torpedoes hit harder']; } },
 
-    { id:'arc', name:'Hull Arc Coils', role:'Close', max:3,
-      what:'The hull sheds a burning field a few metres out. Anything that gets ' +
-           'that close cooks \u2014 rock included \u2014 but so does the ship, if ' +
-           'you misjudge it.',
+    { id:'arc', cat:'gun', name:'Hull Arc Coils', role:'Close', max:3,
+      benefit:'Burn anything that gets too close.',
+      what:'No aiming. It covers the hull.',
       lines:function(){
         return up.arc
-          ? [arcDps().toFixed(1) + ' \u2794 ' + (ARC_DPS * (up.arc + 1) + up.dmg * 0.8).toFixed(1) +
+          ? [arcDps().toFixed(1) + ARROW + (ARC_DPS * (up.arc + 1) + up.dmg * 0.8).toFixed(1) +
              ' damage/sec', pct(arcRange(), arcRangeAt(up.arc + 1)) + ' reach']
-          : [ARC_DPS.toFixed(1) + ' damage/sec, at arm\u2019s length'];
+          : [ARC_DPS.toFixed(1) + ' damage/sec', 'At arm\u2019s length'];
       } },
 
-    { id:'range', name:'Long-Range Emitters', role:'Reach', max:3,
-      what:'Beams travel faster and stay alive longer before they fade.',
-      lines:function(){ return ['+12% beam speed \u00b7 +15% range']; } },
+    { id:'range', cat:'gun', name:'Long-Range Emitters', role:'Reach', max:3,
+      benefit:'Hit enemies from further away.',
+      lines:function(){ return ['+12% beam speed', '+15% beam range']; } },
 
     // The collector. It was always a magnet; as a tractor beam it finally
     // looks like the thing it has been doing all along, and the draw is drawn
     // on the field, so the range is visible rather than a figure on a card.
-    { id:'magnet', name:'Tractor Beam', role:'Collect', max:4,
-      what:'Hauls dilithium in to you, so you need not fly through the rocks to ' +
-           'collect it.',
-      lines:function(){ return [pct(magnetRange(), MAGNET_R * (1 + 0.35 * (up.magnet + 1))) +
+    { id:'magnet', cat:'ship', name:'Tractor Beam', role:'Collect', max:3,
+      benefit:'Pull dilithium in from further out.',
+      // through hullMods() on both sides of the arrow: the Nova already pulls
+      // from further out, and a card that quoted the unmodified figure would
+      // promise it a jump it does not get.
+      lines:function(){ return [pct(magnetRange(),
+                                MAGNET_R * hullMods().magnet * (1 + MAGNET_STEP * (up.magnet + 1))) +
                                 ' pull range']; } },
 
-    { id:'guard', name:'Deflector Overcharge', role:'Defence', max:3,
-      what:'Raises a shield by itself, over and over, for the rest of the run.',
+    { id:'guard', cat:'hull', name:'Deflector Overcharge', role:'Defence', max:3,
+      benefit:'Your shields raise themselves.',
+      what:'Runs on a timer. Nothing to press.',
       lines:function(){
         return up.guard
-          ? [GUARD_TIME + 's untouchable, every ' + guardEvery(up.guard) +
-             's \u2794 ' + guardEvery(up.guard + 1) + 's']
-          : [GUARD_TIME + 's untouchable, every ' + guardEvery(1) + 's'];
+          ? [GUARD_TIME + 's untouchable',
+             'Every ' + guardEvery(up.guard) + 's' + ARROW + guardEvery(up.guard + 1) + 's']
+          : [GUARD_TIME + 's untouchable', 'Every ' + guardEvery(1) + 's'];
       },
       // the first one should land while the choice is still fresh in mind
       apply:function(){ up.guard++; nextGuard = gameTime + 2; } },
 
     // Only on offer once there is a bay to point. A tracking card in a deck
     // where the player has no torpedoes is a wasted third of a draft.
-    { id:'seek', name:'Targeting Sensors', role:'Tracking', max:3,
+    { id:'seek', cat:'gun', name:'Targeting Sensors', role:'Tracking', max:3,
       avail:function(){ return up.torp > 0; },
-      what:'Torpedoes come round harder and pick up a target from further out, ' +
-           'so fewer of them sail past a warbird that turned.',
-      lines:function(){ return ['+45% turn rate \u00b7 +30% lock range']; } },
+      benefit:'Your torpedoes track their target better.',
+      lines:function(){ return ['+45% turn rate', '+30% lock range']; } },
 
     // The card that answers rock directly. Everything else defensive in this
     // deck answers "getting hit"; this one answers the thing doing ~70% of it.
-    { id:'deflector', name:'Navigational Deflector', role:'Screen', max:3,
-      what:'Pushes rock off the bow before it reaches you. It does nothing to a ' +
-           'warbird, and a fast enough rock still gets through.',
+    { id:'deflector', cat:'hull', name:'Navigational Deflector', role:'Screen', max:3,
+      benefit:'Push asteroids away from your bow.',
       lines:function(){
         return up.deflector
           ? [pct(deflectRange(), DEFLECT_R * (1 + 0.30 * up.deflector)) + ' wider field']
-          : ['Rock slides off the hull instead of hitting it'];
+          : ['Always on'];
       } },
 
     // Deliberately the other half of the Navigational Deflector: that card
@@ -866,21 +2348,23 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // stopped *everything* it was worth a whole extra hull — +22s on a 73s
     // baseline, against +10s for a maxed Deflector Overcharge — because a life
     // in this run is worth about 24 seconds and a free hit is a whole life.
-    { id:'armour', name:'Ablative Armour', role:'Armour', max:3,
-      what:'Plating that vaporises under one disruptor hit and then grows back. ' +
-           'It does nothing about rock \u2014 that is the deflector\u2019s job.',
+    //
+    // It carries no `what`. "It grows back on its own" was the third tier of a
+    // card whose second tier already reads "Regrows every 37s".
+    { id:'armour', cat:'hull', name:'Ablative Armour', role:'Armour', max:3,
+      benefit:'Survive one extra hit.',
       lines:function(){
         return up.armour
-          ? ['Regrows every ' + armourEvery(up.armour) + 's \u2794 ' +
+          ? ['Regrows every ' + armourEvery(up.armour) + 's' + ARROW +
              armourEvery(up.armour + 1) + 's']
-          : ['Absorbs one hit \u00b7 regrows every ' + armourEvery(1) + 's'];
+          : ['Absorbs one hit', 'Regrows every ' + armourEvery(1) + 's'];
       },
       apply:function(){ up.armour++; armourReady = true; } },
 
-    { id:'life', name:'Damage Control', role:'Repair', max:99,
+    { id:'life', cat:'hull', name:'Damage Control', role:'Repair', max:99,
       avail:function(){ return lives < MAX_LIVES; },
-      what:'Patches a hull plate back on, the moment you take it.',
-      lines:function(){ return ['Hull ' + lives + ' \u2794 ' + (lives + 1)]; },
+      benefit:'Repair a hull plate right now.',
+      lines:function(){ return ['Hull ' + lives + ARROW + (lives + 1) + ' plates']; },
       apply:function(){ lives = Math.min(MAX_LIVES, lives + 1); } }
   ];
 
@@ -892,13 +2376,20 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
   // Fisher-Yates over what is still on offer, then take the first three. A
   // maxed-out line simply stops appearing rather than showing up greyed.
+  // Systems you already fly come up a little more often than ones you don't.
+  // With five or six cards in a typical run, a flat draw from fourteen almost
+  // never offers the same system twice, so a build never gets finished and
+  // MAX is a word nobody sees. OWNED_WEIGHT tilts the draw without fixing it:
+  // a draft is still mostly new things. Weighted sampling without
+  // replacement: each card's key is random^(1/weight), highest three win.
+  var OWNED_WEIGHT = 1.8;
   function rollChoices(){
-    var pool = UPGRADES.filter(upgradeOpen);
-    for(var i=pool.length-1;i>0;i--){
-      var j = Math.floor(Math.random()*(i+1)), t = pool[i];
-      pool[i] = pool[j]; pool[j] = t;
-    }
-    return pool.slice(0, 3);
+    var pool = UPGRADES.filter(upgradeOpen).map(function(u){
+      var w = (up[u.id] > 0) ? OWNED_WEIGHT : 1;
+      return { u: u, k: Math.pow(Math.random(), 1 / w) };
+    });
+    pool.sort(function(a, b){ return b.k - a.k; });
+    return pool.slice(0, 3).map(function(p){ return p.u; });
   }
 
   // ── level up overlay ─────────────────────────────────────────────────────
@@ -906,51 +2397,394 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var levelGridEl = document.getElementById('astroLevelGrid');
   var levelKindEl = document.getElementById('astroLevelKind');
   var levelSubEl  = document.getElementById('astroLevelSub');
+  var levelBarEl  = document.getElementById('astroLevelBar');
+  var levelHintEl = document.getElementById('astroLevelHint');
   var levelChoices = [];
+  // Which card is under the cursor or the keyboard. The panel has no confirm
+  // step — a click picks — so "selected" is not a staging area, it is simply
+  // the card the next Enter would take. It exists because a keyboard player
+  // had no way to see which of the three they were on: focus landed on card
+  // one and Tab was swallowed, so the only route in was to already know the
+  // number. Arrow keys move it, the mouse moves it, and the header bar shows
+  // where it is.
+  var levelSel = 0;
   // Where this card came from. A card the XP rail paid for is a refit and is
   // numbered; a card a capital ship paid for is salvage and is not, because
   // beating a boss does not move `level` — the XP curve owns that number, and
   // quietly bumping it would make the *next* refit dearer, which is a hidden
   // penalty dressed as a reward. So the header tells the truth instead.
   var levelKind = '';
+  // The panel has two jobs now. It is the refit card, and once a run — before
+  // the field exists — it is the hull pick. Same overlay, same three columns,
+  // same digit keys and the same selection, because the alternative was a
+  // second modal that a player would have to learn to read from scratch for
+  // one decision. `levelMode` is the only thing that differs, and it is read
+  // in exactly three places: the header, the render, and choose().
+  var levelMode = '';
 
   function renderLevelHeader(){
+    if(levelMode === 'pick'){
+      if(levelKindEl) levelKindEl.textContent = 'Shakedown';
+      // The sub-line's one job is to stop the panel being read as a weapon
+      // menu. Three ships that only differed by opening gun is what this used
+      // to be, and a player who assumes that still applies will pick on the
+      // gun and then wonder why the Sovereign will not turn.
+      if(levelSubEl) levelSubEl.innerHTML =
+        'Pick a ship \u00b7 each one flies differently';
+      if(levelHintEl) levelHintEl.innerHTML =
+        'Choose a hull \u00b7 <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>';
+      return;
+    }
+    if(levelHintEl) levelHintEl.innerHTML =
+      'Choose an upgrade \u00b7 <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>';
     var salvage = levelKind === 'salvage';
     if(levelKindEl) levelKindEl.textContent = salvage ? 'Battle salvage' : 'Field refit';
     if(levelSubEl) levelSubEl.innerHTML = salvage
-      ? 'Hull broken \u00b7 authorise one subsystem'
-      : 'Refit <b>' + level + '</b> \u00b7 authorise one subsystem';
+      ? 'Hull broken \u00b7 choose one upgrade'
+      : 'Refit <b>' + level + '</b> \u00b7 choose one upgrade';
+  }
+
+  // The small label above the name. It used to be the card's internal role
+  // word — Coverage, Wake, Pierce, Reach — which asked the player to learn a
+  // vocabulary to read a card they have one second for. The category answers
+  // the only question the label was ever doing useful work on: is this a gun,
+  // a hull plate or the ship. It also matches the colour it is already
+  // printed in, so the word and the colour now say the same thing.
+  var CAT_LABEL = { gun:'Weapons', hull:'Defence', ship:'Ship' };
+
+  // One glyph per upgrade, because three frozen seconds is not long enough to
+  // read three names. The icon is the fastest thing on the card: it says gun,
+  // shield or engine before a word has been parsed, and it wears the
+  // category's own colour so the shape and the hue agree. Stroke-only at 24px,
+  // in the same hairline weight the rest of the chrome is drawn in — a filled
+  // pictogram would read as borrowed from another game, the same way a solid
+  // heart did in the hull row.
+  var UP_ICONS = {
+    fire:     '<path d="M3 8h11M3 12h14M3 16h11"/><path d="M18 9.5l3.5 2.5-3.5 2.5z"/>',
+    ram:      '<path d="M12 3v11"/><path d="M8 10.5l4 4 4-4"/><path d="M4 19h16"/>',
+    thrust:   '<path d="M20 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M16.8 12h-.01"/>' +
+              '<path d="M9 8H3M9 12H1.5M9 16H4"/>',
+    spread:   '<path d="M3 12h4"/><path d="M7 12l13-6M7 12h13M7 12l13 6"/>',
+    torp:     '<path d="M8 8.5h7.5l4 3.5-4 3.5H8z"/><path d="M6 12H2M6 9.5H4M6 14.5H4"/>',
+    mine:     '<path d="M16.4 12a4.4 4.4 0 1 1-8.8 0 4.4 4.4 0 0 1 8.8 0z"/>' +
+              '<path d="M12 2.6v5M12 16.4v5M2.6 12h5M16.4 12h5"/>' +
+              '<path d="M5.3 5.3l3.6 3.6M15.1 15.1l3.6 3.6M18.7 5.3l-3.6 3.6M8.9 15.1l-3.6 3.6"/>',
+    wake:     '<path d="M21 9.5h-4M21 14.5h-4"/><path d="M17 12c-2.2-2.4-4.4 2.4-6.6 0S6 14.4 3.8 12"/>',
+    pierce:   '<path d="M2 12h20"/><path d="M18 8l4 4-4 4"/><path d="M8 6v12M13 6v12"/>',
+    dmg:      '<path d="M12 2.6l7.4 4.2v8.4L12 19.4 4.6 15.2V6.8z"/><path d="M13.2 7.6L9.8 12h3.4l-2.4 4.4"/>',
+    arc:      '<path d="M13.6 12a1.6 1.6 0 1 1-3.2 0 1.6 1.6 0 0 1 3.2 0z"/>' +
+              '<path d="M8.6 8.2a5 5 0 0 0 0 7.6M15.4 8.2a5 5 0 0 1 0 7.6"/>' +
+              '<path d="M5.4 4.8a9.4 9.4 0 0 0 0 14.4M18.6 4.8a9.4 9.4 0 0 1 0 14.4"/>',
+    range:    '<path d="M3 7.5v9M21 7.5v9"/><path d="M3 12h18"/><path d="M17 9l3 3-3 3"/>',
+    magnet:   '<path d="M3 9.5v5"/><path d="M3 12h2.5"/><path d="M5.5 9l11-3.6M5.5 15l11 3.6"/>' +
+              '<path d="M21 12a1.7 1.7 0 1 1-3.4 0 1.7 1.7 0 0 1 3.4 0z"/>',
+    guard:    '<path d="M12 2.8l7 3v6.2c0 4-3 7-7 9-4-2-7-5-7-9V5.8z"/>' +
+              '<path d="M13.2 8.4L10 12.4h3.2l-2.2 4"/>',
+    seek:     '<path d="M17 12a5 5 0 1 1-10 0 5 5 0 0 1 10 0z"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/>' +
+              '<path d="M12.8 12a.8.8 0 1 1-1.6 0 .8.8 0 0 1 1.6 0z"/>',
+    deflector:'<path d="M12 2.8l7 3v6.2c0 4-3 7-7 9-4-2-7-5-7-9V5.8z"/>' +
+              '<path d="M12 6.8l3.6 1.6v3.2c0 2.1-1.5 3.7-3.6 4.7-2.1-1-3.6-2.6-3.6-4.7V8.4z"/>',
+    armour:   '<path d="M12 2.8l7 3v6.2c0 4-3 7-7 9-4-2-7-5-7-9V5.8z"/><path d="M5 10.5h14M5 15h12"/>',
+    life:     '<path d="M8.8 3.6h6.4l3.6 3.6v6.4l-3.6 3.6H8.8l-3.6-3.6V7.2z"/>' +
+              '<path d="M12 8v5M9.5 10.5h5"/>'
+  };
+  function upPath(u){
+    return UP_ICONS[u.id] ||
+      UP_ICONS[u.cat === 'hull' ? 'deflector' : (u.cat === 'ship' ? 'thrust' : 'fire')];
+  }
+  function upIcon(u){
+    return '<svg class="au-i is-' + (u.cat || 'gun') + '" viewBox="0 0 24 24" aria-hidden="true">' +
+      upPath(u) + '</svg>';
+  }
+
+  // One painting per upgrade, cut from the sheet in game/upgrade.png and named
+  // by the upgrade's id, so the roster and the folder can never disagree about
+  // which picture belongs to which card.
+  var UP_ART = 'assets/upgrades/';
+  function upArt(u){ return UP_ART + u.id + '.png'; }
+  // Fetched once, when the first run starts rather than when the page loads:
+  // most visitors never open the game, and the refit card is up for three
+  // frozen seconds, which is no time to watch a picture arrive.
+  var artLoaded = false;
+  function preloadArt(){
+    if(artLoaded) return;
+    artLoaded = true;
+    UPGRADES.forEach(function(u){ var im = new Image(); im.src = upArt(u); });
+  }
+
+  // `benefit` is on every card every time and carries the whole plain meaning.
+  // `what` is optional and only set where there is a second thing worth saying —
+  // a caveat, or a mechanic you would otherwise have to discover. Eight of the
+  // sixteen have one. When every card had one they all restated the benefit in
+  // longer words, which is three tiers of card saying one thing.
+
+  // Gains first, then anything the card takes off you. A cost is not set in
+  // the cyan the gains are \u2014 it is the card's one line that is not good news,
+  // and it carries a down arrow rather than the hairline tick, so which way it
+  // points is legible without reading the number and without depending on the
+  // colour to say it.
+  function figures(u){
+    var out = u.lines().map(function(s){ return '<span>' + s + '</span>'; }).join('');
+    if(u.cost) out += u.cost().map(function(s){
+      return '<span class="is-cost">' + s + '</span>';
+    }).join('');
+    return out;
   }
 
   function renderChoices(){
     if(!levelGridEl) return;
     levelChoices = rollChoices();
     levelGridEl.innerHTML = '';
+    // The pool can run dry late in a long run and hand back two cards, or one.
+    // The count goes on the overlay so the header bar and the grid both read
+    // it and stay in step — otherwise a two-card draft comes out as two cards
+    // and a hole where the third column was.
+    if(levelEl) levelEl.style.setProperty('--al-n', levelChoices.length);
+    if(levelBarEl) levelBarEl.innerHTML = '';
+    markKeyboard(false);
     levelChoices.forEach(function(u, i){
       var lvl = (u.id in up) ? up[u.id] : 0;
       var stacked = u.id in up;
-      var badge = !stacked ? 'Instant' : (lvl === 0 ? 'New' : 'Lv ' + lvl + ' \u2794 ' + (lvl + 1));
+      // The last level says so. With cards rarer, finishing a system is
+      // something to aim at, and "MAX" is the word that tells you you're one
+      // pick away from it.
+      var badge = !stacked ? 'ONE USE'
+                : (lvl === 0 ? 'NEW' : 'LV ' + lvl + ARROW + (lvl + 1 >= u.max ? 'MAX' : lvl + 1));
       var btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'au-opt';
-      // role and level share one row; the sentence and the figures are separate
-      // tiers below the name, so the eye can stop at whichever it needs
+      btn.className = 'au-opt has-art is-' + (u.cat || 'gun');
+      // Category and level share one row, then the name, then the plain
+      // sentence, then — only the first time a card is offered — the one
+      // muted line that qualifies it, and the figures last, hard against the
+      // foot of the card. The name is the largest and brightest thing here and
+      // every tier under it steps down in both, which is the whole of why the
+      // card reads in one pass.
+      //
+      // The caveat moved ABOVE the figures to get that last part. Pinning the
+      // figures to the bottom of every card puts all three rules on one line
+      // across the row, so the numbers can be read as a table rather than
+      // hunted for at three different heights — and a four-word caveat belongs
+      // next to the sentence it qualifies anyway, not stranded under the
+      // numbers it says nothing about.
+      //
+      // The artwork heads the card and replaces the watermark: the watermark
+      // was there to give a tall card some weight, and the art does that job
+      // while also being the fastest thing on the card to read. The key cap
+      // moves into the label row beside the level pill, because its old
+      // corner is now the top of a picture.
       btn.innerHTML =
-        '<span class="au-l"><em>' + u.role + '</em>' +
-          '<b' + (lvl === 0 && stacked ? ' class="is-new"' : '') + '>' + badge + '</b></span>' +
+        '<span class="au-art"><img src="' + upArt(u) + '" alt="" decoding="async"></span>' +
+        '<span class="au-l">' + upIcon(u) +
+          '<em class="is-' + (u.cat || 'gun') + '">' +
+          (CAT_LABEL[u.cat] || CAT_LABEL.gun) + '</em>' +
+          '<b class="au-lv' + (lvl === 0 && stacked ? ' is-new' : '') +
+          (!stacked ? ' is-once' : '') + '">' + badge + '</b>' +
+          '<span class="au-k">' + (i + 1) + '</span></span>' +
         '<span class="au-n">' + u.name + '</span>' +
-        '<span class="au-w">' + u.what + '</span>' +
-        '<span class="au-d">' + u.lines().map(function(s){ return '<span>' + s + '</span>'; }).join('') + '</span>' +
-        '<span class="au-k">Press ' + (i + 1) + '</span>';
+        '<span class="au-b">' + u.benefit + '</span>' +
+        (lvl > 0 || !u.what ? '' : '<span class="au-w">' + u.what + '</span>') +
+        '<span class="au-d">' + figures(u) + '</span>';
       // pointerdown, not click: on a phone the 300ms a synthetic click can cost
       // is 300ms of a frozen field, and the overlay is the only thing on screen
       btn.addEventListener('pointerdown', function(e){ e.preventDefault(); choose(i); });
+      // The cursor moves the selection so there is only ever one highlighted
+      // card, however you are driving it. Mouse and pen only: on a touch
+      // screen pointerenter fires as part of the tap that is already picking
+      // the card, and lighting it for one frame on the way out is noise.
+      btn.addEventListener('pointerenter', function(e){
+        if(e.pointerType === 'touch') return;
+        markKeyboard(false);
+        selectCard(i, false);
+      });
+      btn.addEventListener('focus', function(){ selectCard(i, false); });
       levelGridEl.appendChild(btn);
+      if(levelBarEl) levelBarEl.appendChild(document.createElement('i'));
     });
+    selectCard(0, false);
+  }
+
+  // Paint the selection onto the cards and onto the header bar. The bar is the
+  // reason the selection is worth tracking at all: it used to be a decorative
+  // LCARS rule that looked like a progress meter stuck at 70%, which is a
+  // readout promising information it did not have. It is now three blocks
+  // sitting directly over the three columns, and the lit one is the card you
+  // are on — the same fact the card's own edge is showing, said a second time
+  // somewhere the eye is already resting.
+  function paintSelection(){
+    if(!levelGridEl) return;
+    var cards = levelGridEl.children, i;
+    for(i = 0; i < cards.length; i++){
+      var on = i === levelSel;
+      cards[i].classList.toggle('is-sel', on);
+      cards[i].setAttribute('aria-current', on ? 'true' : 'false');
+    }
+    if(levelBarEl){
+      var segs = levelBarEl.children;
+      for(i = 0; i < segs.length; i++) segs[i].classList.toggle('is-on', i === levelSel);
+    }
+  }
+
+  // Which input last moved the selection. :focus-visible would answer this for
+  // free if it could be trusted here, but it is a browser heuristic about real
+  // user input and it does not engage for focus moved programmatically — which
+  // is exactly how this panel moves it. So the ring is driven off the thing
+  // that actually knows: the handler that moved it.
+  function markKeyboard(on){
+    if(levelGridEl) levelGridEl.classList.toggle('is-key', !!on);
+  }
+
+  function selectCard(i, focus){
+    if(!levelChoices.length) return;
+    levelSel = (i + levelChoices.length) % levelChoices.length;
+    paintSelection();
+    // preventScroll for the same reason openLevelUp needs it: the run drives
+    // window.scrollY every frame and a focus-induced scroll fights the camera
+    var el = focus && levelGridEl && levelGridEl.children[levelSel];
+    if(el) try { el.focus({ preventScroll:true }); } catch(e){ el.focus(); }
+  }
+
+  // ── the hull card ────────────────────────────────────────────────────────
+  // This is the one panel in the game that gets a layout of its own rather
+  // than reusing the refit card. It earns it: a refit card is read in three
+  // frozen seconds against a field that is about to start moving again, so it
+  // is four tiers of text and nothing else. The hull pick is read BEFORE the
+  // run exists, with no clock running and nothing on screen to get back to —
+  // so it can afford to lead on a large picture of each ship, and it needs
+  // one, because it is the only panel where the player is comparing three
+  // ships rather than three numbers.
+  //
+  // It still reuses .au-opt for the frame, the selection, the lift and the
+  // key cap, because those behaviours are the ones the player is about to see
+  // again at every refit for the rest of the run, and re-teaching them here
+  // would be a second modal to learn for one decision.
+
+  // How each hull flies, read straight off HULL_MODS so a card can never
+  // show a strength the ship does not have. Speed and turning are ten pips
+  // scaled to the best of the three, so the fastest hull fills its bar and
+  // the others show how far behind it they are. Hull is shown as plates, in
+  // the same shape the HUD draws them, so the player has already learned the
+  // readout before the run starts.
+  function hullTop(m){ return THRUST * m.thrust * m.drag / (1 - m.drag); }
+  // Beams a second off the pick panel's starting weapon: the Sovereign opens
+  // with a three-beam cone at the drag that cone costs, the other two with
+  // one beam. This is what the Phasers row ranks.
+  function hullBeams(id, m){
+    var spreadL = id === 'spread' ? 1 : 0;
+    return barrels(spreadL) / (SHOT_COOLDOWN * m.cool * Math.pow(SPREAD_DRAG, spreadL));
+  }
+  // The pips RANK the three hulls rather than measuring each one from zero.
+  // Measured from zero, a 315px/s ship and a 500px/s one came out as eight
+  // pips against ten, and every row on every card looked full — which is how
+  // three ships that fly very differently read as the same ship. Now the best
+  // hull on a row gets ten, the worst gets three, and the middle one sits
+  // where its number puts it, so each card's strong row and weak row show.
+  function shipStats(sh){
+    var m = HULL_MODS[sh.id] || HULL_BASE, i;
+    var rows = { top: [], rot: [], beams: [] };
+    for(i = 0; i < SHIPS.length; i++){
+      var o = HULL_MODS[SHIPS[i].id] || HULL_BASE;
+      rows.top.push(hullTop(o)); rows.rot.push(o.rot); rows.beams.push(hullBeams(SHIPS[i].id, o));
+    }
+    function rank(list, v){
+      var lo = Math.min.apply(null, list), hi = Math.max.apply(null, list);
+      return hi > lo ? 0.3 + 0.7 * (v - lo) / (hi - lo) : 1;
+    }
+    function pips(k, v){
+      var n = Math.max(1, Math.min(10, Math.round(v * 10))), out = '';
+      for(var j = 1; j <= 10; j++) out += '<i' + (j <= n ? ' class="on"' : '') + '></i>';
+      return '<span class="sp-row"><em>' + k + '</em>' +
+        '<span class="sp-pips" role="img" aria-label="' + k + ' ' + n + ' of 10">' + out + '</span></span>';
+    }
+    var plates = '';
+    for(i = 0; i < MAX_LIVES; i++) plates += '<i class="px-hull' + (i < m.lives ? ' on' : '') + '"></i>';
+    return '<span class="sp-stats">' +
+      pips('Speed', rank(rows.top, hullTop(m))) +
+      pips('Turning', rank(rows.rot, m.rot)) +
+      pips('Phasers', rank(rows.beams, hullBeams(sh.id, m))) +
+      '<span class="sp-row"><em>Hull</em>' +
+        '<span class="sp-plates" role="img" aria-label="' + m.lives + ' hull plates">' + plates + '</span></span>' +
+      '</span>';
+  }
+
+  function renderShips(){
+    if(!levelGridEl) return;
+    levelChoices = SHIPS;
+    levelGridEl.innerHTML = '';
+    if(levelEl) levelEl.style.setProperty('--al-n', SHIPS.length);
+    if(levelBarEl) levelBarEl.innerHTML = '';
+    markKeyboard(false);
+    SHIPS.forEach(function(sh, i){
+      var gun = null;
+      for(var n = 0; n < UPGRADES.length; n++) if(UPGRADES[n].id === sh.id) gun = UPGRADES[n];
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      // `is-pick` is the marker, `is-<tint>` is the colour. They have to be
+      // different words: the tints are gun/hull/ship, so a marker called
+      // `is-hull` collapses into the Sovereign's own tint in any selector
+      // that names both, and every card comes out cyan.
+      btn.className = 'au-opt is-pick is-' + sh.tint;
+      // The ship leads, because the thing being chosen is a ship. Width and
+      // height are the file's own, so the band is the right shape before the
+      // SVG has arrived and nothing below it jumps when it does.
+      btn.innerHTML =
+        '<span class="sp-art"><img src="' + sh.art + '" width="610" height="400" alt="" ' +
+          'decoding="async" draggable="false"></span>' +
+        '<span class="au-n">' + sh.name + '</span>' +
+        '<span class="sp-role is-' + sh.tint + '">' + sh.role + '</span>' +
+        '<span class="sp-w"><em>Starting weapon <b>Lv 1</b></em>' +
+          '<span class="sp-wn">' + upIcon({ id: sh.id, cat: sh.tint }) +
+          '<span>' + (gun ? gun.name : '') + '</span></span></span>' +
+        shipStats(sh) +
+        '<span class="au-k">' + (i + 1) + '</span>';
+      btn.addEventListener('pointerdown', function(e){ e.preventDefault(); choose(i); });
+      btn.addEventListener('pointerenter', function(e){
+        if(e.pointerType === 'touch') return;
+        markKeyboard(false);
+        selectCard(i, false);
+      });
+      btn.addEventListener('focus', function(){ selectCard(i, false); });
+      levelGridEl.appendChild(btn);
+      if(levelBarEl) levelBarEl.appendChild(document.createElement('i'));
+    });
+    selectCard(0, false);
+  }
+
+  // Every panel ignores input for its first moments. A refit or a hail opens
+  // mid-flight, while the player is steering and tapping the screen, and
+  // without this a keystroke or a thumb meant for the field lands on a card
+  // nobody has read yet. The cards deal in over the same stretch, so the wait
+  // reads as the cards arriving rather than as lag.
+  var PANEL_ARM = 0.4, panelArmAt = 0;
+  function armPanel(){ panelArmAt = performance.now() + PANEL_ARM * 1000; }
+  function panelArmed(){ return performance.now() >= panelArmAt; }
+
+  // Opens once, on the frame the run is reset and before anything has moved.
+  // It halts the field the same way a refit does — which costs nothing here,
+  // because nothing has happened yet, but it means the player learns the
+  // panel and the pause together.
+  function openPick(){
+    if(!active || gameOver) return;
+    // no board to draw the cards on: hand out the first hull rather than
+    // starting a run with no weapon and no way to be given one
+    if(!levelEl || !levelGridEl){ applyHull(SHIPS[0].id); return; }
+    levelMode = 'pick';
+    levelKind = '';
+    levelOpen = true;
+    keys = {}; pad.mag = 0;
+    homeStick();
+    renderLevelHeader();
+    renderShips();
+    armPanel();
+    levelEl.classList.add('on');
+    document.body.classList.add('astro-paused');
+    selectCard(0, true);
   }
 
   function openLevelUp(kind){
-    if(!active || gameOver || levelOpen) return;
+    // A hail and a full rail can land on the same frame. The card waits for
+    // the order to be given, and closeHail() deals it.
+    if(!active || gameOver || levelOpen || hailOpen) return;
+    refitDealt();
     levelKind = kind || '';
     // everything is maxed and health is full: there is nothing to offer, so
     // bank the level as score instead of showing an empty card
@@ -960,22 +2794,40 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     homeStick();
     renderLevelHeader();
     renderChoices();
+    armPanel();
     if(levelEl) levelEl.classList.add('on');
     document.body.classList.add('astro-paused');
     // Move focus into the panel. Without this the cards are tabbable but never
     // reached — focus is still parked on whatever launched the game, so a
-    // keyboard user gets a modal they cannot see the edges of. preventScroll is
-    // required: the run drives window.scrollY every frame and a focus-induced
-    // scroll would fight the camera.
-    var first = levelGridEl && levelGridEl.querySelector('.au-opt');
-    if(first) try { first.focus({ preventScroll:true }); } catch(e){ first.focus(); }
+    // keyboard user gets a modal they cannot see the edges of.
+    selectCard(0, true);
   }
 
   function choose(i){
-    if(!levelOpen) return;
+    if(!levelOpen || !panelArmed()) return;
+    if(levelMode === 'pick'){
+      var sh = SHIPS[i];
+      if(!sh) return;
+      levelMode = '';
+      applyHull(sh.id);
+      closeLevel();
+      syncHud();
+      // The opening tip's five seconds start when the field does, not when the
+      // panel went up — otherwise a player who reads three hull cards comes out
+      // to a pill already fading behind them.
+      if(tipEl && destroyed.indexOf(tipEl) === -1){
+        clearTimeout(tipTimer);
+        tipTimer = setTimeout(autoHideTip, 5000);
+      }
+      return;
+    }
     var u = levelChoices[i];
     if(!u) return;
     if(u.apply) u.apply(); else up[u.id]++;
+    // Counted here rather than off `level`, because a salvage card off a
+    // capital ship is a card taken and does not move the XP level. This is
+    // the number the two locked weapons are gated on.
+    refits++;
     pendingLevels--;
     // enough gems can arrive in one frame to clear two bars; deal them out one
     // card at a time rather than silently dropping the second level
@@ -985,6 +2837,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       levelKind = '';
       renderLevelHeader();
       renderChoices();
+      armPanel();
       syncHud();
       return;
     }
@@ -995,6 +2848,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   }
 
   function closeLevel(silent){
+    levelMode = '';
     if(levelEl) levelEl.classList.remove('on');
     if(!levelOpen){
       if(!autoPaused) document.body.classList.remove('astro-paused');
@@ -1034,6 +2888,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(hailBountyEl) hailBountyEl.textContent = '+' + bossBounty(bossCount) + ' stardate';
     if(hailAgainEl) hailAgainEl.textContent =
       'Next contact in ' + Math.round(bossGapFor(bossCount) * BOSS_FLEE_GAP) + 's';
+    armPanel();
     hailEl.classList.add('on');
     document.body.classList.add('astro-paused');
     // focus lands on Engage, not because it is the recommended answer but
@@ -1043,7 +2898,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   }
 
   function closeHail(fight){
-    if(!hailOpen) return;
+    if(!hailOpen || !panelArmed()) return;
     hailOpen = false;
     if(hailEl) hailEl.classList.remove('on');
     if(!autoPaused) document.body.classList.remove('astro-paused');
@@ -1059,6 +2914,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     } else {
       fleeBoss();
     }
+    if(pendingLevels > 0) openLevelUp();
   }
 
   // Breaking off is free of damage and expensive in everything else. The
@@ -1080,6 +2936,40 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   if(hailFightEl) hailFightEl.addEventListener('pointerdown', function(e){ e.preventDefault(); closeHail(true); });
   if(hailFleeEl)  hailFleeEl.addEventListener('pointerdown', function(e){ e.preventDefault(); closeHail(false); });
 
+  // ── the refit beat ───────────────────────────────────────────────────────
+  // A full rail used to throw the card up on the same frame, so the reward
+  // arrived as an interruption: one moment you were flying, the next the run
+  // had stopped. Now the ship gets a beat first. A cyan front rolls out from
+  // the hull and burns off any plasma near it, the rail flares, the ship holds
+  // still in the light for half a second, and only then do the cards deal.
+  // The clear is small on purpose — it is the ship's refit crew making room,
+  // not a smart bomb — and it only touches fire, never hulls or rock, so it
+  // cannot be farmed for kills. The hull is untouchable for the beat, so the
+  // pause to celebrate never costs a plate.
+  var REFIT_BEAT = 0.55, REFIT_CLEAR = 230, refitDue = 0;
+  function refitReady(){
+    if(refitDue || !ship) return;
+    refitDue = gameTime + REFIT_BEAT;
+    ship.invuln = Math.max(ship.invuln, REFIT_BEAT + 0.25);
+    for(var q=alienBullets.length-1;q>=0;q--){
+      var ab = alienBullets[q];
+      if(Math.hypot(ab.x - ship.x, ab.y - ship.y) > REFIT_CLEAR) continue;
+      sparks(ab.x, ab.y, 4, ab.rgb || '255,122,99', 0.6);
+      alienBullets.splice(q, 1);
+    }
+    shockwaves.push({ x: ship.x, y: ship.y, r: 14, max: REFIT_CLEAR, life: 1,
+                      tint: '125,249,255', glow: '#7df9ff', inner: '255,255,255' });
+    bloom(ship.x, ship.y, 140, '125,249,255');
+    bloom(ship.x, ship.y, 54, '255,255,255');
+    sparks(ship.x, ship.y, 28, '125,249,255', 1.5);
+    shake(0.28); freeze(0.07);
+    if(xpBarEl) xpBarEl.classList.add('is-full');
+  }
+  function refitDealt(){
+    refitDue = 0;
+    if(xpBarEl) xpBarEl.classList.remove('is-full');
+  }
+
   function addXp(n){
     xp += n;
     bonus += n * 10;
@@ -1097,7 +2987,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         xpBarEl.classList.add('pop');
         setTimeout(function(){ xpBarEl.classList.remove('pop'); }, 160);
       }
-      openLevelUp();
+      refitReady();
     }
     syncHud();
   }
@@ -1143,29 +3033,50 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
   function onKeyDown(e){
     if(e.code === 'Escape'){ stop(); return; }
-    if(gameOver){ e.preventDefault(); restart(); return; }
+    // The hull-breach panel is not dismissed by the keyboard. A run ends with
+    // the helm keys held down, so "press any key" meant the key already under
+    // the player's thumb started the next run before the summary had been
+    // read. Only the Play again button closes it now.
+    if(gameOver){ e.preventDefault(); return; }
     if(hailOpen){
       // like the refit card this is a decision rather than a dialog, so only
       // the keys that answer it mean anything — nothing here can dismiss it.
       // F and E are here because they are what the two cards are actually
       // called, and a player reading "Engage" should not have to count.
       e.preventDefault();
+      if(e.repeat) return;           // a held key is not an order
       if(e.code === 'Digit1' || e.code === 'Numpad1' || e.code === 'KeyF') closeHail(true);
       else if(e.code === 'Digit2' || e.code === 'Numpad2' || e.code === 'KeyE') closeHail(false);
       return;
     }
     if(levelOpen){
-      // the card is a decision, not a dialog: the only keys that mean anything
-      // are the three that pick, so nothing else can dismiss it
+      // The card is a decision, not a dialog: nothing here can dismiss it, and
+      // the only keys that mean anything are the ones that move the selection
+      // or take it. Tab is caught rather than allowed through — there is
+      // nothing behind this panel to tab to — but it cycles the three cards
+      // instead of doing nothing, because a keyboard player pressing Tab in a
+      // modal is asking to move, not to leave.
       e.preventDefault();
+      if(e.repeat) return;           // a held key is not a decision
       if(e.code === 'Digit1' || e.code === 'Numpad1') choose(0);
       else if(e.code === 'Digit2' || e.code === 'Numpad2') choose(1);
       else if(e.code === 'Digit3' || e.code === 'Numpad3') choose(2);
+      // Arrows are the helm, and the card opens mid-flight with one of them
+      // held: letting them move the selection meant the ship's last turn also
+      // chose the upgrade. They are swallowed here and do nothing. Tab moves
+      // the selection instead, because nobody flies with Tab.
+      else if(e.code === 'Tab'){ markKeyboard(true); selectCard(levelSel + (e.shiftKey ? -1 : 1), true); }
+      // Space is the overcharge vent and is just as likely to be held when the
+      // card opens, so it takes nothing here either. Enter is not a flight key.
+      else if(e.code === 'Enter' || e.code === 'NumpadEnter') choose(levelSel);
       return;
     }
     if(autoPaused){ e.preventDefault(); autoResume(); return; }
     if(e.code==='ArrowUp'||e.code==='ArrowDown'||e.code==='ArrowLeft'||e.code==='ArrowRight'||e.code==='Space'){
-      e.preventDefault();   // space no longer fires, but it must not scroll either
+      e.preventDefault();   // space must never scroll the page underneath
+      // A vent is a press, not a hold: a held key repeats keydown, and without
+      // this guard the first frame of a full core would spend it three times.
+      if(e.code === 'Space' && !keys.Space) tryOvercharge();
       keys[e.code] = true;
     }
   }
@@ -1207,7 +3118,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   }
 
   function stickDown(e){
-    if(gameOver){ e.preventDefault(); restart(); return; }
+    if(gameOver) return;   // the button on the panel is the only way out
+
     if(autoPaused){ e.preventDefault(); autoResume(); return; }
     if(levelOpen || hailOpen) return;
     if(stickId !== null) return;
@@ -1227,7 +3139,24 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   function stickMove(e){ if(e.pointerId !== stickId) return; e.preventDefault(); stickTo(e); }
   function stickUp(e){ if(e.pointerId !== stickId) return; homeStick(); }
 
-  if(overEl) overEl.addEventListener('pointerdown', function(e){ e.preventDefault(); restart(); });
+  // The vent button sits inside #astroTouch, which is the stick's catchment —
+  // so it has to stop the event as well as consume it, or every tap on it also
+  // anchors the thumbstick under the player's other thumb.
+  if(releaseBtn) releaseBtn.addEventListener('pointerdown', function(e){
+    e.preventDefault(); e.stopPropagation(); tryOvercharge();
+  });
+  // One deliberate press on one button, and nothing else in the panel does
+  // anything. The summary is worth reading, and a card that closed on any tap
+  // anywhere closed itself on the tap that was still landing from the last
+  // second of the run — or on the drag that was only scrolling it on a short
+  // window. Clicks elsewhere on the panel are swallowed so they cannot reach
+  // the page behind it.
+  if(againEl) againEl.addEventListener('click', function(e){
+    e.preventDefault(); restart();
+  });
+  if(overEl) overEl.addEventListener('pointerdown', function(e){
+    if(!e.target.closest('#astroAgain')) e.preventDefault();
+  });
   if(pauseEl) pauseEl.addEventListener('pointerdown', function(e){ e.preventDefault(); autoResume(); });
 
   if(touchEl && stickEl && knobEl){
@@ -1243,13 +3172,24 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       // a rare rock pays in a timed power-up rather than gems, and says so with
       // a burst in the colour of whatever it just dropped
       var sp = SPECIALS[ax.special];
-      burst(ax.x, ax.y, 22, sp.rgb);
+      burst(ax.x, ax.y, 24, sp.rgb, 1.15);
+      bloom(ax.x, ax.y, ax.r * 3.4, sp.rgb);
+      shake(0.2); freeze(0.03);
       dropPickup(ax.x, ax.y, ax.special);
-      bonus += 60;
+      addCore(CORE_KILL_ROCK);
+      scored(60);
     } else {
-      burst(ax.x, ax.y, 10);
+      // The volume of a kill is scaled by what died. A 14px pebble and a 28px
+      // boulder used to make exactly the same ten-piece puff, which is how a
+      // field of forty ends up reading as one texture rather than as forty
+      // separate things with separate mass.
+      var big = ax.r >= 22;
+      burst(ax.x, ax.y, big ? 15 : 10, null, big ? 1.2 : 0.9);
+      bloom(ax.x, ax.y, ax.r * (big ? 2.6 : 2.0), '199,125,255');
+      if(big) shake(0.1);
       dropRockLoot(ax.x, ax.y);
-      bonus += 15;
+      addCore(CORE_KILL_ROCK);
+      scored(15);
     }
     asteroids.splice(k, 1);
   }
@@ -1257,7 +3197,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   function killAlien(m){
     var al = aliens[m];
     var T = ALIEN_TYPES[al.kind];
-    burst(al.x, al.y, 18, T.rgb);
+    burst(al.x, al.y, 20, T.rgb, 1.25);
+    bloom(al.x, al.y, al.r * 3.6, T.rgb);
+    shake(0.26); freeze(0.035);
     // A warbird used to be a guaranteed extra life, and with three of them in
     // the sky that was more health than the field could ever take back — most
     // of the reason a careless run never actually ended. Health is a roll now;
@@ -1265,14 +3207,20 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(Math.random() < T.heart) dropPickup(al.x, al.y, 'heart');
     else for(var g=0; g<T.gems; g++) dropPickup(al.x, al.y, 'gem');
     aliens.splice(m, 1);
-    bonus += T.bonus;
+    addCore(CORE_KILL_SHIP);
+    scored(T.bonus);
   }
 
   // ── the capital ships ────────────────────────────────────────────────
   // Hull and cadence both scale with how many have already been beaten, so the
   // fourth one is a genuinely different fight from the first rather than the
   // same fight with a longer bar.
-  function bossHpFor(n){ return 180 + n * 110; }
+  // Cut from 180 + 110n in Sep 2026, when the XP curve steepened. A ship on
+  // its first hail now carries about four cards where it used to carry nine,
+  // and at the old hull the kill rate fell from a fifth to a tenth. With
+  // cards this scarce a won fight is the best reward in the run, so it has to
+  // stay winnable; the fight itself (rings, volleys, the charge) is untouched.
+  function bossHpFor(n){ return 110 + n * 80; }
   // Shots land on the armoured core rather than the full silhouette, so a wide
   // fan no longer connects with every barrel at once.
   function bossHitR(){ return BOSS_R * 0.82; }
@@ -1293,6 +3241,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       vx: 0, vy: 0, hp: hp, max: hp, hitT: 0, t: 0, rot: 0,
       // it drifts in for a beat and a half before it is allowed to shoot
       phase: 'entry', phaseT: 1.4, next: 0, shots: 0, charged: false,
+      // eased toward the player every frame rather than snapped, so the hull
+      // swings onto its target the way something with mass would
+      face: Math.PI / 2,
       escortAt: gameTime + 9, enraged: false, index: bossCount, fuse: BOSS_FUSE, leaving: false
     };
     bossCount++;
@@ -1314,11 +3265,15 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(b.phase === 'ring'){
       b.phaseT = 2.0 / rage; b.shots = b.enraged ? 3 : 2; b.next = t + 0.25;
     } else if(b.phase === 'volley'){
-      b.phaseT = 2.2 / rage; b.shots = b.enraged ? 4 : 3; b.next = t + 0.3;
+      b.phaseT = 2.2 / rage; b.shots = b.enraged ? 3 : 2; b.next = t + 0.3;
     } else {
-      // the charge telegraphs for most of a second before it commits, so it is
-      // always dodged rather than suffered
-      b.phaseT = 2.4 / rage; b.shots = 0; b.next = t + 0.85 / rage;
+      // the charge telegraphs for over a second before it commits, so it is
+      // always dodged rather than suffered. It was 0.85s at 6.2px a frame
+      // until Sep 2026, and ramming was over a third of every hull plate lost
+      // in a capital-ship fight — enough that breaking off every hail beat
+      // standing and fighting on survival AND on score, which is a choice
+      // that has stopped being one.
+      b.phaseT = 2.7 / rage; b.shots = 0; b.next = t + 1.15 / rage;
     }
   }
 
@@ -1329,7 +3284,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
   function bossRing(rage){
     var b = boss;
-    var n = Math.min(16, 9 + b.index * 2) + (b.enraged ? 4 : 0);
+    // one volley and one bolt a ring thinner than before Sep 2026, alongside
+    // the slower charge: see bossNextPhase for why the fight had to give
+    var n = Math.min(16, 8 + b.index * 2) + (b.enraged ? 3 : 0);
     var off = Math.random() * Math.PI * 2;
     var sp = 2.5 + b.index * 0.12;
     for(var i=0;i<n;i++) bossShoot(b.x, b.y, off + i / n * Math.PI * 2, sp * rage, 4);
@@ -1345,8 +3302,15 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
   function killBoss(){
     var b = boss;
-    burst(b.x, b.y, 60, '255,209,102');
-    burst(b.x, b.y, 34, '255,77,109');
+    // The biggest thing that happens in a run, at the biggest volume the
+    // grammar has: a full shake, the longest held frame, and two blooms —
+    // a white core inside a gold shell — so the flash has depth rather than
+    // being one disc of light.
+    burst(b.x, b.y, 64, '255,209,102', 1.9);
+    burst(b.x, b.y, 38, '255,77,109', 1.5);
+    bloom(b.x, b.y, b.r * 5.5, '255,209,102');
+    bloom(b.x, b.y, b.r * 2.6, '255,255,255');
+    shake(1); freeze(0.11);
     // The payout is the point, and since the hail it is the payout for a
     // decision rather than for an event: the player was offered a way out of
     // this fight and turned it down, so beating it has to be the best thing
@@ -1356,7 +3320,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     for(var i=0; i<5 + Math.min(5, b.index); i++) dropPickup(b.x, b.y, 'gem');
     for(var h=0; h<BOSS_KILL_HEARTS; h++) dropPickup(b.x, b.y, 'heart');
     dropPickup(b.x, b.y, Math.random() < 0.5 ? 'shield' : 'rapid');
-    bonus += bossBounty(b.index);
+    addCore(CORE_KILL_BOSS);
+    scored(bossBounty(b.index));
     bossKills++;
     boss = null;
     nextBossAt = gameTime + bossGapFor(bossCount);
@@ -1374,6 +3339,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     var b = boss;
     b.t += dt;
     b.rot += 0.004 * sf;
+    var want = Math.atan2(ship.y - b.y, ship.x - b.x);
+    b.face += angDiff(want, b.face) * (1 - Math.pow(1 - 0.06, sf));
     if(b.hitT > 0) b.hitT = Math.max(0, b.hitT - dt);
 
     // out of patience: it stops fighting, climbs away and is gone
@@ -1382,6 +3349,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       if(b.fuse <= 0){
         b.leaving = true;
         b.vy = -5.5; b.vx *= 0.3;
+        // Breaking off used to pay nothing, however close the fight had come:
+        // forty seconds under fire and a hull at a fifth bought the same as
+        // running at the hail. A ship that leaves damaged now sheds dilithium
+        // in proportion to the damage done — a dreadnought's worth at the
+        // most — so standing was never worth nothing. No card, no hull: those
+        // are still what a kill is for.
+        var dealt = 1 - Math.max(0, b.hp) / b.max;
+        var shed = Math.round(dealt * (5 + Math.min(5, b.index)));
+        for(var sg=0; sg<shed; sg++) dropPickup(b.x, b.y, 'gem');
+        if(shed) burst(b.x, b.y, 20, '255,209,102', 1.1);
         if(bossBarEl) bossBarEl.classList.remove('on');
         nextBossAt = t + bossGapFor(bossCount) * 0.55;
       }
@@ -1426,7 +3403,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     } else if(b.phase === 'charge' && !b.charged && t >= b.next){
       b.charged = true;
       var chd = Math.hypot(ship.x - b.x, ship.y - b.y) || 1;
-      var chs = 6.2 * rage;
+      var chs = 5.2 * rage;
       b.vx = (ship.x - b.x) / chd * chs;
       b.vy = (ship.y - b.y) / chd * chs;
       burst(b.x, b.y, 18, '255,209,102');
@@ -1453,7 +3430,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(p.kind === 'heart'){
       if(lives < MAX_LIVES){ lives++; }
       else bonus += 200;                 // already at full health: bank it
-      burst(p.x, p.y, 10, '255,77,109');
+      burst(p.x, p.y, 12, PICKUPS.heart.rgb);
+      bloom(p.x, p.y, 34, PICKUPS.heart.rgb);
       syncHud();
     } else if(p.kind === 'shield' || p.kind === 'rapid'){
       // instant, and deliberately not a pause: the run never stops for these
@@ -1465,6 +3443,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     } else {
       // dilithium is XP, and XP is the only thing that opens a refit card
       burst(p.x, p.y, p.value > 1 ? 10 : 5, '255,209,102');
+      dilithium += p.value;
       addXp(p.value);
     }
   }
@@ -1478,6 +3457,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // thrusting player's bullets crawl away from the nose and the gun stops
     // working exactly when the player is moving — which, with the trigger held
     // down permanently, is most of the run.
+    ship.muzzle = 1;
     var n = barrels(up.spread), step = fanStep(up.spread);
     var base = ship.angle - step * (n - 1) / 2;
     var sp = bulletSpeed(), lf = bulletLife(), dmg = bulletDamage();
@@ -1545,11 +3525,19 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // blast, then a shockwave ring that is pure decoration — the ring expands
   // after the fact and never touches anything, so what the player sees can be
   // generous without the hitbox following it outward.
-  function detonate(x, y){
-    var R = torpBlast(), dmg = torpDamage(), R2 = R * R;
-    shockwaves.push({ x:x, y:y, r: R * 0.18, max: R, life: 1 });
-    burst(x, y, 26, '255,45,120');
-    burst(x, y, 12, '255,209,102');
+  // The blast is shared by both things that make one. It takes its radius and
+  // its damage as arguments rather than reading the torpedo bay, because a
+  // mine is a different weapon on a different card and must be able to be
+  // worth more or less than a warhead without the two moving together.
+  function detonate(x, y, R, dmg, tint){
+    if(!R) R = torpBlast();
+    if(!dmg) dmg = torpDamage();
+    var R2 = R * R;
+    shockwaves.push({ x:x, y:y, r: R * 0.18, max: R, life: 1, tint: tint || null });
+    burst(x, y, 28, tint || '255,45,120', 1.3);
+    burst(x, y, 12, tint || '255,209,102');
+    bloom(x, y, R * 1.2, tint || '255,140,60');
+    shake(0.36); freeze(0.04);
 
     for(var k=asteroids.length-1;k>=0;k--){
       var rk = asteroids[k];
@@ -1562,8 +3550,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       var al = aliens[m];
       var ax = al.x - x, ay = al.y - y;
       if(ax*ax + ay*ay > R2) continue;
-      al.hp -= dmg; al.hitT = 0.14;
-      if(al.hp <= 0) killAlien(m);
+      al.hitT = 0.14;
+      if(alienHurt(al, dmg)) killAlien(m);
     }
     if(boss && !boss.leaving){
       var bx = boss.x - x, by = boss.y - y;
@@ -1605,9 +3593,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         if(Math.hypot(al.x-w.x, al.y-w.y) > al.r + WAKE_R) continue;
         if(w.hits[al.id] > t) continue;
         w.hits[al.id] = t + WAKE_TICK;
-        al.hp -= dmg; al.hitT = 0.12;
+        al.hitT = 0.12;
+        var wakeDied = alienHurt(al, dmg);
         burst(al.x, al.y, 3, '255,140,60');
-        if(al.hp <= 0) killAlien(a);
+        if(wakeDied) killAlien(a);
       }
       if(boss && !boss.leaving && Math.hypot(boss.x-w.x, boss.y-w.y) < bossHitR() + WAKE_R &&
          !(w.hits[boss.id] > t)){
@@ -1637,9 +3626,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     for(var m=aliens.length-1;m>=0;m--){
       var al = aliens[m];
       if(Math.hypot(al.x-ship.x, al.y-ship.y) > R + al.r) continue;
-      al.hp -= hit; al.hitT = 0.1;
+      al.hitT = 0.1;
+      var arcDied = alienHurt(al, hit);
       arcOn.push(al);
-      if(al.hp <= 0) killAlien(m);
+      if(arcDied) killAlien(m);
     }
     if(boss && !boss.leaving && Math.hypot(boss.x-ship.x, boss.y-ship.y) < R + bossHitR()){
       boss.hp -= hit; boss.hitT = 0.1;
@@ -1720,6 +3710,52 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     }
   }
 
+  // Laid off the stern, with a fraction of the hull's velocity, so a mine
+  // dropped at full impulse falls behind rather than being left exactly under
+  // the tail — and then it bleeds that off and holds station. The rack is a
+  // queue: past the cap the oldest mine goes cold and is simply removed, not
+  // detonated, because a rack that fired its own tail end every few seconds
+  // would be laying the trap behind the player instead of in front of them.
+  function layMine(){
+    while(mines.length >= mineRack()) mines.shift();
+    var a = ship.angle;
+    mines.push({
+      x: ship.x - Math.cos(a) * NOSE_OFFSET, y: ship.y - Math.sin(a) * NOSE_OFFSET,
+      vx: ship.vx * 0.35, vy: ship.vy * 0.35,
+      life: MINE_LIFE, arm: MINE_ARM, t: 0, r: MINE_R
+    });
+  }
+
+  function updateMines(dt, sf){
+    if(!mines.length) return;
+    var R = mineTrigger(), dmg = mineDamage(), blast = mineBlast();
+    for(var i=mines.length-1;i>=0;i--){
+      var m = mines[i];
+      m.t += dt;
+      m.x += m.vx * sf; m.y += m.vy * sf;
+      var drag = Math.pow(0.90, sf);
+      m.vx *= drag; m.vy *= drag;
+      if(m.arm > 0) m.arm -= dt;
+      m.life -= dt;
+      // A mine that times out goes off rather than vanishing. It is the one
+      // thing that tells a player the rack has a shelf life without a readout.
+      if(m.life <= 0){ detonate(m.x, m.y, blast, dmg, MINE_RGB); mines.splice(i,1); continue; }
+      if(m.arm > 0) continue;
+
+      // Rock counts. Everything else defensive in this deck steps around the
+      // 70% of the damage that rock does; this weapon is allowed to answer it.
+      var hit = false, j;
+      for(j=0;j<asteroids.length;j++){
+        if(Math.hypot(m.x-asteroids[j].x, m.y-asteroids[j].y) < asteroids[j].r + R){ hit = true; break; }
+      }
+      if(!hit) for(j=0;j<aliens.length;j++){
+        if(Math.hypot(m.x-aliens[j].x, m.y-aliens[j].y) < aliens[j].r + R){ hit = true; break; }
+      }
+      if(!hit && boss && !boss.leaving && Math.hypot(m.x-boss.x, m.y-boss.y) < bossHitR() + R) hit = true;
+      if(hit){ detonate(m.x, m.y, blast, dmg, MINE_RGB); mines.splice(i,1); }
+    }
+  }
+
   function update(dt){
     var t = gameTime;
     var sf = dt * 60; if(sf > MAX_STEP) sf = MAX_STEP;
@@ -1728,6 +3764,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(shieldTime > 0) shieldTime = Math.max(0, shieldTime - dt);
     if(rapidTime > 0)  rapidTime  = Math.max(0, rapidTime  - dt);
     if(up.armour > 0 && !armourReady && t >= armourAt) armourReady = true;
+    if(refitDue && t >= refitDue){
+      if(pendingLevels > 0) openLevelUp(); else refitDealt();
+    }
     // Auto Aegis: a free shield on a fixed cadence once it has been picked
     if(up.guard > 0 && t >= nextGuard){
       nextGuard = t + guardEvery(up.guard);
@@ -1747,11 +3786,17 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     rockSpawnAcc += dt;
     if(asteroids.length < target && rockSpawnAcc > (boss ? 1.5 : 0.35)){
       rockSpawnAcc = 0;
-      asteroids.push(spawnSafeAsteroid());
+      spawnWave(target);
     }
 
-    if(keys.ArrowLeft) ship.angle -= rotPower() * sf;
-    if(keys.ArrowRight) ship.angle += rotPower() * sf;
+    // The helm eases in over about a tenth of a second rather than snapping
+    // to full rate, so a tap on an arrow key nudges the nose a few degrees
+    // and holding it still comes round at full speed. Without the ease every
+    // tap was a fixed, large step and fine aim was not possible.
+    var turnWant = (keys.ArrowRight ? 1 : 0) - (keys.ArrowLeft ? 1 : 0);
+    ship.turn = (ship.turn || 0) + (turnWant - (ship.turn || 0)) * Math.min(1, 14 * dt);
+    if(!turnWant && Math.abs(ship.turn) < 0.02) ship.turn = 0;
+    ship.angle += rotPower() * ship.turn * sf;
 
     // joystick: rotate toward the stick direction rather than snapping to it,
     // so the ship still feels like it turns
@@ -1772,7 +3817,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       ship.vx += Math.cos(ship.angle) * thrustPower() * thrustAmt * sf;
       ship.vy += Math.sin(ship.angle) * thrustPower() * thrustAmt * sf;
     }
-    var drag = Math.pow(0.98, sf);
+    // Per-hull, not a constant: this is the number that makes the Sovereign
+    // feel like it has mass and the Nova feel like it stops when you stop.
+    var drag = Math.pow(hullMods().drag, sf);
     ship.vx *= drag; ship.vy *= drag;
 
     var nx = ship.x + ship.vx * sf, ny = ship.y + ship.vy * sf;
@@ -1782,6 +3829,22 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     else if(ny > docH){ ny = docH; ship.vy = -ship.vy*BOUNCE; }
     ship.x = nx; ship.y = ny;
     if(ship.invuln > 0) ship.invuln = Math.max(0, ship.invuln - dt);
+    if(ship.muzzle > 0) ship.muzzle = Math.max(0, ship.muzzle - dt * 11);
+
+    // A thin trail of hot plasma off the nacelles, dropped on a clock rather
+    // than once a frame so its density does not change with the refresh rate.
+    if(ship.thrusting && t >= nextEmber){
+      nextEmber = t + 0.038;
+      var ca = Math.cos(ship.angle), sa = Math.sin(ship.angle), ba = ship.angle + Math.PI;
+      for(var ei=0; ei<2; ei++){
+        var side = ei ? 11.2 : -11.2, es = 1.1 + Math.random()*0.9;
+        particles.push({ t:'ember',
+          x: ship.x + ca*-13 - sa*side, y: ship.y + sa*-13 + ca*side,
+          vx: Math.cos(ba)*es + ship.vx*0.35, vy: Math.sin(ba)*es + ship.vy*0.35,
+          life:1, decay: 2.8 + Math.random()*1.5, drag:0.93,
+          r: 0.85 + Math.random()*1.05, col:'120,215,255' });
+      }
+    }
 
     for(var r=asteroids.length-1; r>=0; r--){
       var ax = asteroids[r];
@@ -1817,7 +3880,12 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
           ax.x += ddx / dd * push; ax.y += ddy / dd * push;
         }
       }
-      if(Math.hypot(ship.x-ax.x, ship.y-ax.y) < ax.r + SHIP_RADIUS){
+      // One distance, three answers: outside everything, inside the graze
+      // band, or inside the hull. Computing it once is not only cheaper, it is
+      // the only way the three tests can never disagree with each other.
+      var rgd = Math.hypot(ship.x-ax.x, ship.y-ax.y);
+      if(rgd < ax.r + GRAZE_BAND && rgd >= ax.r + SHIP_RADIUS) graze(ax, CORE_ROCK, ax.x, ax.y);
+      if(rgd < ax.r + SHIP_RADIUS){
         if(ramArmed(ax.x, ax.y)){
           ax.hp -= ramDamage(); ax.hitT = 0.14;
           burst(ax.x, ax.y, 14, '111,232,255');
@@ -1851,9 +3919,19 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       nextTorp = t + torpCooldown();
       fireTorpedo();
     }
+    // The rack is on a clock of its own for the same reason the bay is: three
+    // weapons that fired together would be heard as one.
+    if(up.mine > 0 && t >= nextMine){
+      nextMine = t + mineCooldown();
+      layMine();
+    }
     updateTorpedoes(dt, sf);
+    updateMines(dt, sf);
     updateWake(dt, t);
     updateArc(dt);
+    updateSurges(dt);
+    updateBeams(dt, sf, t);
+    updateWebs(dt);
 
     for(var i=bullets.length-1;i>=0;i--){
       var b = bullets[i];
@@ -1863,19 +3941,44 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       }
       if(boss && !boss.leaving && Math.hypot(b.x-boss.x, b.y-boss.y) < bossHitR()){
         boss.hp -= b.dmg; boss.hitT = 0.1;
-        burst(b.x, b.y, 3, '255,209,102');
+        sparks(b.x, b.y, 3, '255,209,102', 0.8);
         if(boss.hp <= 0){ killBoss(); bullets.splice(i,1); continue; }
         if(!spendBullet(b, i, boss.id)) continue;
       }
 
+      // Heavy plasma is the one piece of enemy ordnance the guns can destroy,
+      // and it is checked before the hulls: a torpedo bearing down on you is a
+      // more urgent target than the ship that fired it, and a shot that passed
+      // through the plasma to hit the warbird behind would make nonsense of
+      // the whole idea.
       var spent = false;
+      for(var hb=alienBullets.length-1; hb>=0; hb--){
+        var hv = alienBullets[hb];
+        if(!hv.hp) continue;
+        if(b.hits && b.hits.indexOf(hv.id) !== -1) continue;
+        if(Math.hypot(b.x - hv.x, b.y - hv.y) > hv.r + 3) continue;
+        hv.hp -= b.dmg;
+        sparks(b.x, b.y, 5, hv.rgb, 0.9);
+        if(hv.hp <= 0){
+          bloom(hv.x, hv.y, 46, hv.rgb);
+          burst(hv.x, hv.y, 18, hv.rgb, 1.1);
+          shake(0.18);
+          alienBullets.splice(hb, 1);
+          scored(45);
+        }
+        spent = !spendBullet(b, i, hv.id);
+        break;
+      }
+      if(spent) continue;
+
       for(var m=aliens.length-1;m>=0;m--){
         var al2 = aliens[m];
         if(b.hits && b.hits.indexOf(al2.id) !== -1) continue;
         if(Math.hypot(b.x-al2.x, b.y-al2.y) < al2.r){
-          al2.hp -= b.dmg; al2.hitT = 0.12;
-          burst(b.x, b.y, 4, '127,227,236');
-          if(al2.hp <= 0) killAlien(m);
+          al2.hitT = 0.12;
+          var al2Died = alienHurt(al2, b.dmg);
+          sparks(b.x, b.y, 4, al2.adapted ? '255,255,255' : '190,240,255', 0.85);
+          if(al2Died) killAlien(m);
           spent = !spendBullet(b, i, al2.id);
           break;
         }
@@ -1888,7 +3991,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         if(Math.hypot(b.x-rock.x, b.y-rock.y) < rock.r){
           rock.hp -= b.dmg; rock.hitT = 0.12;
           if(rock.hp <= 0) killAsteroid(k);
-          else burst(b.x, b.y, 4);
+          else sparks(b.x, b.y, 4, '214,178,255', 0.8);
           spendBullet(b, i, rock.id);
           break;
         }
@@ -1901,10 +4004,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // and the fight should be legible rather than buried under traffic.
     if(!boss && bossWarn <= 0 && t >= nextBossAt){
       bossWarn = BOSS_WARN;
-      // "closing", not "decloaking": since the hail she might never decloak at
-      // all, and a warning that announces something the player can still
-      // prevent is a warning that lies about half the time
-      if(warnEl){ warnEl.textContent = bossName(bossCount) + ' closing'; warnEl.classList.add('on'); }
+      // "approaching", not "decloaking": since the hail she might never
+      // decloak at all, and a warning that announces something the player can
+      // still prevent is a warning that lies about half the time
+      if(warnEl){ warnEl.textContent = bossName(bossCount) + ' approaching'; warnEl.classList.add('on'); }
     }
     if(bossWarn > 0){
       bossWarn -= dt;
@@ -1927,51 +4030,30 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       al.t += 0.03 * sf;
       if(al.hitT > 0) al.hitT = Math.max(0, al.hitT - dt);
 
-      if(al.kind === 'stalker'){
-        al.ttl -= dt;
-        if(al.ttl > 0){
-          // steers at the ship under thrust and drag rather than tracking it
-          // exactly, so it overshoots and swings back — dodgeable, but only if
-          // you keep turning
-          var sdx = ship.x - al.x, sdy = ship.y - al.y, sd = Math.hypot(sdx, sdy) || 1;
-          al.vx += (sdx / sd) * 0.06 * sf;
-          al.vy += (sdy / sd) * 0.06 * sf;
-        } else if(!al.fleeing){
-          // out of fuel: turn away once, at speed, and leave for good
-          al.fleeing = true;
-          var fdx = al.x - ship.x, fdy = al.y - ship.y, fd = Math.hypot(fdx, fdy) || 1;
-          al.vx = fdx / fd * AT.speed * 2.4;
-          al.vy = fdy / fd * AT.speed * 2.4;
-        }
-        if(!al.fleeing){
-          var sdrag = Math.pow(0.975, sf);
-          al.vx *= sdrag; al.vy *= sdrag;
-          var spd = Math.hypot(al.vx, al.vy), cap = AT.speed * 1.9;
-          if(spd > cap){ al.vx = al.vx / spd * cap; al.vy = al.vy / spd * cap; }
-        }
-        al.x += al.vx * sf; al.y += al.vy * sf;
-      } else {
-        al.x += al.vx * sf;
-        al.y = al.baseY + Math.sin(al.t) * AT.bob;
-      }
+      (ALIEN_MOVE[AT.move || 'strafe'])(al, dt, sf, t, AT);
 
-      // gone: strafers off the far side, stalkers once they are clear of the band
-      var gone = al.kind === 'stalker'
-        ? (al.fleeing && (al.x < -al.r*3 || al.x > window.innerWidth + al.r*3 ||
-                          al.y < window.scrollY - window.innerHeight*0.7 ||
-                          al.y > window.scrollY + window.innerHeight*1.7))
-        : (al.vx > 0 ? al.x > window.innerWidth + al.r*3 : al.x < -al.r*3);
+      // Gone, and each hull leaves in its own way. A strafer is done the
+      // moment it crosses the far edge; everything that manoeuvres has to be
+      // clear of the whole band the camera travels in, or a raptor lining up
+      // its next run would be deleted mid-turn.
+      var gone;
+      if(AT.move === 'chase' || AT.move === 'standoff') gone = al.fleeing && offBand(al);
+      else if(AT.move === 'anchor') gone = al.phase === 'leave' && offBand(al);
+      else if(AT.move === 'run' || AT.move === 'grind') gone = offBand(al);
+      else gone = al.vx > 0 ? al.x > window.innerWidth + al.r*3 : al.x < -al.r*3;
       if(gone){ aliens.splice(ai,1); continue; }
 
-      if(Math.hypot(ship.x-al.x, ship.y-al.y) < al.r + SHIP_RADIUS){
+      var agd = Math.hypot(ship.x-al.x, ship.y-al.y);
+      if(agd < al.r + GRAZE_BAND && agd >= al.r + SHIP_RADIUS) graze(al, CORE_SHIP, al.x, al.y);
+      if(agd < al.r + SHIP_RADIUS){
         // A shield used to ram straight through anything for free. It still
         // shrugs off a scout, but the armoured hulls only take a dent and are
         // shoved clear, so a live shield is no longer a licence to fly at
         // everything on the screen.
         if(shieldTime > 0){
           burst(al.x, al.y, 14, '0,194,255');
-          al.hp -= 4; al.hitT = 0.12;
-          if(al.hp <= 0){ killAlien(ai); continue; }
+          al.hitT = 0.12;
+          if(alienHurt(al, 4)){ killAlien(ai); continue; }
           var kdx = al.x - ship.x, kdy = al.y - ship.y, kd = Math.hypot(kdx, kdy) || 1;
           al.x += kdx / kd * (al.r + SHIP_RADIUS + 4);
           al.y += kdy / kd * (al.r + SHIP_RADIUS + 4);
@@ -1980,10 +4062,11 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         }
         if(ship.invuln > 0) continue;
         if(ramArmed(al.x, al.y)){
-          al.hp -= ramDamage(); al.hitT = 0.14;
+          al.hitT = 0.14;
+          var ramDied = alienHurt(al, ramDamage());
           burst(al.x, al.y, 16, '111,232,255');
           ramBleed();
-          if(al.hp <= 0){ killAlien(ai); continue; }
+          if(ramDied){ killAlien(ai); continue; }
           // survived the shunt: shoved clear so it is not still inside you
           var sdx = al.x - ship.x, sdy = al.y - ship.y, sd = Math.hypot(sdx, sdy) || 1;
           al.x += sdx / sd * (al.r + SHIP_RADIUS + 6);
@@ -1996,31 +4079,32 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
       if(t > al.nextShot){
         al.nextShot = t + alienCooldown(t) * AT.cd;
-        var asp = alienBulletSpeed(t);
-        // a stalker leads its target, which is what stops a long straight
-        // burn away from it being the whole answer
-        var tx = ship.x, ty = ship.y;
-        if(al.kind === 'stalker'){
-          var lead = Math.hypot(ship.x-al.x, ship.y-al.y) / asp;
-          tx += ship.vx * lead * 0.55; ty += ship.vy * lead * 0.55;
-        }
-        var aimA = Math.atan2(ty-al.y, tx-al.x) + (Math.random()-0.5) * 2 * alienSpread(t);
-        for(var sh=0; sh<AT.shots; sh++){
-          var sa = aimA + (sh - (AT.shots - 1) / 2) * 0.2;
-          alienBullets.push({
-            x: al.x, y: al.y,
-            vx: Math.cos(sa) * asp, vy: Math.sin(sa) * asp,
-            life: 2.9, r: 3, rgb: AT.rgb
-          });
-        }
+        (ALIEN_FIRE[AT.fire || 'fan'])(al, t, AT);
       }
     }
-
     for(var q=alienBullets.length-1; q>=0; q--){
       var ab = alienBullets[q];
+      // Heavy plasma turns toward the ship — slowly enough that it is a thing
+      // to be outmanoeuvred or shot down rather than a thing that simply
+      // arrives. Ordinary rounds fly straight and always have.
+      if(ab.seek){
+        var pa = Math.atan2(ab.vy, ab.vx);
+        pa += angDiff(Math.atan2(ship.y - ab.y, ship.x - ab.x), pa) *
+              (1 - Math.pow(1 - ab.seek * dt, sf));
+        var psp = Math.hypot(ab.vx, ab.vy);
+        ab.vx = Math.cos(pa) * psp; ab.vy = Math.sin(pa) * psp;
+      }
       ab.x += ab.vx * sf; ab.y += ab.vy * sf; ab.life -= dt;
       if(ab.life<=0 || ab.x<0 || ab.x>window.innerWidth || ab.y<0 || ab.y>docH){ alienBullets.splice(q,1); continue; }
-      if(Math.hypot(ab.x-ship.x, ab.y-ship.y) < SHIP_RADIUS + (ab.r || 3)){
+      var bgd = Math.hypot(ab.x-ship.x, ab.y-ship.y);
+      // A round has no id and lives two seconds, so its cooldown is a flag on
+      // the round itself: one near miss, one payment, and then it is spent
+      // whatever it does afterwards.
+      if(!ab.grazed && bgd < SHIP_RADIUS + GRAZE_FIRE_BAND && bgd >= SHIP_RADIUS + (ab.r || 3)){
+        ab.grazed = true;
+        graze(ab, CORE_FIRE, ab.x, ab.y);
+      }
+      if(bgd < SHIP_RADIUS + (ab.r || 3)){
         if(shieldTime > 0){ alienBullets.splice(q,1); burst(ab.x, ab.y, 6, '0,194,255'); continue; }
         alienBullets.splice(q,1); hitShip('fire');
       }
@@ -2048,10 +4132,21 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     for(var j=particles.length-1;j>=0;j--){
       var p = particles[j];
       p.x += p.vx * sf; p.y += p.vy * sf;
-      var pd = Math.pow(0.94, sf);
+      var pd = Math.pow(p.drag || 0.94, sf);
       p.vx *= pd; p.vy *= pd;
-      p.life -= 2.4 * dt;
+      if(p.vr) p.rot += p.vr * sf;
+      p.life -= (p.decay || 2.4) * dt;
       if(p.life<=0) particles.splice(j,1);
+    }
+
+    for(var bi=blooms.length-1;bi>=0;bi--){
+      blooms[bi].life -= dt * 7.5;
+      if(blooms[bi].life <= 0) blooms.splice(bi,1);
+    }
+    if(trauma > 0) trauma = Math.max(0, trauma - TRAUMA_DECAY * dt);
+    if(chainT > 0){
+      chainT -= dt;
+      if(chainT <= 0) chain = 0;
     }
   }
 
@@ -2068,118 +4163,219 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     return false;
   }
 
-  // ── loot sprites ─────────────────────────────────────────────────────────
-  // Drawn as honest pixel art: a fixed cell grid stamped out with fillRect, so
-  // the drops read as 2D sprites against the vector rocks rather than blending
-  // into them. A soft radial glow sits behind so they still carry on a dark page.
-  var SPR = {
-    // Dilithium. Both grades are the same bipyramid cut so they read as one
-    // substance at a glance — the rich one is simply drawn a cell larger and
-    // with a brighter core, which is the only difference the player needs.
-    coin: {
-      cell: 2,
-      pal: { o:'#1b4a7a', h:'#e9fbff', c:'#6fe8ff', d:'#2f8fc7' },
-      glow: '111,232,255',
-      rows: ['...o...',
-             '..oho..',
-             '.ohcco.',
-             'ohccddo',
-             '.occdo.',
-             '..odo..',
-             '...o...']
-    },
-    gem: {
-      cell: 3,
-      pal: { o:'#3b1b7a', h:'#ffffff', c:'#9d7bff', d:'#5b3fd6' },
-      glow: '157,123,255',
-      rows: ['...o...',
-             '..oho..',
-             '.ohhco.',
-             'ohhccdo',
-             'ohccddo',
-             '.occdo.',
-             '..odo..']
-    },
-    // Hull repair. A cross, not a heart: the row it tops up is a hull-integrity
-    // readout drawn as damaged plating, and a heart there would be the same
-    // borrowed-from-another-game vocabulary the HUD icons were changed to shed.
-    // (The pickup key stays 'heart' — it is internal, and renaming it would
-    // touch nine call sites for nothing the player can see.)
-    heart: {
-      cell: 3,
-      pal: { o:'#c01a41', h:'#ffb3c1', r:'#ff4d6d' },
-      glow: '255,77,109',
-      rows: ['..ooo..',
-             '.ohrho.',
-             'oohrhoo',
-             'ohrrrho',
-             'oohrhoo',
-             '.ohrho.',
-             '..ooo..']
-    },
-    // the two timed drops are drawn a cell larger than the gems, because they
-    // are worth crossing the screen for and should look like it
-    // deflector: a dish seen edge-on
-    shield: {
-      cell: 4,
-      pal: { o:'#06456e', h:'#dcf4ff', c:'#00c2ff' },
-      glow: '0,194,255',
-      rows: ['.ooooo.',
-             'ohhhhho',
-             'ohcccco',
-             'ohcccco',
-             '.occco.',
-             '..oco..',
-             '...o...']
-    },
-    // overload: a charged emitter bolt
-    rapid: {
-      cell: 4,
-      pal: { o:'#8a4a05', h:'#fff0cf', b:'#ffb347' },
-      glow: '255,179,71',
-      rows: ['...oo..',
-             '..ohbo.',
-             '.obbbo.',
-             'obbbbbo',
-             '..obbo.',
-             '..obo..',
-             '..oo...']
+  // ── loot ─────────────────────────────────────────────────────────────────
+  // Two vocabularies, deliberately, because these are two different kinds of
+  // thing.
+  //
+  //   Dilithium is MATTER. It came out of a rock, so it is drawn as a cut
+  //   crystal with a couple of chips of the same stone beside it, faceted in
+  //   exactly the language the rocks are faceted in — one lit plane, one
+  //   turning away, a dark outline to hold it against a bright field.
+  //
+  //   A power-up is a SYSTEM being offered. Those keep the ring, the four tick
+  //   marks and the glyph, because the ring is the ship saying it has SCANNED
+  //   the thing — the same sentence the rock reticles say — and that reads
+  //   correctly for a capability and wrong for a lump of ore.
+  //
+  // The crystals are deliberately far quieter than the reference art they come
+  // from. That sheet is one crystal at two hundred pixels; this is up to a
+  // dozen of them at fourteen, drifting across a field that already carries
+  // forty lit rocks, a nebula and a starfield. Everything was pulled down
+  // until they read as ore lying in space rather than as lights: no bloom, a
+  // glow at a fifth of the alpha, and facets in the twenties rather than the
+  // eighties.
+  var CRYSTALS = {
+    coin: { r: 8.6, chips: 2, glow: '111,232,255',
+            dark: 'rgba(16,54,92,.96)',  mid: 'rgba(72,178,224,.72)',
+            lit:  'rgba(196,244,255,.92)', edge: 'rgba(190,243,255,.85)' },
+    gem:  { r: 11,  chips: 3, glow: '157,123,255',
+            dark: 'rgba(40,20,86,.96)',  mid: 'rgba(124,94,224,.72)',
+            lit:  'rgba(224,206,255,.94)', edge: 'rgba(222,203,255,.88)' }
+  };
+  // one cut, used at every size: a hexagonal prism seen side on, taller than
+  // it is wide, which is the silhouette that reads as "crystal" and not "gem
+  // from a puzzle game"
+  var CRYSTAL_PTS = [[0,-1],[0.42,-0.36],[0.34,0.62],[0,1],[-0.34,0.62],[-0.42,-0.36]];
+
+  function crystalPath(cx, cy, r, rot){
+    var c = Math.cos(rot), s = Math.sin(rot), p, i;
+    ctx.beginPath();
+    for(i=0;i<CRYSTAL_PTS.length;i++){
+      p = CRYSTAL_PTS[i];
+      var px = p[0] * r, py = p[1] * r;
+      var x = cx + px * c - py * s, y = cy + px * s + py * c;
+      if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     }
+    ctx.closePath();
+  }
+
+  // half the crystal, so one side can be lit and the other can turn away —
+  // the same two-plane trick the rocks use, which is what makes a flat
+  // polygon read as something with volume
+  function crystalFace(cx, cy, r, rot, side){
+    var c = Math.cos(rot), s = Math.sin(rot), i;
+    var idx = side > 0 ? [0,1,2,3] : [0,3,4,5];
+    ctx.beginPath();
+    for(i=0;i<idx.length;i++){
+      var p = CRYSTAL_PTS[idx[i]], px = p[0] * r, py = p[1] * r;
+      var x = cx + px * c - py * s, y = cy + px * s + py * c;
+      if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawCrystal(C, cx, cy, rot){
+    var R = C.r, i;
+    // The glow has to have a SOFT edge. It was two flat discs composited
+    // additively, on the theory that a gradient per crystal per frame was
+    // worth avoiding — but a flat disc under 'lighter' has a hard rim, and at
+    // a dozen on screen the field filled up with grey circles that had
+    // something faint inside them. A small gradient is nothing; the planet was
+    // expensive because it was nine hundred pixels across, not because it was
+    // a gradient.
+    if(ctx.createRadialGradient){
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.9);
+      g.addColorStop(0,    'rgba(' + C.glow + ',.26)');
+      g.addColorStop(0.45, 'rgba(' + C.glow + ',.10)');
+      g.addColorStop(1,    'rgba(' + C.glow + ',0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(cx, cy, R * 1.9, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+
+    // Chips of the same stone, hugging the main shard rather than orbiting it
+    // at a distance — in the reference they are part of one cluster, and at
+    // fifteen pixels anything further out than about a radius stops reading as
+    // the same object.
+    ctx.lineWidth = 1;
+    for(i=0;i<C.chips;i++){
+      var a = rot * 1.4 + i / C.chips * Math.PI * 2 + 0.7;
+      var d = R * (1.05 + (i % 2) * 0.28);
+      var ch = R * (0.36 + (i % 2) * 0.1);
+      var chx = cx + Math.cos(a) * d, chy = cy + Math.sin(a) * d;
+      ctx.fillStyle = C.dark;
+      crystalPath(chx, chy, ch, a * 1.7);
+      ctx.fill();
+      ctx.fillStyle = C.mid;
+      crystalFace(chx, chy, ch, a * 1.7, 1);
+      ctx.strokeStyle = C.edge;
+      crystalPath(chx, chy, ch, a * 1.7);
+      ctx.stroke();
+    }
+
+    // the shard itself: dark body, one lit face, then a thin edge
+    ctx.fillStyle = C.dark;
+    crystalPath(cx, cy, R, rot);
+    ctx.fill();
+    ctx.fillStyle = C.mid;
+    crystalFace(cx, cy, R, rot, -1);
+    ctx.fillStyle = C.lit;
+    crystalFace(cx, cy, R, rot, 1);
+    ctx.strokeStyle = C.edge;
+    ctx.lineWidth = 1;
+    crystalPath(cx, cy, R, rot);
+    ctx.stroke();
+  }
+
+  var PICKUPS = {
+    heart:  { r: 12, rgb: '74,231,143',  glyph: 'cross'   },
+    shield: { r: 13, rgb: '0,194,255',   glyph: 'shield'  },
+    rapid:  { r: 13, rgb: '255,179,71',  glyph: 'burst'   }
   };
 
-  function drawSprite(spr, cx, cy){
-    var cell = spr.cell;
-    var w = spr.rows[0].length * cell, h = spr.rows.length * cell;
-    var x0 = Math.round(cx - w/2), y0 = Math.round(cy - h/2);
-
-    // one cheap glow pass behind the sprite instead of shadowing every cell
-    var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, w * 0.75);
-    g.addColorStop(0, 'rgba(' + spr.glow + ',.38)');
-    g.addColorStop(1, 'rgba(' + spr.glow + ',0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(cx - w, cy - w, w*2, w*2);
-
-    for(var r=0; r<spr.rows.length; r++){
-      var row = spr.rows[r];
-      for(var c=0; c<row.length; c++){
-        var col = spr.pal[row[c]];
-        if(!col) continue;
-        ctx.fillStyle = col;
-        ctx.fillRect(x0 + c*cell, y0 + r*cell, cell, cell);
+  function pickupGlyph(kind, R){
+    var i, an, rr;
+    if(kind === 'cross'){
+      var a = R * 0.26, b = R * 0.62;
+      ctx.beginPath();
+      ctx.rect(-a, -b, a*2, b*2);
+      ctx.rect(-b, -a, b*2, a*2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.7)';
+      ctx.beginPath(); ctx.rect(-a*0.55, -a*0.55, a*1.1, a*1.1); ctx.fill();
+    } else if(kind === 'shield'){
+      ctx.beginPath();
+      ctx.moveTo(0, -R*0.68);
+      ctx.lineTo(R*0.5, -R*0.38);
+      ctx.lineTo(R*0.5, R*0.1);
+      ctx.quadraticCurveTo(R*0.44, R*0.58, 0, R*0.72);
+      ctx.quadraticCurveTo(-R*0.44, R*0.58, -R*0.5, R*0.1);
+      ctx.lineTo(-R*0.5, -R*0.38);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.5)';
+      ctx.beginPath();
+      ctx.moveTo(0, -R*0.5); ctx.lineTo(R*0.3, -R*0.32);
+      ctx.lineTo(0, R*0.42); ctx.closePath(); ctx.fill();
+    } else {
+      // eight points: long on the axes, short between, which is the shape a
+      // flare makes and a plain asterisk does not
+      ctx.beginPath();
+      for(i=0;i<16;i++){
+        an = i / 16 * Math.PI * 2;
+        rr = (i % 4 === 0) ? R*0.76 : (i % 2 === 0 ? R*0.34 : R*0.15);
+        if(i === 0) ctx.moveTo(Math.cos(an)*rr, Math.sin(an)*rr);
+        else ctx.lineTo(Math.cos(an)*rr, Math.sin(an)*rr);
       }
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.9)';
+      ctx.beginPath(); ctx.arc(0, 0, R*0.16, 0, Math.PI*2); ctx.fill();
     }
   }
 
   function drawPickup(p, camY){
     // last stretch of the timer is spent blinking, so nothing vanishes unwarned
     var fading = p.life < 1.6;
-    if(fading){
-      if(reduceMotion) ctx.globalAlpha = 0.4;        // dim rather than strobe
-      else if(Math.floor(p.life * 9) % 2 === 0) return;
+    if(fading && !reduceMotion && Math.floor(p.life * 9) % 2 === 0) return;
+    var y = p.y - camY + Math.sin(p.t) * 2;
+
+    var C = CRYSTALS[p.kind];
+    if(C){
+      ctx.save();
+      if(fading && reduceMotion) ctx.globalAlpha = 0.4;
+      // it tumbles, slowly. A crystal pinned to one angle reads as a sprite
+      // stuck on the glass; a quarter of the bob rate reads as a rock turning.
+      drawCrystal(C, p.x, y, reduceMotion ? 0.4 : p.t * 0.22);
+      ctx.restore();
+      return;
     }
-    var spr = SPR[p.kind] || SPR.coin;
-    drawSprite(spr, p.x, p.y - camY + Math.round(Math.sin(p.t) * 2));
-    ctx.globalAlpha = 1;
+
+    var P = PICKUPS[p.kind] || PICKUPS.shield;
+    var R = P.r, rgb = P.rgb;
+    var pulse = reduceMotion ? 0.7 : 0.62 + 0.38 * Math.sin(gameTime * 4 + p.t);
+    ctx.save();
+    if(fading && reduceMotion) ctx.globalAlpha = 0.4;   // dim rather than strobe
+    ctx.translate(p.x, y);
+    if(ctx.createRadialGradient){
+      ctx.globalCompositeOperation = 'lighter';
+      var g = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 2.2);
+      g.addColorStop(0, 'rgba(' + rgb + ',' + (0.3 * pulse).toFixed(3) + ')');
+      g.addColorStop(1, 'rgba(' + rgb + ',0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(0, 0, R * 2.2, 0, Math.PI*2); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    // a dark disc under the glyph, so a drop still reads when it drifts across
+    // a lit rock
+    ctx.fillStyle = 'rgba(6,3,12,.82)';
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(' + rgb + ',' + (0.5 + 0.4 * pulse).toFixed(3) + ')';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = 'rgba(' + rgb + ',.45)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(var k=0;k<4;k++){
+      var a = k * Math.PI / 2;
+      ctx.moveTo(Math.cos(a)*(R + 3), Math.sin(a)*(R + 3));
+      ctx.lineTo(Math.cos(a)*(R + 6.5), Math.sin(a)*(R + 6.5));
+    }
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(' + rgb + ',.95)';
+    pickupGlyph(P.glyph, R);
+    ctx.restore();
   }
 
   // ── the flagship ─────────────────────────────────────────────────────────
@@ -2192,79 +4388,236 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // and the usual way round for this genre: the silhouette needs the room to
   // be legible, and a hitbox tighter than the art always reads as generous
   // rather than as a cheat.
-  function shipShape(){
+  // `fill` draws the hull as solid dark bodies instead of stroking it. The two
+  // open subpaths — the dorsal neck and the pylons — are skipped in that pass:
+  // they are lines, and filling a line paints nothing while still costing a
+  // path. Everything else is an ellipse and fills honestly.
+  function shipShape(fill){
     // primary hull: the saucer, slightly wider across the beam than it is long
-    ctx.beginPath(); ctx.ellipse(8.5, 0, 7.4, 8.8, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(8.5, 0, 7.4, 8.8, 0, 0, Math.PI*2);
+    if(fill) ctx.fill(); else ctx.stroke();
     // dorsal neck back to the secondary hull
-    ctx.beginPath();
-    ctx.moveTo(3.6, -2.6); ctx.lineTo(-3.4, -3.0);
-    ctx.moveTo(3.6,  2.6); ctx.lineTo(-3.4,  3.0);
-    ctx.stroke();
+    if(!fill){
+      ctx.beginPath();
+      ctx.moveTo(3.6, -2.6); ctx.lineTo(-3.4, -3.0);
+      ctx.moveTo(3.6,  2.6); ctx.lineTo(-3.4,  3.0);
+      ctx.stroke();
+    }
     // secondary hull, kept narrow so it does not crowd the nacelles
-    ctx.beginPath(); ctx.ellipse(-8.5, 0, 5.8, 2.9, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(-8.5, 0, 5.8, 2.9, 0, 0, Math.PI*2);
+    if(fill) ctx.fill(); else ctx.stroke();
     // pylons: the one part that has to stay visible for the hull to read as
     // three bodies rather than one mass, so they are long and well separated
-    ctx.beginPath();
-    ctx.moveTo(-8.2, -2.3); ctx.lineTo(-5.2, -9.6);
-    ctx.moveTo(-8.2,  2.3); ctx.lineTo(-5.2,  9.6);
-    ctx.stroke();
+    if(!fill){
+      ctx.beginPath();
+      ctx.moveTo(-8.2, -2.3); ctx.lineTo(-5.2, -9.6);
+      ctx.moveTo(-8.2,  2.3); ctx.lineTo(-5.2,  9.6);
+      ctx.stroke();
+    }
     // warp nacelles
-    ctx.beginPath(); ctx.ellipse(-4.2, -11.2, 8.6, 2.0, 0, 0, Math.PI*2); ctx.stroke();
-    ctx.beginPath(); ctx.ellipse(-4.2,  11.2, 8.6, 2.0, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(-4.2, -11.2, 8.6, 2.0, 0, 0, Math.PI*2);
+    if(fill) ctx.fill(); else ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(-4.2,  11.2, 8.6, 2.0, 0, 0, Math.PI*2);
+    if(fill) ctx.fill(); else ctx.stroke();
+  }
+
+  // ── exhaust and cores ────────────────────────────────────────────────────
+  // Two pieces of vocabulary every hull in the game now shares, and between
+  // them they are most of what separates a ship from an outline: a plume, and
+  // a lit core.
+  //
+  // The plume is drawn in the hull's own rotated space, running back along its
+  // axis from a throat — bright and narrow where it leaves the engine, bulging
+  // once, then gone. A triangle does not do this; the bulge is the whole tell
+  // that it is burning rather than pointing. Length is the caller's business,
+  // because on the player it rides the throttle and that is the readout.
+  function plumeTrail(x, y, len, w, rgb, alpha){
+    if(!ctx.createLinearGradient || len < 2) return;
+    var g = ctx.createLinearGradient(x, y, x - len, y);
+    g.addColorStop(0,    'rgba(' + rgb + ',' + alpha + ')');
+    g.addColorStop(0.28, 'rgba(' + rgb + ',' + (alpha * 0.5).toFixed(3) + ')');
+    g.addColorStop(1,    'rgba(' + rgb + ',0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(x, y - w);
+    ctx.lineTo(x - len * 0.22, y - w * 1.45);
+    ctx.lineTo(x - len, y);
+    ctx.lineTo(x - len * 0.22, y + w * 1.45);
+    ctx.lineTo(x, y + w);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // The core. A white diamond lying along the hull's axis inside a soft bloom
+  // of the ship's own colour — the one warm spot on a vector outline, and the
+  // thing that makes a 15px silhouette read as powered rather than as a
+  // sticker. It is additive, so two of them overlapping burn out to white
+  // rather than averaging to mud.
+  function hullCore(x, size, rgb, lit){
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = 'rgba(' + rgb + ',' + (0.22 * lit).toFixed(3) + ')';
+    ctx.beginPath();
+    ctx.ellipse(x, 0, size * 2.4, size * 1.6, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(' + rgb + ',' + (0.75 * lit).toFixed(3) + ')';
+    ctx.beginPath();
+    ctx.moveTo(x + size, 0); ctx.lineTo(x, -size * 0.52);
+    ctx.lineTo(x - size, 0); ctx.lineTo(x, size * 0.52);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,' + (0.85 * lit).toFixed(3) + ')';
+    ctx.beginPath();
+    ctx.moveTo(x + size * 0.5, 0); ctx.lineTo(x, -size * 0.26);
+    ctx.lineTo(x - size * 0.5, 0); ctx.lineTo(x, size * 0.26);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  // One cone of exhaust, in the ship's own rotated space.
+  function plume(x, y, len, w, col){
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.moveTo(x, y - w);
+    ctx.lineTo(x - len, y);
+    ctx.lineTo(x, y + w);
+    ctx.closePath();
+    ctx.fill();
   }
 
   // ── the warbirds ─────────────────────────────────────────────────────────
   // Three hulls, three silhouettes, not three tints: at speed, in a field of
-  // forty rocks, shape is the only thing that reads. Each is drawn twice — a
-  // dark outline, then the neon pass — the same treatment the asteroids get,
-  // so they sit in the same world.
-  function alienShape(al, AT){
-    var R = al.r;
-    // Wings are closed planes, never open polylines. An unclosed V reads as a
-    // scribble at this size — the shape only becomes a wing once it has an
-    // outline the eye can fill in.
-    if(al.kind === 'lancer'){
-      // battlecruiser: a command pod thrown forward on a boom, main hull aft,
-      // and two broad wings carrying the pods it fires its fans from
-      ctx.beginPath(); ctx.ellipse(R*0.82, 0, R*0.40, R*0.29, 0, 0, Math.PI*2); ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(R*0.45, -1.5); ctx.lineTo(-R*0.3, -2.1);
-      ctx.moveTo(R*0.45,  1.5); ctx.lineTo(-R*0.3,  2.1);
-      ctx.stroke();
-      ctx.beginPath(); ctx.ellipse(-R*0.7, 0, R*0.52, R*0.3, 0, 0, Math.PI*2); ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-R*0.25, -R*0.2); ctx.lineTo(-R*0.35, -R*1.0);
-      ctx.lineTo(-R*1.2, -R*0.85); ctx.lineTo(-R*1.0, -R*0.18); ctx.closePath();
-      ctx.moveTo(-R*0.25,  R*0.2); ctx.lineTo(-R*0.35,  R*1.0);
-      ctx.lineTo(-R*1.2,  R*0.85); ctx.lineTo(-R*1.0,  R*0.18); ctx.closePath();
-      ctx.stroke();
-    } else if(al.kind === 'stalker'){
-      // bird-of-prey with the wings dropped into attack position: they rake
-      // forward rather than back, which is the tell that this is the hull that
-      // chases — readable a second before it arrives
-      ctx.beginPath();
-      ctx.moveTo(R, 0); ctx.lineTo(R*0.3, -R*0.24);
-      ctx.lineTo(-R*0.55, -R*0.26); ctx.lineTo(-R*0.55, R*0.26);
-      ctx.lineTo(R*0.3, R*0.24); ctx.closePath(); ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(R*0.18, -R*0.26); ctx.lineTo(R*0.02, -R*1.15);
-      ctx.lineTo(-R*0.85, -R*0.92); ctx.lineTo(-R*0.55, -R*0.24); ctx.closePath();
-      ctx.moveTo(R*0.18,  R*0.26); ctx.lineTo(R*0.02,  R*1.15);
-      ctx.lineTo(-R*0.85,  R*0.92); ctx.lineTo(-R*0.55,  R*0.24); ctx.closePath();
-      ctx.stroke();
-    } else {
-      // scout bird-of-prey, wings level for cruise
-      ctx.beginPath();
-      ctx.moveTo(R*0.95, 0); ctx.lineTo(R*0.28, -R*0.22);
-      ctx.lineTo(-R*0.55, -R*0.24); ctx.lineTo(-R*0.55, R*0.24);
-      ctx.lineTo(R*0.28, R*0.22); ctx.closePath(); ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(R*0.05, -R*0.24); ctx.lineTo(-R*0.18, -R*0.92);
-      ctx.lineTo(-R*0.95, -R*0.86); ctx.lineTo(-R*0.58, -R*0.22); ctx.closePath();
-      ctx.moveTo(R*0.05,  R*0.24); ctx.lineTo(-R*0.18,  R*0.92);
-      ctx.lineTo(-R*0.95,  R*0.86); ctx.lineTo(-R*0.58,  R*0.22); ctx.closePath();
-      ctx.stroke();
+  // forty rocks, shape is the only thing that reads. All three share one
+  // grammar — a central fuselage with a lit core, wings hung off it, exhaust
+  // behind — and differ only in how the wings are set, because that is the
+  // one difference a player can read at fifteen pixels and at a glance.
+  //
+  //   scout   · wings swept back. Cruise. Strafes past.
+  //   lancer  · wings broad with outboard gun pods. A platform.
+  //   stalker · wings raked FORWARD. Attack. This is the one that chases, and
+  //             the rake is the tell a second before it arrives.
+  //
+  // `part` matters. Filling and stroking every subpath in one pass put a lit
+  // outline down the seam where a wing meets the fuselage, and the ships came
+  // out as four detached plates floating in formation. Wings are drawn and lit
+  // FIRST, then the fuselage is drawn over their roots — so the joins end up
+  // underneath the body, which is where joins go.
+  function alienShape(al, AT, part, fill){
+    var R = al.r, s;
+    if(part === 'wings'){
+      if(al.kind === 'drone') return;              // a cube has no wings
+      if(al.kind === 'lancer'){
+        // broad planes carrying the pods it fires its fans from
+        for(s=-1; s<=1; s+=2){
+          ctx.beginPath();
+          ctx.moveTo(R*0.26, s*R*0.22);
+          ctx.lineTo(-R*0.12, s*R*0.92);
+          ctx.lineTo(-R*0.72, s*R*0.94);
+          ctx.lineTo(-R*0.62, s*R*0.24);
+          ctx.closePath();
+          if(fill) ctx.fill(); else ctx.stroke();
+          // the outboard pod it fires its fans from
+          ctx.beginPath();
+          ctx.moveTo(-R*0.14, s*R*0.88);
+          ctx.lineTo(-R*0.22, s*R*1.14);
+          ctx.lineTo(-R*0.64, s*R*1.14);
+          ctx.lineTo(-R*0.60, s*R*0.90);
+          ctx.closePath();
+          if(fill) ctx.fill(); else ctx.stroke();
+        }
+      } else if(al.kind === 'stalker'){
+        // raked forward, into the attack position
+        for(s=-1; s<=1; s+=2){
+          ctx.beginPath();
+          ctx.moveTo(R*0.16, s*R*0.18);
+          ctx.lineTo(R*0.50, s*R*0.80);
+          ctx.lineTo(R*0.20, s*R*1.02);
+          ctx.lineTo(-R*0.56, s*R*0.22);
+          ctx.closePath();
+          if(fill) ctx.fill(); else ctx.stroke();
+        }
+      } else if(al.kind === 'raptor'){
+        // K'Tinga: hard-swept, long and narrow. It is built to go in a
+        // straight line very fast, and the wings say so.
+        for(s=-1; s<=1; s+=2){
+          ctx.beginPath();
+          ctx.moveTo(R*0.22, s*R*0.15);
+          ctx.lineTo(-R*0.34, s*R*0.80);
+          ctx.lineTo(-R*0.98, s*R*0.62);
+          ctx.lineTo(-R*0.64, s*R*0.15);
+          ctx.closePath();
+          if(fill) ctx.fill(); else ctx.stroke();
+        }
+      } else if(al.kind === 'warbird'){
+        // Romulan: the big curved bird wing, sweeping out and forward. The
+        // widest silhouette on the field, which is the whole point of a hull
+        // that never comes close enough for you to get a better look.
+        for(s=-1; s<=1; s+=2){
+          ctx.beginPath();
+          ctx.moveTo(R*0.24, s*R*0.18);
+          ctx.quadraticCurveTo(R*0.36, s*R*0.74, -R*0.08, s*R*1.14);
+          ctx.lineTo(-R*0.52, s*R*1.00);
+          ctx.quadraticCurveTo(-R*0.30, s*R*0.58, -R*0.62, s*R*0.20);
+          ctx.closePath();
+          if(fill) ctx.fill(); else ctx.stroke();
+        }
+      } else if(al.kind === 'weaver'){
+        // Tholian: not wings, spines. A crystal with four barbs.
+        for(s=-1; s<=1; s+=2){
+          ctx.beginPath();
+          ctx.moveTo(R*0.10, s*R*0.10);
+          ctx.lineTo(R*0.62, s*R*0.96);
+          ctx.lineTo(R*0.02, s*R*0.26);
+          ctx.closePath();
+          if(fill) ctx.fill(); else ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(-R*0.12, s*R*0.10);
+          ctx.lineTo(-R*0.78, s*R*0.88);
+          ctx.lineTo(-R*0.20, s*R*0.26);
+          ctx.closePath();
+          if(fill) ctx.fill(); else ctx.stroke();
+        }
+      } else {
+        // swept back, level, cruising
+        for(s=-1; s<=1; s+=2){
+          ctx.beginPath();
+          ctx.moveTo(R*0.14, s*R*0.15);
+          ctx.lineTo(-R*0.30, s*R*0.74);
+          ctx.lineTo(-R*0.88, s*R*0.66);
+          ctx.lineTo(-R*0.60, s*R*0.17);
+          ctx.closePath();
+          if(fill) ctx.fill(); else ctx.stroke();
+        }
+      }
+      return;
     }
+
+    // The Borg cube is the one hull with no fuselage, no bow and no taper. It
+    // is a box, and being a box among a screenful of swept wings is the whole
+    // of its readability — nobody has to be told which one is the Borg.
+    if(al.kind === 'drone'){
+      var q = R * 0.74;
+      ctx.beginPath(); ctx.rect(-q, -q, q*2, q*2);
+      if(fill) ctx.fill(); else ctx.stroke();
+      if(!fill){
+        ctx.beginPath(); ctx.rect(-q*0.55, -q*0.55, q*1.1, q*1.1); ctx.stroke();
+      }
+      return;
+    }
+
+    // the fuselage, drawn over the wing roots
+    var nose = al.kind === 'lancer' ? 1.02 : (al.kind === 'weaver' ? 1.2 : 1.12);
+    var beam = al.kind === 'lancer' ? 0.24
+             : (al.kind === 'weaver' ? 0.14
+             : (al.kind === 'warbird' ? 0.22 : (al.kind === 'stalker' ? 0.19 : 0.17)));
+    ctx.beginPath();
+    ctx.moveTo(R*nose, 0);
+    ctx.lineTo(R*0.30, -R*beam);
+    ctx.lineTo(-R*0.52, -R*(beam * 1.25));
+    ctx.lineTo(-R*0.70, 0);
+    ctx.lineTo(-R*0.52,  R*(beam * 1.25));
+    ctx.lineTo(R*0.30,  R*beam);
+    ctx.closePath();
+    if(fill) ctx.fill(); else ctx.stroke();
   }
 
   // The tractor beam is the one upgrade whose effect was previously invisible
@@ -2386,6 +4739,36 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // under the HUD but over the field, and because the pulse has to run off the
   // same clock as everything else — a CSS animation would keep flashing while
   // the run is paused on an upgrade card.
+  // The vent front: a hard white leading edge, a cyan body behind it, and a
+  // fill that falls away fast toward the middle. The fill is what stops a
+  // 320px circle reading as a bubble — a ring alone looks like a hoop, and a
+  // flat disc looks like a hole.
+  function drawSurges(camY){
+    if(!surges.length) return;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for(var i=0;i<surges.length;i++){
+      var v = surges[i], y = v.y - camY;
+      var a = 1 - Math.min(1, v.t / (SURGE_TIME * 1.55));
+      var R = Math.max(2, v.r);
+      if(ctx.createRadialGradient){
+        var g = ctx.createRadialGradient(v.x, y, R * 0.5, v.x, y, R);
+        g.addColorStop(0,    'rgba(0,240,255,0)');
+        g.addColorStop(0.8,  'rgba(0,240,255,' + (a * 0.2).toFixed(3) + ')');
+        g.addColorStop(1,    'rgba(255,255,255,' + (a * 0.45).toFixed(3) + ')');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(v.x, y, R, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.lineWidth = 3 * a + 1;
+      ctx.strokeStyle = 'rgba(255,255,255,' + (a * 0.85).toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(v.x, y, R, 0, Math.PI*2); ctx.stroke();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(125,249,255,' + (a * 0.4).toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(v.x, y, R * 0.8, 0, Math.PI*2); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function drawRedAlert(){
     var W = window.innerWidth, H = window.innerHeight;
     var pulse = reduceMotion ? 0.5 : 0.5 + 0.5 * Math.sin(gameTime * 4.4);
@@ -2405,20 +4788,328 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     ctx.restore();
   }
 
+  // Sky, drawn under everything and inside the shake so the background rides
+  // the camera with the field — a background that holds still while the
+  // foreground rattles reads as a rendering fault rather than as a blow. Every
+  // layer carries SKY_B of bleed on each side for exactly that reason: the
+  // shake translates by up to fifteen pixels, and without the bleed that opens
+  // a bare strip at one edge on every heavy frame.
+  //
+  // Two full-screen blits and one narrow one. See the note above bakeSky() for
+  // why it is two and not five, and why every destination goes through snap().
+  function drawSky(camY){
+    var W = window.innerWidth, H = window.innerHeight, B = SKY_B;
+    if(skyTile && backdropOn){
+      var y0 = snap(-B - (((camY * 0.10) % skyH + skyH) % skyH));
+      ctx.drawImage(skyTile, -B, y0,        W + B*2, skyH);
+      ctx.drawImage(skyTile, -B, y0 + skyH, W + B*2, skyH);
+    }
+
+    // The near layer, live rather than baked for one reason: it has to
+    // stretch. st is how close the ship is to the speed where a streak is
+    // worth drawing at all, and the trail runs opposite the ship's heading —
+    // the stars are standing still and the camera is the thing moving. This is
+    // the layer that actually carries the depth, because it is the only one
+    // that moves fast enough to be seen moving.
+    if(!motes.length || !ship) return;
+    var sv = Math.hypot(ship.vx, ship.vy);
+    var st = Math.min(1, sv / 6.2);
+    var tx = -ship.vx * st * 2.1, ty = -ship.vy * st * 2.1;
+    var off = ((camY * 0.62) % moteH + moteH) % moteH;
+    var streaked = st > 0.3 && !reduceMotion;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = 'rgba(170,196,240,' + (0.2 + 0.3 * st).toFixed(3) + ')';
+    ctx.fillStyle   = 'rgba(190,210,250,.5)';
+    ctx.lineCap = 'round';
+    for(var i=0;i<motes.length;i++){
+      var m = motes[i], my = m.y - off;
+      if(my < -B) my += moteH;
+      if(my > H + B) continue;
+      if(streaked){
+        ctx.lineWidth = m.r * 1.5;
+        ctx.beginPath();
+        ctx.moveTo(m.x, my);
+        ctx.lineTo(m.x + tx * m.r, my + ty * m.r);
+        ctx.stroke();
+      } else {
+        ctx.beginPath(); ctx.arc(m.x, my, m.r, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    ctx.lineCap = 'butt';
+    ctx.restore();
+  }
+
+  // Blooms, composited additively so two flashes in the same place burn out
+  // to white the way a real one does rather than averaging to grey. They open
+  // as they fade, which is what separates a blast from a light being switched
+  // off.
+  function drawBlooms(camY){
+    if(!blooms.length || !ctx.createRadialGradient) return;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for(var i=0;i<blooms.length;i++){
+      var bl = blooms[i], a = bl.life, y = bl.y - camY;
+      var rr = bl.max * (1.25 - 0.75 * a);
+      var g = ctx.createRadialGradient(bl.x, y, 0, bl.x, y, rr);
+      g.addColorStop(0,    'rgba(255,255,255,' + (a * 0.92).toFixed(3) + ')');
+      g.addColorStop(0.3,  'rgba(' + bl.rgb + ',' + (a * 0.6).toFixed(3) + ')');
+      g.addColorStop(1,    'rgba(' + bl.rgb + ',0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(bl.x, y, rr, 0, Math.PI*2); ctx.fill();
+      // Spokes. A blast is light escaping through whatever just came apart,
+      // and the spikes are what make it read as an explosion rather than as a
+      // lamp being switched on. Lengths come off the spoke index rather than
+      // off Math.random(), so they are ragged but they do not crawl.
+      if(bl.n){
+        ctx.strokeStyle = 'rgba(255,255,255,' + (a * 0.5).toFixed(3) + ')';
+        ctx.lineWidth = 0.8 + a * 1.6;
+        ctx.beginPath();
+        for(var k=0;k<bl.n;k++){
+          var ang = bl.spin + k / bl.n * Math.PI * 2;
+          var i1 = rr * (0.8 + 0.55 * (((k * 37) % 13) / 13));
+          ctx.moveTo(bl.x + Math.cos(ang) * rr * 0.22, y + Math.sin(ang) * rr * 0.22);
+          ctx.lineTo(bl.x + Math.cos(ang) * i1,        y + Math.sin(ang) * i1);
+        }
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  // Debris, in two passes. The opaque pieces go down first so they read as
+  // wreckage against the sky, then everything that glows is composited on top
+  // in one additive pass — one state change for the whole field rather than
+  // one per particle.
+  function drawParticles(camY){
+    var i, p, y;
+    for(i=0;i<particles.length;i++){
+      p = particles[i];
+      y = p.y - camY;
+      if(p.t === 'shard'){
+        var c = Math.cos(p.rot) * p.len, s = Math.sin(p.rot) * p.len;
+        ctx.strokeStyle = 'rgba(' + (p.col || '184,65,42') + ',' + Math.min(1, p.life * 1.3).toFixed(2) + ')';
+        ctx.lineWidth = 1.7;
+        ctx.beginPath();
+        ctx.moveTo(p.x - c*0.5, y - s*0.5);
+        ctx.lineTo(p.x + c*0.5, y + s*0.5);
+        ctx.stroke();
+      } else if(!p.t || p.t === 'dust'){
+        ctx.fillStyle = 'rgba(' + (p.col || '184,65,42') + ',' + p.life.toFixed(2) + ')';
+        ctx.fillRect(p.x-1.5, y-1.5, 3, 3);
+      }
+    }
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+    for(i=0;i<particles.length;i++){
+      p = particles[i];
+      if(p.t !== 'spark' && p.t !== 'ember') continue;
+      y = p.y - camY;
+      if(p.t === 'spark'){
+        // stretched along its own velocity, and the stretch shortens as it
+        // dies — a spark that keeps its full length to the last frame reads
+        // as a stick rather than as something burning out
+        var k = 1.6 + p.life * 2.6;
+        ctx.strokeStyle = 'rgba(' + (p.col || '255,216,150') + ',' + p.life.toFixed(2) + ')';
+        ctx.lineWidth = 0.8 + p.life * 1.5;
+        ctx.beginPath();
+        ctx.moveTo(p.x - p.vx * k, y - p.vy * k);
+        ctx.lineTo(p.x, y);
+        ctx.stroke();
+      } else {
+        // a glow without a shadowBlur: a wide dim disc under a small bright
+        // one. shadowBlur on every ember is the one thing that would actually
+        // cost frames here, and this is indistinguishable at 3px.
+        var col = p.col || '255,150,90';
+        ctx.fillStyle = 'rgba(' + col + ',' + (p.life * 0.16).toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(p.x, y, p.r * 3.2, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(' + col + ',' + (p.life * 0.9).toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(p.x, y, p.r * p.life, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    ctx.lineCap = 'butt';
+    ctx.restore();
+  }
+
+  // Scan reticles, and what they are FOR. Every rock inside sensor range used
+  // to wear a full one — ring plus four turning ticks — which meant forty of
+  // them on screen at once, all saying the same thing at the same strength.
+  // A mark that everything carries marks nothing; it was simply a second
+  // outline around every rock in the sector, competing with the rocks.
+  //
+  // So the reticle now says IMPORTANT, and only two things are:
+  //
+  //   a rare rock  — the drop is the only thing on the field worth crossing
+  //                  it for, so it keeps the whole treatment at any range:
+  //                  ring, ticks, and the amber that separates a prize from
+  //                  a hazard.
+  //   a big rock   — the ones that will not break in one pass and cannot be
+  //                  flown through. A ring, no ticks, and faint: enough to
+  //                  read as scanned, not enough to be looked at.
+  //
+  // Everything under RETICLE_MIN — the small rock, the mini, the debris —
+  // gets nothing. It is already a lit purple outline on a dark field, which
+  // was always sufficient to see it by.
+  var RETICLE_R = 560;
+  var RETICLE_MIN = 22;
+
+  // Where the key light hangs in the sector. One direction, shared by every
+  // rock on the field — a field lit from one corner reads as solid, and a
+  // field where each rock has its own sun reads as a pile of stickers.
+  var ROCK_LIGHT = -2.15;
+
+  // One path, one fill. Every face whose lighting term falls in [lo,hi) is
+  // added to the SAME path as a triangle off the rock's centre, and the whole
+  // band is filled in one go — canvas fills a path holding nine subpaths
+  // exactly as it fills a path holding one. That is the reason a ten-sided
+  // rock still costs the three fills the old three-wedge version cost, and it
+  // is the only reason this shading was affordable at all: faceting is the
+  // most expensive thing the field does.
+  function facetBand(pts, np, step, lang, lo, hi){
+    var added = false, f, d, a, b;
+    ctx.beginPath();
+    for(f=0; f<np; f++){
+      d = Math.cos((f + 0.5) * step - lang);
+      if(d < lo || d >= hi) continue;
+      a = pts[f]; b = pts[(f + 1) % np];
+      ctx.moveTo(0, 0); ctx.lineTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+      added = true;
+    }
+    if(added) ctx.fill();
+  }
+  function drawReticles(camY){
+    var i, ax, dx, dy, d, f, rr, k, a, y;
+    ctx.save();
+    ctx.lineWidth = 1;
+    for(i=0;i<asteroids.length;i++){
+      ax = asteroids[i];
+      if(!ax.special && ax.r < RETICLE_MIN) continue;
+      dx = ax.x - ship.x; dy = ax.y - ship.y;
+      d = Math.hypot(dx, dy);
+      if(d > RETICLE_R && !ax.special) continue;
+      f = ax.special ? 1 : 1 - d / RETICLE_R;
+      rr = ax.r + 9; y = ax.y - camY;
+      ctx.strokeStyle = ax.special
+        ? 'rgba(255,214,140,' + (0.1 + f * 0.3).toFixed(3) + ')'
+        : 'rgba(125,249,255,' + (0.02 + f * 0.1).toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(ax.x, y, rr, 0, Math.PI*2); ctx.stroke();
+      // the ticks are the loud half of the mark, so they belong only to the
+      // thing the mark is actually for
+      if(!ax.special) continue;
+      ctx.beginPath();
+      for(k=0;k<4;k++){
+        a = ax.pulse + gameTime * 0.45 + k * Math.PI / 2;
+        ctx.moveTo(ax.x + Math.cos(a)*(rr + 2.5), y + Math.sin(a)*(rr + 2.5));
+        ctx.lineTo(ax.x + Math.cos(a)*(rr + 7),   y + Math.sin(a)*(rr + 7));
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function draw(){
     var camY = window.scrollY;
-    ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    var W = window.innerWidth, H = window.innerHeight;
+    ctx.clearRect(0,0,W,H);
+    // Camera shake, wrapped around the whole scene, sky included — a
+    // background that holds still while the foreground rattles reads as a
+    // rendering fault rather than as a blow landing. Translation only, snapped
+    // to the device pixel grid: a fractional or rotated transform turns every
+    // blit underneath it into a resample, and the sky is five full-screen
+    // blits. See drawSky() for the measurements.
+    var sh = reduceMotion ? 0 : trauma * trauma * SHAKE_MAX;
+    var shaking = sh > 0.06;
+    if(shaking){
+      ctx.save();
+      ctx.translate(snap((Math.random()*2-1) * sh), snap((Math.random()*2-1) * sh));
+    }
+    drawSky(camY);
+    drawReticles(camY);
     drawTractor(camY);
     drawWake(camY);
     drawDeflector(camY);
 
     asteroids.forEach(function(ax){
       var sp = ax.special ? SPECIALS[ax.special] : null;
+      var pts = ax.pts, np2 = pts.length, i;
+      var step2 = Math.PI * 2 / np2, lang = ROCK_LIGHT - ax.rot;
       ctx.save();
       ctx.translate(ax.x, ax.y - camY);
       ctx.rotate(ax.rot);
+
+      // Solid, now that there are stars behind it. An outline-only rock over a
+      // starfield reads as a wireframe drawn on the window rather than as a
+      // lump of nickel-iron in front of the sky — the whole field went flat
+      // the moment the background arrived, and this is what brought it back.
       ctx.beginPath();
-      ax.pts.forEach(function(p,i){ if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); });
+      for(i=0;i<np2;i++){ if(i===0) ctx.moveTo(pts[i][0],pts[i][1]); else ctx.lineTo(pts[i][0],pts[i][1]); }
+      ctx.closePath();
+      ctx.fillStyle = ax.hitT > 0 ? 'rgba(96,70,132,.95)' : 'rgba(24,15,44,.92)';
+      ctx.fill();
+
+      // The cut: three planes lit off the shared centre, then the facet lines
+      // between them. Together they turn a filled polygon into a lump of
+      // something, and they do it without building a gradient per rock per
+      // frame. Each of these lays down a path of its own — which is why the
+      // outline below has to rebuild the body rather than assuming it is
+      // still the current path. It was not, and for one build the outline
+      // strokes landed on the facet lines instead: every rock in the field
+      // came out as a bright violet asterisk.
+      // Faceting is the most expensive thing the field does — it is the
+      // difference between 47 and 168 fills a frame, measured — so it is
+      // spent where it can be seen. The middle face is square to the light and
+      // the two beside it are turning away from it, but a nine-pixel mini
+      // cannot resolve three steps: one is enough to say which way the light
+      // comes from, and the other two are fills nobody will ever see.
+      // What turns a filled polygon into a lump of rock is a TERMINATOR: one
+      // side facing a light, one side turned away, and the step between them
+      // falling where the surface curves off. The old cut lit three faces
+      // starting from an index rolled at birth, which put a bright wedge at an
+      // arbitrary point on the rim — that reads as a chip out of the rock
+      // rather than as light on it. Worse, the index rolled WITH the rock as
+      // it tumbled, so the sun appeared to be bolted to the asteroid.
+      //
+      // The light is now fixed in world space. `ax.rot` is already on the
+      // matrix, so subtracting it here puts the key light back where it
+      // belongs and holds it there while the rock turns underneath.
+      //
+      // The vertices sit at regular angles — only the radius is jittered at
+      // birth — so a face's normal IS its index, and the shading term is one
+      // cosine per face with no arctangent anywhere.
+      if(ax.hitT <= 0 && ax.r >= 11){
+        var lrgb = sp ? sp.rgb : '124,92,255';
+        step2 = Math.PI * 2 / np2;
+        lang = ROCK_LIGHT - ax.rot;
+        // turned away: a wash of the same near-black the sky is, which is what
+        // gives the rock a dark side rather than a dim one
+        ctx.fillStyle = 'rgba(3,1,10,.5)';
+        facetBand(pts, np2, step2, lang, -1.01, 0);
+        // facing the light
+        ctx.fillStyle = 'rgba(' + lrgb + ',.17)';
+        facetBand(pts, np2, step2, lang, 0, 0.62);
+        // square to it: the highlight that gives the rock a top
+        ctx.fillStyle = 'rgba(' + lrgb + ',.42)';
+        facetBand(pts, np2, step2, lang, 0.62, 1.01);
+        // Cut lines, and only on rocks big enough to carry them. They stop
+        // short of the centre because lines that all converge on one point
+        // read as a star on anything under twenty pixels, and most of the
+        // field is under twenty pixels — the eye closes the gap by itself.
+        if(ax.r >= 17){
+          ctx.strokeStyle = 'rgba(' + lrgb + ',.13)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          for(var f3=0; f3<np2; f3+=2){
+            ctx.moveTo(pts[f3][0]*0.38, pts[f3][1]*0.38);
+            ctx.lineTo(pts[f3][0]*0.88, pts[f3][1]*0.88);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // the outline, on a freshly built body path
+      ctx.beginPath();
+      for(i=0;i<np2;i++){ if(i===0) ctx.moveTo(pts[i][0],pts[i][1]); else ctx.lineTo(pts[i][0],pts[i][1]); }
       ctx.closePath();
       ctx.strokeStyle = 'rgba(4,2,8,.66)';
       ctx.lineWidth = 3.4;
@@ -2426,19 +5117,68 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       ctx.strokeStyle = ax.hitT > 0 ? '#ffffff' : (sp ? sp.stroke : '#c77dff');
       ctx.shadowColor = sp ? sp.glow : '#7b5cff';
       // rare rocks breathe rather than sit still, so they pick themselves out
-      // of a field of forty at a glance
-      ctx.shadowBlur = sp ? 14 + Math.sin(gameTime * 5 + ax.pulse) * 9 : 12;
+      // of a field of forty at a glance. The ordinary halo is sized off the
+      // rock: a flat 12 around a 14px pebble is a glow wider than the thing
+      // glowing, which is the other half of why the field read as sparkles.
+      ctx.shadowBlur = sp ? 14 + Math.sin(gameTime * 5 + ax.pulse) * 9
+                          : Math.min(12, 3 + ax.r * 0.32);
       ctx.lineWidth = sp ? 2.4 : 1.7;
       ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Rim light: the one mark that says the light is OUTSIDE the rock. Only
+      // the edges actually facing it catch it, so it runs round part of the
+      // silhouette and stops — an outline brightened all the way round is just
+      // a thicker outline. Drawn after the halo so it sits on top of it.
+      // It has to out-shout the halo it is laid on top of. At half alpha over a
+      // bloomed violet stroke it was there in the buffer and invisible on the
+      // screen — a highlight that does not beat what is under it is not a
+      // highlight. Near-white, and confined to the two or three faces actually
+      // square to the light, so it stays a catch on one shoulder of the rock
+      // rather than a second outline.
+      if(ax.hitT <= 0 && ax.r >= 13){
+        ctx.strokeStyle = sp ? 'rgba(255,248,232,.92)' : 'rgba(240,232,255,.85)';
+        ctx.lineWidth = sp ? 2.2 : 1.7;
+        ctx.beginPath();
+        for(var rl=0; rl<np2; rl++){
+          if(Math.cos((rl + 0.5) * step2 - lang) < 0.55) continue;
+          var ra = pts[rl], rb = pts[(rl + 1) % np2];
+          ctx.moveTo(ra[0], ra[1]); ctx.lineTo(rb[0], rb[1]);
+        }
+        ctx.stroke();
+      }
+
+      // Fracture lines. One more opens for every point of hull the rock has
+      // lost, so how close it is to breaking is legible on the rock itself and
+      // not only in the white flash on the frame a shot lands. This is the one
+      // piece of pure information the field never carried: which of the forty
+      // in front of you is one shot from paying out.
+      var gone = (ax.maxHp || 1) - ax.hp;
+      if(gone > 0 && ax.cracks){
+        ctx.strokeStyle = sp ? sp.stroke : 'rgba(199,125,255,.5)';
+        ctx.globalAlpha = sp ? 0.5 : 1;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for(var cq=0; cq<gone && cq<ax.cracks.length; cq++){
+          var c0 = pts[ax.cracks[cq][0]], c1 = pts[ax.cracks[cq][1]];
+          ctx.moveTo(c0[0]*0.84, c0[1]*0.84);
+          ctx.lineTo(c1[0]*0.84, c1[1]*0.84);
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
       if(sp){
         // a core ring, counter-rotating with the shell, marks it as cargo
+        ctx.shadowColor = sp.glow;
+        ctx.shadowBlur = 10;
+        ctx.strokeStyle = sp.stroke;
         ctx.rotate(-ax.rot * 2);
         ctx.beginPath();
         ctx.arc(0, 0, ax.r * 0.42, 0, Math.PI*2);
         ctx.lineWidth = 1.4;
         ctx.stroke();
+        ctx.shadowBlur = 0;
       }
-      ctx.shadowBlur = 0;
       ctx.restore();
     });
 
@@ -2450,78 +5190,236 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       // the telegraph is the only warning a charge is survivable at all, so
       // under reduced motion it holds at full rather than disappearing
       var flash = winding ? (reduceMotion ? 1 : 0.5 + 0.5 * Math.abs(Math.sin(gameTime * 18))) : 0;
+      // The lane. For the whole wind-up a dashed line runs from her bow to
+      // your hull, which is where she will come, so the dodge is a sidestep
+      // out of a line you can see rather than a guess about when the flash
+      // ends. Gold, the colour of the burst she commits with.
+      if(winding){
+        ctx.save();
+        if(ctx.setLineDash) ctx.setLineDash([6, 8]);
+        ctx.lineDashOffset = reduceMotion ? 0 : -gameTime * 60;
+        ctx.strokeStyle = 'rgba(255,209,102,' + (0.2 + 0.28 * flash).toFixed(3) + ')';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(b.x, b.y - camY); ctx.lineTo(ship.x, ship.y - camY); ctx.stroke();
+        if(ctx.setLineDash) ctx.setLineDash([]);
+        ctx.restore();
+      }
       var col = b.hitT > 0 || flash > 0.6 ? '#ffffff' : (b.enraged ? '#ff4d6d' : '#c77dff');
       var glow = b.enraged ? '#ff2fb9' : '#7b5cff';
+      var crgb = b.enraged ? '255,77,109' : '199,125,255';
+      var R = b.r;
       ctx.save();
       ctx.translate(b.x, b.y - camY);
+      // A capital ship points at what it is about to shoot. The old hull was a
+      // spinning octagon, which is the one shape that can afford not to have a
+      // front; this one has a bow, four engines and a keel, and a dreadnought
+      // that drifts sideways down the screen reads as debris.
+      ctx.rotate(b.face);
       ctx.scale(1 + flash * 0.06, 1 + flash * 0.06);
       ctx.lineJoin = 'round';
 
-      // eight-sided hull, drawn dark then neon
-      var i, a;
+      // Four engines: two on the keel, two at the wing roots. They burn all
+      // the time — a capital ship holding station is still a capital ship
+      // holding station against something — and they go to full during a
+      // charge, which is a second telegraph on top of the flash.
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      var burn = winding ? 1 : 0.45 + 0.1 * Math.sin(gameTime * 3);
+      plumeTrail(-R*0.72, 0,        R * (1.1 + burn * 1.5), R*0.15, crgb, 0.5 * burn + 0.2);
+      plumeTrail(-R*0.62, -R*0.30, R * (0.8 + burn * 1.1), R*0.09, crgb, 0.45 * burn + 0.15);
+      plumeTrail(-R*0.62,  R*0.30, R * (0.8 + burn * 1.1), R*0.09, crgb, 0.45 * burn + 0.15);
+      plumeTrail(-R*0.86, -R*0.62, R * (0.6 + burn * 0.9), R*0.07, crgb, 0.35 * burn + 0.12);
+      plumeTrail(-R*0.86,  R*0.62, R * (0.6 + burn * 0.9), R*0.07, crgb, 0.35 * burn + 0.12);
+      ctx.restore();
+
+      // The hull, drawn dark then neon like everything else on this field.
+      // The wings rake BACK rather than out: the armoured core is the only
+      // thing shots land on (bossHitR is 0.82R), and a silhouette that spread
+      // wide across the bow would put a wing where a bullet passes straight
+      // through it. Long and swept keeps the frontal section honest and still
+      // makes the thing look like it displaces something.
       for(var pass=0; pass<2; pass++){
-        ctx.strokeStyle = pass ? col : 'rgba(4,2,8,.7)';
-        ctx.lineWidth = pass ? 2.4 : 4.6;
+        ctx.strokeStyle = pass ? col : 'rgba(4,2,8,.75)';
+        ctx.lineWidth = pass ? 2.2 : 4.6;
         ctx.shadowColor = pass ? glow : 'transparent';
-        ctx.shadowBlur = pass ? 18 : 0;
+        ctx.shadowBlur = pass ? 16 : 0;
+        if(!pass) ctx.fillStyle = b.enraged ? 'rgba(26,4,14,.92)' : 'rgba(11,5,24,.92)';
+
+        // keel: a long spine from the bow back to the engine block
         ctx.beginPath();
-        for(i=0;i<8;i++){
-          a = b.rot + i / 8 * Math.PI * 2;
-          var rr = b.r * (i % 2 ? 0.78 : 1);
-          if(i === 0) ctx.moveTo(Math.cos(a)*rr, Math.sin(a)*rr);
-          else ctx.lineTo(Math.cos(a)*rr, Math.sin(a)*rr);
+        ctx.moveTo(R, 0);
+        ctx.lineTo(R*0.42, -R*0.17);
+        ctx.lineTo(-R*0.52, -R*0.22);
+        ctx.lineTo(-R*0.78, -R*0.10);
+        ctx.lineTo(-R*0.78,  R*0.10);
+        ctx.lineTo(-R*0.52,  R*0.22);
+        ctx.lineTo(R*0.42,  R*0.17);
+        ctx.closePath();
+        if(!pass) ctx.fill();
+        ctx.stroke();
+
+        // the two swept wings, one path each so the curve keeps its own joins
+        for(var s=-1; s<=1; s+=2){
+          ctx.beginPath();
+          ctx.moveTo(R*0.30, s*R*0.20);
+          ctx.quadraticCurveTo(-R*0.10, s*R*0.66, -R*0.62, s*R*0.92);
+          ctx.lineTo(-R*1.02, s*R*0.86);
+          ctx.quadraticCurveTo(-R*0.66, s*R*0.60, -R*0.46, s*R*0.24);
+          ctx.closePath();
+          if(!pass) ctx.fill();
+          ctx.stroke();
+          // inboard pylon between keel and wing
+          ctx.beginPath();
+          ctx.moveTo(-R*0.10, s*R*0.21);
+          ctx.lineTo(-R*0.16, s*R*0.52);
+          ctx.lineTo(-R*0.54, s*R*0.48);
+          ctx.lineTo(-R*0.50, s*R*0.20);
+          ctx.closePath();
+          if(!pass) ctx.fill();
+          ctx.stroke();
         }
-        ctx.closePath(); ctx.stroke();
       }
 
-      // counter-rotating inner ring and a core that opens up when enraged
-      ctx.rotate(-b.rot * 2.4);
-      ctx.lineWidth = 1.6;
-      ctx.beginPath(); ctx.arc(0, 0, b.r * 0.56, 0, Math.PI*2); ctx.stroke();
+      // Accent strokes along the wings. In the reference these are what stop a
+      // big dark plane reading as a hole, and they cost two paths.
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = b.enraged ? 'rgba(255,140,170,.75)' : 'rgba(224,196,255,.7)';
+      ctx.lineWidth = 1.2;
       ctx.beginPath();
-      for(i=0;i<4;i++){
-        a = i / 4 * Math.PI * 2;
-        ctx.moveTo(Math.cos(a)*b.r*0.56, Math.sin(a)*b.r*0.56);
-        ctx.lineTo(Math.cos(a)*b.r*0.92, Math.sin(a)*b.r*0.92);
+      for(var s2=-1; s2<=1; s2+=2){
+        ctx.moveTo(R*0.16, s2*R*0.34);
+        ctx.quadraticCurveTo(-R*0.20, s2*R*0.68, -R*0.66, s2*R*0.84);
       }
       ctx.stroke();
-      ctx.fillStyle = b.enraged ? 'rgba(255,77,109,.5)' : 'rgba(199,125,255,.32)';
-      ctx.beginPath();
-      ctx.arc(0, 0, b.r * (0.22 + 0.05 * Math.sin(gameTime * (b.enraged ? 9 : 4))), 0, Math.PI*2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
+
+      // the core, which is also the charge telegraph: it swells and whites out
+      // on the beat before the hull commits
+      hullCore(R*0.05, R * (0.26 + 0.03 * Math.sin(gameTime * (b.enraged ? 9 : 4)) + flash * 0.16),
+               crgb, 0.85 + flash * 0.15);
       ctx.restore();
     }
 
     aliens.forEach(function(al){
       var AT = ALIEN_TYPES[al.kind];
+      var hot = al.hitT > 0;
       ctx.save();
       ctx.translate(al.x, al.y - camY);
-      // every hull is directional now, so all three point along their heading
-      // rather than only the one that chases
-      ctx.rotate(al.kind === 'stalker' ? Math.atan2(al.vy, al.vx) : (al.vx < 0 ? Math.PI : 0));
-      ctx.strokeStyle = 'rgba(4,2,8,.66)';
-      ctx.lineWidth = 3.4;
-      alienShape(al, AT);
-      ctx.strokeStyle = al.hitT > 0 ? '#ffffff' : AT.stroke;
-      ctx.shadowColor = AT.stroke;
-      ctx.shadowBlur = 12;
-      ctx.lineWidth = 1.7;
-      alienShape(al, AT);
-      ctx.shadowBlur = 0;
+      ctx.rotate(alienFacing(al, AT));
+      // exhaust first, under everything, so the throat is covered by the hull.
+      // A cube has no engines and gets none.
+      if(AT.plume !== false){
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        plumeTrail(-al.r * 0.62, 0, al.r * 2.2, al.r * 0.16, AT.rgb, 0.42);
+        ctx.restore();
+      }
+      // wings, then fuselage over their roots — see alienShape for why
+      for(var part = 0; part < 2; part++){
+        var which = part ? 'body' : 'wings';
+        ctx.fillStyle = 'rgba(9,5,18,.88)';
+        alienShape(al, AT, which, true);
+        ctx.strokeStyle = 'rgba(4,2,8,.66)';
+        ctx.lineWidth = 3.4;
+        alienShape(al, AT, which);
+        ctx.strokeStyle = hot ? '#ffffff' : AT.stroke;
+        ctx.shadowColor = AT.stroke;
+        ctx.shadowBlur = 11;
+        ctx.lineWidth = 1.7;
+        alienShape(al, AT, which);
+        ctx.shadowBlur = 0;
+      }
+      if(al.kind === 'drone'){
+        // The nodes. They are the cube's only colour and its only readout:
+        // green while it is still learning, white once it has adapted and is
+        // taking half of everything you do to it. That switch is the single
+        // most important thing this hull ever tells you.
+        var q = al.r * 0.74, rgb = al.adapted ? '255,255,255' : AT.rgb;
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.fillStyle = 'rgba(' + rgb + ',' + (al.adapted ? 0.95 : 0.8) + ')';
+        for(var gx=-1; gx<=1; gx++){
+          for(var gy=-1; gy<=1; gy++){
+            if(!gx && !gy) continue;
+            ctx.beginPath();
+            ctx.rect(gx*q*0.52 - 1.6, gy*q*0.52 - 1.6, 3.2, 3.2);
+            ctx.fill();
+          }
+        }
+        ctx.fillStyle = 'rgba(' + rgb + ',.22)';
+        ctx.beginPath(); ctx.arc(0, 0, al.r * 0.8, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+      } else {
+        // the lit core, kept small: at a quarter of the hull radius it swamped
+        // the fuselage it is supposed to be sitting inside
+        hullCore(al.r * 0.02, al.r * 0.19, AT.rgb, hot ? 1 : 0.8);
+      }
       ctx.restore();
+
+      // Hull damage, and only once there IS damage. A bar over every ship in
+      // the sector is forty bars saying nothing; a bar over the ones already
+      // hit answers the only question worth asking mid-fight — which of these
+      // is one more beam from coming apart. No label, no frame, no ring: the
+      // hull's own colour draining out of a dark track, the same grammar the
+      // capital ship's bar uses, three sizes down. It is drawn in screen space
+      // after the hull's transform is popped, so it never tumbles with the
+      // ship it belongs to.
+      if(al.maxHp && al.hp > 0 && al.hp < al.maxHp){
+        var bw = Math.max(16, al.r * 2), bx = al.x - bw / 2;
+        var by = al.y - camY - al.r - 9;
+        ctx.fillStyle = 'rgba(4,2,8,.72)';
+        ctx.fillRect(bx - 1, by - 1, bw + 2, 4);
+        ctx.fillStyle = 'rgba(' + AT.rgb + ',.92)';
+        ctx.fillRect(bx, by, bw * Math.max(0, al.hp / al.maxHp), 2);
+      }
+
+      // A weaver winding up shows its strands reaching for the anchors before
+      // the web exists, which is the window in which killing it still helps.
+      if(al.kind === 'weaver' && al.phase === 'spin'){
+        var f = 1 - Math.max(0, al.spinT) / WEB_SPIN;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(199,125,255,' + (0.25 + 0.4 * f).toFixed(3) + ')';
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([3, 5]);
+        ctx.lineDashOffset = -gameTime * 30;
+        ctx.beginPath();
+        for(var k=0;k<7;k++){
+          var a = k / 7 * Math.PI * 2 + al.t * 0.3;
+          ctx.moveTo(al.x, al.y - camY);
+          ctx.lineTo(al.x + Math.cos(a) * WEB_R * f, al.y - camY + Math.sin(a) * WEB_R * f);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
     });
 
+    // Incoming plasma, drawn as a spindle along its own heading rather than as
+    // a round pip. The single most useful thing a player can know about a
+    // round is which way it is going, and a circle refuses to say. It costs
+    // one path: two quadratic curves between the nose and the tail, with a
+    // white-hot centre laid over it.
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
     alienBullets.forEach(function(ab){
-      var rgb = ab.rgb || '255,122,99';
-      ctx.save();
-      ctx.fillStyle = 'rgb(' + rgb + ')';
-      ctx.shadowColor = 'rgb(' + rgb + ')';
-      ctx.shadowBlur = 10;
-      ctx.beginPath(); ctx.arc(ab.x, ab.y - camY, ab.r || 3, 0, Math.PI*2); ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.restore();
+      var rgb = ab.rgb || '255,122,99', r = ab.r || 3;
+      var L = Math.hypot(ab.vx, ab.vy) || 1;
+      var ux = ab.vx / L, uy = ab.vy / L;
+      var len = r * 3.4, wid = r * 1.7;
+      var x = ab.x, y = ab.y - camY;
+      ctx.fillStyle = 'rgba(' + rgb + ',.24)';
+      ctx.beginPath(); ctx.ellipse(x, y, len * 0.9, r * 1.5, Math.atan2(uy, ux), 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(' + rgb + ',.9)';
+      ctx.beginPath();
+      ctx.moveTo(x + ux*len, y + uy*len);
+      ctx.quadraticCurveTo(x - uy*wid, y + ux*wid, x - ux*len, y - uy*len);
+      ctx.quadraticCurveTo(x + uy*wid, y - ux*wid, x + ux*len, y + uy*len);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,246,240,.95)';
+      ctx.beginPath();
+      ctx.ellipse(x, y, len * 0.42, r * 0.3, Math.atan2(uy, ux), 0, Math.PI*2);
+      ctx.fill();
     });
+    ctx.restore();
 
     pickups.forEach(function(p){ drawPickup(p, camY); });
 
@@ -2533,19 +5431,36 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       ctx.save();
       ctx.translate(ship.x, ship.y - camY);
       ctx.rotate(ship.angle);
-      // impulse wash off both nacelles rather than one exhaust, so thrust
-      // reads on a hull whose engines are out on the wingtips
-      if(ship.thrusting){
-        var flameLen = 7 + Math.random()*9;
-        ctx.strokeStyle = '#7fd4ff';
-        ctx.lineWidth = 1.6;
-        ctx.beginPath();
-        ctx.moveTo(-12.6, -11.2); ctx.lineTo(-12.6 - flameLen, -11.2);
-        ctx.moveTo(-12.6,  11.2); ctx.lineTo(-12.6 - flameLen,  11.2);
-        ctx.stroke();
+      // Impulse wash off both nacelles, and one long plume down the centreline
+      // behind them. The long one is what actually reads: the nacelle cones say
+      // "the engines are lit" at ten pixels, the centreline plume says how fast
+      // you are going at a hundred, and speed was the one thing this ship could
+      // never tell you about itself.
+      var spd = Math.min(1, Math.hypot(ship.vx, ship.vy) / terminalSpeed());
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      if(ship.thrusting || spd > 0.12){
+        var wash = rapidTime > 0 ? '255,190,110' : '125,249,255';
+        plumeTrail(-13, 0, (ship.thrusting ? 34 : 10) + spd * 78,
+                   3.6 + spd * 1.6, wash, ship.thrusting ? 0.55 : 0.3);
       }
+      if(ship.thrusting){
+        var L = (9 + spd * 12) * (0.76 + Math.random() * 0.38);
+        for(var np=0; np<2; np++){
+          var ey = np ? 11.2 : -11.2;
+          plume(-12.6, ey, L * 1.45, 3.6, 'rgba(0,150,255,.18)');
+          plume(-12.6, ey, L,        2.3, 'rgba(125,249,255,.5)');
+          plume(-12.6, ey, L * 0.4,  1.3, 'rgba(255,255,255,.8)');
+        }
+      }
+      ctx.restore();
       ctx.lineJoin = 'round';
-      // dark underpass first, so the hull holds together against a bright rock
+      // The hull is solid before it is lit. Against a starfield an unfilled
+      // outline lets the sky through the saucer, and the ship stops being the
+      // nearest thing on screen — which is the one thing it always has to be.
+      ctx.fillStyle = 'rgba(5,11,24,.88)';
+      shipShape(true);
+      // dark underpass, so the hull holds together against a bright rock
       ctx.strokeStyle = 'rgba(4,2,8,.7)';
       ctx.lineWidth = 3.6;
       shipShape();
@@ -2554,18 +5469,56 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       var hullCol = rapidTime > 0 ? '#ffb347' : '#00f0ff';
       ctx.strokeStyle = hullCol;
       ctx.shadowColor = hullCol;
-      // a tight glow: at 1.6px line weight anything above ~9 fills the gaps
-      // between saucer, pylons and nacelles and the hull reads as one blob
-      ctx.shadowBlur = 8;
-      ctx.lineWidth = 1.5;
+      // a tight glow: at 1.6px line weight anything above ~11 fills the gaps
+      // between saucer, pylons and nacelles and the hull reads as one blob.
+      // Both numbers went up a notch when the background came down — the ship
+      // has to stay the brightest, heaviest outline on the screen, and the
+      // cheapest way to keep it there is to draw it that way.
+      ctx.shadowBlur = 10;
+      ctx.lineWidth = 1.8;
       shipShape();
-      // bussard collectors: the one warm accent on an otherwise cold hull
-      ctx.shadowColor = '#ff4d6d';
-      ctx.shadowBlur = 8;
-      ctx.fillStyle = '#ff7a90';
+      // The bridge dome and the deflector, which are the two details that make
+      // a saucer read as the front of a starship rather than as a disc.
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(125,249,255,.55)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(8.5, 0, 3.1, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(15.2, 0, 1.5, -1.1, 1.1); ctx.stroke();
+      // The warp core, sitting in the secondary hull where it belongs — and
+      // the one place a charged core is announced on the ship. It used to be a
+      // dashed ring around the hull, which was both a circle too many and a
+      // thing drawn beside the ship rather than on it.
+      var chg = overcharged
+        ? 1.5 + (reduceMotion ? 0 : 0.22 * Math.sin(gameTime * 7))
+        : 1 + 0.4 * (core / CORE_MAX);
+      hullCore(-8.5, 2.6 * chg,
+               overcharged ? '255,255,255' : (rapidTime > 0 ? '255,190,110' : '111,232,255'),
+               overcharged ? 1 : 0.9);
+      // Bussard collectors: the one warm accent on an otherwise cold hull.
+      // Amber rather than the red they are canonically drawn in, because red
+      // and pink are spoken for — they mean Klingon, or they mean you are
+      // about to die — and two of them sitting on the player's own nacelles
+      // was the one place the colour system contradicted itself.
+      ctx.shadowColor = '#ff8a3d';
+      ctx.shadowBlur = 7;
+      ctx.fillStyle = '#ffb877';
       ctx.beginPath(); ctx.arc(3.6, -11.2, 1.5, 0, Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(3.6,  11.2, 1.5, 0, Math.PI*2); ctx.fill();
       ctx.shadowBlur = 0;
+      // Muzzle flare on the emitter, in the beam's own colour. The phaser
+      // fires ten times a second and it used to do it silently — the bullet
+      // simply existed one frame and did not the frame before. A flash at the
+      // nose is what ties the beam on the field to the ship that sent it.
+      if(ship.muzzle > 0){
+        var mf = ship.muzzle;
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.fillStyle = (rapidTime > 0 ? 'rgba(255,201,120,' : 'rgba(125,249,255,') + (mf*0.8).toFixed(2) + ')';
+        ctx.beginPath();
+        ctx.ellipse(NOSE_OFFSET - 2, 0, 3 + mf*6, 1.4 + mf*3.2, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+      }
       ctx.restore();
       ctx.globalAlpha = 1;
     }
@@ -2697,8 +5650,64 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       ctx.lineTo(b.x, b.y - camY);
       ctx.stroke();
     });
-    ctx.lineCap = 'butt';
+    // A white core down the middle of every beam. It is what makes a phaser
+    // look hot rather than merely coloured, and it costs one more pass over a
+    // list that is already in cache.
     ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(255,255,255,.8)';
+    ctx.lineWidth = 1;
+    bullets.forEach(function(b){
+      var L = Math.hypot(b.vx, b.vy) || 1;
+      var ux = b.vx / L, uy = b.vy / L;
+      ctx.beginPath();
+      ctx.moveTo(b.x - ux*5.5, b.y - camY - uy*5.5);
+      ctx.lineTo(b.x, b.y - camY);
+      ctx.stroke();
+    });
+    ctx.lineCap = 'butt';
+
+    // Mines. Violet, which is nothing else on this field, and drawn as a ring
+    // of spikes rather than a dot so a mine is never read as a pickup. An
+    // unarmed one is drawn hollow and dim and its ring is drawn closing in:
+    // the fuse is the one thing about this weapon the player has to be able to
+    // see, because it is why the mine they just flew over did nothing.
+    mines.forEach(function(m){
+      var y = m.y - camY;
+      var armed = m.arm <= 0;
+      var fuse = armed ? 1 : 1 - m.arm / MINE_ARM;
+      // the last second of the shelf life blinks, so a rack about to go off on
+      // its own is not a surprise
+      var dying = m.life < 1.2 && Math.sin(m.life * 26) < 0;
+      var pulse = armed && !reduceMotion ? 1 + Math.sin(m.t * 5) * 0.12 : 1;
+      ctx.save();
+      ctx.globalAlpha = dying ? 0.35 : (armed ? 1 : 0.5);
+      ctx.strokeStyle = 'rgba(199,125,255,.9)';
+      ctx.lineWidth = 1.6;
+      if(armed){ ctx.shadowColor = '#c77dff'; ctx.shadowBlur = 12; }
+      var rr = m.r * pulse;
+      // six spikes, one path, so the glow is paid for once
+      ctx.beginPath();
+      for(var k=0;k<6;k++){
+        var a = k * Math.PI / 3 + m.t * (reduceMotion ? 0 : 0.5);
+        ctx.moveTo(m.x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+        ctx.lineTo(m.x + Math.cos(a) * (rr + 4.5), y + Math.sin(a) * (rr + 4.5));
+      }
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(m.x, y, rr, 0, Math.PI*2); ctx.stroke();
+      if(armed){
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = 'rgba(232,214,255,.95)';
+        ctx.beginPath(); ctx.arc(m.x, y, rr * 0.42, 0, Math.PI*2); ctx.fill();
+      } else {
+        // the arming ring: a hairline that sweeps round as the fuse runs
+        ctx.strokeStyle = 'rgba(199,125,255,.55)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(m.x, y, rr + 7, -Math.PI/2, -Math.PI/2 + Math.PI*2*fuse);
+        ctx.stroke();
+      }
+      ctx.restore();
+    });
 
     // Photon torpedoes: a slow orange core with a tail, so they are never
     // mistaken for a phaser even in a crowded frame.
@@ -2760,23 +5769,27 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     shockwaves.forEach(function(sw){
       var y = sw.y - camY, a = Math.max(0, sw.life);
       ctx.save();
-      ctx.shadowColor = '#ff2d78';
+      ctx.shadowColor = sw.glow || (sw.tint ? '#c77dff' : '#ff2d78');
       ctx.shadowBlur = 16;
-      ctx.strokeStyle = 'rgba(255,45,120,' + (a * 0.85).toFixed(2) + ')';
+      ctx.strokeStyle = 'rgba(' + (sw.tint || '255,45,120') + ',' + (a * 0.85).toFixed(2) + ')';
       ctx.lineWidth = 2.4 * a + 0.6;
       ctx.beginPath(); ctx.arc(sw.x, y, sw.r, 0, Math.PI*2); ctx.stroke();
       ctx.shadowBlur = 0;
-      ctx.strokeStyle = 'rgba(255,217,168,' + (a * 0.5).toFixed(2) + ')';
+      ctx.strokeStyle = 'rgba(' + (sw.inner || '255,217,168') + ',' + (a * 0.5).toFixed(2) + ')';
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.arc(sw.x, y, sw.r * 0.72, 0, Math.PI*2); ctx.stroke();
       ctx.restore();
     });
 
-    particles.forEach(function(p){
-      ctx.fillStyle = 'rgba(' + (p.col || '184,65,42') + ',' + p.life.toFixed(2) + ')';
-      ctx.fillRect(p.x-1.5, p.y - camY - 1.5, 3, 3);
-    });
+    drawWebs(camY);
+    drawBeams(camY);
+    drawSurges(camY);
+    drawParticles(camY);
+    drawBlooms(camY);
 
+    // The shake stops here. Red alert is painted on the bezel, and a bezel
+    // that slides off its own edge is not a bezel.
+    if(shaking) ctx.restore();
     if(redAlert) drawRedAlert();
   }
 
@@ -2790,15 +5803,57 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // a frame that took longer than a blink means the tab was throttled, the
     // machine slept, or an upgrade card was up — never simulate the gap
     if(!(dt > 0)) dt = 0;
+    budget(dt);
     if(dt > 0.05) dt = 0.05;
+
+    // A held frame. It stops the run clock along with the simulation, so the
+    // weight it lends a kill is not paid for in score, cooldowns or
+    // difficulty. It still paints — which is the entire point, because the
+    // frame a dreadnought comes apart on is the one worth looking at.
+    if(hitStop > 0){
+      hitStop = Math.max(0, hitStop - dt);
+      draw();
+      raf = requestAnimationFrame(loop);
+      return;
+    }
 
     if(!isPaused()){
       gameTime += dt;
+      sampleRun();
       update(dt);
     }
     draw();
     if(gameOver) return;              // died this frame: paint it, then stop
     raf = requestAnimationFrame(loop);
+  }
+
+  // ── coaching ─────────────────────────────────────────────────────────────
+  // The vent was the one system nobody could work out, and the reason was that
+  // nothing ever said what had just happened. A gauge labelled CORE filling by
+  // five percent when you squeezed past a rock is not an explanation; it is a
+  // number moving in the corner while your eyes are somewhere else.
+  //
+  // So the game says it, once, at the exact moment it first becomes true — and
+  // then never again, because a tip that repeats is noise. The ready prompt is
+  // the exception: it keeps appearing every time the core fills until the
+  // player has actually vented once, on the grounds that a prompt you have
+  // never acted on has not yet done its job.
+  var taught = {};
+  function showTip(html, secs){
+    if(!tipEl || !active) return;
+    clearTimeout(tipTimer);
+    var i = destroyed.indexOf(tipEl);
+    if(i !== -1) destroyed.splice(i, 1);
+    tipEl.innerHTML = html;
+    tipEl.style.transition = 'opacity .2s ease';
+    tipEl.style.opacity = '1';
+    tipEl.style.pointerEvents = 'none';
+    tipTimer = setTimeout(autoHideTip, (secs || 5) * 1000);
+  }
+  function teach(key, html, secs){
+    if(taught[key]) return;
+    taught[key] = true;
+    showTip(html, secs);
   }
 
   function autoHideTip(){
@@ -2824,7 +5879,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     document.body.classList.add('astro-active');
     document.documentElement.style.scrollBehavior = 'auto';
     homeStick();
-    if(isCoarse && tipEl) tipEl.textContent = 'drag to steer · phasers fire themselves · ← leave the bridge';
+    openPick();
+    if(isCoarse && tipEl) tipEl.innerHTML =
+      '<span>drag to steer</span><span>phasers fire automatically</span>' +
+      '<span>near misses charge overcharge</span><span>tap release when full</span>';
     window.addEventListener('resize', resize);
     window.addEventListener('orientationchange', resize);
     window.addEventListener('keydown', onKeyDown);
@@ -2845,9 +5903,11 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     raf = null;
     clearTimeout(tipTimer);
     levelOpen = false; autoPaused = false; hailOpen = false;
+    levelMode = '';
     document.body.classList.remove('astro-active');
     document.body.classList.remove('astro-paused');
     document.body.classList.remove('astro-red-alert');
+    document.body.classList.remove('astro-core-ready');
     redAlert = false;
     document.documentElement.style.scrollBehavior = '';
     window.removeEventListener('resize', resize);

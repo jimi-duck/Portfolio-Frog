@@ -429,13 +429,22 @@
 <div id="astro-stage" hidden>
 <div id="astroDim" aria-hidden="true"></div>
 <canvas id="astroCanvas" aria-hidden="true"></canvas>
+<!-- Viewscreen frame: four corner brackets and a hairline, drawn entirely in
+     CSS. Deliberately not a box — the rocks have always come in across the
+     edge and they still have to be able to. -->
+<div id="astroFrame" aria-hidden="true"></div>
 <!-- XP rail: the whole width of the screen, because progress to the next
      upgrade is the number the run is actually steered by -->
 <div id="astroXp" aria-hidden="true">
   <div id="astroXpFill"></div>
+  <!-- Both caps are a quiet word and a loud figure, the same pairing the
+       bottom rail uses, because a cap that sets "REFIT" and "5" at one weight
+       makes the eye read the word it already knows before the number it came
+       for. The word is the thing that never changes; the figure is the only
+       part worth a glance. -->
   <div id="astroXpText">
-    <b id="astroLevelNum">REFIT 1</b>
-    <span class="xp-v"><i class="px-gem" aria-hidden="true"></i><span id="astroXpVal">0 / 4</span></span>
+    <b><span class="xp-k">Refit</span><span class="xp-n" id="astroLevelVal">1</span></b>
+    <span class="xp-v"><i class="px-gem" aria-hidden="true"></i><span class="xp-n" id="astroXpVal">0</span><span class="xp-k" id="astroXpNeed">/ 4</span></span>
   </div>
 </div>
 <!-- Warbird chrome. The hull bar only exists while a capital ship is alive, and
@@ -445,31 +454,103 @@
   <div id="astroBossName">I.K.S. Vor’cha</div>
   <div id="astroBossBar"><div id="astroBossFill"></div></div>
 </div>
-<div id="astroWarn" aria-hidden="true">Warbird closing</div>
-<div id="astroTipWrap" aria-hidden="true"><div id="astroTip" class="g-pill">↑ impulse · ←→ helm · phasers fire themselves · esc leave the bridge</div></div>
+<div id="astroWarn" aria-hidden="true">Warbird approaching</div>
+<div id="astroTipWrap" aria-hidden="true"><div id="astroTip" class="g-pill"><span>↑ impulse</span><span>←→ helm</span><span>phasers fire automatically</span><span>near misses charge overcharge</span><span>space to release</span></div></div>
 <button id="astroExit" class="g-pill">← Leave the bridge</button>
+<!-- The bottom rail. Three groups, each one a block of its own rather than five
+     readouts strung across the screen: what I am flying, what I can do next,
+     what I am scoring. The blocks exist because the rail has to stay readable
+     over whatever the field puts behind it — a lit rock, a nebula, a ghosted
+     case-study headline — and a dark ground costs less contrast than the glow
+     it would otherwise take to win that fight. -->
 <div id="astroHud" aria-hidden="true">
-  <div id="astroScore">Stardate 0</div>
-  <div id="astroLives"><i class="px-hull on"></i><i class="px-hull on"></i><i class="px-hull on"></i><i class="px-hull"></i><i class="px-hull"></i></div>
+  <div class="hud-grp" id="astroShip">
+    <div id="astroScore"><span class="hud-k">Stardate</span><span class="hud-n" id="astroScoreVal">0</span></div>
+    <div id="astroLives"><i class="px-hull on"></i><i class="px-hull on"></i><i class="px-hull on"></i><i class="px-hull"></i><i class="px-hull"></i></div>
+  </div>
+  <!-- Outside the ship block on purpose: the chips come and go with a drop,
+       and a panel that grows and shrinks under the score is a score that
+       moves. They carry their own pills and need no ground of their own. -->
   <div id="astroBuffs">
-    <span id="astroShieldBuff">Deflector 0s</span>
+    <span id="astroShieldBuff">Shields 0s</span>
     <span id="astroRapidBuff">Phasers 0s</span>
   </div>
+  <!-- The overcharge gauge. It was labelled CORE, and then VENT, and neither
+       worked: CORE is a resource you have to work out the use of, and VENT is
+       an order that does not say what it is venting. OVERCHARGE says both
+       halves at once — the thing fills up, and what it does when full is let
+       go of what it filled up with. The label swaps to OVERCHARGE READY when
+       it does. It sits in the bottom rail with the hull plates and the timed
+       drops because all three answer the same question: what have I got in
+       hand right now. -->
+  <div class="hud-grp" id="astroCore">
+    <span class="ac-l hud-k" id="astroCoreLabel">Overcharge</span>
+    <span class="ac-bar"><i id="astroCoreFill"></i></span>
+    <span class="ac-k">Space</span>
+  </div>
+  <div class="hud-grp" id="astroChain"><span class="hud-k">Chain</span><span class="hud-n" id="astroChainVal">&times;1.00</span></div>
 </div>
+<!-- Hull breach — the run summary. Everything inside #astroTiles and
+     #astroChart is written by JS at the moment of death and is empty here on
+     purpose: the tiles need last run's figures to compare against and the
+     curve needs the run that just happened, neither of which exists until
+     there is one. What IS authored here is the furniture — the emblem, the
+     headings, the legend — because none of it ever changes. -->
 <div id="astroOver" aria-hidden="true"><div id="astroOverCard">
-  <div class="ao-t">Hull breach</div>
-  <div class="ao-s">Stardate <span id="astroFinal">0</span></div>
-  <div class="ao-m" id="astroFinalSub">0s adrift · refit 1</div>
-  <div class="ao-h" id="astroRestartHint">press any key to launch again</div>
+  <div class="ao-top">
+    <div class="ao-id">
+      <svg class="ao-mark" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10.4"/>
+        <path d="M12 3.2c2.3 4.4 4.3 10.1 5.6 17.4-1.7-1.5-3.6-2.3-5.6-2.3s-3.9.8-5.6 2.3C7.7 13.3 9.7 7.6 12 3.2z"/>
+      </svg>
+      <div class="ao-idt">
+        <div class="ao-t">Hull breach</div>
+        <div class="ao-cap">Stardate</div>
+        <div class="ao-s"><span id="astroFinal">0</span></div>
+        <div class="ao-m" id="astroFinalSub">0s adrift · refit 1</div>
+      </div>
+    </div>
+    <div class="ao-tiles" id="astroTiles"></div>
+  </div>
+  <div class="ao-chart">
+    <div class="ao-ch">
+      <span class="ao-ct">Run performance</span>
+      <span class="ao-key"><i class="k-run"></i>This run<i class="k-best"></i>Previous best</span>
+    </div>
+    <div id="astroChart"></div>
+  </div>
+  <!-- The only way out of this panel. It used to close on any key or any tap,
+       which meant a player still holding the helm keys at the moment the hull
+       broke started the next run without seeing the one that just ended. The
+       run summary is worth reading, so closing it is now a deliberate press on
+       a real button. -->
+  <button type="button" class="ao-again" id="astroAgain">Play again</button>
 </div></div>
 <!-- Level up — opens the instant the XP rail fills, and the cards inside it are
      rolled fresh in JS every time, so nothing here is authored by hand. It is
      not aria-hidden: the cards are the one part of the game you actually pick. -->
 <div id="astroLevel"><div id="astroLevelCard">
-  <div class="al-t" id="astroLevelKind">Field refit</div>
-  <div class="al-s" id="astroLevelSub">Refit <b>2</b> · authorise one subsystem</div>
+  <div class="al-head">
+    <!-- The same delta the hull-breach panel wears. It is here to give a
+         header that is a thousand pixels wide something to start at: the
+         title is set hard right against the frame the way LCARS sets titles,
+         and without a mark on the left the band reads as one line adrift in a
+         lot of nothing. -->
+    <svg class="al-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="10.4"/>
+      <path d="M12 3.2c2.3 4.4 4.3 10.1 5.6 17.4-1.7-1.5-3.6-2.3-5.6-2.3s-3.9.8-5.6 2.3C7.7 13.3 9.7 7.6 12 3.2z"/>
+    </svg>
+    <div class="al-ttl">
+      <div class="al-t" id="astroLevelKind">Field refit</div>
+      <div class="al-s" id="astroLevelSub">Refit <b>2</b> · choose one upgrade</div>
+    </div>
+  </div>
+  <!-- One block per card, sitting directly over the columns below, and the lit
+       one is the card you are on. Written by JS so a draft of two cards gets
+       two blocks; empty here on purpose. -->
+  <div class="al-bar" id="astroLevelBar" aria-hidden="true"></div>
   <div class="al-grid" id="astroLevelGrid"></div>
-  <div class="al-h" id="astroLevelHint">Select a subsystem, or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></div>
+  <div class="al-h" id="astroLevelHint">Choose an upgrade · <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></div>
 </div></div>
 <!-- Engagement hail — the one decision in the run that is not an upgrade. It
      opens between the inbound warning and the capital ship actually arriving,
@@ -477,23 +558,27 @@
      it is not aria-hidden: it is a choice, not chrome. The ship's name and the
      two figures are written by JS; everything else here is fixed copy. -->
 <div id="astroHail"><div id="astroHailCard">
+  <svg class="ah-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="10.4"/>
+      <path d="M12 3.2c2.3 4.4 4.3 10.1 5.6 17.4-1.7-1.5-3.6-2.3-5.6-2.3s-3.9.8-5.6 2.3C7.7 13.3 9.7 7.6 12 3.2z"/>
+  </svg>
   <div class="ah-t">Red alert</div>
-  <div class="ah-s"><b id="astroHailName">I.K.S. Vor’cha</b> · intercept course · orders?</div>
+  <div class="ah-s"><b id="astroHailName">I.K.S. Vor’cha</b> · on intercept course</div>
   <div class="ah-grid">
     <button type="button" class="ah-opt is-fight" id="astroHailFight">
       <span class="ah-l"><em>Engage</em><b>Press 1</b></span>
       <span class="ah-n">Stand and fight</span>
-      <span class="ah-w">Hold the sector and break her hull. She fights back, she calls escorts, and she turns nastier at half hull — but nothing else in the run pays like a kill.</span>
+      <span class="ah-w">She’ll fight back and may call escorts.</span>
       <span class="ah-d">
         <span id="astroHailBounty">+1800 stardate</span>
-        <span>Battle salvage · one subsystem</span>
+        <span>Battle salvage · one upgrade</span>
         <span>+2 hull · dilithium · a power-up</span>
       </span>
     </button>
     <button type="button" class="ah-opt is-flee" id="astroHailFlee">
       <span class="ah-l"><em>Evade</em><b>Press 2</b></span>
-      <span class="ah-n">Break off and run</span>
-      <span class="ah-w">Full impulse out of the sector. She never decloaks and she never touches you — and nothing she was carrying is ever yours.</span>
+      <span class="ah-n">Break away</span>
+      <span class="ah-w">You get clear, but she’ll be back sooner.</span>
       <span class="ah-d">
         <span>No bounty · no refit</span>
         <span id="astroHailAgain">Next contact in 37s</span>
@@ -503,14 +588,25 @@
   </div>
   <div class="ah-h">Give the order, or press <kbd>1</kbd> <kbd>2</kbd></div>
 </div></div>
+<!-- All stop. Built as a one-line version of the refit panel — the same
+     notched cyan frame, the delta holding the left end and the title set hard
+     right — because it is the same console saying something smaller. -->
 <div id="astroPause" aria-hidden="true"><div id="astroPauseCard">
-  <div class="ap-t">All stop</div>
-  <div class="ap-h">click or press any key to resume</div>
+  <svg class="al-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="10.4"/>
+      <path d="M12 3.2c2.3 4.4 4.3 10.1 5.6 17.4-1.7-1.5-3.6-2.3-5.6-2.3s-3.9.8-5.6 2.3C7.7 13.3 9.7 7.6 12 3.2z"/>
+  </svg>
+  <div class="ap-ttl">
+    <div class="ap-t">All stop</div>
+    <div class="ap-h">Click or press any key to resume</div>
+  </div>
 </div></div>
-<!-- Helm only. Phasers and torpedoes fire themselves, so there is no fire
-     button and the stick comes to wherever the thumb lands. -->
+<!-- Helm, and the one button in the game. Phasers and torpedoes fire
+     themselves, so the stick comes to wherever the thumb lands and the only
+     thing left to press releases the overcharge. -->
 <div id="astroTouch" aria-hidden="true">
   <div id="astroStick"><div id="astroKnob"></div></div>
+  <button type="button" id="astroRelease">Release</button>
 </div>
 </div><!-- /#astro-stage -->
 <!-- /@game -->
