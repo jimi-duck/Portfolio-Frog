@@ -294,14 +294,13 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         o.hitT = 0.14;
         if(alienHurt(o, dmg)) killAlien(k);
       }
-      if(boss && !boss.leaving && v.hit.indexOf(boss.id) === -1){
+      if(bossTargetable() && v.hit.indexOf(boss.id) === -1){
         dx = boss.x - v.x; dy = boss.y - v.y;
         if(dx*dx + dy*dy <= R2){
           v.hit.push(boss.id);
           // a capital ship is one target rather than forty, so the front does
           // not simply evaporate against it
-          boss.hp -= dmg * 2; boss.hitT = 0.14;
-          if(boss.hp <= 0) killBoss();
+          hurtBoss(dmg * 2, 0.14);
         }
       }
       for(k=alienBullets.length-1;k>=0;k--){
@@ -416,11 +415,20 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // that flickers in and out as the field thins is worse than either state,
   // and without the backdrop the canvas simply clears to the dimmed page the
   // way it always used to.
-  var frameAvg = 0, frameSamples = 0, backdropOn = true;
+  // Two steps now, cheapest-to-lose first. If the average settles below ~48fps
+  // the canvas drops to 1x resolution (a one-off repaint of the hull
+  // sprites), which cuts the fill cost of everything; only if it is STILL
+  // below ~38fps a few seconds later does the backdrop go too.
+  var frameAvg = 0, frameSamples = 0, backdropOn = true, lowRes = false;
   function budget(dt){
     if(dt <= 0 || dt > 0.05) return;
     frameAvg += (dt - frameAvg) * 0.05;
     if(!backdropOn || ++frameSamples < 180) return;
+    if(!lowRes && frameAvg > 0.021 && viewDpr > 1){
+      lowRes = true; frameSamples = 0;
+      resize(); prebakeHulls();
+      return;
+    }
     if(frameAvg > 0.026) backdropOn = false;
   }
 
@@ -469,12 +477,15 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var SKY_B = 20;                       // bleed, so the shake never opens a bare edge
   var skyTile = null, skyH = 0;
   var motes = [], moteH = 900;
-  var skyW = 0, skyVH = 0;              // the viewport the current bake was cut for
+  var skyW = 0, skyVH = 0, skyDpr = 0;  // the viewport the current bake was cut for
 
   function bakeLayer(wCss, hCss, paint){
     var c = document.createElement('canvas');
     if(!c || !c.getContext) return null;
-    var d = Math.min(3, window.devicePixelRatio || 1);
+    // Baked at exactly the canvas's resolution. It used to be min(3, dpr)
+    // against a canvas capped lower, so on a 3x phone every frame resampled
+    // the sky down to the canvas — the most expensive blit there is.
+    var d = viewDpr;
     c.width  = Math.max(1, Math.round(wCss * d));
     c.height = Math.max(1, Math.round(hCss * d));
     var g = c.getContext('2d');
@@ -537,7 +548,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
   function bakeSky(){
     var W = Math.max(1, window.innerWidth), H = Math.max(1, window.innerHeight);
-    skyW = W; skyVH = H;
+    skyW = W; skyVH = H; skyDpr = viewDpr;
     // a tile one screen plus a margin tall always covers the view in exactly
     // two blits, whatever offset the scroll lands on
     skyH = H + 160;
@@ -701,7 +712,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     return Math.hypot(px - (x1 + dx * k), py - (y1 + dy * k));
   }
 
-  function spawnWeb(x, y){
+  function spawnWeb(x, y, life, grow){
     var n = 7, pts = [], segs = [], i;
     for(i=0;i<n;i++){
       var a = i / n * Math.PI * 2 + Math.random() * 0.25;
@@ -711,14 +722,17 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     for(i=0;i<n;i++) segs.push([pts[i][0], pts[i][1], pts[(i+1)%n][0], pts[(i+1)%n][1]]);
     // chords across the middle, which is what makes it a web and not a hoop
     for(i=0;i<n;i++) segs.push([pts[i][0], pts[i][1], pts[(i+3)%n][0], pts[(i+3)%n][1]]);
-    webs.push({ x:x, y:y, pts:pts, segs:segs, life:WEB_LIFE, grow:0 });
+    // capped, oldest first: a Tholian flagship spins cages faster than they
+    // expire, and a screen of overlapping webs is a wall, not a fight
+    if(webs.length >= 9) webs.shift();
+    webs.push({ x:x, y:y, pts:pts, segs:segs, life: life || WEB_LIFE, grow:0, growT: grow || WEB_GROW });
     shake(0.18);
   }
 
   function updateWebs(dt){
     for(var i=webs.length-1;i>=0;i--){
       var w = webs[i];
-      if(w.grow < 1) w.grow = Math.min(1, w.grow + dt / WEB_GROW);
+      if(w.grow < 1) w.grow = Math.min(1, w.grow + dt / (w.growT || WEB_GROW));
       w.life -= dt;
       if(w.life <= 0){ webs.splice(i,1); continue; }
       // it only bites once it has finished drawing itself, so the wind-up is
@@ -729,8 +743,13 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         var g = w.segs[s];
         if(segDist(ship.x, ship.y, g[0], g[1], g[2], g[3]) < WEB_W + SHIP_RADIUS){
           burst(ship.x, ship.y, 12, '255,159,67');
+          // Return, not break: a hit that respawns the ship tears down the
+          // webs around the respawn point, so the list this loop is walking
+          // has just changed under it. Carrying on read past its end and
+          // threw, which stopped the whole game. Nothing else can hit a hull
+          // that has just been given its respawn grace anyway.
           hitShip('fire');
-          break;
+          return;
         }
       }
     }
@@ -786,6 +805,274 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       }
     }
     ctx.restore();
+  }
+
+  // ── drawing the capital ships and their wings ────────────────────────────
+  // A ray in the cutting-beam grammar: a hairline telegraph while it winds
+  // up, then a three-layer beam that snaps off rather than fading.
+  function drawRay(x, y, ang, len, winding, wind, hot, rgb){
+    var ex = x + Math.cos(ang) * len, ey = y + Math.sin(ang) * len;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+    if(winding){
+      ctx.strokeStyle = 'rgba(' + rgb + ',' + (0.14 + 0.3 * wind).toFixed(3) + ')';
+      ctx.lineWidth = 1 + wind * 1.6;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
+    } else {
+      ctx.strokeStyle = 'rgba(' + rgb + ',' + (0.3 * hot).toFixed(3) + ')';
+      ctx.lineWidth = BEAM_W * 2.4 * hot;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
+      ctx.strokeStyle = 'rgba(' + rgb + ',' + (0.85 * hot).toFixed(3) + ')';
+      ctx.lineWidth = BEAM_W * hot;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,' + (0.9 * hot).toFixed(3) + ')';
+      ctx.lineWidth = Math.max(1, BEAM_W * 0.34 * hot);
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // The wing's own telegraphs: the beams strung between hulls, and the point
+  // a Klingon pincer is about to dive through. Drawn under the hulls.
+  function drawWings(camY){
+    if(!wings.length) return;
+    var pulse = reduceMotion ? 1 : 0.5 + 0.5 * Math.sin(gameTime * 14);
+    for(var wi=0; wi<wings.length; wi++){
+      var w = wings[wi];
+      if(w.done) continue;
+      var rgb = ALIEN_TYPES[w.kind].rgb, i, al;
+      if(w.pattern === 'pincer' && w.phase === 'mark'){
+        ctx.save();
+        if(ctx.setLineDash) ctx.setLineDash([5, 7]);
+        ctx.lineDashOffset = reduceMotion ? 0 : -gameTime * 70;
+        ctx.strokeStyle = 'rgba(' + rgb + ',' + (0.3 + 0.35 * pulse).toFixed(3) + ')';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        for(i=0;i<w.slots.length;i++){
+          al = w.slots[i]; if(!al) continue;
+          ctx.moveTo(al.x, al.y - camY); ctx.lineTo(w.tx, w.ty - camY);
+        }
+        ctx.stroke();
+        if(ctx.setLineDash) ctx.setLineDash([]);
+        // the point itself: where not to be in a second's time
+        ctx.strokeStyle = 'rgba(' + rgb + ',' + (0.5 + 0.4 * pulse).toFixed(3) + ')';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.arc(w.tx, w.ty - camY, 24, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w.tx - 34, w.ty - camY); ctx.lineTo(w.tx - 14, w.ty - camY);
+        ctx.moveTo(w.tx + 14, w.ty - camY); ctx.lineTo(w.tx + 34, w.ty - camY);
+        ctx.moveTo(w.tx, w.ty - camY - 34); ctx.lineTo(w.tx, w.ty - camY - 14);
+        ctx.moveTo(w.tx, w.ty - camY + 14); ctx.lineTo(w.tx, w.ty - camY + 34);
+        ctx.stroke();
+        ctx.restore();
+      }
+      var segs = wingTethers(w);
+      if(!segs.length || (!w.lit && !w.arming)) continue;
+      ctx.save();
+      ctx.lineCap = 'round';
+      if(w.lit){
+        ctx.globalCompositeOperation = 'lighter';
+        var passes = [[TETHER_W * 2.4, 0.26], [TETHER_W, 0.8]];
+        for(var p=0;p<passes.length;p++){
+          ctx.strokeStyle = 'rgba(' + rgb + ',' + passes[p][1] + ')';
+          ctx.lineWidth = passes[p][0];
+          ctx.beginPath();
+          for(i=0;i<segs.length;i++){ ctx.moveTo(segs[i][0].x, segs[i][0].y - camY); ctx.lineTo(segs[i][1].x, segs[i][1].y - camY); }
+          ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(255,255,255,.85)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        for(i=0;i<segs.length;i++){ ctx.moveTo(segs[i][0].x, segs[i][0].y - camY); ctx.lineTo(segs[i][1].x, segs[i][1].y - camY); }
+        ctx.stroke();
+      } else {
+        // arming: the line is there before it can hurt, so it can be read
+        if(ctx.setLineDash) ctx.setLineDash([4, 6]);
+        ctx.lineDashOffset = reduceMotion ? 0 : -gameTime * 40;
+        ctx.strokeStyle = 'rgba(' + rgb + ',' + (0.22 + 0.25 * pulse).toFixed(3) + ')';
+        ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        for(i=0;i<segs.length;i++){ ctx.moveTo(segs[i][0].x, segs[i][0].y - camY); ctx.lineTo(segs[i][1].x, segs[i][1].y - camY); }
+        ctx.stroke();
+        if(ctx.setLineDash) ctx.setLineDash([]);
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawTractorBeam(b, camY){
+    if(b.tractorT <= 0) return;
+    var rgb = BOSS_TYPES[b.fac].rgb, y = b.y - camY, sy = ship.y - camY;
+    ctx.save();
+    if(b.lockT > 0){
+      // the lock: a thin line reaching for the hull, pulsing as it tightens
+      var k = 1 - b.lockT / TRACTOR_LOCK;
+      if(ctx.setLineDash) ctx.setLineDash([3, 5]);
+      ctx.lineDashOffset = reduceMotion ? 0 : gameTime * 60;
+      ctx.strokeStyle = 'rgba(' + rgb + ',' + (0.25 + 0.5 * k).toFixed(3) + ')';
+      ctx.lineWidth = 1 + k * 1.5;
+      ctx.beginPath(); ctx.moveTo(b.x, y); ctx.lineTo(ship.x, sy); ctx.stroke();
+      if(ctx.setLineDash) ctx.setLineDash([]);
+    } else {
+      // the pull: a cone from the hull to the ship, dragging inward
+      var a = Math.atan2(sy - y, ship.x - b.x), px = -Math.sin(a), py = Math.cos(a);
+      var wBase = b.r * 0.5, wTip = 14;
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = 'rgba(' + rgb + ',.16)';
+      ctx.beginPath();
+      ctx.moveTo(b.x + px * wBase, y + py * wBase);
+      ctx.lineTo(ship.x + px * wTip, sy + py * wTip);
+      ctx.lineTo(ship.x - px * wTip, sy - py * wTip);
+      ctx.lineTo(b.x - px * wBase, y - py * wBase);
+      ctx.closePath(); ctx.fill();
+      if(ctx.setLineDash) ctx.setLineDash([2, 9]);
+      ctx.lineDashOffset = reduceMotion ? 0 : gameTime * 90;      // it flows toward the cube
+      ctx.strokeStyle = 'rgba(' + rgb + ',.7)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(ship.x, sy); ctx.lineTo(b.x, y); ctx.stroke();
+      if(ctx.setLineDash) ctx.setLineDash([]);
+    }
+    ctx.restore();
+  }
+
+  function drawCapital(b, camY){
+    var BT = BOSS_TYPES[b.fac];
+    // the telegraph: the hull whites out and swells for the beat before a
+    // Klingon charge commits, which is the whole reason a charge is survivable
+    var winding = b.phase === 'charge' && !b.charged;
+    // under reduced motion it holds at full rather than disappearing
+    var flash = winding ? (reduceMotion ? 1 : 0.5 + 0.5 * Math.abs(Math.sin(gameTime * 18))) : 0;
+    // The lane. For the whole wind-up a dashed line runs from her bow to
+    // your hull, which is where she will come, so the dodge is a sidestep
+    // out of a line you can see rather than a guess about when the flash
+    // ends. Gold, the colour of the burst she commits with.
+    if(winding){
+      ctx.save();
+      if(ctx.setLineDash) ctx.setLineDash([6, 8]);
+      ctx.lineDashOffset = reduceMotion ? 0 : -gameTime * 60;
+      ctx.strokeStyle = 'rgba(255,209,102,' + (0.2 + 0.28 * flash).toFixed(3) + ')';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(b.x, b.y - camY); ctx.lineTo(ship.x, ship.y - camY); ctx.stroke();
+      if(ctx.setLineDash) ctx.setLineDash([]);
+      ctx.restore();
+    }
+    drawTractorBeam(b, camY);
+    for(var bi=0; bi<b.beams.length; bi++){
+      var bm = b.beams[bi], wnd = bm.t > bm.fire;
+      drawRay(b.x, b.y - camY, bm.ang, BEAM_LEN * 1.15, wnd,
+              wnd ? 1 - (bm.t - bm.fire) / BEAM_WIND : 1, Math.min(1, bm.t / 0.18), BT.rgb);
+    }
+
+    var crgb = b.enraged ? '255,77,109' : BT.rgb;
+    var R = b.r;
+
+    // A cloak is a shimmer the eye can follow, never a hole: the hull fades
+    // to a ghost and a thin ring breathes around where she is.
+    if(b.cloak > 0.02){
+      ctx.save();
+      ctx.strokeStyle = 'rgba(' + BT.rgb + ',' + (0.1 + 0.12 * Math.sin(gameTime * 7) * b.cloak + 0.1).toFixed(3) + ')';
+      ctx.lineWidth = 1.2;
+      if(ctx.setLineDash) ctx.setLineDash([2, 6]);
+      ctx.lineDashOffset = reduceMotion ? 0 : gameTime * 20;
+      ctx.beginPath(); ctx.arc(b.x, b.y - camY, R * 1.15, 0, Math.PI*2); ctx.stroke();
+      if(ctx.setLineDash) ctx.setLineDash([]);
+      ctx.restore();
+    }
+
+    ctx.save();
+    ctx.globalAlpha = 1 - 0.9 * b.cloak;
+    ctx.translate(b.x, b.y - camY);
+    ctx.lineJoin = 'round';
+
+    // Exhaust first, under the hull; then the painted hull (paintKlingonCap,
+    // paintWinged or paintCube at capital scale — the faction's escort,
+    // built big); then what moves on it. A Klingon's engines go to full
+    // during a charge, which is a second telegraph on top of the flash.
+    var FR = BT.hull === 'drone' ? R * 1.25 : (b.fac === 'klingon' ? R : R * 1.12);
+    if(BT.hull === 'drone') ctx.rotate(b.rot * 0.6); else ctx.rotate(b.face);
+    ctx.scale(HULL_VIS * (1 + flash * 0.06), HULL_VIS * (1 + flash * 0.06));
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    if(b.fac === 'klingon'){
+      var burn = winding ? 1 : 0.45 + 0.1 * Math.sin(gameTime * 3);
+      plumeTrail(-R*0.72, 0,        R * (1.1 + burn * 1.5), R*0.15, crgb, 0.5 * burn + 0.2);
+      plumeTrail(-R*0.62, -R*0.30, R * (0.8 + burn * 1.1), R*0.09, crgb, 0.45 * burn + 0.15);
+      plumeTrail(-R*0.62,  R*0.30, R * (0.8 + burn * 1.1), R*0.09, crgb, 0.45 * burn + 0.15);
+      plumeTrail(-R*0.86, -R*0.62, R * (0.6 + burn * 0.9), R*0.07, crgb, 0.35 * burn + 0.12);
+      plumeTrail(-R*0.86,  R*0.62, R * (0.6 + burn * 0.9), R*0.07, crgb, 0.35 * burn + 0.12);
+    } else if(ALIEN_TYPES[BT.hull].plume !== false){
+      var eb = 0.5 + 0.12 * Math.sin(gameTime * 3);
+      plumeTrail(-FR*0.62, 0, FR * (1.5 + eb), FR*0.15, crgb, 0.5);
+      plumeTrail(-FR*0.56, -FR*0.34, FR * (0.9 + eb * 0.6), FR*0.08, crgb, 0.34);
+      plumeTrail(-FR*0.56,  FR*0.34, FR * (0.9 + eb * 0.6), FR*0.08, crgb, 0.34);
+    }
+    ctx.restore();
+    blit(capitalSprite(b, b.enraged ? 'rage' : ''));
+    // the hit flash and the charge telegraph: the hull whites out
+    // Under a steady stream of phaser fire hitT never reaches zero, so a
+    // strong hit flash turned the flagship white for the whole fight and hid
+    // the painted hull. A light tint for hits; the full whiteout is kept for
+    // the charge telegraph, which is information.
+    var whiteout = Math.max(b.hitT > 0 ? 0.28 * Math.min(1, b.hitT / 0.12) : 0, flash * 0.75);
+    if(whiteout > 0) blit(capitalSprite(b, 'mask'), whiteout);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    if(b.fac === 'tholian'){
+      // the web the ship is always spinning, around it
+      ctx.strokeStyle = 'rgba(199,125,255,.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(var k=0;k<8;k++){
+        var wa = k / 8 * Math.PI * 2 + gameTime * 0.6, wb = (k + 3) / 8 * Math.PI * 2 + gameTime * 0.6;
+        ctx.moveTo(Math.cos(wa) * FR * 1.35, Math.sin(wa) * FR * 1.35);
+        ctx.lineTo(Math.cos(wb) * FR * 1.35, Math.sin(wb) * FR * 1.35);
+      }
+      ctx.stroke();
+    } else if(b.fac === 'cardassian'){
+      // the spiral emitter at the bow, turning with the barrage — and
+      // venting white when it is spent, which is the window to shoot
+      if(b.phase === 'vent'){
+        ctx.fillStyle = 'rgba(255,240,210,' + (0.35 + 0.3 * Math.sin(gameTime * 10)).toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(FR * 0.72, 0, 9, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.fillStyle = 'rgba(' + crgb + ',.9)';
+      for(var e2=0;e2<3;e2++){
+        var ea = b.spin + e2 / 3 * Math.PI * 2;
+        ctx.beginPath(); ctx.arc(FR * 0.72 + Math.cos(ea) * 5, Math.sin(ea) * 5, 1.8, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    ctx.restore();
+    if(b.fac === 'klingon'){
+      var kon = reduceMotion ? 0.8 : (Math.sin(gameTime * 5.5 + b.id) > 0.72 ? 1 : 0.15);
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.9 * kon).toFixed(3) + ')';
+      for(var ks=-1; ks<=1; ks+=2){ ctx.beginPath(); ctx.arc(-R*1.0, ks*R*0.86, R*0.035*(0.8 + 0.4*kon), 0, Math.PI*2); ctx.fill(); }
+      ctx.restore();
+    } else strobes(BT.hull, FR, b.id);
+
+    // the core, which on a Klingon is also the charge telegraph: it swells
+    // and whites out on the beat before the hull commits
+    hullCore(R*0.05, R * (0.24 + 0.03 * Math.sin(gameTime * (b.enraged ? 9 : 4)) + flash * 0.16),
+             crgb, 0.85 + flash * 0.15);
+    ctx.restore();
+
+    // an adapted cube wears its shield: a white hexagon, fading as it drops
+    if(b.shieldT > 0){
+      ctx.save();
+      ctx.strokeStyle = 'rgba(235,255,240,' + (0.35 + 0.5 * Math.min(1, b.shieldT)).toFixed(3) + ')';
+      ctx.shadowColor = '#c8ffd2'; ctx.shadowBlur = 14;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for(var hx=0; hx<=6; hx++){
+        var ha = hx / 6 * Math.PI * 2 + gameTime * 0.8, hr = R * 1.4;
+        if(hx) ctx.lineTo(b.x + Math.cos(ha) * hr, b.y - camY + Math.sin(ha) * hr);
+        else ctx.moveTo(b.x + Math.cos(ha) * hr, b.y - camY + Math.sin(ha) * hr);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 
   function drawBeams(camY){
@@ -918,6 +1205,41 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   };
 
   // grind: straight at you, slowly, for ever.
+  // wing: steer to the slot the wing has computed, arriving rather than
+  // overshooting. A member on a committed run just flies its line. Once the
+  // wing is disbanded (the flagship is dead or gone) every member breaks off.
+  ALIEN_MOVE.wing = function(al, dt, sf, t, AT){
+    var w = al.wing;
+    if(w.done){
+      if(!al.fleeing){
+        al.fleeing = true; al.commit = false; al.cloak = 0;
+        var fx = al.x - ship.x, fy = al.y - ship.y, fd = Math.hypot(fx, fy) || 1;
+        al.vx = fx / fd * AT.speed * 2.6; al.vy = fy / fd * AT.speed * 2.6;
+      }
+    } else if(!al.commit){
+      var dx = al.tx - al.x, dy = al.ty - al.y, d = Math.hypot(dx, dy);
+      var want = Math.min(al.maxV || 3, d * 0.06);
+      var wx = d ? dx / d * want : 0, wy = d ? dy / d * want : 0;
+      var k = 1 - Math.pow(1 - 0.12, sf);
+      al.vx += (wx - al.vx) * k; al.vy += (wy - al.vy) * k;
+    }
+    al.x += al.vx * sf; al.y += al.vy * sf;
+    al.baseY = al.y;
+  };
+
+  // retreat: ordinary traffic clearing out for a capital ship. It holds its
+  // fire and flies straight out of the band.
+  ALIEN_MOVE.retreat = function(al, dt, sf, t, AT){
+    if(!al.fleeing){
+      al.fleeing = true;
+      var fx = al.x - ship.x, fy = al.y - ship.y, fd = Math.hypot(fx, fy) || 1;
+      al.vx = fx / fd * Math.max(1.6, AT.speed * 2.4); al.vy = fy / fd * Math.max(1.6, AT.speed * 2.4);
+      al.beamT = 0;
+    }
+    al.x += al.vx * sf; al.y += al.vy * sf;
+    al.baseY = al.y;
+  };
+
   ALIEN_MOVE.grind = function(al, dt, sf, t, AT){
     var dx = ship.x - al.x, dy = ship.y - al.y, d = Math.hypot(dx, dy) || 1;
     al.vx = dx / d * AT.speed;
@@ -1021,7 +1343,6 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // hull. It is also where a late run finds the XP for its next upgrade, so
   // the answer to a capital ship is never simply to run away from it.
   var BOSS_FIRST = 110, BOSS_GAP = 68, BOSS_WARN = 2.6, BOSS_R = 44;
-  var BOSS_NAMES = ['I.K.S. Vor\u2019cha', 'I.K.S. Negh\u2019Var', 'I.K.S. K\u2019tinga', 'I.K.S. Qu\u2019Vat'];
   var boss = null, bossWarn = 0, bossCount = 0, bossKills = 0, nextBossAt = BOSS_FIRST;
   // ── the engagement hail ──────────────────────────────────────────────
   // A capital ship no longer simply arrives. It is announced, and then the run
@@ -1041,7 +1362,6 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var BOSS_FLEE_GAP = 0.55;      // fraction of a normal gap before the next hail
   var BOSS_FLEE_GRACE = 2.6;     // the evasive burn, in seconds of invulnerability
   var BOSS_KILL_HEARTS = 2;
-  function bossBounty(n){ return 1800 + n * 700; }
   var hailOpen = false, bossFled = 0;
   var speedMult = 1.35, rockSpawnAcc = 0;
   var gameOver = false;
@@ -1053,7 +1373,11 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   var hailEl       = document.getElementById('astroHail');
   var hailNameEl   = document.getElementById('astroHailName');
   var hailBountyEl = document.getElementById('astroHailBounty');
-  var hailAgainEl  = document.getElementById('astroHailAgain');
+  var hailThreatEl = document.getElementById('astroHailThreat');
+  var hailWhyEl    = document.getElementById('astroHailWhy');
+  var hailFleeDEl  = document.getElementById('astroHailFleeD');
+  var hailHintEl   = document.getElementById('astroHailHint');
+  var hailLootEl   = document.getElementById('astroHailLoot');
   var hailFightEl  = document.getElementById('astroHailFight');
   var hailFleeEl   = document.getElementById('astroHailFlee');
   var finalEl = document.getElementById('astroFinal');
@@ -1243,7 +1567,13 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // goes with the square, so a 3x phone was paying 2.25 times a 2x phone's
     // bill for the backdrop and the shadow passes. This is the single
     // cheapest thing that protects a handset.
-    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    //
+    // Then capped again at 1.5 (Sep 2026, "jittery"): on a Retina screen the
+    // backing store at 2x is four times the pixels of the page, and at 1.5 it
+    // is a little over half that, for a softness nobody sees on neon over a
+    // starfield. And if the run still cannot hold its frame rate, budget()
+    // drops it to 1x for good (lowRes).
+    var dpr = Math.min(lowRes ? 1 : 1.5, window.devicePixelRatio || 1);
     viewDpr = dpr;
     canvas.width = window.innerWidth * dpr;
     canvas.height = window.innerHeight * dpr;
@@ -1255,7 +1585,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // thing that genuinely invalidates them — but a resize event that did not
     // change the viewport (an on-screen keyboard, a scrollbar appearing) must
     // not spend two large bakes on nothing.
-    if(!skyTile || skyW !== window.innerWidth || skyVH !== window.innerHeight) bakeSky();
+    if(!skyTile || skyW !== window.innerWidth || skyVH !== window.innerHeight || skyDpr !== viewDpr) bakeSky();
   }
 
   function resetShip(inv){
@@ -1489,6 +1819,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // instead, and a cube has no bow at all.
   function alienFacing(al, AT){
     if(AT.face === 'none') return 0;
+    if(al.wing || al.retreat){
+      if(Math.hypot(al.vx, al.vy) < 1.1) return Math.atan2(ship.y - al.y, ship.x - al.x);
+      return Math.atan2(al.vy, al.vx);
+    }
     if(AT.face === 'heading'){
       if(Math.hypot(al.vx, al.vy) < 0.25) return Math.atan2(ship.y - al.y, ship.x - al.x);
       return Math.atan2(al.vy, al.vx);
@@ -1607,8 +1941,14 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // old economy where health arrived faster than the field could take it. It
   // only ever softens a bad run's slide, and never rewards a clean one.
   var ROCK_HEART = 0.013;
+  // Repairs thin out once a run is long. The whole run is balanced on hull
+  // gained minus hull lost being negative, and a strong late build was
+  // finding repairs as fast as it lost plates: one scripted run lost 29
+  // plates over fifteen minutes and ended it at full hull. Untouched for the
+  // first three minutes, half by six, a third from seven on.
+  function heartFade(t){ return t < 180 ? 1 : Math.max(0.35, 1 - (t - 180) / 360); }
   function dropRockLoot(x, y){
-    if(lives < MAX_LIVES && Math.random() < ROCK_HEART){ dropPickup(x, y, 'heart'); return; }
+    if(lives < MAX_LIVES && Math.random() < ROCK_HEART * heartFade(gameTime)){ dropPickup(x, y, 'heart'); return; }
     // 0.38, not 0.25: a third fewer rocks means a third fewer kills, and at
     // the old rate the thinner field cost most of a level per run.
     dropPickup(x, y, Math.random() < 0.38 ? 'gem' : 'coin');
@@ -1991,6 +2331,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     shake(0.78); freeze(0.07);
     if(lives > 0){
       resetShip(RESPAWN_INVULN);
+      // The ship comes back at the centre of the view, and a web does not
+      // move. Respawning inside one meant the hull was lost again the moment
+      // the grace ran out — a chain nobody could fly out of. Any web on the
+      // respawn point is torn down with the old hull.
+      for(var wb=webs.length-1; wb>=0; wb--){
+        if(Math.hypot(webs[wb].x - ship.x, webs[wb].y - ship.y) < WEB_R * 1.2 + 90){
+          burst(webs[wb].x, webs[wb].y, 10, '199,125,255', 0.7);
+          webs.splice(wb, 1);
+        }
+      }
       syncHud();
       return;
     }
@@ -2018,6 +2368,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     bullets = []; particles = []; aliens = []; alienBullets = []; pickups = [];
     bonus = 0; nextAlienAt = ALIEN_FIRST;
     boss = null; bossWarn = 0; bossCount = 0; bossKills = 0; bossFled = 0; nextBossAt = BOSS_FIRST;
+    wings = []; contact = null; lastFac = null; bossSeen = {}; warpReady = true;
     hailOpen = false;
     if(bossBarEl) bossBarEl.classList.remove('on');
     if(hailEl) hailEl.classList.remove('on');
@@ -2098,8 +2449,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // exactly what the refit deck will later call it.
   //
   // `art` is the ship as supplied, used as is. It is not the ship the game
-  // flies — that one is drawn on canvas by shipShape() and has to read at nine
-  // pixels while moving. This is the opposite job: still, large, and looked at
+  // flies — that one is painted on canvas by paintFed() and has to read at
+  // thirty pixels while moving. This is the opposite job: still, large, and looked at
   // for as long as the player wants.
   //
   // `tint` is the card's colour, and it is the only place in the game where a
@@ -2790,7 +3141,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // bank the level as score instead of showing an empty card
     if(rollChoices().length === 0){ pendingLevels = 0; bonus += 400; return; }
     levelOpen = true;
-    keys = {}; pad.mag = 0;
+    // Held keys are NOT cleared here, and neither does the hail clear them.
+    // They used to be, which meant a player holding thrust through a card
+    // came out of it coasting to a dead stop with the key still down: the
+    // browser stops auto-repeating a held key the moment another one (the
+    // 1, 2 or 3 that picked the card) is pressed, so the game never heard
+    // about it again until it was released and pressed afresh. onKeyDown
+    // keeps the helm keys up to date while a panel is open instead, and
+    // onKeyUp always runs. Only a blur clears them, because only a blur
+    // really does lose the key-ups.
+    pad.mag = 0;
     homeStick();
     renderLevelHeader();
     renderChoices();
@@ -2879,15 +3239,41 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(!active || gameOver) return;
     if(!hailEl || !hailFightEl){ spawnBoss(); return; }
     hailOpen = true;
-    keys = {}; pad.mag = 0;
+    pad.mag = 0;                     // held keys survive: see openLevelUp
     homeStick();
     // the figures on the cards are the real ones for *this* contact — a panel
     // that quotes a round number the run does not actually pay is worse than a
     // panel with no numbers on it
-    if(hailNameEl) hailNameEl.textContent = bossName(bossCount);
-    if(hailBountyEl) hailBountyEl.textContent = '+' + bossBounty(bossCount) + ' stardate';
-    if(hailAgainEl) hailAgainEl.textContent =
-      'Next contact in ' + Math.round(bossGapFor(bossCount) * BOSS_FLEE_GAP) + 's';
+    if(!contact) contact = pickContact(gameTime);
+    var BT = BOSS_TYPES[contact.fac], lock = evadeLock();
+    if(hailNameEl){
+      hailNameEl.textContent = contact.name;
+      hailNameEl.style.color = 'rgb(' + BT.rgb + ')';
+    }
+    if(hailThreatEl) hailThreatEl.textContent = BT.threat;
+    if(hailBountyEl) hailBountyEl.textContent = '+' + bossBounty(bossCount, contact.fac) + ' stardate';
+    // only the first kill of a run pays two plates (see killBoss)
+    if(hailLootEl) hailLootEl.textContent = '+' + (bossKills ? 1 : BOSS_KILL_HEARTS) + ' hull \u00b7 dilithium \u00b7 a power-up';
+    // Evade is not always on the table. The card stays, locked and saying why,
+    // because a choice that silently disappears reads as a bug, and the reason
+    // is the rule the player needs to learn.
+    if(hailFleeEl){
+      hailFleeEl.classList.toggle('is-locked', !!lock);
+      hailFleeEl.setAttribute('aria-disabled', lock ? 'true' : 'false');
+    }
+    if(hailWhyEl) hailWhyEl.textContent = lock === 'cube'
+      ? 'A cube can\u2019t be outrun. This one has to be fought.'
+      : (lock === 'warp'
+        ? 'Your warp drive is still recharging from the last break. Fight this one to recharge it.'
+        : 'You get clear, but you can\u2019t break away twice running.');
+    if(hailFleeDEl) hailFleeDEl.innerHTML = lock
+      ? '<span>Not available</span><span>' + (lock === 'cube' ? 'No escape from a cube' : 'Recharges after a fight') + '</span>'
+      : '<span>No bounty \u00b7 no refit</span>' +
+        '<span>Next contact in ' + Math.round(bossGapFor(bossCount) * BOSS_FLEE_GAP) + 's</span>' +
+        '<span>Evasive burn \u00b7 ' + BOSS_FLEE_GRACE + 's</span>';
+    if(hailHintEl) hailHintEl.innerHTML = lock
+      ? 'Give the order, or press <kbd>1</kbd>'
+      : 'Give the order, or press <kbd>1</kbd> <kbd>2</kbd>';
     armPanel();
     hailEl.classList.add('on');
     document.body.classList.add('astro-paused');
@@ -2899,6 +3285,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
   function closeHail(fight){
     if(!hailOpen || !panelArmed()) return;
+    if(!fight && evadeLock()) return;           // Evade is locked for this one
     hailOpen = false;
     if(hailEl) hailEl.classList.remove('on');
     if(!autoPaused) document.body.classList.remove('astro-paused');
@@ -2923,6 +3310,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // dilithium, the refit and the hull.
   function fleeBoss(){
     bossFled++;
+    // one break, then the drive needs a fight to recharge
+    warpReady = false;
+    spendContact();
     nextBossAt = gameTime + bossGapFor(bossCount) * BOSS_FLEE_GAP;
     // the sector does not go quiet just because the capital ship broke off
     nextAlienAt = gameTime + alienInterval(gameTime) * 0.5;
@@ -3019,8 +3409,18 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(!raf) raf = requestAnimationFrame(loop);
   }
 
+  // Key-ups that happen while the window is not focused are never delivered,
+  // so a key released during an alt-tab would stay "held" for ever. This is
+  // the one place held keys are wiped, and it has to run even when a panel is
+  // already up — autoPause() returns early under a panel, which is exactly
+  // when nothing else would clear them.
+  function onBlur(){
+    keys = {};
+    autoPause();
+  }
+
   function onVisibility(){
-    if(document.hidden) autoPause();
+    if(document.hidden){ keys = {}; autoPause(); }
     else lastFrame = performance.now();   // stays paused until the player acts
   }
 
@@ -3029,6 +3429,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
        e.target.closest('#astroLevel') || e.target.closest('#astroPause') ||
        e.target.closest('#astroHail')) return;
     e.preventDefault(); e.stopPropagation();
+  }
+
+  function isHelmKey(code){
+    return code === 'ArrowUp' || code === 'ArrowDown' || code === 'ArrowLeft' || code === 'ArrowRight';
   }
 
   function onKeyDown(e){
@@ -3044,6 +3448,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       // F and E are here because they are what the two cards are actually
       // called, and a player reading "Engage" should not have to count.
       e.preventDefault();
+      // the helm is still in the player's hands: remember it, act on nothing
+      if(isHelmKey(e.code)) keys[e.code] = true;
       if(e.repeat) return;           // a held key is not an order
       if(e.code === 'Digit1' || e.code === 'Numpad1' || e.code === 'KeyF') closeHail(true);
       else if(e.code === 'Digit2' || e.code === 'Numpad2' || e.code === 'KeyE') closeHail(false);
@@ -3057,6 +3463,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       // instead of doing nothing, because a keyboard player pressing Tab in a
       // modal is asking to move, not to leave.
       e.preventDefault();
+      // Arrows still choose nothing (see below), but a press or a held key
+      // is recorded, so the ship is flying the moment the card closes.
+      if(isHelmKey(e.code)) keys[e.code] = true;
       if(e.repeat) return;           // a held key is not a decision
       if(e.code === 'Digit1' || e.code === 'Numpad1') choose(0);
       else if(e.code === 'Digit2' || e.code === 'Numpad2') choose(1);
@@ -3071,7 +3480,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       else if(e.code === 'Enter' || e.code === 'NumpadEnter') choose(levelSel);
       return;
     }
-    if(autoPaused){ e.preventDefault(); autoResume(); return; }
+    // Any key resumes. An arrow also flies: it used to be spent on the resume
+    // alone, so the first press after coming back did nothing at all. Space
+    // resumes without releasing the overcharge — waking the game is not a
+    // decision to spend it.
+    if(autoPaused){
+      e.preventDefault();
+      autoResume();
+      if(isHelmKey(e.code)) keys[e.code] = true;
+      return;
+    }
     if(e.code==='ArrowUp'||e.code==='ArrowDown'||e.code==='ArrowLeft'||e.code==='ArrowRight'||e.code==='Space'){
       e.preventDefault();   // space must never scroll the page underneath
       // A vent is a press, not a hold: a held key repeats keydown, and without
@@ -3204,7 +3622,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // the sky that was more health than the field could ever take back — most
     // of the reason a careless run never actually ended. Health is a roll now;
     // crystals are the reliable prize, which keeps warbirds worth hunting.
-    if(Math.random() < T.heart) dropPickup(al.x, al.y, 'heart');
+    if(Math.random() < T.heart * heartFade(gameTime)) dropPickup(al.x, al.y, 'heart');
     else for(var g=0; g<T.gems; g++) dropPickup(al.x, al.y, 'gem');
     aliens.splice(m, 1);
     addCore(CORE_KILL_SHIP);
@@ -3212,92 +3630,482 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   }
 
   // ── the capital ships ────────────────────────────────────────────────
-  // Hull and cadence both scale with how many have already been beaten, so the
-  // fourth one is a genuinely different fight from the first rather than the
-  // same fight with a longer bar.
-  // Cut from 180 + 110n in Sep 2026, when the XP curve steepened. A ship on
-  // its first hail now carries about four cards where it used to carry nine,
-  // and at the old hull the kill rate fell from a fifth to a tenth. With
-  // cards this scarce a won fight is the best reward in the run, so it has to
-  // stay winnable; the fight itself (rings, volleys, the charge) is untouched.
-  function bossHpFor(n){ return 110 + n * 80; }
+  // One per faction since Sep 2026. There used to be a single Klingon
+  // dreadnought that cycled rings, volleys and a ram, called in lone scouts,
+  // and could always be refused at the hail — and once a player had learned
+  // it, every capital ship was the same fight or no fight at all. Now each
+  // faction sends its own flagship, built from its own escort's silhouette,
+  // fighting with its own weapons and bringing a wing of its own hulls that
+  // attacks TOGETHER, in formation, rather than one at a time.
+  //
+  //   Klingon     · rings, aimed volleys, the ram · wing: pincer — three
+  //                 Birds-of-Prey surround you, mark a point, and all dive
+  //                 through it at once
+  //   Cardassian  · rotating spiral barrages, sweeping fans · wing: wall —
+  //                 three Galors line abreast and fire in one parallel volley
+  //   Romulan     · cloaks (cannot be hit), reappears behind you, homing
+  //                 plasma salvo · wing: flank — a cloaked pair that decloaks
+  //                 on opposite sides for a crossfire. Never hails: ambushes.
+  //   Borg        · tracking cutting beams, a TRACTOR BEAM that drags you in,
+  //                 adapts at every quarter of hull · wing: box — four drones
+  //                 in a rotating square wired together by cutting beams,
+  //                 closing in. Cannot be outrun: the hail offers no escape.
+  //   Tholian     · web cages spun around you, shards that split in flight ·
+  //                 wing: strand — three weavers sweeping across the field
+  //                 with a live strand between them
+  //
+  // And a capital-ship fight is now the only fight on the field: the ordinary
+  // traffic breaks off when she arrives (standDown) and the rock thins, so
+  // what is left is her, her wing and you.
+  //
+  // Hull scales with how many have come before, times a per-faction factor.
+  // The square term is for the run that is winning. Every kill pays hull and
+  // a card, so a strong build used to snowball: one scripted run killed nine
+  // flagships in a row and flew for the full fifteen minutes on four plates.
+  // The first two fights are untouched (110, 200); the eighth has nearly
+  // twice the hull it used to.
+  function bossHpFor(n){ return 110 + n * 80 + n * n * 10; }
   // Shots land on the armoured core rather than the full silhouette, so a wide
   // fan no longer connects with every barrel at once.
   function bossHitR(){ return BOSS_R * 0.82; }
-  // If a build cannot break the hull inside this, the capital ship breaks off
-  // instead: no reward, no death spiral, and the next one arrives sooner.
-  var BOSS_FUSE = 42;
   function bossGapFor(n){ return Math.max(44, BOSS_GAP - n * 4); }
-  function bossName(n){
-    var base = BOSS_NAMES[n % BOSS_NAMES.length];
-    var mk = Math.floor(n / BOSS_NAMES.length);
-    return mk ? base + ' MK' + (mk + 1) : base;
+  function clampN(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+  var BOSS_TYPES = {
+    klingon:    { at:0,   hull:'raptor',  rgb:'255,122,99', stroke:'#ff7a63', glow:'#ff4d2e',
+                  names:['I.K.S. Vor’cha', 'I.K.S. Negh’Var', 'I.K.S. Qu’Vat', 'I.K.S. Gr’oth'],
+                  hp:1.2, fuse:42, bounty:1, move:'hold', cycle:['ring', 'volley', 'charge'],
+                  wing:'pincer', wingN:3, wingHp:0.85,
+                  threat:'Disruptor rings and ramming runs, with a Bird-of-Prey wing that dives in together.' },
+    cardassian: { at:70,  hull:'lancer',  rgb:'240,168,72', stroke:'#f0a848', glow:'#e07b1a',
+                  names:['Keldon-class Trager', 'Keldon-class Koranak', 'Keldon-class Prakesh', 'Keldon-class Rabol'],
+                  hp:0.8, fuse:46, bounty:1, move:'platform', cycle:['spiral', 'vent', 'sweep'],
+                  wing:'wall', wingN:3, wingHp:0.85,
+                  threat:'Spiral barrages from behind a line of Galors that fire as one.' },
+    romulan:    { at:95,  hull:'warbird', rgb:'96,224,150', stroke:'#7fd6a6', glow:'#2fbf78',
+                  names:['I.R.W. Khazara', 'I.R.W. Valdore', 'I.R.W. Haakona', 'I.R.W. T’Met'],
+                  hp:0.85, fuse:46, bounty:1.1, move:'range', cycle:['cloak', 'decloak', 'salvo', 'lance'],
+                  wing:'flank', wingN:2, wingHp:0.85, ambush:true,
+                  threat:'' },
+    borg:       { at:138, hull:'drone',   rgb:'126,255,110', stroke:'#8fb4c9', glow:'#4fdc5a',
+                  names:['Tactical Cube 138', 'Tactical Cube 630', 'Tactical Cube 972', 'Tactical Cube 316'],
+                  hp:1.15, fuse:55, bounty:1.3, move:'grind', cycle:['beams', 'tractor'],
+                  wing:'box', wingN:4, wingHp:0.3, noEvade:true, adapt:true,
+                  threat:'Cutting beams, a tractor lock, and drones that box you in.' },
+    tholian:    { at:158, hull:'weaver',  rgb:'255,159,67', stroke:'#ff9f43', glow:'#c77dff',
+                  names:['Tholian Tarantula', 'Tholian Recluse', 'Tholian Widow', 'Tholian Orb-Weaver'],
+                  hp:1.0, fuse:46, bounty:1.1, move:'orbit', cycle:['cage', 'shards'],
+                  wing:'strand', wingN:3, wingHp:1,
+                  threat:'Web cages and splitting shards, and weavers with a live strand strung between them.' }
+  };
+  var BOSS_ORDER = ['klingon', 'cardassian', 'romulan', 'borg', 'tholian'];
+  function bossBounty(n, fac){
+    var BT = BOSS_TYPES[fac || 'klingon'];
+    return Math.round((1800 + n * 700) * (BT ? BT.bounty : 1) / 10) * 10;
+  }
+
+  // The next contact is chosen when the warning goes up, so the warning, the
+  // hail and the ship that arrives all agree. Never the same faction twice
+  // running; and the very first contact of a run is always hailed, so the
+  // choice is taught before an ambush can skip it.
+  var contact = null, lastFac = null, bossSeen = {};
+  function pickContact(t){
+    var pool = [], i, f;
+    for(i=0;i<BOSS_ORDER.length;i++){
+      f = BOSS_ORDER[i];
+      if(t < BOSS_TYPES[f].at || f === lastFac) continue;
+      if(!bossCount && BOSS_TYPES[f].ambush) continue;
+      pool.push(f);
+    }
+    if(!pool.length) pool = ['klingon'];
+    f = pool[Math.floor(Math.random() * pool.length)];
+    var BT = BOSS_TYPES[f], k = bossSeen[f] || 0;
+    var base = BT.names[k % BT.names.length], mk = Math.floor(k / BT.names.length);
+    return { fac: f, name: mk ? base + ' MK' + (mk + 1) : base };
+  }
+  function spendContact(){
+    if(!contact) return;
+    bossSeen[contact.fac] = (bossSeen[contact.fac] || 0) + 1;
+    lastFac = contact.fac;
+    contact = null;
+  }
+
+  // ── you cannot always run ────────────────────────────────────────────────
+  // Breaking away used to be free every time, which made "evade" the answer
+  // to every hail once a player knew what the fight cost. Now the warp drive
+  // needs a fight to recharge: break off once and the next contact has to be
+  // met. A Borg cube can never be outrun, and a Romulan does not hail at all.
+  var warpReady = true;
+  function evadeLock(){
+    if(!contact) return '';
+    if(BOSS_TYPES[contact.fac].noEvade) return 'cube';
+    if(!warpReady) return 'warp';
+    return '';
+  }
+
+  // Every source of damage to a capital ship goes through here: a cloaked
+  // Romulan cannot be hit at all, and an adapted Borg cube takes a fraction.
+  var BORG_SHIELD_TAKE = 0.2, BORG_SHIELD_TIME = 2.2;
+  function bossTargetable(){ return !!boss && !boss.leaving && !(boss.cloak > 0.5); }
+  function hurtBoss(d, hitT){
+    if(!bossTargetable()) return false;
+    var b = boss;
+    if(b.shieldT > 0) d *= BORG_SHIELD_TAKE;
+    b.hp -= d; b.hitT = hitT || 0.12;
+    // the cube adapts at every quarter of its hull: a flash of white, and for
+    // a few seconds almost nothing gets through — so the answer is to stop
+    // shooting, dodge, and come back, rather than to hold the trigger down
+    if(BOSS_TYPES[b.fac].adapt && b.hp > 0 && b.hp <= b.max * b.adaptNext){
+      b.adaptNext -= 0.25;
+      b.shieldT = BORG_SHIELD_TIME;
+      burst(b.x, b.y, 22, '255,255,255', 1.1);
+      bloom(b.x, b.y, b.r * 2.2, '200,255,210');
+      teach('adapt', '<span>The cube has adapted</span><span>It shrugs off fire while it glows. Dodge and wait.</span>', 5);
+    }
+    if(b.hp <= 0){ killBoss(); return true; }
+    return false;
+  }
+
+  // Everything else leaves when she arrives. The ordinary traffic breaks off
+  // and flies clear, holding its fire, so a capital-ship fight is a duel with
+  // her and her wing rather than the same field with one more thing in it.
+  function standDown(){
+    for(var i=0;i<aliens.length;i++) if(!aliens[i].wing) aliens[i].retreat = true;
   }
 
   function spawnBoss(){
-    var hp = bossHpFor(bossCount);
+    if(!contact) contact = pickContact(gameTime);
+    var fac = contact.fac, BT = BOSS_TYPES[fac];
+    var hp = Math.round(bossHpFor(bossCount) * BT.hp);
+    var W = window.innerWidth, top = window.scrollY, H = window.innerHeight;
     boss = {
-      id: ++uid, x: window.innerWidth / 2, y: window.scrollY - BOSS_R * 2, r: BOSS_R,
+      id: ++uid, fac: fac, name: contact.name,
+      x: W / 2, y: top - BOSS_R * 2, r: BOSS_R,
       vx: 0, vy: 0, hp: hp, max: hp, hitT: 0, t: 0, rot: 0,
       // it drifts in for a beat and a half before it is allowed to shoot
       phase: 'entry', phaseT: 1.4, next: 0, shots: 0, charged: false,
       // eased toward the player every frame rather than snapped, so the hull
       // swings onto its target the way something with mass would
       face: Math.PI / 2,
-      escortAt: gameTime + 9, enraged: false, index: bossCount, fuse: BOSS_FUSE, leaving: false
+      enraged: false, index: bossCount, fuse: BT.fuse, leaving: false,
+      cloak: 0, shieldT: 0, adaptNext: 0.75,
+      spin: Math.random() * Math.PI * 2, spinDir: 1,
+      beams: [], lockT: 0, tractorT: 0, orbitA: Math.random() * Math.PI * 2,
+      fx: 0, fy: 0, wing: null, wingAt: gameTime + 3.2
     };
+    if(BT.ambush){
+      // no approach and no hail: she decloaks beside you
+      var a = Math.random() * Math.PI * 2;
+      boss.x = clampN(ship.x + Math.cos(a) * 300, BOSS_R + 20, W - BOSS_R - 20);
+      boss.y = clampN(ship.y + Math.sin(a) * 260, top + BOSS_R + 40, top + H - BOSS_R - 40);
+      boss.cloak = 1; boss.phase = 'decloak'; boss.phaseT = 1.1;
+      boss.face = Math.atan2(ship.y - boss.y, ship.x - boss.x);
+    }
+    spendContact();
+    // taking a fight is what recharges the warp drive
+    warpReady = true;
     bossCount++;
-    if(bossNameEl) bossNameEl.textContent = bossName(boss.index);
-    if(bossBarEl) bossBarEl.classList.add('on');
+    standDown();
+    if(bossNameEl) bossNameEl.textContent = boss.name;
+    if(bossBarEl){
+      bossBarEl.style.setProperty('--boss-rgb', BT.rgb);
+      bossBarEl.classList.add('on');
+    }
     hudLast.boss = -1;
   }
 
-  var BOSS_CYCLE = ['ring', 'volley', 'charge'];
+  function bossShoot(x, y, ang, speed, r, extra){
+    var o = { x:x, y:y, vx: Math.cos(ang)*speed, vy: Math.sin(ang)*speed,
+              life: 3.6, r: r || 4, rgb: boss ? BOSS_TYPES[boss.fac].rgb : '255,122,99' };
+    if(extra) for(var k in extra) o[k] = extra[k];
+    alienBullets.push(o);
+    return o;
+  }
+  function aimAt(b){ return Math.atan2(ship.y - b.y, ship.x - b.x); }
 
-  // Each attack is a phase with its own budget of sub-shots; bossNextPhase
-  // stocks that budget and the update loop spends it on a cadence.
+  // A heavy plasma torpedo, the Romulan signature: slow, homing, and the one
+  // enemy round the phasers can shoot down.
+  function plasmaFrom(x, y, ang, rgb){
+    alienBullets.push({ x:x, y:y, vx: Math.cos(ang) * PLASMA_SPEED * 1.1, vy: Math.sin(ang) * PLASMA_SPEED * 1.1,
+                        life: 7, r: PLASMA_R, rgb: rgb, id: ++uid,
+                        hp: PLASMA_HP, seek: PLASMA_TURN * 0.9, heavy: true });
+  }
+
+  var TRACTOR_R = 560, TRACTOR_LOCK = 0.85, TRACTOR_TIME = 2.0;
+  // Under the weakest hull's thrust (the Sovereign's is about 0.124), so
+  // there is always a way out — but only for a player who is pushing.
+  var TRACTOR_PULL = 0.07;
+
+  // ── the attacks ──────────────────────────────────────────────────────────
+  // Each phase stocks a budget in start() and spends it in tick(). A phase is
+  // named in its faction's cycle, and bossNextPhase walks the cycle.
+  var BOSS_PHASE = {
+    entry:  { start: function(){}, tick: function(){} },
+
+    // ── Klingon ──
+    ring: {
+      start: function(b, t, rage){ b.phaseT = 2.0 / rage; b.shots = b.enraged ? 3 : 2; b.next = t + 0.25; },
+      tick: function(b, dt, t, rage){
+        if(b.shots <= 0 || t < b.next) return;
+        b.shots--; b.next = t + 0.7 / rage;
+        var n = Math.min(16, 8 + b.index * 2) + (b.enraged ? 3 : 0);
+        var off = Math.random() * Math.PI * 2, sp = (2.5 + b.index * 0.12) * rage;
+        for(var i=0;i<n;i++) bossShoot(b.x, b.y, off + i / n * Math.PI * 2, sp, 4);
+        burst(b.x, b.y, 8, BOSS_TYPES[b.fac].rgb);
+      }
+    },
+    volley: {
+      start: function(b, t, rage){ b.phaseT = 2.2 / rage; b.shots = b.enraged ? 3 : 2; b.next = t + 0.3; },
+      tick: function(b, dt, t, rage){
+        if(b.shots <= 0 || t < b.next) return;
+        b.shots--; b.next = t + 0.42 / rage;
+        var sp = alienBulletSpeed(t) * 1.05 * rage, aim = aimAt(b);
+        for(var i=-1;i<=1;i++) bossShoot(b.x, b.y, aim + i * 0.17, sp, 4);
+      }
+    },
+    // The ram. It telegraphs for over a second before it commits, with a
+    // dashed lane drawn to your hull, so it is always dodged rather than
+    // suffered. It was 0.85s at 6.2px a frame until Sep 2026, and ramming
+    // was over a third of every hull plate lost to a capital ship.
+    charge: {
+      start: function(b, t, rage){ b.phaseT = 2.7 / rage; b.shots = 0; b.charged = false; b.next = t + 1.15 / rage; },
+      tick: function(b, dt, t, rage){
+        if(b.charged || t < b.next) return;
+        b.charged = true;
+        var d = Math.hypot(ship.x - b.x, ship.y - b.y) || 1, s = 5.2 * rage;
+        b.vx = (ship.x - b.x) / d * s;
+        b.vy = (ship.y - b.y) / d * s;
+        burst(b.x, b.y, 18, '255,209,102');
+      }
+    },
+
+    // ── Cardassian ──
+    // A rotating spiral of bolts from the command ship's forward emitter.
+    // The arms turn slowly enough that the gaps between them can be flown,
+    // and every spiral turns the other way from the last.
+    spiral: {
+      start: function(b, t, rage){
+        b.phaseT = 2.8; b.spinDir = -b.spinDir; b.next = t + 0.35;
+        b.arms = b.enraged ? 4 : 3;
+      },
+      tick: function(b, dt, t, rage){
+        if(t < b.next) return;
+        b.next = t + 0.16 / Math.sqrt(rage);
+        var sp = 2.35 * Math.sqrt(rage);
+        for(var k=0;k<b.arms;k++) bossShoot(b.x, b.y, b.spin + k / b.arms * Math.PI * 2, sp, 3.4);
+        b.spin += 0.21 * b.spinDir;
+      }
+    },
+    // After every spiral the emitter vents: a second and a half of glowing
+    // silence. The spiral never pauses on its own, and without this there
+    // was no moment to turn and shoot back — the platform could not be
+    // killed, only outlasted.
+    vent: {
+      start: function(b, t, rage){ b.phaseT = 1.7 / Math.sqrt(rage); },
+      tick: function(){}
+    },
+    // three wide fans aimed at you, each seven bolts across
+    sweep: {
+      start: function(b, t, rage){ b.phaseT = 2.2 / rage; b.shots = b.enraged ? 4 : 3; b.next = t + 0.3; },
+      tick: function(b, dt, t, rage){
+        if(b.shots <= 0 || t < b.next) return;
+        b.shots--; b.next = t + 0.6 / rage;
+        var aim = aimAt(b) + (Math.random() - 0.5) * 0.2, sp = alienBulletSpeed(t) * 0.95;
+        for(var i=-3;i<=3;i++) bossShoot(b.x, b.y, aim + i * 0.16, sp, 3.6);
+      }
+    },
+
+    // ── Romulan ──
+    // Cloaked she cannot be hit and does not collide. She slides round
+    // behind the way you are facing, then decloaks — the shimmer is the
+    // warning — and fires.
+    cloak: {
+      start: function(b, t, rage){
+        b.phaseT = 2.2 / rage;
+        var W = window.innerWidth, top = window.scrollY, H = window.innerHeight;
+        var a = ship.angle + Math.PI + (Math.random() - 0.5) * 1.2;
+        b.fx = clampN(ship.x + Math.cos(a) * 310, b.r + 20, W - b.r - 20);
+        b.fy = clampN(ship.y + Math.sin(a) * 310, top + b.r + 40, top + H - b.r - 40);
+      },
+      tick: function(b, dt){ b.cloak = Math.min(1, b.cloak + dt * 2.6); }
+    },
+    decloak: {
+      start: function(b){ b.phaseT = 0.8; },
+      tick: function(b, dt){ b.cloak = Math.max(0, b.cloak - dt / 0.75); }
+    },
+    salvo: {
+      start: function(b, t, rage){
+        b.phaseT = 1.1; b.cloak = 0;
+        var rgb = BOSS_TYPES[b.fac].rgb, aim = aimAt(b), n = b.enraged ? 3 : 2;
+        for(var i=0;i<n;i++) plasmaFrom(b.x, b.y, aim + (i - (n - 1) / 2) * 0.36, rgb);
+        for(var j=-2;j<=2;j++) bossShoot(b.x, b.y, aim + j * 0.2, alienBulletSpeed(t), 3.4);
+        burst(b.x, b.y, 14, rgb, 0.9);
+      },
+      tick: function(){}
+    },
+    lance: {
+      start: function(b, t, rage){ b.phaseT = 2.2; b.shots = b.enraged ? 7 : 5; b.next = t + 0.2; },
+      tick: function(b, dt, t, rage){
+        if(b.shots <= 0 || t < b.next) return;
+        b.shots--; b.next = t + 0.34 / rage;
+        var a = aimAt(b), sp = alienBulletSpeed(t) * 1.35;
+        for(var s=-1; s<=1; s+=2){
+          bossShoot(b.x - Math.sin(a) * s * 12, b.y + Math.cos(a) * s * 12, a, sp, 3.2);
+        }
+      }
+    },
+
+    // ── Borg ──
+    // Cutting beams that open wide either side of you and close like shears.
+    beams: {
+      start: function(b, t, rage){
+        b.phaseT = 3.3;
+        var offs = b.enraged ? [-0.62, 0, 0.62] : [-0.58, 0.58], aim = aimAt(b);
+        b.beams = offs.map(function(o){
+          return { off: o, ang: aim + o, t: BEAM_WIND + 1.5, fire: 1.5, total: BEAM_WIND + 1.5 };
+        });
+      },
+      tick: function(){}
+    },
+    // The tractor beam. It locks for most of a second — the green line is the
+    // warning — and then hauls you toward the hull for over two seconds.
+    // Thrusting away always wins, but only just.
+    tractor: {
+      start: function(b, t, rage){
+        b.phaseT = 3.6;
+        if(Math.hypot(ship.x - b.x, ship.y - b.y) > TRACTOR_R){ b.phaseT = 0.8; return; }
+        b.lockT = TRACTOR_LOCK; b.tractorT = TRACTOR_TIME;
+        var n = b.enraged ? 12 : 10, off = Math.random() * Math.PI;
+        for(var i=0;i<n;i++) bossShoot(b.x, b.y, off + i / n * Math.PI * 2, 1.9, 4);
+        teach('tractor', '<span>Tractor lock</span><span>Thrust away from the cube to break free.</span>', 5);
+      },
+      tick: function(){}
+    },
+
+    // ── Tholian ──
+    // A cage of webs spun on the points around you. They take a second to
+    // set, so the way out is to leave through a gap while they are growing.
+    cage: {
+      start: function(b, t, rage){
+        b.phaseT = 2.6 / Math.sqrt(rage);
+        var n = b.enraged ? 4 : 3, a0 = Math.random() * Math.PI * 2;
+        for(var i=0;i<n;i++){
+          var a = a0 + i / n * Math.PI * 2;
+          spawnWeb(ship.x + Math.cos(a) * 195, ship.y + Math.sin(a) * 195, 6, 1.1);
+        }
+        burst(b.x, b.y, 12, BOSS_TYPES[b.fac].rgb, 0.8);
+      },
+      tick: function(){}
+    },
+    // a ring of crystal shards that shatter into three a little way out
+    shards: {
+      start: function(b, t, rage){ b.phaseT = 2.4 / rage; b.shots = b.enraged ? 3 : 2; b.next = t + 0.25; },
+      tick: function(b, dt, t, rage){
+        if(b.shots <= 0 || t < b.next) return;
+        b.shots--; b.next = t + 0.85 / rage;
+        var n = b.enraged ? 7 : 5, off = aimAt(b);
+        for(var i=0;i<n;i++) bossShoot(b.x, b.y, off + i / n * Math.PI * 2, 2.4, 4, { split: 0.6, age: 0 });
+      }
+    }
+  };
+
   function bossNextPhase(t, rage){
-    var b = boss;
-    b.phase = b.phase === 'entry'
-      ? 'ring'
-      : BOSS_CYCLE[(BOSS_CYCLE.indexOf(b.phase) + 1) % BOSS_CYCLE.length];
+    var b = boss, cyc = BOSS_TYPES[b.fac].cycle;
+    var at = cyc.indexOf(b.phase);
+    b.phase = at < 0 ? cyc[0] : cyc[(at + 1) % cyc.length];
     b.charged = false;
-    if(b.phase === 'ring'){
-      b.phaseT = 2.0 / rage; b.shots = b.enraged ? 3 : 2; b.next = t + 0.25;
-    } else if(b.phase === 'volley'){
-      b.phaseT = 2.2 / rage; b.shots = b.enraged ? 3 : 2; b.next = t + 0.3;
-    } else {
-      // the charge telegraphs for over a second before it commits, so it is
-      // always dodged rather than suffered. It was 0.85s at 6.2px a frame
-      // until Sep 2026, and ramming was over a third of every hull plate lost
-      // in a capital-ship fight — enough that breaking off every hail beat
-      // standing and fighting on survival AND on score, which is a choice
-      // that has stopped being one.
-      b.phaseT = 2.7 / rage; b.shots = 0; b.next = t + 1.15 / rage;
+    BOSS_PHASE[b.phase].start(b, t, rage);
+  }
+
+  // ── how each flagship moves ──────────────────────────────────────────────
+  // Every target point is clamped inside the view, so a fight can never
+  // wander off-screen.
+  // The camera follows the player down the page, and a flagship steering at
+  // a gun-platform's pace simply got left behind: a Cardassian measured 376px
+  // above the top of the view, firing its spiral from somewhere the player
+  // could neither see nor hit. Out of view, every flagship closes fast.
+  function bossOffView(b){
+    var top = window.scrollY;
+    return b.y < top - 10 || b.y > top + window.innerHeight + 10 ||
+           b.x < -10 || b.x > window.innerWidth + 10;
+  }
+  function bossSteer(b, tx, ty, sf, gain, cap){
+    var top = window.scrollY, H = window.innerHeight, W = window.innerWidth;
+    if(bossOffView(b)){ gain *= 3; cap = Math.max(cap * 4, 0.25); }
+    tx = clampN(tx, b.r + 20, W - b.r - 20);
+    ty = clampN(ty, top + b.r + 20, top + H - b.r - 20);
+    b.vx += clampN((tx - b.x) * gain, -cap, cap) * sf;
+    b.vy += clampN((ty - b.y) * gain, -cap, cap) * sf;
+    var d = Math.pow(0.965, sf);
+    b.vx *= d; b.vy *= d;
+  }
+  var BOSS_MOVE = {
+    // Klingon: sit above the ship and slide across to stay on it
+    hold: function(b, dt, sf, t, rage){
+      if(b.phase === 'charge' && b.charged){
+        var cd = Math.pow(0.985, sf); b.vx *= cd; b.vy *= cd; return;
+      }
+      bossSteer(b, ship.x, ship.y - window.innerHeight * 0.26, sf, 0.0024, 0.07 * rage);
+    },
+    // Cardassian and Romulan: hold a range and circle slowly at it
+    range: function(b, dt, sf, t, rage){
+      if(b.phase === 'cloak'){ bossSteer(b, b.fx, b.fy, sf, 0.006, 0.22); return; }
+      if(b.phase === 'decloak' || b.phase === 'salvo'){
+        var hd = Math.pow(0.9, sf); b.vx *= hd; b.vy *= hd; return;
+      }
+      b.orbitA += 0.18 * dt * rage;
+      var a = Math.atan2(b.y - ship.y, b.x - ship.x);
+      a += angDiff(b.orbitA, a) * 0.02;
+      bossSteer(b, ship.x + Math.cos(a) * 350, ship.y + Math.sin(a) * 350, sf, 0.0022, 0.06);
+    },
+    // Cardassian: a gun platform. It picks a spot at range and all but parks
+    // there — the fight is its barrage, not chasing it round the screen.
+    platform: function(b, dt, sf, t, rage){
+      b.orbitA += 0.06 * dt * rage;
+      var a = Math.atan2(b.y - ship.y, b.x - ship.x);
+      a += angDiff(b.orbitA, a) * 0.01;
+      bossSteer(b, ship.x + Math.cos(a) * 300, ship.y + Math.sin(a) * 300, sf, 0.0014, 0.035);
+    },
+    // Borg: straight at you, slowly, and it stops to hold a tractor lock
+    grind: function(b, dt, sf, t, rage){
+      if(b.tractorT > 0 && b.lockT <= 0){ var gd = Math.pow(0.9, sf); b.vx *= gd; b.vy *= gd; return; }
+      var dx = ship.x - b.x, dy = ship.y - b.y, d = Math.hypot(dx, dy) || 1;
+      var s = (b.enraged ? 0.78 : 0.58) * (bossOffView(b) ? 5 : 1);
+      b.vx += (dx / d * s - b.vx) * 0.05 * sf;
+      b.vy += (dy / d * s - b.vy) * 0.05 * sf;
+    },
+    // Tholian: circles you at a steady range, spinning its cages
+    orbit: function(b, dt, sf, t, rage){
+      b.orbitA += 0.34 * dt * rage;
+      bossSteer(b, ship.x + Math.cos(b.orbitA) * 310, ship.y + Math.sin(b.orbitA) * 310, sf, 0.003, 0.08);
+    }
+  };
+
+  function updateBossBeams(b, dt, sf){
+    for(var i=b.beams.length-1;i>=0;i--){
+      var bm = b.beams[i];
+      bm.t -= dt;
+      if(bm.t <= 0){ b.beams.splice(i,1); continue; }
+      // the offset closes to nothing over the beam's life: shears
+      var want = aimAt(b) + bm.off * Math.min(1, bm.t / bm.total);
+      bm.ang += angDiff(want, bm.ang) * (1 - Math.pow(1 - BEAM_TRACK * dt, sf));
+      if(bm.t > bm.fire || ship.invuln > 0 || shieldTime > 0) continue;
+      if(rayDist(ship.x, ship.y, b.x, b.y, bm.ang, BEAM_LEN * 1.15) < BEAM_W + SHIP_RADIUS){
+        burst(ship.x, ship.y, 14, BOSS_TYPES[b.fac].rgb);
+        hitShip('fire');
+      }
     }
   }
 
-  function bossShoot(x, y, ang, speed, r){
-    alienBullets.push({ x:x, y:y, vx: Math.cos(ang)*speed, vy: Math.sin(ang)*speed,
-                        life: 3.6, r: r || 4, rgb: '255,122,99' });
-  }
-
-  function bossRing(rage){
-    var b = boss;
-    // one volley and one bolt a ring thinner than before Sep 2026, alongside
-    // the slower charge: see bossNextPhase for why the fight had to give
-    var n = Math.min(16, 8 + b.index * 2) + (b.enraged ? 3 : 0);
-    var off = Math.random() * Math.PI * 2;
-    var sp = 2.5 + b.index * 0.12;
-    for(var i=0;i<n;i++) bossShoot(b.x, b.y, off + i / n * Math.PI * 2, sp * rage, 4);
-    burst(b.x, b.y, 8, '255,122,99');
-  }
-
-  function bossVolley(t, rage){
-    var b = boss;
-    var sp = alienBulletSpeed(t) * 1.05 * rage;
-    var aim = Math.atan2(ship.y - b.y, ship.x - b.x);
-    for(var i=-1;i<=1;i++) bossShoot(b.x, b.y, aim + i * 0.17, sp, 4);
+  function updateTractor(b, dt, sf){
+    if(b.tractorT <= 0) return;
+    if(b.lockT > 0){ b.lockT -= dt; return; }
+    b.tractorT -= dt;
+    var dx = b.x - ship.x, dy = b.y - ship.y, d = Math.hypot(dx, dy) || 1;
+    if(d < b.r + 14) return;
+    var pull = TRACTOR_PULL * (b.enraged ? 1.18 : 1);
+    ship.vx += dx / d * pull * sf;
+    ship.vy += dy / d * pull * sf;
   }
 
   function killBoss(){
@@ -3307,22 +4115,22 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // a white core inside a gold shell — so the flash has depth rather than
     // being one disc of light.
     burst(b.x, b.y, 64, '255,209,102', 1.9);
-    burst(b.x, b.y, 38, '255,77,109', 1.5);
+    burst(b.x, b.y, 38, BOSS_TYPES[b.fac].rgb, 1.5);
     bloom(b.x, b.y, b.r * 5.5, '255,209,102');
     bloom(b.x, b.y, b.r * 2.6, '255,255,255');
     shake(1); freeze(0.11);
-    // The payout is the point, and since the hail it is the payout for a
-    // decision rather than for an event: the player was offered a way out of
-    // this fight and turned it down, so beating it has to be the best thing
-    // that can happen in a run. A late run cannot reach its next refit off
-    // rocks alone under the current XP curve, and this is the way back into the
-    // level economy — which is exactly what a withdrawal gives up.
+    // The payout is the point: beating a capital ship has to be the best
+    // thing that can happen in a run, and with cards this scarce it is the
+    // way back into the level economy.
     for(var i=0; i<5 + Math.min(5, b.index); i++) dropPickup(b.x, b.y, 'gem');
-    for(var h=0; h<BOSS_KILL_HEARTS; h++) dropPickup(b.x, b.y, 'heart');
+    // the first kill of a run pays two plates, every later one pays one —
+    // the same snowball the hull curve above answers from the other side
+    for(var h=0; h<(bossKills ? 1 : BOSS_KILL_HEARTS); h++) dropPickup(b.x, b.y, 'heart');
     dropPickup(b.x, b.y, Math.random() < 0.5 ? 'shield' : 'rapid');
     addCore(CORE_KILL_BOSS);
-    scored(bossBounty(b.index));
+    scored(bossBounty(b.index, b.fac));
     bossKills++;
+    disbandWing(b);
     boss = null;
     nextBossAt = gameTime + bossGapFor(bossCount);
     nextAlienAt = gameTime + alienInterval(gameTime) * 0.6;
@@ -3336,29 +4144,31 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   }
 
   function updateBoss(dt, sf, t){
-    var b = boss;
+    var b = boss, BT = BOSS_TYPES[b.fac];
     b.t += dt;
     b.rot += 0.004 * sf;
-    var want = Math.atan2(ship.y - b.y, ship.x - b.x);
-    b.face += angDiff(want, b.face) * (1 - Math.pow(1 - 0.06, sf));
+    if(BT.move !== 'grind'){
+      var want = BT.move === 'range' && b.phase === 'cloak' ? Math.atan2(b.vy, b.vx) : aimAt(b);
+      b.face += angDiff(want, b.face) * (1 - Math.pow(1 - 0.06, sf));
+    }
     if(b.hitT > 0) b.hitT = Math.max(0, b.hitT - dt);
+    if(b.shieldT > 0) b.shieldT = Math.max(0, b.shieldT - dt);
 
     // out of patience: it stops fighting, climbs away and is gone
     if(!b.leaving){
       b.fuse -= dt;
       if(b.fuse <= 0){
         b.leaving = true;
+        b.cloak = 0; b.beams = []; b.tractorT = 0;
         b.vy = -5.5; b.vx *= 0.3;
-        // Breaking off used to pay nothing, however close the fight had come:
-        // forty seconds under fire and a hull at a fifth bought the same as
-        // running at the hail. A ship that leaves damaged now sheds dilithium
-        // in proportion to the damage done — a dreadnought's worth at the
-        // most — so standing was never worth nothing. No card, no hull: those
-        // are still what a kill is for.
+        // A ship that leaves damaged sheds dilithium in proportion to the
+        // damage done, so standing was never worth nothing. No card, no hull:
+        // those are still what a kill is for.
         var dealt = 1 - Math.max(0, b.hp) / b.max;
         var shed = Math.round(dealt * (5 + Math.min(5, b.index)));
         for(var sg=0; sg<shed; sg++) dropPickup(b.x, b.y, 'gem');
         if(shed) burst(b.x, b.y, 20, '255,209,102', 1.1);
+        disbandWing(b);
         if(bossBarEl) bossBarEl.classList.remove('on');
         nextBossAt = t + bossGapFor(bossCount) * 0.55;
       }
@@ -3369,52 +4179,29 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       return;
     }
 
-    // half hull: it speeds up, fires wider rings and calls escorts more often
+    // half hull: faster, wider, and the wing comes back sooner
     if(!b.enraged && b.hp <= b.max * 0.5){
       b.enraged = true;
       burst(b.x, b.y, 34, '255,77,109');
-      b.phase = 'volley'; b.phaseT = 0.15;
+      if(b.phase !== 'cloak' && b.phase !== 'decloak') b.phaseT = Math.min(b.phaseT, 0.15);
+      b.wingAt = Math.min(b.wingAt, t + 3);
     }
     var rage = b.enraged ? 1.45 : 1;
 
-    // station-keeping: sit above the ship and slide across to stay on it,
-    // clamped inside the view so the fight can never wander off-screen
-    if(!(b.phase === 'charge' && b.charged)){
-      var tx = ship.x;
-      var ty = Math.max(window.scrollY + b.r + 20,
-               Math.min(window.scrollY + window.innerHeight - b.r - 20,
-                        ship.y - window.innerHeight * 0.26));
-      b.vx += Math.max(-0.07, Math.min(0.07, (tx - b.x) * 0.0024)) * sf * rage;
-      b.vy += Math.max(-0.07, Math.min(0.07, (ty - b.y) * 0.0024)) * sf * rage;
-      var bd = Math.pow(0.965, sf);
-      b.vx *= bd; b.vy *= bd;
-    } else {
-      var cd2 = Math.pow(0.985, sf);
-      b.vx *= cd2; b.vy *= cd2;
-    }
+    BOSS_MOVE[BT.move](b, dt, sf, t, rage);
     b.x += b.vx * sf; b.y += b.vy * sf;
 
     b.phaseT -= dt;
-    if(b.phaseT <= 0){ bossNextPhase(t, rage); }
-    else if(b.phase === 'ring' && b.shots > 0 && t >= b.next){
-      b.shots--; b.next = t + 0.7 / rage; bossRing(rage);
-    } else if(b.phase === 'volley' && b.shots > 0 && t >= b.next){
-      b.shots--; b.next = t + 0.42 / rage; bossVolley(t, rage);
-    } else if(b.phase === 'charge' && !b.charged && t >= b.next){
-      b.charged = true;
-      var chd = Math.hypot(ship.x - b.x, ship.y - b.y) || 1;
-      var chs = 5.2 * rage;
-      b.vx = (ship.x - b.x) / chd * chs;
-      b.vy = (ship.y - b.y) / chd * chs;
-      burst(b.x, b.y, 18, '255,209,102');
-    }
+    if(b.phaseT <= 0) bossNextPhase(t, rage);
+    else BOSS_PHASE[b.phase].tick(b, dt, t, rage);
 
-    if(t >= b.escortAt && aliens.length < alienMax(t) + 1){
-      b.escortAt = t + (b.enraged ? 9 : 13);
-      spawnAlien('scout');
-    }
+    updateBossBeams(b, dt, sf);
+    updateTractor(b, dt, sf);
 
-    if(Math.hypot(ship.x - b.x, ship.y - b.y) < b.r + SHIP_RADIUS){
+    // one wing at a time; a broken wing is replaced after a pause
+    if(!b.wing && t >= b.wingAt) b.wing = spawnWing(b);
+
+    if(b.cloak < 0.5 && Math.hypot(ship.x - b.x, ship.y - b.y) < b.r + SHIP_RADIUS){
       // a shield turns the ram into a shove and a broken shield, not a free kill
       if(shieldTime > 0){
         shieldTime = 0;
@@ -3423,6 +4210,264 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         ship.vx += rdx / rd * 7; ship.vy += rdy / rd * 7;
         ship.invuln = Math.max(ship.invuln, 0.8);
       } else hitShip('fire');
+    }
+  }
+
+  // ── the wings ────────────────────────────────────────────────────────────
+  // A flagship's escorts fly as one unit. They are ordinary hulls of the
+  // faction — same silhouette, same hull points, same loot when they die —
+  // but the wing moves them: each member steers to a slot the wing computes,
+  // and the wing, not the member, decides when they fire. That is what lets
+  // three Birds-of-Prey dive through the same point on the same frame, or four
+  // drones hold a square with beams strung between them.
+  var wings = [];
+  var WING_HP = 0.85, TETHER_W = 4.5, WING_BONUS = 250;
+
+  function spawnWing(b){
+    var BT = BOSS_TYPES[b.fac], kind = BT.hull, AT = ALIEN_TYPES[kind];
+    var n = BT.wingN, W = window.innerWidth, top = window.scrollY, H = window.innerHeight;
+    var w = { id: ++uid, fac: b.fac, pattern: BT.wing, kind: kind, phase: '', t: 0, dur: 0,
+              slots: [], rot: Math.random() * Math.PI * 2, cx: ship.x, cy: ship.y, h: 300,
+              tx: 0, ty: 0, dir: 0, side: Math.random() < 0.5 ? 1 : -1,
+              lit: false, arming: false, fireAt: 0, done: false, broken: false };
+    for(var i=0;i<n;i++){
+      // A box drone is the tankiest hull in the game on its own; four of them
+      // at full hull made the box unbreakable, so wing hull is set per faction
+      // and a corner can actually be shot out.
+      var hp = Math.max(1, Math.round(AT.hp * alienHpScale(gameTime) * (BT.wingHp || WING_HP)));
+      var fromLeft = (i + (w.side > 0 ? 0 : 1)) % 2 === 0;
+      var al = { id: ++uid, kind: kind, r: AT.r,
+                 x: fromLeft ? -AT.r * 2 : W + AT.r * 2,
+                 y: top + H * (0.2 + 0.6 * Math.random()),
+                 vx: 0, vy: 0, t: Math.random() * 6, hp: hp, maxHp: hp, hitT: 0,
+                 ttl: 0, fleeing: false, nextShot: Infinity,
+                 wing: w, slot: i, cloak: 0, tx: 0, ty: 0, maxV: 4 };
+      al.baseY = al.y; al.tx = al.x; al.ty = al.y;
+      aliens.push(al);
+      w.slots.push(al);
+    }
+    wings.push(w);
+    wingPhase(w, WING_START[w.pattern]);
+    teach('wing', '<span>Escort wing</span><span>They attack together. Break the formation.</span>', 4);
+    return w;
+  }
+
+  var WING_START = { pincer:'form', wall:'form', flank:'cloak', box:'form', strand:'set' };
+
+  function wingAlive(w){
+    var n = 0;
+    for(var i=0;i<w.slots.length;i++){
+      var al = w.slots[i];
+      if(al && (al.hp <= 0 || aliens.indexOf(al) === -1)) w.slots[i] = null;
+      if(w.slots[i]) n++;
+    }
+    return n;
+  }
+
+  function disbandWing(b){
+    if(b && b.wing){ b.wing.done = true; b.wing.lit = false; b.wing = null; }
+  }
+
+  function wingFireAt(al, ang, speed, r, rgb, extra){
+    var o = { x: al.x, y: al.y, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed,
+              life: 3.2, r: r || 3, rgb: rgb };
+    if(extra) for(var k in extra) o[k] = extra[k];
+    alienBullets.push(o);
+  }
+
+  function wingPhase(w, phase){
+    w.phase = phase; w.t = 0;
+    var t = gameTime, rage = boss && boss.enraged ? 1.3 : 1, i, al;
+    var AT = ALIEN_TYPES[w.kind];
+    if(w.pattern === 'pincer'){
+      if(phase === 'form') w.dur = 1.8;
+      else if(phase === 'split'){ w.dur = 1.1; w.rot = Math.random() * Math.PI * 2; }
+      else if(phase === 'mark'){ w.dur = 0.85 / rage; w.tx = ship.x; w.ty = ship.y; }
+      else if(phase === 'run'){
+        w.dur = 1.35;
+        for(i=0;i<w.slots.length;i++){
+          al = w.slots[i]; if(!al) continue;
+          var d = Math.hypot(w.tx - al.x, w.ty - al.y) || 1;
+          al.vx = (w.tx - al.x) / d * 6.4; al.vy = (w.ty - al.y) / d * 6.4;
+          al.commit = true; al.face = Math.atan2(al.vy, al.vx);
+          burst(al.x, al.y, 6, AT.rgb, 0.6);
+        }
+        w.fireAt = t + 0.12;
+      }
+    } else if(w.pattern === 'wall'){
+      if(phase === 'form'){ w.dur = 2.0; w.side = -w.side; }
+      else if(phase === 'fire'){ w.dur = 6.0; w.fireAt = t + 0.6; }
+    } else if(w.pattern === 'flank'){
+      if(phase === 'cloak'){ w.dur = 1.9; w.rot = Math.random() * Math.PI * 2; }
+      else if(phase === 'decloak') w.dur = 0.7;
+      else if(phase === 'hold'){
+        w.dur = 2.8; w.fireAt = t + 1.0;
+        // the crossfire: both fire a plasma torpedo on the same frame
+        for(i=0;i<w.slots.length;i++){
+          al = w.slots[i]; if(!al) continue;
+          plasmaFrom(al.x, al.y, Math.atan2(ship.y - al.y, ship.x - al.x), AT.rgb);
+        }
+      }
+    } else if(w.pattern === 'box'){
+      if(phase === 'form'){ w.dur = 1.6; w.h = 300; w.cx = ship.x; w.cy = ship.y; w.lit = false; w.arming = false; }
+      else if(phase === 'close'){ w.dur = 5.2 / Math.sqrt(rage); w.arming = true; }
+      else if(phase === 'open'){ w.dur = 1.2; w.lit = false; w.arming = false; }
+    } else if(w.pattern === 'strand'){
+      if(phase === 'set'){
+        w.dur = 1.5; w.lit = false; w.arming = true;
+        w.dir = Math.random() * Math.PI * 2; w.cx = ship.x; w.cy = ship.y;
+      } else if(phase === 'sweep'){ w.dur = 4.8 / Math.sqrt(rage); w.lit = true; w.arming = false; }
+    }
+  }
+
+  var WING_NEXT = {
+    pincer: { form:'split', split:'mark', mark:'run', run:'form' },
+    wall:   { form:'fire', fire:'form' },
+    flank:  { cloak:'decloak', decloak:'hold', hold:'cloak' },
+    box:    { form:'close', close:'open', open:'form' },
+    strand: { set:'sweep', sweep:'set' }
+  };
+
+  function updateWings(dt, t){
+    var W = window.innerWidth, top = window.scrollY, H = window.innerHeight;
+    for(var wi=wings.length-1; wi>=0; wi--){
+      var w = wings[wi];
+      var alive = wingAlive(w);
+      if(!alive){
+        // a broken formation is worth something on its own
+        if(!w.done && !w.broken){
+          w.broken = true;
+          scored(WING_BONUS);
+          addCore(CORE_KILL_SHIP);
+          if(boss && boss.wing === w){ boss.wing = null; boss.wingAt = t + (boss.enraged ? 9 : 13); }
+        }
+        wings.splice(wi, 1);
+        continue;
+      }
+      if(w.done){
+        // disbanded: members break off (ALIEN_MOVE.wing) and nothing fires
+        w.lit = false;
+        continue;
+      }
+      w.t += dt;
+      if(w.t >= w.dur) wingPhase(w, WING_NEXT[w.pattern][w.phase]);
+
+      var AT = ALIEN_TYPES[w.kind], n = w.slots.length, i, al, f = Math.min(1, w.t / w.dur);
+      var toBoss = boss ? Math.atan2(boss.y - ship.y, boss.x - ship.x) : -Math.PI / 2;
+
+      for(i=0;i<n;i++){
+        al = w.slots[i]; if(!al) continue;
+        var sx = al.tx, sy = al.ty, v = 4;
+        if(w.pattern === 'pincer'){
+          if(w.phase === 'form'){
+            var ax = ship.x + Math.cos(toBoss) * 340, ay = ship.y + Math.sin(toBoss) * 340;
+            var back = toBoss, lat = (i === 0 ? 0 : (i % 2 ? 1 : -1)) * 48, rear = i === 0 ? 0 : 46;
+            sx = ax + Math.cos(back) * rear - Math.sin(back) * lat;
+            sy = ay + Math.sin(back) * rear + Math.cos(back) * lat;
+            v = 3.6;
+          } else if(w.phase === 'split' || w.phase === 'mark'){
+            var pa = w.rot + i / n * Math.PI * 2;
+            sx = (w.phase === 'mark' ? w.tx : ship.x) + Math.cos(pa) * 300;
+            sy = (w.phase === 'mark' ? w.ty : ship.y) + Math.sin(pa) * 300;
+            v = w.phase === 'split' ? 5.2 : 2;
+          }
+          if(w.phase !== 'run') al.commit = false;
+        } else if(w.pattern === 'wall'){
+          var wa = toBoss + w.side * Math.PI / 2;
+          var wx = ship.x + Math.cos(wa) * 330, wy = ship.y + Math.sin(wa) * 330;
+          var off = (i - (n - 1) / 2) * 96;
+          sx = wx - Math.sin(wa) * off; sy = wy + Math.cos(wa) * off;
+          v = w.phase === 'form' ? 3.4 : 1.6;
+        } else if(w.pattern === 'flank'){
+          var fa = w.rot + i * Math.PI * 2 / n;
+          sx = ship.x + Math.cos(fa) * 300; sy = ship.y + Math.sin(fa) * 300;
+          v = w.phase === 'cloak' ? 5 : 2.2;
+          if(w.phase === 'cloak') al.cloak = Math.min(1, al.cloak + dt * 2.4);
+          else if(w.phase === 'decloak') al.cloak = Math.max(0, al.cloak - dt / 0.65);
+          else al.cloak = 0;
+        } else if(w.pattern === 'box'){
+          if(w.phase === 'close'){
+            w.h = 300 - 145 * f;
+            var cd = Math.hypot(ship.x - w.cx, ship.y - w.cy) || 1, cs = Math.min(cd, 0.55 * dt * 60);
+            w.cx += (ship.x - w.cx) / cd * cs; w.cy += (ship.y - w.cy) / cd * cs;
+            w.lit = w.t > 0.8; w.arming = !w.lit;
+          } else if(w.phase === 'open') w.h = 300 + 40 * f;
+          w.rot += 0.32 * dt;
+          var ba = w.rot + Math.PI / 4 + i * Math.PI / 2;
+          sx = w.cx + Math.cos(ba) * w.h * 1.414; sy = w.cy + Math.sin(ba) * w.h * 1.414;
+          v = w.phase === 'form' ? 4.5 : 5;
+        } else if(w.pattern === 'strand'){
+          var ux = Math.cos(w.dir), uy = Math.sin(w.dir);
+          var s = w.phase === 'set' ? 1 : 1 - 2 * f;           // +1 → -1 across the sweep
+          var lx = w.cx + ux * 380 * s, ly = w.cy + uy * 380 * s;
+          var so = (i - (n - 1) / 2) * 118;
+          sx = lx - uy * so; sy = ly + ux * so;
+          v = 5.2;
+        }
+        al.tx = clampN(sx, 16, W - 16);
+        al.ty = clampN(sy, top - H * 0.2, top + H * 1.2);
+        al.maxV = v;
+      }
+
+      // synchronized fire, decided by the wing rather than by each hull
+      if(w.pattern === 'pincer' && w.phase === 'run' && w.fireAt && t >= w.fireAt){
+        w.fireAt = w.t < 0.5 ? t + 0.45 : 0;
+        for(i=0;i<n;i++){
+          al = w.slots[i]; if(!al) continue;
+          var ha = Math.atan2(al.vy, al.vx), hs = alienBulletSpeed(t) * 1.2;
+          for(var sd=-1; sd<=1; sd+=2){
+            alienBullets.push({ x: al.x - Math.sin(ha) * sd * 6, y: al.y + Math.cos(ha) * sd * 6,
+                                vx: Math.cos(ha) * hs, vy: Math.sin(ha) * hs, life: 2.4, r: 3, rgb: AT.rgb });
+          }
+        }
+      } else if(w.pattern === 'wall' && w.phase === 'fire' && t >= w.fireAt){
+        // one parallel volley along a single heading: a wall of bolts with
+        // gaps in it, rather than three fans converging on the same point
+        w.fireAt = t + 1.9 / (boss && boss.enraged ? 1.3 : 1);
+        var ca = 0, cn = 0;
+        for(i=0;i<n;i++){ al = w.slots[i]; if(!al) continue; ca += Math.atan2(ship.y - al.y, ship.x - al.x); cn++; }
+        var head = cn ? ca / cn : 0;
+        for(i=0;i<n;i++){
+          al = w.slots[i]; if(!al) continue;
+          for(var fk=-1; fk<=1; fk++) wingFireAt(al, head + fk * 0.12, alienBulletSpeed(t) * 0.9, 3, AT.rgb);
+        }
+      } else if(w.pattern === 'flank' && w.phase === 'hold' && t >= w.fireAt){
+        w.fireAt = t + 1.1;
+        for(i=0;i<n;i++){
+          al = w.slots[i]; if(!al) continue;
+          wingFireAt(al, Math.atan2(ship.y - al.y, ship.x - al.x), alienBulletSpeed(t), 3, AT.rgb);
+        }
+      }
+    }
+  }
+
+  // The live segments of every wing that strings beams between its hulls.
+  // Only adjacent, living members are joined, so killing one opens a gap.
+  function wingTethers(w){
+    var out = [], n = w.slots.length, i, a, b;
+    if(w.pattern !== 'box' && w.pattern !== 'strand') return out;
+    var ring = w.pattern === 'box';
+    for(i=0;i<(ring ? n : n - 1);i++){
+      a = w.slots[i]; b = w.slots[(i + 1) % n];
+      if(a && b) out.push([a, b]);
+    }
+    return out;
+  }
+
+  function updateTethers(){
+    if(ship.invuln > 0 || shieldTime > 0) return;
+    for(var wi=0; wi<wings.length; wi++){
+      var w = wings[wi];
+      if(!w.lit || w.done) continue;
+      var segs = wingTethers(w);
+      for(var s=0;s<segs.length;s++){
+        var a = segs[s][0], b = segs[s][1];
+        if(segDist(ship.x, ship.y, a.x, a.y, b.x, b.y) < TETHER_W + SHIP_RADIUS){
+          burst(ship.x, ship.y, 14, ALIEN_TYPES[w.kind].rgb);
+          hitShip('fire');
+          return;
+        }
+      }
     }
   }
 
@@ -3485,7 +4530,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // and `leaving` means she has broken off and is no longer a legal target.
   function torpTargetLive(o){
     if(!o) return false;
-    if(o === boss) return !!boss && !boss.leaving && boss.hp > 0;
+    if(o === boss) return bossTargetable() && boss.hp > 0;
+    if(o.cloak > 0.5) return false;
     return o.hp > 0 && aliens.indexOf(o) !== -1;
   }
 
@@ -3503,8 +4549,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       var score = d * (1 + off * 0.55) * bias;
       if(score < bestScore){ bestScore = score; best = o; }
     }
-    for(var i=0;i<aliens.length;i++) consider(aliens[i], 1);
-    if(boss && !boss.leaving) consider(boss, 0.6);
+    for(var i=0;i<aliens.length;i++) if(!(aliens[i].cloak > 0.5)) consider(aliens[i], 1);
+    if(bossTargetable()) consider(boss, 0.6);
     return best;
   }
 
@@ -3553,12 +4599,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       al.hitT = 0.14;
       if(alienHurt(al, dmg)) killAlien(m);
     }
-    if(boss && !boss.leaving){
+    if(bossTargetable()){
       var bx = boss.x - x, by = boss.y - y;
-      if(bx*bx + by*by <= R2){
-        boss.hp -= dmg; boss.hitT = 0.14;
-        if(boss.hp <= 0) killBoss();
-      }
+      if(bx*bx + by*by <= R2) hurtBoss(dmg, 0.14);
     }
     // the blast clears incoming plasma, which is most of why flying into a
     // crowd behind a torpedo is survivable at all
@@ -3598,11 +4641,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         burst(al.x, al.y, 3, '255,140,60');
         if(wakeDied) killAlien(a);
       }
-      if(boss && !boss.leaving && Math.hypot(boss.x-w.x, boss.y-w.y) < bossHitR() + WAKE_R &&
+      if(bossTargetable() && Math.hypot(boss.x-w.x, boss.y-w.y) < bossHitR() + WAKE_R &&
          !(w.hits[boss.id] > t)){
         w.hits[boss.id] = t + WAKE_TICK;
-        boss.hp -= dmg; boss.hitT = 0.12;
-        if(boss.hp <= 0) killBoss();
+        hurtBoss(dmg, 0.12);
       }
     }
   }
@@ -3631,10 +4673,9 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       arcOn.push(al);
       if(arcDied) killAlien(m);
     }
-    if(boss && !boss.leaving && Math.hypot(boss.x-ship.x, boss.y-ship.y) < R + bossHitR()){
-      boss.hp -= hit; boss.hitT = 0.1;
+    if(bossTargetable() && Math.hypot(boss.x-ship.x, boss.y-ship.y) < R + bossHitR()){
       arcOn.push(boss);
-      if(boss.hp <= 0) killBoss();
+      hurtBoss(hit, 0.1);
     }
   }
 
@@ -3696,7 +4737,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       if(!hit) for(j=0;j<aliens.length;j++){
         if(Math.hypot(tp.x-aliens[j].x, tp.y-aliens[j].y) < aliens[j].r + tp.r){ hit = true; break; }
       }
-      if(!hit && boss && !boss.leaving &&
+      if(!hit && bossTargetable() &&
          Math.hypot(tp.x-boss.x, tp.y-boss.y) <
            bossHitR() + tp.r + (tp.target === boss ? TORP_FUSE : 0)) hit = true;
       if(hit){ detonate(tp.x, tp.y); torpedoes.splice(i,1); }
@@ -3751,7 +4792,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       if(!hit) for(j=0;j<aliens.length;j++){
         if(Math.hypot(m.x-aliens[j].x, m.y-aliens[j].y) < aliens[j].r + R){ hit = true; break; }
       }
-      if(!hit && boss && !boss.leaving && Math.hypot(m.x-boss.x, m.y-boss.y) < bossHitR() + R) hit = true;
+      if(!hit && bossTargetable() && Math.hypot(m.x-boss.x, m.y-boss.y) < bossHitR() + R) hit = true;
       if(hit){ detonate(m.x, m.y, blast, dmg, MINE_RGB); mines.splice(i,1); }
     }
   }
@@ -3783,6 +4824,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // escalation stays readable and the alert stays a modifier on top of it.
     var target = rockTargetAt(t) + (redAlert ? RED_ALERT_ROCKS : 0);
     if(target > MAX_ROCKS + RED_ALERT_ROCKS) target = MAX_ROCKS + RED_ALERT_ROCKS;
+    // a capital-ship fight thins the rock as well as the traffic
+    if(boss) target = Math.round(target * 0.65);
     rockSpawnAcc += dt;
     if(asteroids.length < target && rockSpawnAcc > (boss ? 1.5 : 0.35)){
       rockSpawnAcc = 0;
@@ -3939,10 +4982,10 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       if(b.life<=0 || b.x<0 || b.x>window.innerWidth || b.y<0 || b.y>docH){
         bullets.splice(i,1); continue;
       }
-      if(boss && !boss.leaving && Math.hypot(b.x-boss.x, b.y-boss.y) < bossHitR()){
-        boss.hp -= b.dmg; boss.hitT = 0.1;
-        sparks(b.x, b.y, 3, '255,209,102', 0.8);
-        if(boss.hp <= 0){ killBoss(); bullets.splice(i,1); continue; }
+      if(bossTargetable() && Math.hypot(b.x-boss.x, b.y-boss.y) < bossHitR()){
+        // an adapted cube throws the beam back white: nothing is getting in
+        sparks(b.x, b.y, 3, boss.shieldT > 0 ? '255,255,255' : '255,209,102', 0.8);
+        if(hurtBoss(b.dmg, 0.1)){ bullets.splice(i,1); continue; }
         if(!spendBullet(b, i, boss.id)) continue;
       }
 
@@ -3973,6 +5016,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
 
       for(var m=aliens.length-1;m>=0;m--){
         var al2 = aliens[m];
+        if(al2.cloak > 0.5) continue;              // cloaked: the beam goes through
         if(b.hits && b.hits.indexOf(al2.id) !== -1) continue;
         if(Math.hypot(b.x-al2.x, b.y-al2.y) < al2.r){
           al2.hitT = 0.12;
@@ -4004,18 +5048,23 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // and the fight should be legible rather than buried under traffic.
     if(!boss && bossWarn <= 0 && t >= nextBossAt){
       bossWarn = BOSS_WARN;
-      // "approaching", not "decloaking": since the hail she might never
-      // decloak at all, and a warning that announces something the player can
-      // still prevent is a warning that lies about half the time
-      if(warnEl){ warnEl.textContent = bossName(bossCount) + ' approaching'; warnEl.classList.add('on'); }
+      contact = pickContact(t);
+      // "approaching" for a ship that will hail — she might never arrive, and
+      // a warning that announces what can still be refused should not lie.
+      // A Romulan does not hail, so for her the warning is the whole notice.
+      if(warnEl){
+        warnEl.textContent = contact.name + (BOSS_TYPES[contact.fac].ambush ? ' decloaking' : ' approaching');
+        warnEl.classList.add('on');
+      }
     }
     if(bossWarn > 0){
       bossWarn -= dt;
       if(bossWarn <= 0){
         if(warnEl) warnEl.classList.remove('on');
-        // the warning runs its full beat and then hands over to the hail — the
-        // capital ship only decloaks if the answer is to let her
-        openHail();
+        // the warning runs its full beat and then hands over to the hail —
+        // or, for an ambush, straight to the fight
+        if(contact && BOSS_TYPES[contact.fac].ambush) spawnBoss();
+        else openHail();
       }
     }
     if(boss) updateBoss(dt, sf, t);
@@ -4023,6 +5072,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       spawnAlien();
       nextAlienAt = t + alienInterval(t) * (redAlert ? RED_ALERT_SPAWN : 1);
     }
+    updateWings(dt, t);
+    updateTethers();
 
     for(var ai=aliens.length-1; ai>=0; ai--){
       var al = aliens[ai];
@@ -4030,19 +5081,22 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       al.t += 0.03 * sf;
       if(al.hitT > 0) al.hitT = Math.max(0, al.hitT - dt);
 
-      (ALIEN_MOVE[AT.move || 'strafe'])(al, dt, sf, t, AT);
+      (ALIEN_MOVE[al.wing ? 'wing' : (al.retreat ? 'retreat' : (AT.move || 'strafe'))])(al, dt, sf, t, AT);
 
       // Gone, and each hull leaves in its own way. A strafer is done the
       // moment it crosses the far edge; everything that manoeuvres has to be
       // clear of the whole band the camera travels in, or a raptor lining up
       // its next run would be deleted mid-turn.
       var gone;
-      if(AT.move === 'chase' || AT.move === 'standoff') gone = al.fleeing && offBand(al);
+      if(al.wing || al.retreat) gone = (al.retreat || al.wing.done) && offBand(al);
+      else if(AT.move === 'chase' || AT.move === 'standoff') gone = al.fleeing && offBand(al);
       else if(AT.move === 'anchor') gone = al.phase === 'leave' && offBand(al);
       else if(AT.move === 'run' || AT.move === 'grind') gone = offBand(al);
       else gone = al.vx > 0 ? al.x > window.innerWidth + al.r*3 : al.x < -al.r*3;
       if(gone){ aliens.splice(ai,1); continue; }
 
+      // a cloaked hull is not there to graze, ram or be rammed by
+      if(al.cloak > 0.5) continue;
       var agd = Math.hypot(ship.x-al.x, ship.y-al.y);
       if(agd < al.r + GRAZE_BAND && agd >= al.r + SHIP_RADIUS) graze(al, CORE_SHIP, al.x, al.y);
       if(agd < al.r + SHIP_RADIUS){
@@ -4077,7 +5131,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         burst(al.x, al.y, 14, AT.rgb); aliens.splice(ai,1); hitShip('fire'); continue;
       }
 
-      if(t > al.nextShot){
+      if(!al.retreat && t > al.nextShot){
         al.nextShot = t + alienCooldown(t) * AT.cd;
         (ALIEN_FIRE[AT.fire || 'fan'])(al, t, AT);
       }
@@ -4093,6 +5147,22 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
               (1 - Math.pow(1 - ab.seek * dt, sf));
         var psp = Math.hypot(ab.vx, ab.vy);
         ab.vx = Math.cos(pa) * psp; ab.vy = Math.sin(pa) * psp;
+      }
+      // Tholian shards shatter into three a little way out, so the ring that
+      // looked dodgeable at the hull is three times as dense by the time it
+      // reaches you
+      if(ab.split){
+        ab.age += dt;
+        if(ab.age >= ab.split){
+          var ha = Math.atan2(ab.vy, ab.vx), hs = Math.hypot(ab.vx, ab.vy) * 1.12;
+          for(var sk=-1; sk<=1; sk++){
+            alienBullets.push({ x: ab.x, y: ab.y, vx: Math.cos(ha + sk * 0.42) * hs, vy: Math.sin(ha + sk * 0.42) * hs,
+                                life: 2.4, r: 2.6, rgb: ab.rgb, shard: true });
+          }
+          burst(ab.x, ab.y, 4, ab.rgb, 0.5);
+          alienBullets.splice(q, 1);
+          continue;
+        }
       }
       ab.x += ab.vx * sf; ab.y += ab.vy * sf; ab.life -= dt;
       if(ab.life<=0 || ab.x<0 || ab.x>window.innerWidth || ab.y<0 || ab.y>docH){ alienBullets.splice(q,1); continue; }
@@ -4378,49 +5448,6 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     ctx.restore();
   }
 
-  // ── the flagship ─────────────────────────────────────────────────────────
-  // Saucer, neck, engineering hull and two nacelles, drawn nose-along-+x so
-  // the whole thing rotates with ship.angle. It is a silhouette rather than a
-  // detailed hull on purpose: at this size, on a moving field, the only thing
-  // that survives is the outline — a disc up front and two bars out back is
-  // legible at a glance and unmistakably not an asteroid.
-  // The hull is drawn a little larger than SHIP_RADIUS, which is deliberate
-  // and the usual way round for this genre: the silhouette needs the room to
-  // be legible, and a hitbox tighter than the art always reads as generous
-  // rather than as a cheat.
-  // `fill` draws the hull as solid dark bodies instead of stroking it. The two
-  // open subpaths — the dorsal neck and the pylons — are skipped in that pass:
-  // they are lines, and filling a line paints nothing while still costing a
-  // path. Everything else is an ellipse and fills honestly.
-  function shipShape(fill){
-    // primary hull: the saucer, slightly wider across the beam than it is long
-    ctx.beginPath(); ctx.ellipse(8.5, 0, 7.4, 8.8, 0, 0, Math.PI*2);
-    if(fill) ctx.fill(); else ctx.stroke();
-    // dorsal neck back to the secondary hull
-    if(!fill){
-      ctx.beginPath();
-      ctx.moveTo(3.6, -2.6); ctx.lineTo(-3.4, -3.0);
-      ctx.moveTo(3.6,  2.6); ctx.lineTo(-3.4,  3.0);
-      ctx.stroke();
-    }
-    // secondary hull, kept narrow so it does not crowd the nacelles
-    ctx.beginPath(); ctx.ellipse(-8.5, 0, 5.8, 2.9, 0, 0, Math.PI*2);
-    if(fill) ctx.fill(); else ctx.stroke();
-    // pylons: the one part that has to stay visible for the hull to read as
-    // three bodies rather than one mass, so they are long and well separated
-    if(!fill){
-      ctx.beginPath();
-      ctx.moveTo(-8.2, -2.3); ctx.lineTo(-5.2, -9.6);
-      ctx.moveTo(-8.2,  2.3); ctx.lineTo(-5.2,  9.6);
-      ctx.stroke();
-    }
-    // warp nacelles
-    ctx.beginPath(); ctx.ellipse(-4.2, -11.2, 8.6, 2.0, 0, 0, Math.PI*2);
-    if(fill) ctx.fill(); else ctx.stroke();
-    ctx.beginPath(); ctx.ellipse(-4.2,  11.2, 8.6, 2.0, 0, 0, Math.PI*2);
-    if(fill) ctx.fill(); else ctx.stroke();
-  }
-
   // ── exhaust and cores ────────────────────────────────────────────────────
   // Two pieces of vocabulary every hull in the game now shares, and between
   // them they are most of what separates a ship from an outline: a plume, and
@@ -4456,10 +5483,15 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   function hullCore(x, size, rgb, lit){
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.fillStyle = 'rgba(' + rgb + ',' + (0.22 * lit).toFixed(3) + ')';
-    ctx.beginPath();
-    ctx.ellipse(x, 0, size * 2.4, size * 1.6, 0, 0, Math.PI*2);
-    ctx.fill();
+    // a soft halo: a flat disc under 'lighter' shows a hard rim, and on the
+    // painted hulls it read as a bubble sitting on the plating
+    if(ctx.createRadialGradient){
+      var hg = ctx.createRadialGradient(x, 0, 0, x, 0, size * 1.9);
+      hg.addColorStop(0, 'rgba(' + rgb + ',' + (0.3 * lit).toFixed(3) + ')');
+      hg.addColorStop(1, 'rgba(' + rgb + ',0)');
+      ctx.fillStyle = hg;
+      ctx.beginPath(); ctx.arc(x, 0, size * 1.9, 0, Math.PI * 2); ctx.fill();
+    }
     ctx.fillStyle = 'rgba(' + rgb + ',' + (0.75 * lit).toFixed(3) + ')';
     ctx.beginPath();
     ctx.moveTo(x + size, 0); ctx.lineTo(x, -size * 0.52);
@@ -4501,13 +5533,16 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
   // out as four detached plates floating in formation. Wings are drawn and lit
   // FIRST, then the fuselage is drawn over their roots — so the joins end up
   // underneath the body, which is where joins go.
-  function alienShape(al, AT, part, fill){
+  // `only` (1 or -1) draws just that side's wing — the detail pass uses it
+  // to light the one wing that faces the light
+  function alienShape(al, AT, part, fill, only){
     var R = al.r, s;
     if(part === 'wings'){
       if(al.kind === 'drone') return;              // a cube has no wings
       if(al.kind === 'lancer'){
         // broad planes carrying the pods it fires its fans from
         for(s=-1; s<=1; s+=2){
+          if(only && s !== only) continue;
           ctx.beginPath();
           ctx.moveTo(R*0.26, s*R*0.22);
           ctx.lineTo(-R*0.12, s*R*0.92);
@@ -4527,6 +5562,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       } else if(al.kind === 'stalker'){
         // raked forward, into the attack position
         for(s=-1; s<=1; s+=2){
+          if(only && s !== only) continue;
           ctx.beginPath();
           ctx.moveTo(R*0.16, s*R*0.18);
           ctx.lineTo(R*0.50, s*R*0.80);
@@ -4539,6 +5575,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         // K'Tinga: hard-swept, long and narrow. It is built to go in a
         // straight line very fast, and the wings say so.
         for(s=-1; s<=1; s+=2){
+          if(only && s !== only) continue;
           ctx.beginPath();
           ctx.moveTo(R*0.22, s*R*0.15);
           ctx.lineTo(-R*0.34, s*R*0.80);
@@ -4552,6 +5589,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         // widest silhouette on the field, which is the whole point of a hull
         // that never comes close enough for you to get a better look.
         for(s=-1; s<=1; s+=2){
+          if(only && s !== only) continue;
           ctx.beginPath();
           ctx.moveTo(R*0.24, s*R*0.18);
           ctx.quadraticCurveTo(R*0.36, s*R*0.74, -R*0.08, s*R*1.14);
@@ -4563,6 +5601,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       } else if(al.kind === 'weaver'){
         // Tholian: not wings, spines. A crystal with four barbs.
         for(s=-1; s<=1; s+=2){
+          if(only && s !== only) continue;
           ctx.beginPath();
           ctx.moveTo(R*0.10, s*R*0.10);
           ctx.lineTo(R*0.62, s*R*0.96);
@@ -4579,6 +5618,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       } else {
         // swept back, level, cruising
         for(s=-1; s<=1; s+=2){
+          if(only && s !== only) continue;
           ctx.beginPath();
           ctx.moveTo(R*0.14, s*R*0.15);
           ctx.lineTo(-R*0.30, s*R*0.74);
@@ -4619,6 +5659,738 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     ctx.closePath();
     if(fill) ctx.fill(); else ctx.stroke();
   }
+
+  // ── painted hulls ────────────────────────────────────────────────────────
+  // Since Sep 2026 every ship is PAINTED, not outlined. The old hulls were a
+  // neon stroke round a dark fill, and next to James's reference sheet —
+  // weathered metal, plating, glass, lit windows, engine glow — they read as
+  // badges. A canvas cannot afford that much work per ship per frame, so the
+  // work is done once: each hull is painted at full detail into its own
+  // offscreen canvas the first time it is needed, and every frame after that
+  // is a single rotated drawImage. That is cheaper than the old outlines,
+  // which paid for a shadowBlur on every stroke of every ship every frame.
+  //
+  // What stays live, because it moves: exhaust plumes, wingtip strobes, the
+  // hit flash (a white copy of the silhouette, faded), cloaking (alpha),
+  // shields, beams, webs, the reactor core that swells on a Klingon charge.
+  //
+  // The painting has one grammar for every faction: a soft shadow cast on the
+  // field below, metal lit from above (the same side the rock facets are lit
+  // from), plating in lighter and darker panels, the body's shadow where it
+  // meets the wings, bevelled seams, glass and windows, glowing engines, and a
+  // thin rim in the faction's colour so every hull still reads against space.
+  // Only the materials change: Klingon rust-bronze, Cardassian ochre, Romulan
+  // jade, Borg gunmetal with green circuitry, Tholian amber crystal, and the
+  // player's Federation grey with a cyan rim — cyan is still the player.
+  var HULL_PAINT = {
+    klingon:    { hi:'#b08472', mid:'#5a352c', lo:'#170b09', rim:'255,122,99',  glow:'255,120,80',  win:'255,196,150' },
+    cardassian: { hi:'#dcbc8a', mid:'#7a5c34', lo:'#241a0c', rim:'240,168,72',  glow:'255,176,80',  win:'255,224,168' },
+    romulan:    { hi:'#98c9aa', mid:'#325c48', lo:'#0a1913', rim:'127,214,166', glow:'96,224,150',  win:'205,255,225' },
+    borg:       { hi:'#858d8f', mid:'#343a3b', lo:'#0a0d0d', rim:'143,180,201', glow:'126,255,110', win:'126,255,110' },
+    tholian:    { hi:'rgba(255,226,170,.95)', mid:'rgba(255,150,70,.62)', lo:'rgba(110,44,140,.55)',
+                  rim:'255,159,67', glow:'255,178,90', win:'255,236,200' },
+    federation: { hi:'#f2f6fa', mid:'#98a4b3', lo:'#29323d', rim:'0,240,255',   glow:'90,170,255',  win:'255,236,204' }
+  };
+  var KIND_FAC = { scout:'klingon', raptor:'klingon', stalker:'klingon', lancer:'cardassian',
+                   warbird:'romulan', drone:'borg', weaver:'tholian' };
+  var RAGE_RIM = '255,77,109';
+  // Hulls are drawn this much larger than their collision radius. The old
+  // neon outlines carried a wide glow that made every ship read bigger than
+  // it was; the painted hulls lost it and looked shrunken ("ships feel
+  // smaller"). The hitboxes do not change, only the drawing.
+  var HULL_VIS = 1.15;
+
+  // Sprites are cut for the current canvas resolution and dropped whenever it
+  // changes. They are painted at exactly that resolution (HULL_SS 1): a finer
+  // bake put detail below a pixel, and sub-pixel detail on a rotating sprite
+  // does not look detailed, it shimmers — which is what "jittery" was.
+  var HULL_SS = 1, spriteCache = {}, spriteDpr = 0, bakeScale = 1;
+
+  function prng(seed){
+    var s = (seed * 9301 + 49297) % 233280;
+    return function(){ s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  }
+  function strSeed(str){
+    var h = 7;
+    for(var i=0;i<str.length;i++) h = (h * 31 + str.charCodeAt(i)) % 100000;
+    return h;
+  }
+
+  function bakeSprite(extent, paint){
+    var c = document.createElement('canvas');
+    if(!c || !c.getContext) return null;
+    var d = viewDpr * HULL_SS, size = Math.ceil(extent * 2);
+    c.width = Math.max(1, Math.ceil(size * d)); c.height = c.width;
+    var g = c.getContext('2d');
+    if(!g || !g.setTransform) return null;
+    g.setTransform(d, 0, 0, d, c.width / 2, c.height / 2);
+    // the painters reuse alienShape and friends, which draw on `ctx`
+    var saved = ctx, savedScale = bakeScale;
+    ctx = g; bakeScale = d;
+    try { paint(g); } finally { ctx = saved; bakeScale = savedScale; }
+    return { cv: c, half: size / 2, size: size };
+  }
+  function hullSprite(key, extent, paint){
+    if(spriteDpr !== viewDpr){ spriteCache = {}; spriteDpr = viewDpr; }
+    if(!(key in spriteCache)) spriteCache[key] = bakeSprite(extent, paint);
+    return spriteCache[key];
+  }
+  function blit(spr, alpha){
+    if(!spr) return false;
+    if(alpha !== undefined){
+      if(alpha <= 0) return true;
+      var a0 = ctx.globalAlpha;
+      ctx.globalAlpha = a0 * alpha;
+      ctx.drawImage(spr.cv, -spr.half, -spr.half, spr.size, spr.size);
+      ctx.globalAlpha = a0;
+    } else ctx.drawImage(spr.cv, -spr.half, -spr.half, spr.size, spr.size);
+    return true;
+  }
+
+  // alienShape builds each part as its own path and fills it straight away.
+  // Painting needs the whole silhouette as ONE path — to clip to, to cast a
+  // shadow from, to rim — so it is replayed through a context that ignores
+  // beginPath, fill and stroke and just keeps adding to the current path.
+  var PATH_ONLY = { beginPath: 1, fill: 1, stroke: 1 };
+  function pathOnly(g){
+    if(typeof Proxy === 'undefined') return g;
+    return new Proxy(g, {
+      get: function(t, k){
+        if(PATH_ONLY[k]) return function(){};
+        var v = t[k];
+        return typeof v === 'function' ? v.bind(t) : v;
+      },
+      set: function(t, k, v){ t[k] = v; return true; }
+    });
+  }
+  function silhouette(g, kind, R, part){
+    g.beginPath();
+    var saved = ctx;
+    ctx = pathOnly(g);
+    try {
+      if(part !== 'body') alienShape({ kind: kind, r: R }, null, 'wings', true);
+      if(part !== 'wings') alienShape({ kind: kind, r: R }, null, 'body', true);
+    } finally { ctx = saved; }
+  }
+
+  // ── painting kit ──
+  function metalGrad(g, R, P){
+    var gr = g.createLinearGradient(-R * 0.35, -R * 1.15, R * 0.35, R * 1.15);
+    gr.addColorStop(0, P.hi); gr.addColorStop(0.46, P.mid); gr.addColorStop(1, P.lo);
+    return gr;
+  }
+  // panels of slightly lighter and darker plate inside whatever is clipped
+  function plating(g, R, rand, n, spread, alpha){
+    alpha = alpha || 1;
+    for(var i=0;i<n;i++){
+      var w = R * (0.06 + rand() * 0.2), h = R * (0.04 + rand() * 0.12);
+      var x = (rand() * 2 - 1) * R * spread, y = (rand() * 2 - 1) * R * spread;
+      g.fillStyle = rand() < 0.45
+        ? 'rgba(255,255,255,' + ((0.03 + rand() * 0.08) * alpha).toFixed(3) + ')'
+        : 'rgba(0,0,0,' + ((0.06 + rand() * 0.16) * alpha).toFixed(3) + ')';
+      g.fillRect(x, y, w, h);
+    }
+  }
+  // Brushed metal: fine hairlines along the hull's length, and a regular
+  // grid of bevelled panel joints — the structure the random plating sits in.
+  function brushed(g, R, rand, spread){
+    g.lineWidth = Math.max(0.3, R * 0.006);
+    for(var i=0;i<Math.round(60 * spread);i++){
+      var y = (rand() * 2 - 1) * R * spread, x = (rand() * 2 - 1) * R * spread, L = R * (0.2 + rand() * 0.8);
+      g.strokeStyle = rand() < 0.5 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.09)';
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x + L, y); g.stroke();
+    }
+  }
+  function panelGrid(g, R, step, w, spread){
+    for(var x = -R * spread; x < R * spread; x += R * step) bevel(g, x, -R * spread, x - R * step * 0.5, R * spread, w);
+    for(var y = -R * spread; y < R * spread; y += R * step * 1.3) bevel(g, -R * spread, y, R * spread, y, w * 0.8);
+  }
+  // the top-lit sheen: brighter toward the light, over whatever is clipped
+  function sheen(g, R, a){
+    var gr = g.createLinearGradient(0, -R * 1.2, 0, R * 0.25);
+    gr.addColorStop(0, 'rgba(255,255,255,' + (a || 0.2) + ')');
+    gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr;
+    g.fillRect(-R * 1.6, -R * 1.6, R * 3.2, R * 1.9);
+  }
+  // a seam: a dark groove with a lit lip on the side facing the light
+  function bevel(g, x1, y1, x2, y2, w){
+    g.lineCap = 'round';
+    g.strokeStyle = 'rgba(0,0,0,.5)'; g.lineWidth = w;
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,.2)'; g.lineWidth = w * 0.55;
+    g.beginPath(); g.moveTo(x1, y1 - w * 0.8); g.lineTo(x2, y2 - w * 0.8); g.stroke();
+  }
+  function glowDot(g, x, y, r, rgb, a){
+    var gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, 'rgba(255,255,255,' + a + ')');
+    gr.addColorStop(0.3, 'rgba(' + rgb + ',' + a + ')');
+    gr.addColorStop(1, 'rgba(' + rgb + ',0)');
+    g.fillStyle = gr;
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+  }
+  function castShadow(g, R, pathFn, fill){
+    g.save();
+    g.shadowColor = 'rgba(0,0,0,.7)';
+    g.shadowBlur = R * 0.3 * bakeScale;
+    g.shadowOffsetX = R * 0.08 * bakeScale; g.shadowOffsetY = R * 0.14 * bakeScale;
+    pathFn(); g.fillStyle = fill; g.fill();
+    g.restore();
+  }
+  // A thin edge of the faction's colour with a little glow — enough to find
+  // the hull against space, never enough to become the thing you see. The
+  // first painted pass had it at full neon strength and the metal disappeared
+  // behind it.
+  function rimGlow(g, R, pathFn, rgb, a){
+    g.save();
+    // Back to a real neon outline (Sep 2026: "harder to see", "smaller"): the
+    // thin rim on dark metal lost the hull against space. Baked, so the glow
+    // costs nothing per frame.
+    g.shadowColor = 'rgba(' + rgb + ',.95)';
+    g.shadowBlur = Math.min(16, Math.max(7, R * 0.4)) * bakeScale;
+    g.strokeStyle = 'rgba(' + rgb + ',' + Math.min(1, a * 1.2).toFixed(3) + ')';
+    // drawn UNDER the hull and twice as wide: the painting then covers the
+    // inner half, so only a clean outer edge shows and no internal seam — a
+    // wing root, a nacelle on a hull — gets traced in neon
+    g.lineWidth = Math.min(4.4, Math.max(3, R * 0.1));
+    g.lineJoin = 'round';
+    pathFn(); g.stroke();
+    g.restore();
+  }
+  function tint(g, rgb, a){
+    g.save();
+    g.globalCompositeOperation = 'source-atop';
+    g.fillStyle = 'rgba(' + rgb + ',' + a + ')';
+    g.fillRect(-1e4, -1e4, 2e4, 2e4);
+    g.restore();
+  }
+  function canopy(g, x, y, rx, ry, rim){
+    g.fillStyle = 'rgba(5,12,24,.92)';
+    g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = 'rgba(' + rim + ',.6)'; g.lineWidth = Math.max(0.4, ry * 0.25); g.stroke();
+    g.fillStyle = 'rgba(225,245,255,.85)';
+    g.beginPath(); g.ellipse(x + rx * 0.15, y - ry * 0.35, rx * 0.35, ry * 0.3, 0, 0, Math.PI * 2); g.fill();
+  }
+
+  // ── winged hulls: every escort, and the Cardassian and Romulan flagships ──
+  function paintWinged(g, kind, R, cap, rim){
+    var P = HULL_PAINT[KIND_FAC[kind]], D = HULL_DETAIL[kind] || {};
+    var rand = prng(strSeed(kind) + (cap ? 17 : 0)), s, i;
+    var beam = D.beam || 0.18, nose = D.nose || 1.1;
+    var sw = Math.max(cap ? 0.45 : 0.7, R * (cap ? 0.016 : 0.045));
+    castShadow(g, R, function(){ silhouette(g, kind, R, 'all'); }, P.lo);
+    rimGlow(g, R, function(){ silhouette(g, kind, R, 'all'); }, rim || P.rim, cap ? 0.7 : 0.85);
+
+    // wings
+    silhouette(g, kind, R, 'wings');
+    g.fillStyle = metalGrad(g, R, P); g.fill();
+    g.save();
+    silhouette(g, kind, R, 'wings'); g.clip();
+    // Hairline brushing and fine plating only at capital scale. On a 30px
+    // escort they sit below a pixel and crawl as the hull turns.
+    if(cap) brushed(g, R, rand, 1.25);
+    plating(g, R, rand, cap ? 130 : 14, 1.2);
+    panelGrid(g, R, cap ? 0.16 : 0.45, Math.max(0.6, R * (cap ? 0.011 : 0.035)), 1.3);
+    // the lower half of each plane turns away from the light
+    var dk = g.createLinearGradient(0, -R * 0.2, 0, R * 1.2);
+    dk.addColorStop(0, 'rgba(0,0,0,0)'); dk.addColorStop(1, 'rgba(0,0,0,.45)');
+    g.fillStyle = dk; g.fillRect(-R * 1.6, -R * 0.2, R * 3.2, R * 1.6);
+    // the body throws a shadow across the wing roots
+    silhouette(g, kind, R, 'body');
+    g.shadowColor = 'rgba(0,0,0,.85)'; g.shadowBlur = R * 0.16 * bakeScale;
+    g.lineWidth = R * 0.05; g.strokeStyle = 'rgba(0,0,0,.55)'; g.stroke();
+    g.shadowBlur = 0;
+    sheen(g, R, 0.18);
+    g.restore();
+
+    // body
+    silhouette(g, kind, R, 'body');
+    var bg = g.createLinearGradient(0, -R * beam * 1.3, 0, R * beam * 1.3);
+    bg.addColorStop(0, P.hi); bg.addColorStop(0.32, P.hi); bg.addColorStop(0.58, P.mid); bg.addColorStop(1, P.lo);
+    g.fillStyle = bg; g.fill();
+    g.save();
+    silhouette(g, kind, R, 'body'); g.clip();
+    if(cap) brushed(g, R, rand, 1.0);
+    plating(g, R, rand, cap ? 60 : 6, 1.0);
+    // a hard specular along the upper flank, and the lower flank in shadow
+    g.fillStyle = 'rgba(255,255,255,.38)';
+    g.fillRect(-R * 0.62, -R * beam * 0.55, R * (nose + 0.5), R * beam * 0.14);
+    g.fillStyle = 'rgba(0,0,0,.4)';
+    g.fillRect(-R * 0.8, R * beam * 0.45, R * (nose + 0.8), R * beam * 0.8);
+    for(i=0;i<(cap ? 14 : 3);i++){
+      var gx = R * (0.55 - i * (cap ? 0.085 : 0.22)), gw = R * (0.04 + rand() * 0.05);
+      g.fillStyle = 'rgba(0,0,0,.34)'; g.fillRect(gx, -R * beam * 0.26, gw, R * beam * 0.52);
+      g.fillStyle = 'rgba(255,255,255,.16)'; g.fillRect(gx, -R * beam * 0.26, gw, R * beam * 0.09);
+    }
+    g.restore();
+
+    // seams and the faction's pattern, bevelled
+    for(s=-1; s<=1; s+=2){
+      if(D.seam) bevel(g, R * D.seam[0][0], s * R * D.seam[0][1], R * D.seam[1][0], s * R * D.seam[1][1], sw);
+      if(D.feathers) for(i=0;i<D.feathers.length;i++){
+        var f = D.feathers[i];
+        bevel(g, R * f[0][0], s * R * f[0][1], R * f[1][0], s * R * f[1][1], sw);
+        if(cap) for(var fo=-1; fo<=1; fo+=2){
+          bevel(g, R * (f[0][0] + fo * 0.09), s * R * (f[0][1] + 0.12), R * (f[1][0] + fo * 0.06), s * R * (f[1][1] - 0.14), sw * 0.8);
+        }
+      }
+    }
+    if(D.ribs) for(i=0;i<(cap ? 5 : 3);i++){
+      var rx = R * (0.62 - i * (cap ? 0.24 : 0.36));
+      bevel(g, rx - R * 0.1, -R * beam * 0.95, rx + R * 0.06, 0, sw);
+      bevel(g, rx + R * 0.06, 0, rx - R * 0.1, R * beam * 0.95, sw);
+    }
+    var cross = cap ? [0.46, 0.18, -0.1, -0.36] : [0.2, -0.26];
+    for(i=0;i<cross.length;i++) bevel(g, R * cross[i], -R * beam * 0.95, R * cross[i], R * beam * 0.95, sw * 0.8);
+
+    // glass
+    canopy(g, R * (nose - 0.42), 0, R * (cap ? 0.09 : 0.12), R * beam * 0.38, P.rim);
+
+    // light: windows, engines, weapon points
+    g.save();
+    g.globalCompositeOperation = 'lighter';
+    var ww = Math.max(0.9, R * (cap ? 0.026 : 0.07));
+    g.fillStyle = 'rgba(' + P.win + ',.9)';
+    for(s=-1; s<=1; s+=2){
+      for(var wx = 0.6; wx > -0.46; wx -= (cap ? 0.085 : 0.42)){
+        if((Math.round(wx * 100) + s * 7) % 5 === 0) continue;
+        g.fillRect(R * wx - ww / 2, s * R * beam * 0.66 - ww / 2, ww, ww);
+      }
+    }
+    for(s=-1; s<=1; s+=2){
+      glowDot(g, -R * 0.68, s * R * beam * 0.55, R * (cap ? 0.12 : 0.17), P.glow, 0.95);
+      if(D.gun) glowDot(g, R * D.gun[0], s * R * D.gun[1], R * (cap ? 0.06 : 0.1), P.glow, 0.9);
+    }
+    if(D.crystal){
+      // Tholian: the crystal lights up from inside along every facet
+      g.strokeStyle = 'rgba(' + P.glow + ',.55)'; g.lineWidth = Math.max(0.6, R * 0.04);
+      g.beginPath();
+      for(s=-1; s<=1; s+=2){
+        g.moveTo(0, 0); g.lineTo(R * D.tip[0] * 0.9, s * R * D.tip[1] * 0.9);
+        g.moveTo(0, 0); g.lineTo(R * D.tip2[0] * 0.9, s * R * D.tip2[1] * 0.9);
+      }
+      g.stroke();
+      glowDot(g, 0, 0, R * 0.35, P.glow, 0.7);
+    }
+    g.restore();
+  }
+
+  // ── the Borg: a box, dense with machinery, lit green from inside ──
+  function paintCube(g, R, cap, adapted, rim){
+    var P = HULL_PAINT.borg, q = R * 0.74, rand = prng(cap ? 991 : 313), i;
+    var box = function(){ g.beginPath(); g.rect(-q, -q, q * 2, q * 2); };
+    castShadow(g, R, box, P.lo);
+    rimGlow(g, R, box, rim || P.rim, 0.55);
+    var fg = g.createLinearGradient(-q, -q, q, q);
+    fg.addColorStop(0, P.hi); fg.addColorStop(0.5, P.mid); fg.addColorStop(1, P.lo);
+    box(); g.fillStyle = fg; g.fill();
+    g.save();
+    box(); g.clip();
+    for(i=0;i<(cap ? 460 : 40);i++){
+      var w = q * ((cap ? 0.04 : 0.1) + rand() * 0.16), h = q * ((cap ? 0.04 : 0.1) + rand() * 0.16);
+      var x = -q + rand() * q * 2, y = -q + rand() * q * 2;
+      g.fillStyle = rand() < 0.5 ? 'rgba(0,0,0,' + (0.2 + rand() * 0.35).toFixed(3) + ')'
+                                 : 'rgba(205,215,210,' + (0.05 + rand() * 0.12).toFixed(3) + ')';
+      g.fillRect(x, y, w, h);
+    }
+    // conduits
+    g.strokeStyle = 'rgba(0,0,0,.5)'; g.lineWidth = Math.max(0.5, q * 0.025);
+    g.beginPath();
+    for(i=0;i<(cap ? 16 : 6);i++){
+      var a = -q + rand() * q * 2;
+      if(rand() < 0.5){ g.moveTo(-q, a); g.lineTo(q, a); } else { g.moveTo(a, -q); g.lineTo(a, q); }
+    }
+    g.stroke();
+    // green circuitry, lit from inside
+    g.globalCompositeOperation = 'lighter';
+    var crgb = adapted ? '255,255,255' : P.glow;
+    for(i=0;i<(cap ? 30 : 10);i++){
+      var hz = rand() < 0.5, x0 = -q + rand() * q * 2, y0 = -q + rand() * q * 2, L = q * (0.18 + rand() * 0.55);
+      g.strokeStyle = 'rgba(' + crgb + ',' + (0.3 + rand() * 0.4).toFixed(3) + ')';
+      g.lineWidth = Math.max(0.5, q * 0.022);
+      g.beginPath(); g.moveTo(x0, y0); g.lineTo(hz ? x0 + L : x0, hz ? y0 : y0 + L); g.stroke();
+    }
+    for(var gx=-1; gx<=1; gx++) for(var gy=-1; gy<=1; gy++){
+      if(!gx && !gy) continue;
+      glowDot(g, gx * q * 0.52, gy * q * 0.52, q * 0.14, crgb, adapted ? 0.95 : 0.85);
+    }
+    glowDot(g, 0, 0, q * 0.4, crgb, 0.45);
+    g.globalCompositeOperation = 'source-over';
+    // the recessed inner block
+    g.strokeStyle = 'rgba(0,0,0,.6)'; g.lineWidth = q * 0.05;
+    g.strokeRect(-q * 0.55, -q * 0.55, q * 1.1, q * 1.1);
+    g.strokeStyle = 'rgba(255,255,255,.16)'; g.lineWidth = q * 0.02;
+    g.strokeRect(-q * 0.52, -q * 0.52, q * 1.1, q * 1.1);
+    g.restore();
+    // bevelled edges: lit top and left, shaded bottom and right
+    g.lineWidth = q * 0.07;
+    g.strokeStyle = 'rgba(255,255,255,.26)';
+    g.beginPath(); g.moveTo(-q, q); g.lineTo(-q, -q); g.lineTo(q, -q); g.stroke();
+    g.strokeStyle = 'rgba(0,0,0,.6)';
+    g.beginPath(); g.moveTo(q, -q); g.lineTo(q, q); g.lineTo(-q, q); g.stroke();
+  }
+
+  // ── the Klingon flagship's own hull: keel, raked wings, pylons ──
+  function klingonCapPath(g, R, part){
+    var s;
+    g.beginPath();
+    if(part !== 'wings'){
+      g.moveTo(R, 0); g.lineTo(R*0.42, -R*0.17); g.lineTo(-R*0.52, -R*0.22); g.lineTo(-R*0.78, -R*0.10);
+      g.lineTo(-R*0.78, R*0.10); g.lineTo(-R*0.52, R*0.22); g.lineTo(R*0.42, R*0.17); g.closePath();
+    }
+    if(part !== 'keel') for(s=-1; s<=1; s+=2){
+      g.moveTo(R*0.30, s*R*0.20);
+      g.quadraticCurveTo(-R*0.10, s*R*0.66, -R*0.62, s*R*0.92);
+      g.lineTo(-R*1.02, s*R*0.86);
+      g.quadraticCurveTo(-R*0.66, s*R*0.60, -R*0.46, s*R*0.24);
+      g.closePath();
+      g.moveTo(-R*0.10, s*R*0.21); g.lineTo(-R*0.16, s*R*0.52); g.lineTo(-R*0.54, s*R*0.48); g.lineTo(-R*0.50, s*R*0.20);
+      g.closePath();
+    }
+  }
+  function paintKlingonCap(g, R, rim){
+    var P = HULL_PAINT.klingon, rand = prng(4711), s, i, x;
+    var sw = Math.max(0.5, R * 0.016);
+    castShadow(g, R, function(){ klingonCapPath(g, R, 'all'); }, P.lo);
+    rimGlow(g, R, function(){ klingonCapPath(g, R, 'all'); }, rim || P.rim, 0.7);
+    klingonCapPath(g, R, 'wings'); g.fillStyle = metalGrad(g, R, P); g.fill();
+    g.save();
+    klingonCapPath(g, R, 'wings'); g.clip();
+    brushed(g, R, rand, 1.2);
+    plating(g, R, rand, 150, 1.2);
+    panelGrid(g, R, 0.16, Math.max(0.35, R * 0.011), 1.2);
+    var kd = g.createLinearGradient(0, -R * 0.2, 0, R * 1.1);
+    kd.addColorStop(0, 'rgba(0,0,0,0)'); kd.addColorStop(1, 'rgba(0,0,0,.45)');
+    g.fillStyle = kd; g.fillRect(-R * 1.4, -R * 0.2, R * 2.8, R * 1.4);
+    g.strokeStyle = 'rgba(0,0,0,.26)'; g.lineWidth = Math.max(0.5, R * 0.011);
+    g.beginPath();
+    for(x = 0.4; x > -1.1; x -= 0.1){ g.moveTo(R * x, -R * 1.2); g.lineTo(R * (x - 0.12), R * 1.2); }
+    g.stroke();
+    klingonCapPath(g, R, 'keel');
+    g.shadowColor = 'rgba(0,0,0,.85)'; g.shadowBlur = R * 0.16 * bakeScale;
+    g.lineWidth = R * 0.05; g.strokeStyle = 'rgba(0,0,0,.55)'; g.stroke();
+    g.shadowBlur = 0;
+    sheen(g, R, 0.18);
+    g.restore();
+    for(s=-1; s<=1; s+=2){
+      bevel(g, -R*0.22, s*R*0.40, -R*0.72, s*R*0.84, sw);
+      bevel(g, -R*0.36, s*R*0.32, -R*0.88, s*R*0.80, sw);
+      bevel(g, -R*0.08, s*R*0.30, -R*0.50, s*R*0.74, sw);
+    }
+    klingonCapPath(g, R, 'keel');
+    var kg = g.createLinearGradient(0, -R * 0.24, 0, R * 0.24);
+    kg.addColorStop(0, P.hi); kg.addColorStop(0.35, P.hi); kg.addColorStop(0.6, P.mid); kg.addColorStop(1, P.lo);
+    g.fillStyle = kg; g.fill();
+    g.save();
+    klingonCapPath(g, R, 'keel'); g.clip();
+    plating(g, R, rand, 60, 1);
+    g.fillStyle = 'rgba(255,255,255,.2)'; g.fillRect(-R * 0.75, -R * 0.1, R * 1.6, R * 0.03);
+    g.restore();
+    for(x = 0.5; x > -0.7; x -= 0.3) bevel(g, R * x, -R * 0.15, R * x, R * 0.15, sw);
+    canopy(g, R * 0.68, 0, R * 0.09, R * 0.055, P.rim);
+    g.save();
+    g.globalCompositeOperation = 'lighter';
+    var ww = Math.max(0.7, R * 0.026);
+    g.fillStyle = 'rgba(' + P.win + ',.9)';
+    for(s=-1; s<=1; s+=2) for(x = 0.64; x > -0.5; x -= 0.085){
+      if((Math.round(x * 100) + s * 5) % 6 === 0) continue;
+      g.fillRect(R * x - ww / 2, s * R * 0.1 - ww / 2, ww, ww);
+    }
+    var eng = [[-0.74, 0, 0.2], [-0.64, 0.3, 0.13], [-0.64, -0.3, 0.13], [-0.88, 0.62, 0.1], [-0.88, -0.62, 0.1]];
+    for(i=0;i<eng.length;i++) glowDot(g, R * eng[i][0], R * eng[i][1], R * eng[i][2], P.glow, 0.95);
+    for(s=-1; s<=1; s+=2) glowDot(g, -R * 0.66, s * R * 0.9, R * 0.07, P.glow, 0.9);
+    g.restore();
+  }
+
+  // ── the player: three Federation hulls, one per class on the pick card ──
+  // Plan views, nose along +x, sized to the same thirty-odd pixels the old
+  // Constitution filled so nothing about aiming or collision changes.
+  function capsule(g, cx, cy, len, h, ang){
+    g.save(); g.translate(cx, cy); g.rotate(ang || 0);
+    var a = len / 2 - h / 2;
+    g.moveTo(-a, -h / 2); g.lineTo(a, -h / 2);
+    g.arc(a, 0, h / 2, -Math.PI / 2, Math.PI / 2);
+    g.lineTo(-a, h / 2);
+    g.arc(-a, 0, h / 2, Math.PI / 2, Math.PI * 1.5);
+    g.closePath();
+    g.restore();
+  }
+  var FED = {
+    // Defiant: a compact armoured wedge with the nacelles built into its flanks
+    torp: {
+      hull: function(g){
+        g.moveTo(15.5, 0);
+        g.bezierCurveTo(13, -3.2, 9, -5.6, 4, -7.2);
+        g.lineTo(-3, -11.4); g.lineTo(-11, -11.6);
+        g.quadraticCurveTo(-13.6, -11.2, -13.4, -8.4);
+        g.lineTo(-12.2, -5.2); g.lineTo(-9.4, -3.6); g.lineTo(-10.8, 0);
+        g.lineTo(-9.4, 3.6); g.lineTo(-12.2, 5.2); g.lineTo(-13.4, 8.4);
+        g.quadraticCurveTo(-13.6, 11.2, -11, 11.6);
+        g.lineTo(-3, 11.4); g.lineTo(4, 7.2);
+        g.bezierCurveTo(9, 5.6, 13, 3.2, 15.5, 0);
+        g.closePath();
+      },
+      nacelles: [[-6, -9.4, 14, 3.4, 0], [-6, 9.4, 14, 3.4, 0]], pylons: [], podsOnTop: true,
+      engines: [[-13.2, -9.4], [-13.2, 9.4], [-10.6, 0]], core: [-4, 0], coreR: 2.4,
+      bussards: [[0.6, -9.4], [0.6, 9.4]], deflector: [11.5, 0],
+      windows: [[6, -3.2], [4, -4.2], [2, -5.2], [6, 3.2], [4, 4.2], [2, 5.2]], saucer: null
+    },
+    // Sovereign: the long oval saucer, a slim engineering hull and long
+    // nacelles on swept pylons trailing well behind it
+    spread: {
+      hull: function(g){
+        g.ellipse(6, 0, 10.5, 8.2, 0, 0, Math.PI * 2);
+        g.moveTo(0, -2.6); g.lineTo(-14.5, -2.2); g.quadraticCurveTo(-16.4, 0, -14.5, 2.2); g.lineTo(0, 2.6); g.closePath();
+      },
+      nacelles: [[-10, -11, 16, 3.2, 0], [-10, 11, 16, 3.2, 0]],
+      pylons: [[-5, -2.2, -8.6, -9.8], [-5, 2.2, -8.6, 9.8]],
+      engines: [[-18, -11], [-18, 11], [-15.6, 0]], core: [-8, 0], coreR: 2.3,
+      bussards: [[-2.4, -11], [-2.4, 11]], deflector: [-1.2, 0],
+      windows: null, saucer: [6, 0, 10.5, 8.2]
+    },
+    // Nova, in the Intrepid line: a teardrop saucer that flows into the
+    // secondary hull, and nacelles canted out on short pylons
+    mine: {
+      hull: function(g){
+        g.moveTo(15.5, 0);
+        g.bezierCurveTo(15, -5, 10, -8.6, 4, -8.4);
+        g.bezierCurveTo(0, -8.2, -3, -6, -5.5, -3.6);
+        g.lineTo(-12, -2.4); g.quadraticCurveTo(-13.8, 0, -12, 2.4); g.lineTo(-5.5, 3.6);
+        g.bezierCurveTo(-3, 6, 0, 8.2, 4, 8.4);
+        g.bezierCurveTo(10, 8.6, 15, 5, 15.5, 0);
+        g.closePath();
+      },
+      nacelles: [[-9.6, -10.8, 13, 2.8, -0.12], [-9.6, 10.8, 13, 2.8, 0.12]],
+      pylons: [[-5.4, -3.4, -8.4, -9.8], [-5.4, 3.4, -8.4, 9.8]],
+      engines: [[-15.8, -11.6], [-15.8, 11.6], [-12.8, 0]], core: [-6.5, 0], coreR: 2.2,
+      bussards: [[-3.4, -10.1], [-3.4, 10.1]], deflector: [-4.6, 0],
+      windows: null, saucer: [4.5, 0, 9.5, 8.2]
+    }
+  };
+  function fedPath(g, F, part){
+    g.beginPath();
+    var i, n;
+    if(part === 'hull' || part === 'all') F.hull(g);
+    if(part === 'nacelles' || part === 'all') for(i=0;i<F.nacelles.length;i++){
+      n = F.nacelles[i]; capsule(g, n[0], n[1], n[2], n[3], n[4]);
+    }
+  }
+  function paintFed(g, id, rim){
+    var F = FED[id] || FED.torp, P = HULL_PAINT.federation, rand = prng(strSeed(id)), i, s, n;
+    var R = 16;
+    castShadow(g, R, function(){ fedPath(g, F, 'all'); }, P.lo);
+    rimGlow(g, R, function(){ fedPath(g, F, 'all'); }, rim, 0.75);
+    // pylons, under everything
+    g.lineCap = 'round';
+    for(i=0;i<F.pylons.length;i++){
+      var py = F.pylons[i];
+      g.strokeStyle = P.lo; g.lineWidth = 2.6;
+      g.beginPath(); g.moveTo(py[0], py[1]); g.lineTo(py[2], py[3]); g.stroke();
+      g.strokeStyle = P.mid; g.lineWidth = 1.6;
+      g.beginPath(); g.moveTo(py[0], py[1] - 0.3); g.lineTo(py[2], py[3] - 0.3); g.stroke();
+    }
+    if(!F.podsOnTop) fedPods(g, F, P);
+    // the hull
+    fedHull(g, F, P, rand, R);
+    // the Defiant's pods sit ON the hull, raised, rather than beside it
+    if(F.podsOnTop) fedPods(g, F, P);
+    // light: windows round the saucer rim, the deflector, the bussards
+    fedLights(g, F, P);
+  }
+  // nacelles: grey pods with the blue field coils, a crisp dark edge so they
+  // read as separate bodies, and the glow running down their length
+  function fedPods(g, F, P){
+    var i, n;
+    for(i=0;i<F.nacelles.length;i++){
+      n = F.nacelles[i];
+      g.beginPath(); capsule(g, n[0], n[1], n[2], n[3], n[4]);
+      var ng = g.createLinearGradient(0, n[1] - n[3] / 2, 0, n[1] + n[3] / 2);
+      ng.addColorStop(0, P.hi); ng.addColorStop(0.5, P.mid); ng.addColorStop(1, P.lo);
+      g.fillStyle = ng; g.fill();
+      g.save();
+      g.globalCompositeOperation = 'lighter';
+      g.translate(n[0], n[1]); g.rotate(n[4]);
+      var cg = g.createLinearGradient(-n[2] / 2, 0, n[2] / 2, 0);
+      cg.addColorStop(0, 'rgba(' + P.glow + ',.1)'); cg.addColorStop(0.5, 'rgba(' + P.glow + ',.95)'); cg.addColorStop(1, 'rgba(' + P.glow + ',.25)');
+      g.fillStyle = cg;
+      g.fillRect(-n[2] * 0.42, -n[3] * 0.18, n[2] * 0.8, n[3] * 0.36);
+      g.restore();
+      g.beginPath(); capsule(g, n[0], n[1], n[2], n[3], n[4]);
+      g.strokeStyle = 'rgba(0,0,0,.55)'; g.lineWidth = 0.4; g.stroke();
+    }
+  }
+  function fedHull(g, F, P, rand, R){
+    var i;
+    fedPath(g, F, 'hull');
+    var hg = g.createLinearGradient(-6, -12, 6, 12);
+    hg.addColorStop(0, P.hi); hg.addColorStop(0.5, P.mid); hg.addColorStop(1, P.lo);
+    g.fillStyle = hg; g.fill();
+    g.save();
+    fedPath(g, F, 'hull'); g.clip();
+    plating(g, R, rand, 24, 1.1, 0.7);
+    // the lower hull turns away from the light
+    var fd = g.createLinearGradient(0, -2, 0, 12);
+    fd.addColorStop(0, 'rgba(0,0,0,0)'); fd.addColorStop(1, 'rgba(0,0,0,.42)');
+    g.fillStyle = fd; g.fillRect(-20, -2, 40, 16);
+    sheen(g, R, 0.34);
+    if(F.saucer){
+      var sc = F.saucer;
+      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 0.45;
+      g.beginPath(); g.ellipse(sc[0], sc[1], sc[2] * 0.62, sc[3] * 0.62, 0, 0, Math.PI * 2); g.stroke();
+      g.beginPath();
+      for(i=0;i<8;i++){
+        var ra = i / 8 * Math.PI * 2 + 0.39, c = Math.cos(ra), sn = Math.sin(ra);
+        g.moveTo(sc[0] + c * sc[2] * 0.3, sn * sc[3] * 0.3); g.lineTo(sc[0] + c * sc[2] * 0.62, sn * sc[3] * 0.62);
+      }
+      g.stroke();
+      g.strokeStyle = 'rgba(255,255,255,.3)'; g.lineWidth = 0.35;
+      g.beginPath(); g.ellipse(sc[0], sc[1] - 0.3, sc[2] * 0.62, sc[3] * 0.62, 0, Math.PI, Math.PI * 2); g.stroke();
+      // the bridge dome, at the heart of the saucer
+      g.fillStyle = P.hi;
+      g.beginPath(); g.ellipse(sc[0] + 0.5, 0, 2.2, 1.9, 0, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 0.4; g.stroke();
+    } else {
+      // Defiant: an armoured wedge — heavy plates, a raised spine and a
+      // small low bridge, not a dome
+      g.fillStyle = 'rgba(0,0,0,.22)';
+      g.beginPath(); g.moveTo(2, -4); g.lineTo(-9, -7.5); g.lineTo(-9, -3); g.lineTo(2, -1.4); g.closePath(); g.fill();
+      g.beginPath(); g.moveTo(2, 4); g.lineTo(-9, 7.5); g.lineTo(-9, 3); g.lineTo(2, 1.4); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.16)';
+      g.beginPath(); g.moveTo(13, -0.9); g.lineTo(-8, -1.3); g.lineTo(-8, 0); g.lineTo(13, 0); g.closePath(); g.fill();
+      bevel(g, 12, 0, -9, 0, 0.5);
+      bevel(g, 6, -5.5, 6, 5.5, 0.45);
+      bevel(g, -2, -9, -2, 9, 0.45);
+      bevel(g, 9, -3.6, 1, -7.8, 0.4);
+      bevel(g, 9, 3.6, 1, 7.8, 0.4);
+      g.fillStyle = P.mid;
+      g.beginPath(); g.ellipse(5.5, 0, 1.8, 1.1, 0, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 0.35; g.stroke();
+      g.fillStyle = 'rgba(225,245,255,.7)';
+      g.fillRect(5.6, -0.45, 1, 0.3);
+    }
+    g.restore();
+  }
+  function fedLights(g, F, P){
+    var i;
+    g.save();
+    g.globalCompositeOperation = 'lighter';
+    g.fillStyle = 'rgba(' + P.win + ',.9)';
+    if(F.saucer){
+      var S = F.saucer;
+      for(i=0;i<18;i++){
+        var wa = i / 18 * Math.PI * 2 + 0.17;
+        if(Math.abs(Math.cos(wa)) > 0.93) continue;
+        g.fillRect(S[0] + Math.cos(wa) * S[2] * 0.82 - 0.35, Math.sin(wa) * S[3] * 0.82 - 0.35, 0.7, 0.7);
+      }
+    }
+    if(F.windows) for(i=0;i<F.windows.length;i++) g.fillRect(F.windows[i][0] - 0.35, F.windows[i][1] - 0.35, 0.7, 0.7);
+    glowDot(g, F.deflector[0], F.deflector[1], 2.6, '90,170,255', 0.9);
+    // Bussards amber, never red: red and pink are spoken for (Klingon, and
+    // alert), and the player's own nacelles are the last place to borrow them
+    for(i=0;i<F.bussards.length;i++) glowDot(g, F.bussards[i][0], F.bussards[i][1], 2.3, '255,176,110', 0.95);
+    for(i=0;i<F.engines.length;i++) glowDot(g, F.engines[i][0], F.engines[i][1], 1.8, P.glow, 0.85);
+    g.restore();
+  }
+
+  // ── the sprite catalogue ──
+  function alienSprite(kind, variant){
+    var AT = ALIEN_TYPES[kind];
+    return hullSprite('a:' + kind + ':' + (variant || ''), AT.r * 1.4 + 12, function(g){
+      if(variant === 'mask'){ maskPaint(g, function(){ silhouette(g, kind, AT.r, 'all'); }, AT.r); return; }
+      if(kind === 'drone') paintCube(g, AT.r, false, variant === 'adapted');
+      else paintWinged(g, kind, AT.r, false);
+    });
+  }
+  function capitalSprite(b, variant){
+    var BT = BOSS_TYPES[b.fac], R = b.r, key = 'c:' + b.fac + ':' + (variant || '');
+    return hullSprite(key, R * 1.7 + 16, function(g){
+      var rim = variant === 'rage' ? RAGE_RIM : null;
+      if(b.fac === 'klingon'){
+        if(variant === 'mask'){ maskPaint(g, function(){ klingonCapPath(g, R, 'all'); }, R); return; }
+        paintKlingonCap(g, R, rim);
+      } else if(BT.hull === 'drone'){
+        var FRd = R * 1.25;
+        if(variant === 'mask'){ maskPaint(g, function(){ g.beginPath(); g.rect(-FRd * 0.74, -FRd * 0.74, FRd * 1.48, FRd * 1.48); }, FRd); return; }
+        paintCube(g, FRd, true, false, rim);
+      } else {
+        var FR = R * 1.12;
+        if(variant === 'mask'){ maskPaint(g, function(){ silhouette(g, BT.hull, FR, 'all'); }, FR); return; }
+        paintWinged(g, BT.hull, FR, true, rim);
+      }
+      if(variant === 'rage') tint(g, '255,45,120', 0.16);
+    });
+  }
+  function playerSprite(id, amber){
+    return hullSprite('p:' + id + ':' + (amber ? 'amber' : ''), 32, function(g){
+      paintFed(g, id, amber ? '255,179,71' : HULL_PAINT.federation.rim);
+    });
+  }
+  // white wingtip strobes: live, because a painted light cannot blink
+  function strobes(kind, R, seed){
+    var D = HULL_DETAIL[kind];
+    if(!D || !D.tip) return;
+    var on = reduceMotion ? 0.8 : (Math.sin(gameTime * 5.5 + seed) > 0.72 ? 1 : 0.15);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = 'rgba(255,255,255,' + (0.9 * on).toFixed(3) + ')';
+    for(var s=-1; s<=1; s+=2){
+      ctx.beginPath();
+      ctx.arc(R * D.tip[0], s * R * D.tip[1], Math.max(0.9, R * 0.05) * (0.8 + 0.4 * on), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // the white silhouette the hit flash and the charge telegraph fade in
+  function maskPaint(g, pathFn, R){
+    g.save();
+    g.shadowColor = 'rgba(255,255,255,.9)'; g.shadowBlur = R * 0.25 * bakeScale;
+    pathFn(); g.fillStyle = '#fff'; g.fill();
+    g.restore();
+  }
+  // Bake everything up front — at the start of a run, behind the ship
+  // pick — so the first Borg cube of the run is not also the first frame
+  // that has to paint one.
+  function prebakeHulls(){
+    var k;
+    for(k in ALIEN_TYPES){ alienSprite(k); alienSprite(k, 'mask'); }
+    alienSprite('drone', 'adapted');
+    for(k in BOSS_TYPES){
+      var fake = { fac: k, r: BOSS_R };
+      capitalSprite(fake); capitalSprite(fake, 'mask'); capitalSprite(fake, 'rage');
+    }
+    for(k in FED){ playerSprite(k, false); playerSprite(k, true); }
+    // Draw every sprite once, at a single pixel and all but invisible, so the
+    // browser uploads it now — behind the ship pick — rather than on the
+    // frame a new hull first appears, which read as a hitch in the middle
+    // of a fight. The next frame clears the canvas anyway.
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 0.004;
+    for(k in spriteCache) if(spriteCache[k]) ctx.drawImage(spriteCache[k].cv, 0, 0, 1, 1);
+    ctx.restore();
+  }
+
+  // ── hull geometry ────────────────────────────────────────────────────────
+  // Where things sit on each escort hull, for the painters and the live
+  // strobes: the fuselage's nose and beam, the wingtip (where the strobe
+  // blinks), the main wing seam, the weapon point, and each faction's own
+  // pattern — Klingon feathers, Cardassian rib chevrons, Tholian crystal
+  // facets. Coordinates are in units of the hull radius, nose along +x, one
+  // wing only (the +y side, mirrored), so the same table paints a 30px scout
+  // and a 100px flagship.
+  var HULL_DETAIL = {
+    //          fuselage nose/beam   one wing (the +y side; mirrored)
+    scout:   { nose:1.12, beam:0.17, tip:[-0.88,0.66], seam:[[-0.20,0.22],[-0.60,0.66]], gun:[-0.02,0.34] },
+    raptor:  { nose:1.12, beam:0.17, tip:[-0.98,0.62], seam:[[-0.20,0.20],[-0.66,0.68]], gun:[0.04,0.30],
+               feathers:[[[-0.34,0.30],[-0.84,0.64]]] },
+    stalker: { nose:1.12, beam:0.19, tip:[0.50,0.80],  seam:[[-0.02,0.26],[0.36,0.84]],  gun:[0.36,0.66] },
+    lancer:  { nose:1.02, beam:0.24, tip:[-0.64,1.10], seam:[[-0.12,0.32],[-0.44,0.90]], gun:[-0.40,1.02], ribs:true },
+    warbird: { nose:1.12, beam:0.22, tip:[-0.08,1.14], seam:[[-0.02,0.34],[-0.14,0.98]], gun:[0.14,0.52],
+               feathers:[[[-0.24,0.34],[-0.34,0.96]], [[-0.42,0.30],[-0.48,0.86]]] },
+    weaver:  { nose:1.20, beam:0.14, tip:[0.62,0.96],  tip2:[-0.78,0.88], crystal:true, gun:[0.30,0.48] },
+    drone:   { box:true }
+  };
 
   // The tractor beam is the one upgrade whose effect was previously invisible
   // — loot simply drifted and you had to take it on trust. Drawing the lock
@@ -5182,129 +6954,19 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       ctx.restore();
     });
 
-    if(boss){
-      var b = boss;
-      // the telegraph: the hull whites out and swells for the beat before a
-      // charge commits, which is the whole reason a charge is survivable
-      var winding = b.phase === 'charge' && !b.charged;
-      // the telegraph is the only warning a charge is survivable at all, so
-      // under reduced motion it holds at full rather than disappearing
-      var flash = winding ? (reduceMotion ? 1 : 0.5 + 0.5 * Math.abs(Math.sin(gameTime * 18))) : 0;
-      // The lane. For the whole wind-up a dashed line runs from her bow to
-      // your hull, which is where she will come, so the dodge is a sidestep
-      // out of a line you can see rather than a guess about when the flash
-      // ends. Gold, the colour of the burst she commits with.
-      if(winding){
-        ctx.save();
-        if(ctx.setLineDash) ctx.setLineDash([6, 8]);
-        ctx.lineDashOffset = reduceMotion ? 0 : -gameTime * 60;
-        ctx.strokeStyle = 'rgba(255,209,102,' + (0.2 + 0.28 * flash).toFixed(3) + ')';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(b.x, b.y - camY); ctx.lineTo(ship.x, ship.y - camY); ctx.stroke();
-        if(ctx.setLineDash) ctx.setLineDash([]);
-        ctx.restore();
-      }
-      var col = b.hitT > 0 || flash > 0.6 ? '#ffffff' : (b.enraged ? '#ff4d6d' : '#c77dff');
-      var glow = b.enraged ? '#ff2fb9' : '#7b5cff';
-      var crgb = b.enraged ? '255,77,109' : '199,125,255';
-      var R = b.r;
-      ctx.save();
-      ctx.translate(b.x, b.y - camY);
-      // A capital ship points at what it is about to shoot. The old hull was a
-      // spinning octagon, which is the one shape that can afford not to have a
-      // front; this one has a bow, four engines and a keel, and a dreadnought
-      // that drifts sideways down the screen reads as debris.
-      ctx.rotate(b.face);
-      ctx.scale(1 + flash * 0.06, 1 + flash * 0.06);
-      ctx.lineJoin = 'round';
-
-      // Four engines: two on the keel, two at the wing roots. They burn all
-      // the time — a capital ship holding station is still a capital ship
-      // holding station against something — and they go to full during a
-      // charge, which is a second telegraph on top of the flash.
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      var burn = winding ? 1 : 0.45 + 0.1 * Math.sin(gameTime * 3);
-      plumeTrail(-R*0.72, 0,        R * (1.1 + burn * 1.5), R*0.15, crgb, 0.5 * burn + 0.2);
-      plumeTrail(-R*0.62, -R*0.30, R * (0.8 + burn * 1.1), R*0.09, crgb, 0.45 * burn + 0.15);
-      plumeTrail(-R*0.62,  R*0.30, R * (0.8 + burn * 1.1), R*0.09, crgb, 0.45 * burn + 0.15);
-      plumeTrail(-R*0.86, -R*0.62, R * (0.6 + burn * 0.9), R*0.07, crgb, 0.35 * burn + 0.12);
-      plumeTrail(-R*0.86,  R*0.62, R * (0.6 + burn * 0.9), R*0.07, crgb, 0.35 * burn + 0.12);
-      ctx.restore();
-
-      // The hull, drawn dark then neon like everything else on this field.
-      // The wings rake BACK rather than out: the armoured core is the only
-      // thing shots land on (bossHitR is 0.82R), and a silhouette that spread
-      // wide across the bow would put a wing where a bullet passes straight
-      // through it. Long and swept keeps the frontal section honest and still
-      // makes the thing look like it displaces something.
-      for(var pass=0; pass<2; pass++){
-        ctx.strokeStyle = pass ? col : 'rgba(4,2,8,.75)';
-        ctx.lineWidth = pass ? 2.2 : 4.6;
-        ctx.shadowColor = pass ? glow : 'transparent';
-        ctx.shadowBlur = pass ? 16 : 0;
-        if(!pass) ctx.fillStyle = b.enraged ? 'rgba(26,4,14,.92)' : 'rgba(11,5,24,.92)';
-
-        // keel: a long spine from the bow back to the engine block
-        ctx.beginPath();
-        ctx.moveTo(R, 0);
-        ctx.lineTo(R*0.42, -R*0.17);
-        ctx.lineTo(-R*0.52, -R*0.22);
-        ctx.lineTo(-R*0.78, -R*0.10);
-        ctx.lineTo(-R*0.78,  R*0.10);
-        ctx.lineTo(-R*0.52,  R*0.22);
-        ctx.lineTo(R*0.42,  R*0.17);
-        ctx.closePath();
-        if(!pass) ctx.fill();
-        ctx.stroke();
-
-        // the two swept wings, one path each so the curve keeps its own joins
-        for(var s=-1; s<=1; s+=2){
-          ctx.beginPath();
-          ctx.moveTo(R*0.30, s*R*0.20);
-          ctx.quadraticCurveTo(-R*0.10, s*R*0.66, -R*0.62, s*R*0.92);
-          ctx.lineTo(-R*1.02, s*R*0.86);
-          ctx.quadraticCurveTo(-R*0.66, s*R*0.60, -R*0.46, s*R*0.24);
-          ctx.closePath();
-          if(!pass) ctx.fill();
-          ctx.stroke();
-          // inboard pylon between keel and wing
-          ctx.beginPath();
-          ctx.moveTo(-R*0.10, s*R*0.21);
-          ctx.lineTo(-R*0.16, s*R*0.52);
-          ctx.lineTo(-R*0.54, s*R*0.48);
-          ctx.lineTo(-R*0.50, s*R*0.20);
-          ctx.closePath();
-          if(!pass) ctx.fill();
-          ctx.stroke();
-        }
-      }
-
-      // Accent strokes along the wings. In the reference these are what stop a
-      // big dark plane reading as a hole, and they cost two paths.
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = b.enraged ? 'rgba(255,140,170,.75)' : 'rgba(224,196,255,.7)';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      for(var s2=-1; s2<=1; s2+=2){
-        ctx.moveTo(R*0.16, s2*R*0.34);
-        ctx.quadraticCurveTo(-R*0.20, s2*R*0.68, -R*0.66, s2*R*0.84);
-      }
-      ctx.stroke();
-
-      // the core, which is also the charge telegraph: it swells and whites out
-      // on the beat before the hull commits
-      hullCore(R*0.05, R * (0.26 + 0.03 * Math.sin(gameTime * (b.enraged ? 9 : 4)) + flash * 0.16),
-               crgb, 0.85 + flash * 0.15);
-      ctx.restore();
-    }
+    drawWings(camY);
+    if(boss) drawCapital(boss, camY);
 
     aliens.forEach(function(al){
       var AT = ALIEN_TYPES[al.kind];
       var hot = al.hitT > 0;
+      // a cloaked hull is a shimmer, never nothing: faint enough to be
+      // untouchable, visible enough that the player can track where it went
+      ctx.globalAlpha = 1 - 0.9 * (al.cloak || 0);
       ctx.save();
       ctx.translate(al.x, al.y - camY);
       ctx.rotate(alienFacing(al, AT));
+      ctx.scale(HULL_VIS, HULL_VIS);
       // exhaust first, under everything, so the throat is covered by the hull.
       // A cube has no engines and gets none.
       if(AT.plume !== false){
@@ -5313,46 +6975,13 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         plumeTrail(-al.r * 0.62, 0, al.r * 2.2, al.r * 0.16, AT.rgb, 0.42);
         ctx.restore();
       }
-      // wings, then fuselage over their roots — see alienShape for why
-      for(var part = 0; part < 2; part++){
-        var which = part ? 'body' : 'wings';
-        ctx.fillStyle = 'rgba(9,5,18,.88)';
-        alienShape(al, AT, which, true);
-        ctx.strokeStyle = 'rgba(4,2,8,.66)';
-        ctx.lineWidth = 3.4;
-        alienShape(al, AT, which);
-        ctx.strokeStyle = hot ? '#ffffff' : AT.stroke;
-        ctx.shadowColor = AT.stroke;
-        ctx.shadowBlur = 11;
-        ctx.lineWidth = 1.7;
-        alienShape(al, AT, which);
-        ctx.shadowBlur = 0;
-      }
-      if(al.kind === 'drone'){
-        // The nodes. They are the cube's only colour and its only readout:
-        // green while it is still learning, white once it has adapted and is
-        // taking half of everything you do to it. That switch is the single
-        // most important thing this hull ever tells you.
-        var q = al.r * 0.74, rgb = al.adapted ? '255,255,255' : AT.rgb;
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.fillStyle = 'rgba(' + rgb + ',' + (al.adapted ? 0.95 : 0.8) + ')';
-        for(var gx=-1; gx<=1; gx++){
-          for(var gy=-1; gy<=1; gy++){
-            if(!gx && !gy) continue;
-            ctx.beginPath();
-            ctx.rect(gx*q*0.52 - 1.6, gy*q*0.52 - 1.6, 3.2, 3.2);
-            ctx.fill();
-          }
-        }
-        ctx.fillStyle = 'rgba(' + rgb + ',.22)';
-        ctx.beginPath(); ctx.arc(0, 0, al.r * 0.8, 0, Math.PI*2); ctx.fill();
-        ctx.restore();
-      } else {
-        // the lit core, kept small: at a quarter of the hull radius it swamped
-        // the fuselage it is supposed to be sitting inside
-        hullCore(al.r * 0.02, al.r * 0.19, AT.rgb, hot ? 1 : 0.8);
-      }
+      // the painted hull (see paintWinged / paintCube), then what moves on
+      // it: the white flash on the frame a shot lands, and the strobes. The
+      // cube's sprite has an adapted variant whose nodes burn white — the
+      // single most important thing that hull ever tells you.
+      blit(alienSprite(al.kind, al.kind === 'drone' && al.adapted ? 'adapted' : ''));
+      if(hot) blit(alienSprite(al.kind, 'mask'), Math.min(1, al.hitT / 0.12) * 0.5);
+      strobes(al.kind, al.r, al.id);
       ctx.restore();
 
       // Hull damage, and only once there IS damage. A bar over every ship in
@@ -5365,7 +6994,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       // ship it belongs to.
       if(al.maxHp && al.hp > 0 && al.hp < al.maxHp){
         var bw = Math.max(16, al.r * 2), bx = al.x - bw / 2;
-        var by = al.y - camY - al.r - 9;
+        var by = al.y - camY - al.r * HULL_VIS - 8;
         ctx.fillStyle = 'rgba(4,2,8,.72)';
         ctx.fillRect(bx - 1, by - 1, bw + 2, 4);
         ctx.fillStyle = 'rgba(' + AT.rgb + ',.92)';
@@ -5391,6 +7020,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
         ctx.setLineDash([]);
         ctx.restore();
       }
+      ctx.globalAlpha = 1;
     });
 
     // Incoming plasma, drawn as a spindle along its own heading rather than as
@@ -5406,6 +7036,23 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       var ux = ab.vx / L, uy = ab.vy / L;
       var len = r * 3.4, wid = r * 1.7;
       var x = ab.x, y = ab.y - camY;
+      // Tholian shards are cut crystal, not bolts: a shard that is about to
+      // split has to look like something that can break
+      if(ab.split || ab.shard){
+        var sr = r * 1.45;
+        ctx.save();
+        ctx.translate(x, y); ctx.rotate(Math.atan2(uy, ux));
+        ctx.fillStyle = 'rgba(' + rgb + ',.22)';
+        ctx.beginPath(); ctx.arc(0, 0, sr * 1.8, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(' + rgb + ',.95)';
+        ctx.beginPath(); ctx.moveTo(sr * 1.7, 0); ctx.lineTo(0, sr * 0.75); ctx.lineTo(-sr, 0); ctx.lineTo(0, -sr * 0.75);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = 'rgba(235,205,255,.95)';
+        ctx.beginPath(); ctx.moveTo(sr * 0.8, 0); ctx.lineTo(0, sr * 0.3); ctx.lineTo(-sr * 0.4, 0); ctx.lineTo(0, -sr * 0.3);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+        return;
+      }
       ctx.fillStyle = 'rgba(' + rgb + ',.24)';
       ctx.beginPath(); ctx.ellipse(x, y, len * 0.9, r * 1.5, Math.atan2(uy, ux), 0, Math.PI*2); ctx.fill();
       ctx.fillStyle = 'rgba(' + rgb + ',.9)';
@@ -5431,80 +7078,44 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
       ctx.save();
       ctx.translate(ship.x, ship.y - camY);
       ctx.rotate(ship.angle);
+      ctx.scale(HULL_VIS, HULL_VIS);
       // Impulse wash off both nacelles, and one long plume down the centreline
       // behind them. The long one is what actually reads: the nacelle cones say
       // "the engines are lit" at ten pixels, the centreline plume says how fast
       // you are going at a hundred, and speed was the one thing this ship could
       // never tell you about itself.
       var spd = Math.min(1, Math.hypot(ship.vx, ship.vy) / terminalSpeed());
+      // every class burns from its own engines: the last entry is the
+      // centreline, the others the nacelles
+      var FD = FED[hull] || FED.torp, EN = FD.engines, ce = EN[EN.length - 1];
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       if(ship.thrusting || spd > 0.12){
         var wash = rapidTime > 0 ? '255,190,110' : '125,249,255';
-        plumeTrail(-13, 0, (ship.thrusting ? 34 : 10) + spd * 78,
+        plumeTrail(ce[0], ce[1], (ship.thrusting ? 34 : 10) + spd * 78,
                    3.6 + spd * 1.6, wash, ship.thrusting ? 0.55 : 0.3);
       }
       if(ship.thrusting){
         var L = (9 + spd * 12) * (0.76 + Math.random() * 0.38);
-        for(var np=0; np<2; np++){
-          var ey = np ? 11.2 : -11.2;
-          plume(-12.6, ey, L * 1.45, 3.6, 'rgba(0,150,255,.18)');
-          plume(-12.6, ey, L,        2.3, 'rgba(125,249,255,.5)');
-          plume(-12.6, ey, L * 0.4,  1.3, 'rgba(255,255,255,.8)');
+        for(var np=0; np<EN.length - 1; np++){
+          plume(EN[np][0], EN[np][1], L * 1.45, 3.6, 'rgba(0,150,255,.18)');
+          plume(EN[np][0], EN[np][1], L,        2.3, 'rgba(125,249,255,.5)');
+          plume(EN[np][0], EN[np][1], L * 0.4,  1.3, 'rgba(255,255,255,.8)');
         }
       }
       ctx.restore();
-      ctx.lineJoin = 'round';
-      // The hull is solid before it is lit. Against a starfield an unfilled
-      // outline lets the sky through the saucer, and the ship stops being the
-      // nearest thing on screen — which is the one thing it always has to be.
-      ctx.fillStyle = 'rgba(5,11,24,.88)';
-      shipShape(true);
-      // dark underpass, so the hull holds together against a bright rock
-      ctx.strokeStyle = 'rgba(4,2,8,.7)';
-      ctx.lineWidth = 3.6;
-      shipShape();
-      // an overloaded phaser array runs the hull hot, which is the only tell
-      // the player needs that the drop is still live
-      var hullCol = rapidTime > 0 ? '#ffb347' : '#00f0ff';
-      ctx.strokeStyle = hullCol;
-      ctx.shadowColor = hullCol;
-      // a tight glow: at 1.6px line weight anything above ~11 fills the gaps
-      // between saucer, pylons and nacelles and the hull reads as one blob.
-      // Both numbers went up a notch when the background came down — the ship
-      // has to stay the brightest, heaviest outline on the screen, and the
-      // cheapest way to keep it there is to draw it that way.
-      ctx.shadowBlur = 10;
-      ctx.lineWidth = 1.8;
-      shipShape();
-      // The bridge dome and the deflector, which are the two details that make
-      // a saucer read as the front of a starship rather than as a disc.
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = 'rgba(125,249,255,.55)';
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.arc(8.5, 0, 3.1, 0, Math.PI*2); ctx.stroke();
-      ctx.beginPath(); ctx.arc(15.2, 0, 1.5, -1.1, 1.1); ctx.stroke();
-      // The warp core, sitting in the secondary hull where it belongs — and
-      // the one place a charged core is announced on the ship. It used to be a
-      // dashed ring around the hull, which was both a circle too many and a
-      // thing drawn beside the ship rather than on it.
+      // The painted hull of the class picked at the shakedown (paintFed), in
+      // amber while the phaser array is overloaded — the only tell the
+      // player needs that the drop is still live.
+      blit(playerSprite(hull || 'torp', rapidTime > 0));
+      // The warp core — the one place a charged core is announced on the
+      // ship: it swells, and goes white when the overcharge is ready.
       var chg = overcharged
         ? 1.5 + (reduceMotion ? 0 : 0.22 * Math.sin(gameTime * 7))
         : 1 + 0.4 * (core / CORE_MAX);
-      hullCore(-8.5, 2.6 * chg,
+      hullCore(FD.core[0], FD.coreR * chg,
                overcharged ? '255,255,255' : (rapidTime > 0 ? '255,190,110' : '111,232,255'),
                overcharged ? 1 : 0.9);
-      // Bussard collectors: the one warm accent on an otherwise cold hull.
-      // Amber rather than the red they are canonically drawn in, because red
-      // and pink are spoken for — they mean Klingon, or they mean you are
-      // about to die — and two of them sitting on the player's own nacelles
-      // was the one place the colour system contradicted itself.
-      ctx.shadowColor = '#ff8a3d';
-      ctx.shadowBlur = 7;
-      ctx.fillStyle = '#ffb877';
-      ctx.beginPath(); ctx.arc(3.6, -11.2, 1.5, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(3.6,  11.2, 1.5, 0, Math.PI*2); ctx.fill();
-      ctx.shadowBlur = 0;
       // Muzzle flare on the emitter, in the beam's own colour. The phaser
       // fires ten times a second and it used to do it silently — the bullet
       // simply existed one frame and did not the frame before. A flash at the
@@ -5636,34 +7247,38 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     // as dots. It costs nothing — the velocity is already there — and it is
     // the single clearest signal that this weapon is a beam and the slow
     // orange thing beside it is not.
+    //
+    // Longer, heavier and brighter since Sep 2026 ("the phasers feel
+    // smaller"), and every beam goes into ONE path per pass. They used to be
+    // stroked one at a time with a blur on each, so a five-beam cone at full
+    // rate paid for fifty blurred strokes a frame; now it pays for one.
     var beamCol = rapidTime > 0 ? '#ffc978' : '#7df9ff';
-    ctx.strokeStyle = beamCol;
-    ctx.shadowColor = rapidTime > 0 ? '#ffa726' : '#00f0ff';
-    ctx.shadowBlur = 12;
-    ctx.lineWidth = 2.6;
     ctx.lineCap = 'round';
-    bullets.forEach(function(b){
-      var L = Math.hypot(b.vx, b.vy) || 1;
-      var ux = b.vx / L, uy = b.vy / L, len = 9;
+    if(bullets.length){
+      ctx.strokeStyle = beamCol;
+      ctx.shadowColor = rapidTime > 0 ? '#ffa726' : '#00f0ff';
+      ctx.shadowBlur = 14;
+      ctx.lineWidth = 3.6;
       ctx.beginPath();
-      ctx.moveTo(b.x - ux*len, b.y - camY - uy*len);
-      ctx.lineTo(b.x, b.y - camY);
+      bullets.forEach(function(b){
+        var L = Math.hypot(b.vx, b.vy) || 1, ux = b.vx / L, uy = b.vy / L, len = 14;
+        ctx.moveTo(b.x - ux*len, b.y - camY - uy*len);
+        ctx.lineTo(b.x, b.y - camY);
+      });
       ctx.stroke();
-    });
-    // A white core down the middle of every beam. It is what makes a phaser
-    // look hot rather than merely coloured, and it costs one more pass over a
-    // list that is already in cache.
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = 'rgba(255,255,255,.8)';
-    ctx.lineWidth = 1;
-    bullets.forEach(function(b){
-      var L = Math.hypot(b.vx, b.vy) || 1;
-      var ux = b.vx / L, uy = b.vy / L;
+      // a white core down the middle of every beam: what makes a phaser look
+      // hot rather than merely coloured
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(255,255,255,.9)';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(b.x - ux*5.5, b.y - camY - uy*5.5);
-      ctx.lineTo(b.x, b.y - camY);
+      bullets.forEach(function(b){
+        var L = Math.hypot(b.vx, b.vy) || 1, ux = b.vx / L, uy = b.vy / L;
+        ctx.moveTo(b.x - ux*9, b.y - camY - uy*9);
+        ctx.lineTo(b.x, b.y - camY);
+      });
       ctx.stroke();
-    });
+    }
     ctx.lineCap = 'butt';
 
     // Mines. Violet, which is nothing else on this field, and drawn as a ring
@@ -5875,6 +7490,8 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(pauseEl) pauseEl.classList.remove('on');
     if(hailEl) hailEl.classList.remove('on');
     resize();
+    // every hull is painted now, while the ship pick is up (see prebakeHulls)
+    prebakeHulls();
     resetRun();
     document.body.classList.add('astro-active');
     document.documentElement.style.scrollBehavior = 'auto';
@@ -5887,7 +7504,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     window.addEventListener('orientationchange', resize);
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
-    window.addEventListener('blur', autoPause);
+    window.addEventListener('blur', onBlur);
     document.addEventListener('visibilitychange', onVisibility);
     document.addEventListener('click', blockClicks, true);
     tipTimer = setTimeout(autoHideTip, 5000);
@@ -5914,7 +7531,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     window.removeEventListener('orientationchange', resize);
     window.removeEventListener('keydown', onKeyDown);
     window.removeEventListener('keyup', onKeyUp);
-    window.removeEventListener('blur', autoPause);
+    window.removeEventListener('blur', onBlur);
     document.removeEventListener('visibilitychange', onVisibility);
     document.removeEventListener('click', blockClicks, true);
     keys = {};
@@ -5925,7 +7542,7 @@ var ROT_SPEED = 0.06, THRUST = 0.155, BULLET_SPEED = 11, SHOT_COOLDOWN = 0.235, 
     if(hailEl) hailEl.classList.remove('on');
     if(bossBarEl) bossBarEl.classList.remove('on');
     if(warnEl) warnEl.classList.remove('on');
-    boss = null; bossWarn = 0;
+    boss = null; bossWarn = 0; wings = []; contact = null;
     homeStick();
     ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
     destroyed.forEach(function(el){

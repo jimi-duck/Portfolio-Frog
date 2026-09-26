@@ -82,7 +82,9 @@ rules, one accent. All of it lives in `css/swiss.css`.
   scale, position and the numbered system; a figure that matters gets its own
   column in a hairlined definition list (`.wmeta` on the work cards). The one
   surviving `<strong>` is structural, not emphasis: `.mcard strong` is the
-  card's heading and renders as a block at `--t-h3`.
+  card's heading and renders as a block at `--t-h3`. The single exception is
+  the homepage work cards, where `.wproj-d strong` sets the opening verb phrase
+  (what I did) in bold so the card can be skimmed in two lines.
 - **Semantics** — one `<h1>` per page, every section label (`.lab`, `.sec-lbl`)
   is a real `<h2>`, and every page has a skip link and a `<main id="main">`.
   The mobile menu is closed with `visibility:hidden`, not clip-path alone —
@@ -110,9 +112,24 @@ rules, one accent. All of it lives in `css/swiss.css`.
   out-specifies it. And `.sechd` draws its hairline with a pseudo-element
   rather than a border, so anything setting `border-bottom` on it will fight.
 
-Case study pages share one class vocabulary (`cs-hero`, `section`, `prose`,
-`two`/`three`/`four`, `stats`, `pbox`, `pq`, `cards`, `dark-band`, `warm-band`,
-`next`), so restyling them means editing `swiss.css` rather than the pages.
+Case study pages share one class vocabulary (`cs-hero`, `glance`, `section`,
+`lede`, `prose`, `two`/`three`/`four`, `stats`, `pbox`, `pq`, `cards`,
+`dark-band`, `warm-band`, `next`), so restyling them means editing `swiss.css`
+rather than the pages.
+
+They also share one structure, written for a reader with five minutes:
+
+- **Hero**: title, a one-sentence tagline, and Role · Years · Shipped.
+- **`glance`**: the problem, what I did, the result. One sentence or two each.
+  Somebody who reads nothing else should still leave with the whole case.
+- **Numbered chapters** (`<span class="lbl-n">01</span>` in the label). Each has
+  one headline that makes one claim and one `lede` beside it, set larger than
+  body copy. Headline plus lede is the skim path; anything after the lede is
+  the second read, so keep it short and let the screens carry the detail.
+- **Captions** are sentence case, not tracked capitals, because they are
+  sentences.
+
+Adding a chapter means adding a headline and a lede, not another paragraph.
 
 They also form one chain: the homepage links all four, and each page's `.next`
 card carries you to the following one — Enter → Coup → Cooler Future → Vivy,

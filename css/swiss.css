@@ -500,7 +500,10 @@ body.menu-on{overflow:hidden}
   left:calc(var(--gap) / -2);width:1px;background:var(--rule-2)}
 .capline>div:first-child::before{display:none}
 .capline dt{color:var(--ink);font-weight:700;margin-bottom:.5rem}
-.capline dd{color:var(--mute)}
+/* The label stays a label; the value is read, so it drops the caps. Seven
+   domains in tracked uppercase was the densest line on the homepage. */
+.capline dd{color:var(--ink-2);text-transform:none;letter-spacing:-.006em;
+  font-size:var(--t-body);line-height:1.45;text-wrap:balance}
 
 /* ── 11. CLIENT ROW ──────────────────────────────────────────────────────── */
 /* Rules above and below, not a box per logo — the row reads as one measured
@@ -581,7 +584,19 @@ body.menu-on{overflow:hidden}
 .wproj-t{font-size:clamp(2rem,4.6vw,4rem);font-weight:700;letter-spacing:-.045em;line-height:.94;
   margin-top:-.06em;transition:color .35s var(--ez)}
 .wproj:hover .wproj-t{color:var(--red)}
+/* What the company is, then what I did there: two lines with two jobs, so a
+   visitor who has never heard of Enter or Coup knows what they are looking at
+   before reading about my part in it. The company line is the standfirst,
+   in ink at body size; my part sits under it at the smaller reading size. */
+.wproj-co{margin-top:1.2rem;font-size:var(--t-body);line-height:1.45;letter-spacing:-.008em;
+  color:var(--ink);max-width:34ch}
 .wproj-d{margin-top:1.2rem;font-size:var(--t-small);line-height:1.6;color:var(--ink-2);max-width:46ch}
+.wproj-co+.wproj-d{margin-top:.7rem}
+/* The one run of bold inside body copy on the site, and it is deliberate: the
+   verb phrase that says what I did, so a skimmer reads company line, then my
+   part, and can stop there. Ink rather than --ink-2 so the weight and the tone
+   agree. */
+.wproj-d strong{font-weight:700;color:var(--ink)}
 
 /* Meta row — the emphasis mechanism that replaces bolded runs inside the copy.
    Facts that used to be shouted mid-sentence get a column and a hairline
@@ -685,6 +700,9 @@ body.menu-on{overflow:hidden}
 }
 .fg input::placeholder,.fg textarea::placeholder{color:color-mix(in srgb,var(--mute) 78%,transparent)}
 .fg input:focus,.fg textarea:focus{outline:0;border-bottom-color:var(--red)}
+/* A field the form sent back. The message under the form says what to do;
+   this says where. */
+.fg [aria-invalid="true"]{border-bottom-color:var(--red)}
 .fg textarea{resize:vertical;min-height:104px}
 .fsub{display:flex;align-items:center;gap:1.1rem;background:none;border:0;padding:0;cursor:pointer;text-align:left}
 .fsub .cta-t{font-size:var(--t-lab);font-weight:700;text-transform:uppercase;letter-spacing:var(--tr-lab)}
@@ -727,6 +745,8 @@ footer{--red:#ff5b36;--red-ink:#ff5b36;
 .f-keys{display:flex;align-items:center;gap:.42em}
 .f-keys kbd{font:inherit;letter-spacing:0;padding:.15em .45em;line-height:1;
   border:1px solid color-mix(in srgb,var(--band-ink) 30%,transparent);color:var(--band-ink)}
+/* A phone has no G key to press. */
+html.coarse .f-keys{display:none}
 
 /* ── 17. ENTRANCE MOTION ─────────────────────────────────────────────────── */
 /* One treatment, and it is applied to sections — not to elements.
@@ -843,11 +863,54 @@ body.grid-on #gridhint{display:block}
    headline uses, which fits the same column with room to spare. Reach for it
    when a title is longer than about six characters, not as a matter of taste. */
 .cs-title.is-long{font-size:var(--t-h1);letter-spacing:-.042em}
-.cs-tagline{font-size:var(--t-small);line-height:1.6;color:var(--ink-2);max-width:52ch}
+/* The one sentence everybody reads, so it is set as a standfirst rather than at
+   --t-small. It used to be the smallest type in the hero and carried 50–60
+   words; it now carries one sentence and is sized like it matters. */
+.cs-tagline{font-size:clamp(1.1rem,1.45vw,1.36rem);line-height:1.45;letter-spacing:-.01em;
+  color:var(--ink-2);max-width:40ch}
 .meta-grid{display:grid;gap:0;border-top:1px solid var(--ink)}
 .meta-item{padding:.8rem 0;border-bottom:1px solid var(--rule-2)}
 .meta-item label{display:block;font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);margin-bottom:.3rem}
 .meta-item p{font-size:var(--t-small);line-height:1.45}
+
+/* ── The skim layer ─────────────────────────────────────────────────────── */
+/* A case study gets read twice: once in under a minute by somebody deciding
+   whether it is worth reading, and once properly. The first read runs on
+   exactly three things, and each page is written so those three alone carry
+   the story:
+
+     .glance   problem, what I did, the result: the whole case in one band
+     h2        one claim per chapter, readable without the paragraph under it
+     .lede     the one paragraph per chapter that explains the claim
+
+   Everything else (captions, cards, secondary prose) is for the second read,
+   and is set smaller and quieter so the first read can skip it cleanly. */
+.glance{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);
+  width:calc(100% - var(--pad) * 2);max-width:var(--measure);
+  margin:0 auto clamp(2.6rem,5.4vw,4.6rem);
+  border-top:1px solid var(--ink);padding-top:clamp(1.2rem,2.2vw,1.7rem)}
+/* Hairline in the gutter, the same device as .stat and .capline, so the three
+   cells start on their column lines. */
+.glance>div{position:relative;min-width:0}
+.glance>div::before{content:'';position:absolute;top:0;bottom:0;left:calc(var(--gap) / -2);
+  width:1px;background:var(--rule-2)}
+.glance>div:first-child::before{display:none}
+.glance dt{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;
+  color:var(--mute);margin-bottom:.65rem}
+.glance dd{font-size:clamp(1.02rem,1.2vw,1.14rem);line-height:1.5;color:var(--ink);max-width:36ch}
+
+/* The chapter number. Grey rather than red: a page with nine chapters would
+   otherwise spend the accent nine times. The number is there so a skimmer can
+   see the shape of the story (and how far through it they are), not to shout. */
+.lbl-n{color:var(--mute);margin-right:.85em;font-variant-numeric:tabular-nums}
+
+/* The lede. Ink rather than --ink-2 and a step up in size, because it is the
+   paragraph the skim read stops on. Shorter measure than .prose: at this size
+   62ch is a wall. */
+.lede{font-size:clamp(1.12rem,1.45vw,1.34rem);line-height:1.5;letter-spacing:-.01em;
+  color:var(--ink);max-width:44ch}
+.lede+.prose,.lede+.lede{margin-top:1.2em}
+h2+.lede{margin-top:0}
 
 .hero-img{width:100%;height:clamp(300px,58svh,760px);object-fit:cover;display:block;
   filter:grayscale(100%) contrast(1.06)}
@@ -874,12 +937,6 @@ body.grid-on #gridhint{display:block}
 .stat:first-child::before{display:none}
 .stat-n{font-size:clamp(2rem,4.4vw,3.6rem);font-weight:700;letter-spacing:-.045em;line-height:.9}
 .stat-l{margin-top:.7rem;font-size:var(--t-small);color:var(--ink-2);line-height:1.45}
-/* The same stat vocabulary used inside a section rather than as a full-bleed
-   band: two figures, no page padding of its own, and a rule above instead of
-   below so it reads as the closing line of the section it sits in. */
-.stats.is-out{grid-template-columns:repeat(2,1fr);padding:clamp(1.7rem,3vw,2.4rem) 0 0;
-  border-bottom:0;border-top:1px solid var(--ink);margin-top:clamp(2rem,4vw,3rem)}
-.stats.is-out .stat-n{font-size:clamp(1.9rem,3.6vw,3rem)}
 
 .body{padding-left:var(--pad);padding-right:var(--pad)}
 .section{padding-top:var(--space-section);padding-bottom:0;max-width:var(--measure);margin:0 auto}
@@ -903,10 +960,11 @@ body.grid-on #gridhint{display:block}
   padding-top:clamp(.85rem,1.6vw,1.2rem);padding-bottom:0;
   margin-bottom:var(--space-tight)}
 .lbl{font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--ink)}
-.section-num{display:block;font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);color:var(--red-ink);
-  margin-bottom:.35rem;font-variant-numeric:tabular-nums}
+/* Balanced, not hand-broken. The headlines used to carry a <br> every three
+   or four words, which set every one of them as a three-line stack whether the
+   column needed it or not. Shorter headlines and balance do that job now. */
 .section h2,.dark-band h2,.warm-band h2{font-size:var(--t-h2);font-weight:700;letter-spacing:-.038em;
-  line-height:.98;margin-bottom:var(--space-tight)}
+  line-height:.98;margin-bottom:var(--space-tight);text-wrap:balance;max-width:16em}
 /* The first block after a headline belongs to it. .sp-s is the small step
    between blocks and it was overriding the headline's own tight margin here,
    which put the same gap under a headline as between two unrelated blocks.
@@ -1008,7 +1066,10 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    and a 4:3 box took the header off the top of it and the U-value off the
    bottom. Both sources are square, so they sit level at their natural height. */
 @media (max-width:560px){.doc-row{grid-template-columns:1fr;gap:1.4rem}}
-.cap{margin-top:.6rem;font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);line-height:1.5}
+/* Sentence case. Captions were set as uppercase tracked labels, which is fine
+   for three words and hard work for fifteen: every caption on the site is a
+   sentence, and uppercase takes away the word shapes a sentence is read by. */
+.cap{margin-top:.7rem;font-size:var(--t-small);line-height:1.5;color:var(--mute);max-width:56ch}
 /* .tall/.wide/.short are legacy hooks in the markup — deliberately inert, so
    nothing crops. Set an aspect-ratio inline on a specific image if you want one. */
 
@@ -1050,9 +1111,6 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
 .pbox.is-brief p::before,.pbox.is-brief p::after{
   color:var(--red);font-size:1.4em;line-height:0;vertical-align:-.16em;
 }
-/* A tinted pull box, for one that sits on --sheet and needs to lift off it. */
-.pbox.is-fill{background:color-mix(in srgb,var(--ink) 6%,transparent);
-  padding:clamp(.8rem,1.6vw,1.1rem) clamp(.9rem,1.8vw,1.3rem) clamp(.8rem,1.6vw,1.1rem) 1.2rem}
 
 /* ── The statement ──────────────────────────────────────────────────────── */
 /* One sentence, at full width, twice on a page. It is the skim path: somebody
@@ -1106,6 +1164,9 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    four is both on the grid and a clean 3x3. */
 .cards{counter-reset:card;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
   gap:var(--gap)}
+/* Stacked, for a set of findings that sits under a picture in one column
+   rather than across the page. Holds at every width. */
+.cards.is-stack{grid-template-columns:minmax(0,1fr);gap:clamp(1.1rem,2vw,1.5rem)}
 .icard{border-top:1px solid var(--rule);padding:.9rem 0 0;counter-increment:card}
 /* .icard markup carries an emoji here, which has no place in this palette —
    the grid numbers itself instead. .mcard has real line icons; it keeps them. */
@@ -1123,9 +1184,6 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
    quality that made a lone third card read as deliberate. */
 .mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);
   margin-top:clamp(1.4rem,2.6vw,1.9rem)}
-/* Following the closing figures, this is a change of subject rather than the
-   next part of one — the metric's own margin is a within-block step. */
-.stats.is-out + .mgrid{margin-top:var(--space-block)}
 /* A warm panel a shade darker than the page, no frame. Square — this used to
    carry the only rounded corner in the system, which made it the one component
    that didn't belong to the grid. */
@@ -1142,6 +1200,14 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   line-height:1.22;color:var(--ink);margin-bottom:.5rem}
 .dark-band .mcard{background:color-mix(in srgb,var(--band-ink) 8%,transparent)}
 .dark-band .mcard strong{color:var(--band-ink)}
+/* The compact row: one panel per metric in a single line, icon above a title
+   and one short line. The two-up grid with a paragraph in every panel was the
+   heaviest block at the foot of each page, for what is four labels and their
+   definitions. As many columns as there are metrics. */
+.mgrid.is-compact{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+.mgrid.is-compact .mcard{flex-direction:column;gap:.9rem}
+.mgrid.is-compact .mcard p{line-height:1.5}
+.mgrid.is-compact .mcard strong{font-size:var(--t-body);letter-spacing:-.012em;margin-bottom:.3rem}
 
 /* bands */
 /* A band that inverts the ground has to invert the ink tokens with it, not just
@@ -1281,19 +1347,6 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   text-transform:uppercase;color:var(--red-ink);margin-bottom:.55rem}
 .utype h3{font-size:var(--t-h3);letter-spacing:-.022em;line-height:1.1;margin-bottom:.55rem}
 .utype p:not(.utype-tag){font-size:var(--t-small);line-height:1.6;color:var(--ink-2)}
-.toc{border-top:1px solid var(--rule);margin-top:1.4rem}
-.toc-lbl{font-size:var(--t-lab);letter-spacing:var(--tr-lab);text-transform:uppercase;color:var(--mute);padding:1rem 0 .6rem;display:block}
-.toc-list{list-style:none;display:grid;gap:0}
-.toc-list li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.2rem .95rem;
-  padding:.85rem 0;border-bottom:1px solid var(--rule-2)}
-.toc-list li:last-child{border-bottom:0}
-.toc-list a{display:contents}
-.toc-n{grid-row:span 2;font-size:var(--t-lab);font-weight:700;letter-spacing:var(--tr-lab);color:var(--mute);
-  padding-top:.25rem;font-variant-numeric:tabular-nums}
-.toc-t{font-size:var(--t-h3);font-weight:700;letter-spacing:-.022em;line-height:1.2}
-.toc-d{font-size:var(--t-small);color:var(--ink-2);line-height:1.55}
-.dark-band .toc{border-top-color:var(--rule)}
-.dark-band .toc-t{color:var(--band-ink)}
 
 /* next / back-home */
 .next{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);align-items:center;
@@ -1394,6 +1447,13 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .w-y{display:none}
   .cs-hero{grid-template-columns:1fr;gap:2rem;align-items:start}
   .cs-hero>:first-child,.cs-hero>.meta-grid{grid-column:auto}
+  /* Stacked, the gutter hairline has nowhere to sit; each cell takes a rule on
+     top instead, the same move .stat makes at this width. */
+  .glance{grid-template-columns:1fr;row-gap:0;padding-top:0}
+  .glance>div{padding:1.1rem 0;border-top:1px solid var(--rule-2)}
+  .glance>div:first-child{border-top:0}
+  .glance>div::before{display:none}
+  .mgrid.is-compact{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr))}
   .two,.two.lean,.three,.phones-trio{grid-template-columns:1fr}
   .two>*,
   .two.lean>:first-child,.two.lean>:last-child,
@@ -1403,7 +1463,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .mgrid{grid-template-columns:1fr}
   /* Two of six, still on the grid. */
   .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .stats,.stats.is-out{grid-template-columns:1fr;gap:1.4rem}
+  .stats{grid-template-columns:1fr;gap:1.4rem}
   .appshots.n4,.appshots.n3{grid-template-columns:repeat(2,minmax(0,1fr))}
   /* Stacked, --gap bottoms out at 1rem, which is less air than sits between a
      render and its own caption — two screens then read as one column of
@@ -1439,6 +1499,7 @@ h2 em,h3 em,.bh-t em,.next-title em,.pq em{font-style:normal;color:var(--red)}
   .cli{grid-template-columns:repeat(2,1fr)}
   .f-grid{grid-template-columns:1fr}
   .cards{grid-template-columns:1fr}
+  .mgrid.is-compact{grid-template-columns:1fr}
   .phones-pair{grid-template-columns:1fr}
   /* One screen at a time. Two 150px renders side by side are a texture, not a
      screenshot, and the caption under each shreds into four words a line. */

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Experiments · James Ciclitira</title>
+<title>AI experiments · James Ciclitira</title>
 <!-- @head -->
 <!-- Runs before the first paint, which is the whole point of it being inline
      and not in swiss.js: a stylesheet chosen a frame late is a white flash on
@@ -23,11 +23,11 @@
      if it ever becomes a page worth being found cold. One without the other is
      half a decision. -->
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="Three things I wanted, so I built them: a seasonal produce calendar in React, an iOS app for German fuel prices, and a game hidden in this site.">
+<meta name="description" content="Things I build with AI to see what happens: a game hidden in this site, a seasonal produce calendar in React, and an iOS app for German fuel prices.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Experiments · James Ciclitira">
-<meta property="og:description" content="Three things I wanted, so I built them: a seasonal produce calendar in React, an iOS app for German fuel prices, and a game hidden in this site.">
-<meta property="og:image" content="https://www.jciclitira.com/img/erntereif-hero.jpg">
+<meta property="og:title" content="AI experiments · James Ciclitira">
+<meta property="og:description" content="Things I build with AI to see what happens: a game hidden in this site, a seasonal produce calendar in React, and an iOS app for German fuel prices.">
+<meta property="og:image" content="https://www.jciclitira.com/img/asteroid-blaster.jpg">
 <meta property="og:url" content="https://www.jciclitira.com/lab.html">
 <!-- Self-referencing, like every other page. It does nothing while the robots
      line above is there — a noindexed page is not a canonical candidate — and
@@ -96,20 +96,46 @@
   <div>
     <a href="index.html" class="back">← All work</a>
     <p class="eyebrow">Side projects · 2026</p>
-    <h1 class="cs-title is-long">Experiments</h1>
-    <p class="cs-tagline">Three things I wanted, so I built them. One React web app, one native iOS app, one game.</p>
+    <h1 class="cs-title is-long">AI experiments</h1>
+    <p class="cs-tagline">Things I build with AI to see what happens. No brief, no client, just for fun.</p>
   </div>
 </header>
 
 <div class="body">
 
-  <!-- ═══ 01 · ERNTEREIF · REACT ══════════════════════════ -->
+  <!-- ═══ 01 · ASTEROID BLASTER · CANVAS ══════════════ -->
+  <!-- First because it is the one project here that runs on the page you are
+       reading. The control at the end is a <button> rather than an <a href="#">,
+       because it opens the game over this page rather than going anywhere. The
+       board it opens is stamped in at the bottom of the file from
+       partials/game.html. -->
+  <section class="section" data-reveal>
+    <p class="lbl">01 · Asteroid Blaster · Canvas</p>
+    <h2>Resistance is <em>futile.</em></h2>
+
+    <div class="pbox is-brief"><p>When someone’s done reading, I want something here they can play instead, so the last thing they do isn’t more scrolling.</p></div>
+
+    <p class="prose sp-s">A survivor-style roguelite over whatever page you launched it from. The phasers fire automatically, so the helm is the only control, and each time the dilithium rail fills you choose one of three upgrades.</p>
+
+    <p class="prose">It needed a test rig to balance. Every warbird kill used to drop a hull point, which put the net rate at 0.00 lives a minute, so no run could ever end. Playing it never felt wrong, but the numbers were.</p>
+
+    <p class="sp-s"><button type="button" id="play-game" class="tlink lbl" style="color:var(--red-ink)">Play it here →</button></p>
+
+    <img class="img sp-m" src="img/asteroid-blaster.jpg" alt="The game running over this page: a cyan starship firing a fan of phasers among faceted purple rocks, with Klingon, Romulan and Cardassian ships closing in and a Borg cube’s green cutting beam across the field" loading="lazy" width="1600" height="1000">
+    <p class="cap">Refit 7, four factions on screen. This page is still underneath</p>
+    <img class="img sp-m" src="img/asteroid-blaster-refit.jpg" alt="The Field Refit panel: three upgrade cards reading Photon Torpedo Bay, Navigational Deflector and Phaser Array, each with an illustration and its figures" loading="lazy" width="1600" height="1000">
+    <p class="cap">Fill the dilithium rail, pick one of three</p>
+    <img class="img sp-m" src="img/asteroid-blaster-summary.jpg" alt="The Hull Breach summary: a score of 7072, four stat tiles compared against the previous best, and a line chart of this run against the best one" loading="lazy" width="1600" height="1000">
+    <p class="cap">Every run ends on the one before it</p>
+  </section>
+
+  <!-- ═══ 02 · ERNTEREIF · REACT ══════════════════════════ -->
   <!-- Each section opens with the job story, in a plain .pbox: an emphasised
        paragraph at reading size, which is what that component is for. The
        .is-claim modifier is the other thing entirely — a full-width statement —
        so it stays out of this. -->
   <section class="section" data-reveal>
-    <p class="lbl">01 · Erntereif · React</p>
+    <p class="lbl">02 · Erntereif · React</p>
     <h2>A seasonal calendar for<br>what is actually <em>growing near you.</em></h2>
 
     <div class="pbox is-brief"><p>When I’m food shopping, I want to know what’s genuinely in season here right now, so I can buy that instead of something flown in out of season.</p></div>
@@ -128,12 +154,12 @@
     <p class="sp-s"><a class="tlink lbl" href="https://chimerical-shortbread-708934.netlify.app/" target="_blank" rel="noopener" style="color:var(--red-ink)">Open it ↗</a></p>
   </section>
 
-  <!-- ═══ 02 · TANKEN · SWIFTUI ═════════════════════════ -->
+  <!-- ═══ 03 · TANKEN · SWIFTUI ═════════════════════════ -->
   <!-- All five screens run the app’s own -sample-history demo mode, which is
        canned end to end and says so on screen in red. That label is the reason
        these can be shown at all: nothing here is presented as a real price. -->
   <section class="section" data-reveal>
-    <p class="lbl">02 · Tanken · SwiftUI</p>
+    <p class="lbl">03 · Tanken · SwiftUI</p>
     <h2>Fuel prices, and whether<br>to fill up <em>now or wait.</em></h2>
 
     <div class="pbox is-brief"><p>When I drive past a petrol station, I want to know whether today’s price is a good one, so I don’t fill up the day before it drops.</p></div>
@@ -187,29 +213,6 @@
     </div>
   </section>
 
-  <!-- ═══ 03 · ASTEROID BLASTER · CANVAS ══════════════ -->
-  <!-- The only section on the page with no screenshots, and deliberately: this
-       is the one project here that runs on the page you are reading, so the
-       control at the end of it does the job the pictures do above. It is a
-       <button> rather than an <a href="#">, because it opens the game over this
-       page rather than going anywhere. The board it opens is stamped in at the
-       bottom of the file from partials/game.html. -->
-  <section class="section" data-reveal>
-    <p class="lbl">03 · Asteroid Blaster · Canvas</p>
-    <h2>A game in the site,<br>and the script that <em>playtests it.</em></h2>
-
-    <div class="pbox is-brief"><p>When someone’s done reading, I want something here they can play instead, so the last thing they do isn’t more scrolling.</p></div>
-
-    <p class="prose sp-s">A survivor-style roguelite over whatever page you launched it from. The phasers fire automatically, so the helm is the only control, and each time the dilithium rail fills you choose one of three upgrades.</p>
-
-    <p class="prose">It needed a test rig to balance. Every warbird kill used to drop a hull point, which put the net rate at 0.00 lives a minute, so no run could ever end. Playing it never felt wrong, but the numbers were.</p>
-
-    <img class="img sp-m" src="img/asteroid-blaster.jpg" alt="The game running over this page: a cyan starship among magenta rocks on a dark green grid, a refit rail across the top reading REFIT 2, and a Leave the bridge button in the corner" loading="lazy" width="1600" height="1000">
-    <p class="cap">Refit 2, nine dilithium to the next one. The page you launched it from is still underneath</p>
-
-    <p class="sp-s"><button type="button" id="play-game" class="tlink lbl" style="color:var(--red-ink)">Play it here →</button></p>
-  </section>
-
   <!-- ═══ AI, HONESTLY ═══════════════════════════════ -->
   <!-- The page closes on the thing all three have in common rather than on a
        comparison between two of them, which is what stood here before. No
@@ -258,7 +261,7 @@
         <a href="coup.html">02 · Coup Mobility</a>
         <a href="cooler-future.html">03 · Cooler Future</a>
         <a href="vivy.html">04 · Vivy</a>
-        <a href="lab.html" class="f-aside">Experiments</a>
+        <a href="lab.html" class="f-aside">AI experiments</a>
       </div>
       <div class="f-col">
         <h2>Elsewhere</h2>
@@ -437,25 +440,25 @@
     <button type="button" class="ah-opt is-fight" id="astroHailFight">
       <span class="ah-l"><em>Engage</em><b>Press 1</b></span>
       <span class="ah-n">Stand and fight</span>
-      <span class="ah-w">She’ll fight back and may call escorts.</span>
+      <span class="ah-w" id="astroHailThreat">She’ll fight back, and her escorts attack together.</span>
       <span class="ah-d">
         <span id="astroHailBounty">+1800 stardate</span>
         <span>Battle salvage · one upgrade</span>
-        <span>+2 hull · dilithium · a power-up</span>
+        <span id="astroHailLoot">+2 hull · dilithium · a power-up</span>
       </span>
     </button>
     <button type="button" class="ah-opt is-flee" id="astroHailFlee">
       <span class="ah-l"><em>Evade</em><b>Press 2</b></span>
       <span class="ah-n">Break away</span>
-      <span class="ah-w">You get clear, but she’ll be back sooner.</span>
-      <span class="ah-d">
+      <span class="ah-w" id="astroHailWhy">You get clear, but you can’t break away twice running.</span>
+      <span class="ah-d" id="astroHailFleeD">
         <span>No bounty · no refit</span>
-        <span id="astroHailAgain">Next contact in 37s</span>
+        <span>Next contact in 37s</span>
         <span>Evasive burn · 2.6s</span>
       </span>
     </button>
   </div>
-  <div class="ah-h">Give the order, or press <kbd>1</kbd> <kbd>2</kbd></div>
+  <div class="ah-h" id="astroHailHint">Give the order, or press <kbd>1</kbd> <kbd>2</kbd></div>
 </div></div>
 <!-- All stop. Built as a one-line version of the refit panel — the same
      notched cyan frame, the delta holding the left end and the title set hard

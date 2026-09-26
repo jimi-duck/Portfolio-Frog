@@ -227,9 +227,12 @@ body.astro-red-alert #astroFrame{--br:linear-gradient(var(--nx-hot),var(--nx-hot
    broke three-and-one with a divider hanging off the front of the last line.
    Two columns of two instead, with the rule only between the columns. */
 @media (max-width:560px){
-  #astroTip{display:grid;grid-template-columns:auto auto;justify-content:center;row-gap:.1rem}
+  /* the columns share the pill rather than sizing to their phrases, which at
+     375px ran the longest phrase out past both edges of the pill */
+  #astroTip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));row-gap:.15rem;
+    width:min(94vw,520px);letter-spacing:.1em;line-height:1.5}
   #astroTip span:nth-child(odd){box-shadow:none}
-  #astroTip span{justify-content:center}
+  #astroTip span{justify-content:center;text-align:center;white-space:normal;padding:.15rem .6rem}
 }
 
 /* ── XP rail ──────────────────────────────────────────────────────────────── */
@@ -571,19 +574,24 @@ body.astro-core-ready #astroRelease{opacity:1;color:#04121a;background:var(--nx-
   z-index:99998;display:none;flex-direction:column;align-items:center;gap:.4rem;
   width:min(420px,62vw);pointer-events:none}
 #astroBoss.on{display:flex}
+/* The bar wears the faction's colour, set from game.js as --boss-rgb, so a
+   Cardassian flagship reads amber and a cube reads green before the name is
+   read. At half hull it still turns over to the alert pink (.rage). */
 #astroBossName{font-family:var(--nx-mono);font-size:clamp(11px,1.9vw,13.5px);letter-spacing:.3em;
-  text-transform:uppercase;font-weight:600;color:#c77dff;text-shadow:0 0 10px rgba(123,92,255,.6)}
+  white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+  text-transform:uppercase;font-weight:600;color:rgb(var(--boss-rgb,199,125,255));
+  text-shadow:0 0 10px rgba(var(--boss-rgb,199,125,255),.6)}
 /* the refs label everything in brackets; doing it in CSS keeps the markup a
    plain readable name for anything that isn't looking at a screen */
 #astroBossName::before{content:"[ "}
 #astroBossName::after{content:" ]"}
 #astroBossBar{position:relative;width:100%;height:8px;background:rgba(6,3,10,.85);
-  border:1px solid rgba(199,125,255,.55);overflow:hidden}
+  border:1px solid rgba(var(--boss-rgb,199,125,255),.55);overflow:hidden}
 #astroBossFill{position:absolute;inset:0 auto 0 0;width:100%;
   background:
     repeating-linear-gradient(90deg,transparent 0 6px,rgba(4,2,8,.9) 6px 7px),
-    linear-gradient(90deg,#7b5cff,#c77dff);
-  box-shadow:0 0 9px rgba(123,92,255,.6);
+    linear-gradient(90deg,rgba(var(--boss-rgb,199,125,255),.7),rgb(var(--boss-rgb,199,125,255)));
+  box-shadow:0 0 9px rgba(var(--boss-rgb,199,125,255),.6);
   transition:width .12s linear}
 /* half hull: the bar turns over to the same red the hull does */
 #astroBossFill.rage{background:linear-gradient(90deg,#ff2fb9,#ff4d6d);box-shadow:0 0 16px rgba(255,47,185,.9)}
@@ -814,8 +822,14 @@ html.coarse body.astro-active #astroBuffs{position:static;bottom:auto}
 html.coarse body.astro-active #astroShip{flex-wrap:wrap;height:auto;
   width:min-content;max-width:100%;padding:.4rem var(--hud-pad);gap:.3rem .6rem}
 html.coarse body.astro-active #astroLives{padding-left:0;box-shadow:none}
-/* the tip clears whatever the top cluster wraps to while it is still on screen */
-html.coarse body.astro-active #astroTipWrap{top:calc(var(--xp-h) + 6rem)}
+/* the tip clears whatever the top cluster wraps to while it is still on screen,
+   and the capital-ship bar under it */
+html.coarse body.astro-active #astroTipWrap{top:calc(var(--xp-h) + 7.6rem)}
+/* On a phone the top corners belong to the ship block and the exit, so the
+   capital ship's name and hull bar drop below them instead of sliding under
+   both — they were landing on the stardate and behind the exit button. */
+html.coarse #astroBoss{top:calc(var(--xp-h) + 4.9rem);width:86vw}
+html.coarse #astroBossName{letter-spacing:.16em;font-size:10.5px}
 body.astro-active{overscroll-behavior:none}
 html.coarse body.astro-active{touch-action:none}
 
@@ -1504,6 +1518,17 @@ html.coarse .au-opt .au-l{padding-right:0}
   background:repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0 1px,transparent 1px 3px),
     linear-gradient(rgba(0,240,255,.14),rgba(0,240,255,.14)),rgba(12,5,12,.95)}
 .ah-opt:active{transform:translateY(0)}
+/* Evade, locked: still on the card and saying why, because a choice that
+   silently disappears reads as a bug — and the reason is the rule. */
+.ah-opt.is-flee.is-locked,.ah-opt.is-flee.is-locked:hover,.ah-opt.is-flee.is-locked:focus-visible{
+  background:rgba(124,133,184,.28);cursor:not-allowed;transform:none;filter:none}
+.ah-opt.is-flee.is-locked::before{
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(135deg,rgba(124,133,184,.06) 0 6px,transparent 6px 12px),rgba(12,5,12,.95)}
+.ah-opt.is-flee.is-locked .ah-l em{color:var(--nx-mute);text-decoration:line-through;
+  text-decoration-thickness:2px}
+.ah-opt.is-flee.is-locked .ah-l b{visibility:hidden}
+.ah-opt.is-flee.is-locked .ah-d{color:var(--nx-mute);border-top-color:rgba(124,133,184,.25)}
 .ah-opt .ah-l{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;
   font-family:var(--nx-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase}
 /* ENGAGE and EVADE are the decision, so they are the largest thing on the

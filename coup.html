@@ -17,10 +17,10 @@
 <script>(function(){var r=document.documentElement;r.className+=' js';try{var t=localStorage.getItem('theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';}r.setAttribute('data-theme',t);}catch(e){}if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)r.className+=' coarse';setTimeout(function(){if(!r.dataset.swiss)r.className=r.className.replace(/\bjs\b/,'').replace(/\bintroing\b/,'');},4000);})();</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27%23131311%27%2F%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2726%27%20fill%3D%27%23e23a16%27%2F%3E%3C%2Fsvg%3E">
 <!-- /@head -->
-<meta name="description" content="Bosch's e-moped service across three cities. Rebuilding a ride experience that left riders without the information they needed, and the ops tools behind it.">
+<meta name="description" content="Bosch’s e-moped service across three cities. Rebuilding a ride experience that left riders without the information they needed, and the ops tools behind it.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Coup Mobility · James Ciclitira">
-<meta property="og:description" content="Bosch's e-moped service across three cities. Rebuilding a ride experience that left riders without the information they needed, and the ops tools behind it.">
+<meta property="og:description" content="Bosch’s e-moped service across three cities. Rebuilding a ride experience that left riders without the information they needed, and the ops tools behind it.">
 <meta property="og:image" content="https://www.jciclitira.com/img/coup-hero.jpeg">
 <meta property="og:url" content="https://www.jciclitira.com/coup.html">
 <link rel="canonical" href="https://www.jciclitira.com/coup.html">
@@ -85,175 +85,161 @@
 <header class="cs-hero" data-reveal>
   <div>
     <a href="index.html" class="back">← All work</a>
-    <p class="eyebrow">Mobility · Consumer UX · Field Operations</p>
+    <p class="eyebrow">Urban mobility · Consumer and field ops · 3&nbsp;min&nbsp;read</p>
     <h1 class="cs-title">Coup<br><em>Mobility</em></h1>
-    <p class="cs-tagline">A Bosch-owned e-moped fleet across three European cities. I led the redesign of the rider app and designed the tools behind it: a dispatcher dashboard and a field worker app for the operation keeping 5,000 scooters on the road.</p>
+    <p class="cs-tagline">I rebuilt Bosch’s e-moped rider app, and designed the tools that kept 5,000 mopeds on the road.</p>
   </div>
   <div class="meta-grid">
     <div class="meta-item"><label>Role</label><p>Senior Product Designer</p></div>
-    <div class="meta-item"><label>Markets</label><p>Berlin · Paris · Madrid</p></div>
-    <div class="meta-item"><label>Products</label><p>Rider app · Dispatcher dashboard · Field worker app</p></div>
+    <div class="meta-item"><label>Years</label><p>2019–2020</p></div>
+    <div class="meta-item"><label>Shipped</label><p>Rider app · Dispatcher dashboard · Field worker app</p></div>
   </div>
 </header>
+
+<dl class="glance" data-reveal>
+  <div><dt>The problem</dt><dd>The rider app was built fast to get the fleet live, and left riders stuck at the moments that mattered. Behind it, field operations ran on WhatsApp and spreadsheets.</dd></div>
+  <div><dt>What I did</dt><dd>Rebuilt the ride from finding a moped to ending a trip, and designed a dispatcher dashboard and field worker app from a blank page.</dd></div>
+  <div><dt>The result</dt><dd>A rebuilt rider app in three cities, the first record of why rides were cancelled, and field work tracked in one system instead of group chats.</dd></div>
+</dl>
 
 <img fetchpriority="high" class="hero-img" src="img/coup-hero.jpeg" alt="Two riders on Coup’s red shared e-mopeds waiting at a Berlin intersection" width="700" height="448">
 
 <div class="stats" data-reveal>
   <div class="stat"><div class="stat-n">5,000</div><div class="stat-l">Electric mopeds across<br>Berlin, Paris and Madrid</div></div>
-  <div class="stat"><div class="stat-n">1 in 8</div><div class="stat-l">Rides cancelled before the engine<br>started, with the reason unrecorded</div></div>
+  <div class="stat"><div class="stat-n">1 in 8</div><div class="stat-l">Rides cancelled before the engine<br>started, with no reason recorded</div></div>
   <div class="stat"><div class="stat-n">Zero</div><div class="stat-l">Tools built for the field team<br>before this project</div></div>
 </div>
 
-<!-- ═══ CONTEXT ════════════════════════════════════════════ -->
-<div class="body">
-  <section class="section" data-reveal>
-    <p class="lbl">The brief</p>
-    <h2>A product people loved.<br>An app that kept<br><em>letting them down.</em></h2>
-    <div class="two" style="margin-top:1.6rem">
-      <p class="prose">Coup was ahead of its time: fully electric, free-floating mopeds across Berlin, Paris and Madrid, before the category had really taken shape. Backed by Bosch and growing quickly, the service had real momentum. But the app was the weak link.<br><br>It had been built for speed: get the fleet live, prove the concept. And it showed. Riders were missing the information they needed at the moments they needed it, and the service broke down in the places a service has to hold. The first job was to rebuild every interaction around the ride itself, from finding a scooter to ending a trip.</p>
-      <p class="prose">The second challenge was behind the scenes. Coup’s field operations ran on WhatsApp groups and spreadsheets, with no reliable way to assign work, track maintenance or report issues. Every scooter off the road longer than necessary was lost revenue, multiplied across thousands of vehicles and three cities.<br><br>Nothing supported that layer, so we designed it. The dispatcher dashboard and field worker app started with the reality of the work: people fixing vehicles on the street, in all weathers, with little time and constant pressure to keep the fleet moving.</p>
-    </div>
-  </section>
-</div>
-
-<!-- ═══ PART 1: CONSUMER APP — DARK BAND ═══════════════════ -->
+<!-- ═══ 01 · THE RIDER APP — DARK BAND ═════════════════════ -->
 <div class="dark-band" data-reveal>
   <div class="dark-band-inner">
-    <span class="section-num">01</span>
-    <p class="lbl">The consumer ride app</p>
-    <h2>Rebuilt from the ground up,<br>not <em>reskinned.</em></h2>
-
-    <div class="two" style="margin-top:1.8rem;gap:5rem;align-items:start">
+    <p class="lbl"><span class="lbl-n">01</span>The rider app</p>
+    <div class="two is-wide is-top">
       <div>
-        <p class="prose" style="margin-bottom:1.4rem">On paper the old app worked: riders could find a scooter, unlock it and end a ride. In practice it failed them. The information a rider needed in order to decide was missing at the moment they needed it, and the app rarely said what was happening or what to do next. Cancellations and support tickets were the symptoms. The cause was a service that had never been designed as one.</p>
-        <p class="prose" style="margin-bottom:1.8rem">So we didn’t reskin it. We rebuilt the ride around the basics: does the rider always know what state they’re in, what happens next, and what to do when something goes wrong? Interviews across all three cities kept returning the same word: confidence. Riders wanted to know they had picked the right scooter, to see what the service was doing on their behalf, and to stay in control from start to finish.</p>
-        <div class="pbox">
-          <p>We rebuilt every step of the ride: discovery and maps, scooter selection, reservations, pre-ride checks, the ride itself and trip completion. The work was in what the app said and when it said it: which information belonged at each moment, how prompts were timed, and whether a rider could always answer the question “what now?”</p>
-        </div>
-        <p class="prose" style="margin-bottom:1.4rem">Reliability was the other half of the failure. Bluetooth dropped, unlocks failed, and when they did the app left riders guessing. Experienced users had learned the quirks; new riders were simply stuck. We mapped every moment that caused hesitation or failure, then rebuilt those flows around clear guidance, honest error states and the fastest route back to moving.</p>
-        <p class="prose">Rebuilding the flow also turned the rider app into a source of operational insight. Rather than relying on riders to report problems, we captured the signal at the moment a problem occurred. A three-tap cancellation flow told the operations team more than a dedicated reporting feature would have, because it matched what riders already did.</p>
+        <h2>Rebuilt around the ride, <em>not reskinned.</em></h2>
+        <p class="lede">Interviews in all three cities kept returning one word: confidence. Riders wanted to know they’d picked the right moped, what the app was doing, and what to do when something failed. So we rebuilt every step around one question: what now?</p>
+        <p class="prose">Bluetooth dropped and unlocks failed, and the old app left riders guessing. We mapped every moment of hesitation, then rebuilt each one around clear guidance, honest errors and the fastest route back to riding.</p>
       </div>
       <div>
         <img class="img is-cutout device" src="img/coup-scooter.png" width="840" height="840" alt="The Coup e-moped" loading="lazy">
-        <p class="cap">The object the whole service turns on: one moped, three cities, thousands of daily decisions</p>
-        <img class="img device" style="margin-top:1rem" src="img/coup-ride-flow.png" alt="Redesigned ride experience: route to scooter, reservation, unlock and cancellation" loading="lazy" width="1256" height="656">
-        <p class="cap">Redesigned ride experience: a clearer flow built around confidence, transparency and keeping riders in control</p>
+        <img class="img device sp-s" src="img/coup-ride-flow.png" alt="Redesigned ride experience: route to scooter, reservation, unlock and cancellation" loading="lazy" width="1256" height="656">
+        <p class="cap">The rebuilt ride: route, reservation, unlock and cancel.</p>
       </div>
     </div>
 
-    <!-- Fleet photography -->
-    <div class="three" style="margin-top:3rem">
+    <div class="three sp-l">
       <img class="img" src="img/coup-moped-canal.jpeg" alt="A Coup e-moped parked by the canal in Berlin" loading="lazy" width="860" height="613">
       <img class="img" src="img/coup-fleet-street.jpeg" alt="The Coup fleet lined up on a Berlin street" loading="lazy" width="860" height="613">
       <img class="img" src="img/coup-fleet-potsdamer-platz.jpeg" alt="Riders collecting Coup scooters at Potsdamer Platz" loading="lazy" width="860" height="613">
     </div>
-
-    <!-- Cancellation insight -->
-    <div class="two" style="margin-top:4rem;gap:5rem;align-items:center">
-      <div>
-        <p class="lbl">Passive intelligence</p>
-        <h2>One in eight rides was<br>cancelled. Nobody knew <em>why.</em></h2>
-        <p class="prose" style="margin-bottom:1.4rem">Around one in eight rides was cancelled before the engine started. Costly, and worse, impossible to fix: the reasons were invisible. Damaged scooter? Battery too low? Wrong vehicle? Missing helmet? Without data, every improvement was a guess.</p>
-        <p class="prose" style="margin-bottom:1.4rem">We added one step to the cancellation flow: a short list of reasons, one tap, then out. Quick for the rider, and a structured, timestamped record for the ops team.</p>
-        <p class="prose">For the first time the team could see why rides were failing and fix the biggest causes, rather than guess across thousands of scooters.</p>
-      </div>
-      <div>
-        <img class="img device" style="max-width:420px;margin:0 auto" src="img/coup-cancellation.png" alt="Cancellation flow with structured reason prompt" loading="lazy" width="840" height="1434">
-        <p class="cap" style="text-align:center">Cancellation prompt: structured reporting built into a moment riders were already experiencing</p>
-      </div>
-    </div>
   </div>
 </div>
 
-<!-- ═══ PART 2: RESEARCH — PAPER SECTION ═══════════════════ -->
+<!-- ═══ 02 · CANCELLATIONS ═════════════════════════════════ -->
 <div class="body">
-  <span class="section-num">02</span>
-  <!-- Battery swap research -->
   <section class="section" data-reveal>
-    <p class="lbl">Research before commitment</p>
-    <h2>Testing an expensive idea<br><em>before building anything.</em></h2>
-    <div class="two" style="margin-top:1.4rem;align-items:center">
-      <p class="prose">The idea on the table: let engaged riders earn credits by swapping flat batteries themselves, cutting ops costs and reliance on field workers. The appeal was obvious, but validating it properly would have meant building charging infrastructure that didn’t yet exist. An expensive bet to place on a hunch.<br><br>Instead we ran a small in-app pilot: targeted changes to the existing flow that let us watch what riders actually did. Cheap, quick, and enough for the business to decide whether the infrastructure was worth building. Design used to answer a question, not to ship a feature.</p>
+    <p class="lbl"><span class="lbl-n">02</span>Cancellations</p>
+    <div class="two is-wide is-top">
       <div>
-        <img class="img short device" src="img/coup-battery-swap.png" alt="Community battery swap pilot" loading="lazy" width="1294" height="676">
-        <p class="cap">Community battery swapping pilot: testing intent before infrastructure commitment</p>
+        <h2>One in eight rides was cancelled. Nobody knew <em>why.</em></h2>
+        <p class="lede">Damaged moped, flat battery, missing helmet? Without a reason, every fix was a guess. We added one step to cancelling: a short list of reasons, one tap, done. For the first time, ops had a timestamped record of why rides failed.</p>
+      </div>
+      <div>
+        <img class="img device" style="max-width:360px" src="img/coup-cancellation.png" alt="Cancellation flow with structured reason prompt" loading="lazy" width="840" height="1434">
+        <p class="cap" style="text-align:center;margin-inline:auto">A structured reason, asked at a moment riders were already in.</p>
       </div>
     </div>
   </section>
+</div>
 
-  <!-- ═══ PART 3: FIELD OPS ═════════════════════════════════ -->
-  <span class="section-num">03</span>
+<!-- ═══ 03 · TESTING AN IDEA ═══════════════════════════════ -->
+<div class="body">
   <section class="section" data-reveal>
-    <p class="lbl">The field operations platform</p>
-    <h2>Nothing existed.<br>We built the <em>whole thing.</em></h2>
-    <div class="two" style="margin-top:1.6rem">
-      <p class="prose">Ground operations ran on WhatsApp, spreadsheets and memory. Assignments came through group chats. Maintenance was logged inconsistently, if at all. Dispatchers had no live view of the fleet, field workers had no reliable way to receive jobs, and nothing recorded what had been done across thousands of scooters.<br><br>Every gap cost money. A scooter with an unresolved fault stayed offline. A field worker without priorities wasted time. A dispatcher without accurate information decided on assumptions.</p>
-      <p class="prose">There was no brief, just a blank page. We started with the work itself: riding along with field workers, sitting with dispatchers, mapping the informal systems teams had built to keep the fleet running.<br><br>Two needs emerged. Dispatchers needed visibility and control over the whole fleet. Field workers needed clear instructions and a fast way to close jobs on the street. That became two connected products: a fleet dashboard on the web and a mobile-first app for the field.</p>
+    <p class="lbl"><span class="lbl-n">03</span>Testing an idea</p>
+    <div class="two is-wide is-top">
+      <div>
+        <h2>Test the expensive idea <em>before building it.</em></h2>
+        <p class="lede">Could riders swap flat batteries themselves, for ride credit? Proving it properly meant charging infrastructure that didn’t exist. So we ran a small in-app pilot and watched what riders actually did: enough for the business to decide without building anything.</p>
+      </div>
+      <div>
+        <img class="img device" src="img/coup-battery-swap.png" alt="Community battery swap pilot" loading="lazy" width="1294" height="676">
+        <p class="cap">Community battery swap pilot: testing intent before infrastructure.</p>
+      </div>
     </div>
   </section>
+</div>
 
-  <!-- Three capability cards -->
-  <div class="cards">
-    <div class="icard">
-      <div class="icard-icon"></div>
-      <div class="icard-t">Fleet status at a glance</div>
-      <p class="icard-d">A live view of every scooter: availability, open issues, maintenance status. Dispatchers could read the health of the operation without chasing manual updates.</p>
-    </div>
-    <div class="icard">
-      <div class="icard-icon"></div>
-      <div class="icard-t">Structured maintenance logging</div>
-      <p class="icard-d">Workers received clear assignments, worked through guided steps and recorded outcomes in a consistent format. Every action left a traceable history.</p>
-    </div>
-    <div class="icard">
-      <div class="icard-icon"></div>
-      <div class="icard-t">Assignment management</div>
-      <p class="icard-d">Dispatchers created, assigned and reprioritised tasks as conditions changed. Jobs arrived on the worker’s phone, replacing calls and WhatsApp chains.</p>
-    </div>
-  </div>
-
-  <section class="section" data-reveal style="margin-top:4rem">
-    <div class="two" style="gap:3rem;align-items:start">
+<!-- ═══ 04 · FIELD OPERATIONS ══════════════════════════════ -->
+<div class="body">
+  <section class="section" data-reveal>
+    <p class="lbl"><span class="lbl-n">04</span>Field operations</p>
+    <div class="two is-wide is-top">
+      <h2>Nothing existed. We built <em>the whole thing.</em></h2>
       <div>
-        <img class="img tall device" src="img/coup-field-assignment.png" alt="Field worker app assignment view" loading="lazy" width="1288" height="672">
-        <p class="cap">Field worker app: assignments, status updates and maintenance logging in a single flow</p>
-      </div>
-      <div>
-        <img class="img tall device" src="img/coup-maintenance-report.png" alt="Maintenance report screen" loading="lazy" width="1288" height="672">
-        <p class="cap">Maintenance report: structured outcome logging that built the ops team’s data picture over time</p>
+        <p class="lede">Jobs arrived through group chats, repairs were logged if at all, and dispatchers had no live view of the fleet. There was no brief, so we started by riding along with field workers and sitting with dispatchers. Two needs came out of it, and two products.</p>
+        <p class="prose">The field app had to work in rain, traffic and winter, often one-handed and in gloves. Every control is large, obvious and hard to mistake.</p>
       </div>
     </div>
-    <div class="three" style="margin-top:1.1rem">
+
+    <div class="cards sp-l">
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">Fleet status at a glance</div>
+        <p class="icard-d">Every moped’s availability, open issues and maintenance, live.</p>
+      </div>
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">Jobs on the worker’s phone</div>
+        <p class="icard-d">Dispatchers assign and reprioritise. No more calls or chat threads.</p>
+      </div>
+      <div class="icard">
+        <div class="icard-icon"></div>
+        <div class="icard-t">Repairs that leave a record</div>
+        <p class="icard-d">Guided steps and consistent outcomes, so every job has a history.</p>
+      </div>
+    </div>
+
+    <div class="two is-top sp-l">
+      <div>
+        <img class="img device" src="img/coup-field-assignment.png" alt="Field worker app assignment view" loading="lazy" width="1288" height="672">
+        <p class="cap">Field app: assignment, status and maintenance log in one flow.</p>
+      </div>
+      <div>
+        <img class="img device" src="img/coup-maintenance-report.png" alt="Maintenance report screen" loading="lazy" width="1288" height="672">
+        <p class="cap">Maintenance report: consistent outcomes, building the ops picture over time.</p>
+      </div>
+    </div>
+    <div class="three sp-s">
       <img class="img device" src="img/coup-field-login.png" alt="Field worker app sign-in screen" loading="lazy" width="860" height="598">
       <img class="img device" src="img/coup-scooter-status.png" alt="Scooter status view: battery level, location and open faults for one vehicle" loading="lazy" width="860" height="598">
       <img class="img device" src="img/coup-dispatcher-overview.png" alt="Dispatcher overview: the live fleet map with vehicles grouped by status" loading="lazy" width="860" height="598">
     </div>
-    <div style="margin-top:1.1rem">
+    <div class="sp-s">
       <img class="img device" src="img/coup-tickets.png" alt="Dispatcher ticket queue with battery swaps queued, in progress and completed" loading="lazy" width="1600" height="1113">
-      <p class="cap">The ticket queue: every field task categorised, assigned and tracked from creation to completion</p>
+      <p class="cap">The dispatcher’s ticket queue: every task categorised, assigned and tracked.</p>
     </div>
-    <p class="prose" style="margin-top:2rem">The field worker app had to hold up in demanding conditions: rain, traffic, winter, often one-handed. Controls had to work with gloves on. Text had to stay legible in full sun. Actions had to be large, obvious and hard to mistake, so a tired worker never had to stop and puzzle over the screen.</p>
   </section>
 
-  <!-- ═══ HOW SUCCESS WAS MEASURED ═════════════════════════ -->
+  <!-- ═══ 05 · HOW WE MEASURED IT ══════════════════════════ -->
   <section class="section" data-reveal>
-    <p class="lbl">Product metrics</p>
-    <h2>How success was <em>measured.</em></h2>
-    <div class="mgrid">
+    <p class="lbl"><span class="lbl-n">05</span>How we measured it</p>
+    <h2>Judged on the fleet, <em>not the screens.</em></h2>
+    <div class="mgrid is-compact">
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.4" cy="17.6" r="3.1"/><circle cx="18.6" cy="17.6" r="3.1"/><path d="M8.5 17.6h7"/><path d="M5.4 14.5V9.8h4.9l3.4 4.7"/><path d="M10.3 9.8h3.9"/><path d="M17.4 6.2h4"/><path d="M19.4 4.2v4"/></svg></span>
-        <p><strong>Scooter downtime</strong>Keeping more scooters on the road through faster maintenance and repairs.</p>
+        <p><strong>Scooter downtime</strong>Time a moped spends off the road.</p>
       </article>
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 4.2H6.4v16.4h11.2V4.2h-2.2"/><path d="M9.2 2.6h5.6v3H9.2z"/><path d="M12.9 9.2l-2.6 4h3.4l-2.6 4"/></svg></span>
-        <p><strong>Task completion</strong>Helping field teams prioritise and complete work more efficiently.</p>
+        <p><strong>Task completion</strong>Field jobs closed, and how fast.</p>
       </article>
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.2 6.2h11v7.2h-6l-3 2.6v-2.6h-2z"/><path d="M17 9.6h3.8v7.2h-2v2.6l-3-2.6h-3.4"/><path d="M20.4 3.6 3.6 20.4"/></svg></span>
-        <p><strong>Manual coordination</strong>Replacing WhatsApp and spreadsheets with structured fleet workflows.</p>
+        <p><strong>Manual coordination</strong>Work still running through chats and spreadsheets.</p>
       </article>
       <article class="mcard">
         <span class="mcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.4 20.2V13l3.3-5.4h7.1l3.3 5.4v7.2"/><circle cx="7.1" cy="20.2" r="1.6"/><circle cx="14" cy="20.2" r="1.6"/><path d="M3.4 15.4h13.7"/><path d="M19.4 4.6v6.2"/><path d="M16.8 7.2l2.6-2.6 2.6 2.6"/></svg></span>
-        <p><strong>Rides per scooter</strong>Getting more trips out of every vehicle in the fleet, each day it is on the street.</p>
+        <p><strong>Rides per scooter</strong>Trips from each vehicle, each day it’s on the street.</p>
       </article>
     </div>
   </section>
@@ -262,7 +248,7 @@
 <a href="cooler-future.html" class="next" data-reveal>
   <div class="next-l">
     <div><p class="next-eyebrow">Next project →</p><div class="next-title">Cooler<br><em>Future</em></div></div>
-    <p class="next-sub">Lead Designer · Climate Fintech · Full launch</p>
+    <p class="next-sub">Lead Product Designer · Climate fintech · Full launch</p>
   </div>
   <div class="next-r"><img class="next-img" src="img/cooler-future-card.jpg" alt="" loading="lazy" width="700" height="448"></div>
 </a>
@@ -295,7 +281,7 @@
         <a href="coup.html">02 · Coup Mobility</a>
         <a href="cooler-future.html">03 · Cooler Future</a>
         <a href="vivy.html">04 · Vivy</a>
-        <a href="lab.html" class="f-aside">Experiments</a>
+        <a href="lab.html" class="f-aside">AI experiments</a>
       </div>
       <div class="f-col">
         <h2>Elsewhere</h2>
