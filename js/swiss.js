@@ -228,10 +228,18 @@
     // button's accessible name — and it has to stay in step with the state or
     // the name says "Menu" while the button says "Close".
     var burgerT = $('.b-t', burger);
+    // The open menu covers the whole screen except the bar holding this button,
+    // so everything else is made inert while it is up. Without that, tabbing
+    // past the last menu link walked focus into the page hidden underneath.
+    var bar = burger.closest('nav');
+    var behind = $$('body > *').filter(function (el) {
+      return el !== bar && el.id !== 'menu' && el.tagName !== 'SCRIPT';
+    });
     var setOpen = function (open) {
       document.body.classList.toggle('menu-on', open);
       burger.setAttribute('aria-expanded', open ? 'true' : 'false');
       if (burgerT) burgerT.textContent = open ? 'Close' : 'Menu';
+      behind.forEach(function (el) { el.inert = open; });
     };
     setOpen(false);
     var close = function (refocus) {
@@ -246,6 +254,12 @@
     });
     $$('#menu a').forEach(function (a) { a.addEventListener('click', function () { close(false); }); });
     addEventListener('keydown', function (e) { if (e.key === 'Escape') close(true); });
+    // Widen the window past the nav's breakpoint with the menu open and the
+    // burger that closes it disappears, leaving a full-screen menu and an
+    // inert page behind it. Matches the 1024px collapse in swiss.css.
+    matchMedia('(min-width:1025px)').addEventListener('change', function (e) {
+      if (e.matches) close(false);
+    });
   }
 
   /* ── GAME LAUNCHER: stand down over the footer ─────────────────────────── */
@@ -326,6 +340,7 @@
      is left to write is the backdrop click, the caption, and staying out of
      the way of anything already wrapped in an <a>. */
   var LB_SEL = 'main .appshot .device-img, main .phone-col .device-img, ' +
+               'main .phone-col .phone, main .artifact img, ' +
                'main .walk-media img, main .photo, main .img';
 
   function lightbox() {
@@ -365,6 +380,10 @@
       var inFig = fig && $('.appshot-c, figcaption', fig);
       if (inFig) return { html: inFig.innerHTML, plain: false };
       var sib = btn.nextElementSibling;
+      if (sib && sib.classList.contains('cap')) return { html: sib.innerHTML, plain: true };
+      // An artefact on a plate carries its caption under the plate, not the image
+      var plate = im.closest('.artifact');
+      sib = plate && plate.nextElementSibling;
       if (sib && sib.classList.contains('cap')) return { html: sib.innerHTML, plain: true };
       var row = im.closest('.walk-row');
       var t = row && $('.walk-t', row);

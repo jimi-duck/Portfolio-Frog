@@ -67,17 +67,23 @@ const CURTAIN = `
    reveal the homepage footer fades in with the rest of the page; on every
           other page it is simply there. Keeping that per-page rather than
           giving every footer the reveal, which is what the shared partial
-          did at first — a behaviour the other seven pages never had. */
+          did at first — a behaviour the other seven pages never had.
+   root   prefixed to every file the chrome links to. Empty everywhere but
+          the 404, because GitHub Pages serves that page at whatever address
+          went missing: at /enter/ or /work/coup a relative css/swiss.css
+          resolves to /enter/css/swiss.css, and the page arrived unstyled with
+          every link in it broken. The 404's own links outside the markers
+          are written root-absolute by hand for the same reason. */
 const PAGES = {
-  'index.html':          { home: '',           intro: ' introing', keys: GRID_HINT, reveal: ' data-reveal', curtain: CURTAIN },
-  'about.html':          { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '' },
-  'lab.html':            { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '' },
-  'cv.html':             { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '' },
-  'enter.html':          { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '' },
-  'coup.html':           { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '' },
-  'cooler-future.html':  { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '' },
-  'vivy.html':           { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '' },
-  '404.html':            { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '' },
+  'index.html':          { home: '',           intro: ' introing', keys: GRID_HINT, reveal: ' data-reveal', curtain: CURTAIN, root: '' },
+  'about.html':          { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '', root: '' },
+  'lab.html':            { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '', root: '' },
+  'cv.html':             { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '', root: '' },
+  'enter.html':          { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '', root: '' },
+  'coup.html':           { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '', root: '' },
+  'cooler-future.html':  { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '', root: '' },
+  'vivy.html':           { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '', root: '' },
+  '404.html':            { home: 'index.html', intro: '',          keys: '',        reveal: '', curtain: '', root: '/' },
 };
 
 /* marker name → the partial that fills it */

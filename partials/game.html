@@ -152,25 +152,25 @@
     <button type="button" class="ah-opt is-fight" id="astroHailFight">
       <span class="ah-l"><em>Engage</em><b>Press 1</b></span>
       <span class="ah-n">Stand and fight</span>
-      <span class="ah-w">She’ll fight back and may call escorts.</span>
+      <span class="ah-w" id="astroHailThreat">She’ll fight back, and her escorts attack together.</span>
       <span class="ah-d">
         <span id="astroHailBounty">+1800 stardate</span>
         <span>Battle salvage · one upgrade</span>
-        <span>+2 hull · dilithium · a power-up</span>
+        <span id="astroHailLoot">+2 hull · dilithium · a power-up</span>
       </span>
     </button>
     <button type="button" class="ah-opt is-flee" id="astroHailFlee">
       <span class="ah-l"><em>Evade</em><b>Press 2</b></span>
       <span class="ah-n">Break away</span>
-      <span class="ah-w">You get clear, but she’ll be back sooner.</span>
-      <span class="ah-d">
+      <span class="ah-w" id="astroHailWhy">You get clear, but you can’t break away twice running.</span>
+      <span class="ah-d" id="astroHailFleeD">
         <span>No bounty · no refit</span>
-        <span id="astroHailAgain">Next contact in 37s</span>
+        <span>Next contact in 37s</span>
         <span>Evasive burn · 2.6s</span>
       </span>
     </button>
   </div>
-  <div class="ah-h">Give the order, or press <kbd>1</kbd> <kbd>2</kbd></div>
+  <div class="ah-h" id="astroHailHint">Give the order, or press <kbd>1</kbd> <kbd>2</kbd></div>
 </div></div>
 <!-- All stop. Built as a one-line version of the refit panel — the same
      notched cyan frame, the delta holding the left end and the title set hard

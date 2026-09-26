@@ -156,6 +156,13 @@ pill is a row of short phrases, not a sentence; they're shown separated by dots.
 | `tip.core.b` | …second phrase, **desktop** | Press **space** to release it. | |
 | `tip.core.b.touch` | …second phrase, **touch** | Tap **release** to let it go. | |
 
+| `tip.wing.h` | First capital-ship escort wing of the run | Escort wing | 4s |
+| `tip.wing.b` | …second phrase | They attack together. Break the formation. | |
+| `tip.tractor.h` | First Borg tractor lock | Tractor lock | 5s |
+| `tip.tractor.b` | …second phrase | Thrust away from the cube to break free. | |
+| `tip.adapt.h` | First time a Borg cube adapts | The cube has adapted | 5s |
+| `tip.adapt.b` | …second phrase | It shrugs off fire while it glows. Dodge and wait. | |
+
 > `tip.core.*` is the one tip allowed to reappear — it shows every time the core
 > fills until you've actually used it once, on the grounds that a prompt you've never
 > acted on hasn't done its job yet. The bold word is the key cap, swapped by input
@@ -168,16 +175,22 @@ pill is a row of short phrases, not a sentence; they're shown separated by dots.
 Only on screen while a capital ship is inbound or alive. Not part of the standing HUD.
 
 ## The capital-ship roster
-`js/game.js:976`. Four ships, cycled. After a full lap the game appends a mark number
-— the fifth contact is `I.K.S. Vor'cha MK2`, the ninth is `MK3`, and so on.
+`js/game.js` — `BOSS_TYPES`. Since Sep 2026 every faction sends its own flagship, with
+four names each. The next contact is a faction already unlocked on the clock, never the
+same faction twice running, and the first contact of a run is never an ambush. After a
+faction's four names the game appends a mark number (`MK2`, `MK3`…).
 
-| ID | Copy |
-|---|---|
-| `warbird.1` | I.K.S. Vor'cha |
-| `warbird.2` | I.K.S. Negh'Var |
-| `warbird.3` | I.K.S. K'tinga |
-| `warbird.4` | I.K.S. Qu'Vat |
-| `warbird.mk` | {name} MK{n} _(fixed pattern, from the fifth contact on)_ |
+| Faction | Names | Unlocks |
+|---|---|---|
+| Klingon | I.K.S. Vor'cha · I.K.S. Negh'Var · I.K.S. Qu'Vat · I.K.S. Gr'oth | from the start |
+| Cardassian | Keldon-class Trager · Keldon-class Koranak · Keldon-class Prakesh · Keldon-class Rabol | 70s |
+| Romulan | I.R.W. Khazara · I.R.W. Valdore · I.R.W. Haakona · I.R.W. T'Met | 95s |
+| Borg | Tactical Cube 138 · Tactical Cube 630 · Tactical Cube 972 · Tactical Cube 316 | 138s |
+| Tholian | Tholian Tarantula · Tholian Recluse · Tholian Widow · Tholian Orb-Weaver | 158s |
+
+The name, the hull bar and the name on the hail are drawn in the faction's own colour
+(Klingon red-orange, Cardassian amber, Romulan green, Borg green, Tholian orange). At
+half hull the bar still turns alert pink.
 
 > Apostrophes are curly (') in the source. The name is wrapped in `[ ]` by the CSS
 > above the hull bar — that's styling, don't type the brackets.
@@ -188,9 +201,11 @@ Only on screen while a capital ship is inbound or alive. Not part of the standin
 | ID | Element | Copy |
 |---|---|---|
 | `warbird.warn` | Flashing warning, before the hail | {name} approaching |
+| `warbird.warn.ambush` | …for a Romulan, which never hails | {name} decloaking |
 
-> It says **approaching**, not *decloaking*. The ship is inbound whether or not it
-> ever shows itself, so the warning describes what the player actually needs to know.
+> It says **approaching** for a ship that will hail, because the player can still refuse
+> it. A Romulan doesn't hail — the warning is the only notice — so it says **decloaking**,
+> which is exactly what happens next.
 
 ## Hull bar
 
@@ -211,7 +226,7 @@ Two cards, side by side.
 |---|---|---|
 | `hail.t` | Heading | Red alert |
 | `hail.s` | Subhead | **{name}** · on intercept course |
-| `hail.h` | Footer hint | Give the order, or press `1` `2` |
+| `hail.h` | Footer hint | Give the order, or press `1` `2` _(just `1` when Evade is locked)_ |
 
 > The CSS puts a ⚠ before `hail.t` — don't type one. Since Sep 2026 the hail wears the
 > refit panel's notched frame and delta in alert pink, and its key legend uses the same
@@ -228,10 +243,10 @@ Two cards, side by side.
 | `hail.fight.verb` | Big verb | Engage |
 | `hail.fight.key` | Key cap _(fixed)_ | Press 1 |
 | `hail.fight.name` | What it means | Stand and fight |
-| `hail.fight.warn` | The cost, in a sentence | She'll fight back and may call escorts. |
+| `hail.fight.warn` | The threat, per faction | Klingon: Disruptor rings and ramming runs, with a Bird-of-Prey wing that dives in together. · Cardassian: Spiral barrages from behind a line of Galors that fire as one. · Borg: Cutting beams, a tractor lock, and drones that box you in. · Tholian: Web cages and splitting shards, and weavers with a live strand strung between them. |
 | `hail.fight.d1` | Reward line 1 | +{1800} stardate |
 | `hail.fight.d2` | Reward line 2 | Battle salvage · one upgrade |
-| `hail.fight.d3` | Reward line 3 | +2 hull · dilithium · a power-up |
+| `hail.fight.d3` | Reward line 3 | +{2} hull · dilithium · a power-up _(+2 for the first kill of a run, +1 after — computed, so the card always matches the drop)_ |
 
 ## Card 2 — flee
 
@@ -240,7 +255,10 @@ Two cards, side by side.
 | `hail.flee.verb` | Big verb | Evade |
 | `hail.flee.key` | Key cap _(fixed)_ | Press 2 |
 | `hail.flee.name` | What it means | Break away |
-| `hail.flee.warn` | The cost, in a sentence | You get clear, but she'll be back sooner. |
+| `hail.flee.warn` | The cost, in a sentence | You get clear, but you can't break away twice running. |
+| `hail.flee.warn.warp` | …locked, after an evade | Your warp drive is still recharging from the last break. Fight this one to recharge it. |
+| `hail.flee.warn.cube` | …locked, a Borg cube | A cube can't be outrun. This one has to be fought. |
+| `hail.flee.locked` | Cost lines when locked | Not available · Recharges after a fight _(or)_ No escape from a cube |
 | `hail.flee.d1` | Cost line 1 | No bounty · no refit |
 | `hail.flee.d2` | Cost line 2 | Next contact in {37}s |
 | `hail.flee.d3` | Cost line 3 | Evasive burn · 2.6s |
